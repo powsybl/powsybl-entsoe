@@ -33,7 +33,7 @@ jobs:
           mvn --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.organization=powsybl-ci-github
-          -Dsonar.projectKey=com.powsybl:powsybl-network-hypothesis
+          -Dsonar.projectKey=com.powsybl:powsybl-entsoe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
