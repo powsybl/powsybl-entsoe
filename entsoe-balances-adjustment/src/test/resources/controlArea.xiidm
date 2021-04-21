@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:csshm="http://www.powsybl.org/schema/iidm/ext/cgmes_ssh_metadata/1_0" xmlns:crc="http://www.powsybl.org/schema/iidm/ext/coordinated_reactive_control/1_0" xmlns:cc="http://www.powsybl.org/schema/iidm/ext/cim_characteristics/1_0" xmlns:csm="http://www.powsybl.org/schema/iidm/ext/cgmes_sv_metadata/1_0" xmlns:apc="http://www.itesla_project.eu/schema/iidm/ext/active_power_control/1_0" xmlns:cca="http://www.powsybl.org/schema/iidm/ext/cgmes_control_area/1_0" id="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73" caseDate="2014-06-01T10:30:00.000Z" forecastDistance="0" sourceFormat="CGMES">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:crc="http://www.powsybl.org/schema/iidm/ext/coordinated_reactive_control/1_0" xmlns:csshm="http://www.powsybl.org/schema/iidm/ext/cgmes_ssh_metadata/1_0" xmlns:csm="http://www.powsybl.org/schema/iidm/ext/cgmes_sv_metadata/1_0" xmlns:apc="http://www.itesla_project.eu/schema/iidm/ext/active_power_control/1_0" xmlns:cca="http://www.powsybl.org/schema/iidm/ext/cgmes_control_areas/1_0" xmlns:cc="http://www.powsybl.org/schema/iidm/ext/cim_characteristics/1_0" xmlns:cdlbn="http://www.powsybl.org/schema/iidm/ext/cgmes_dangling_line_boundary_node/1_0" id="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73" caseDate="2014-06-01T10:30:00.000Z" forecastDistance="0" sourceFormat="CGMES">
     <iidm:property name="CGMESModelDetail" value="bus-branch"/>
     <iidm:substation id="_87f7002b-056f-4a6a-a872-1744eea757e3" name="Anvers" country="BE" geographicalTags="_c1d5c0378f8011e08e4d00247eb1f55e">
         <iidm:voltageLevel id="FICTITIOUS" name="220.0" nominalV="225.0" lowVoltageLimit="202.5" highVoltageLimit="247.5" topologyKind="BUS_BREAKER">
@@ -279,8 +279,8 @@
                 <iidm:temporaryLimit name="_84d4dbeb-ef3b-43a1-9a7e-ce5713013498" acceptableDuration="10" value="3811.6"/>
             </iidm:currentLimits2>
         </iidm:twoWindingsTransformer>
-        <iidm:threeWindingsTransformer id="3WT" r1="17.424" x1="1.7424" g1="0.00573921028466483" b1="5.73921028466483E-4" ratedU1="132.0" r2="1.089" x2="0.1089" g2="0.0" b2="0.0" ratedU2="33.0" r3="0.121" x3="0.0121" g3="0.0" b3="0.0" ratedU3="11.0" ratedU0="132.0" bus1="_99b219f3-4593-428b-a4da-124a54630178" connectableBus1="_99b219f3-4593-428b-a4da-124a54630178" voltageLevelId1="_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c" bus2="_5c74cb26-ce2f-40c6-951d-89091eb781b6" voltageLevelId2="_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0" bus3="_e44141af-f1dc-44d3-bfa4-b674e5c953d7" connectableBus3="_e44141af-f1dc-44d3-bfa4-b674e5c953d7" voltageLevelId3="_469df5f7-058f-4451-a998-57a48e8a56fe">
-            <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="2" loadTapChangingCapabilities="true" regulating="false" targetV="33.0" targetDeadband="0.0">
+        <iidm:threeWindingsTransformer id="3WT" r1="17.424" x1="1.7424" g1="0.00573921028466483" b1="5.73921028466483E-4" ratedU1="132.0" r2="1.089" x2="0.1089" g2="0.0" b2="0.0" ratedU2="33.0" r3="0.121" x3="0.0121" g3="0.0" b3="0.0" ratedU3="11.0" ratedU0="132.0" bus1="_99b219f3-4593-428b-a4da-124a54630178" connectableBus1="_99b219f3-4593-428b-a4da-124a54630178" voltageLevelId1="_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c" bus2="_5c74cb26-ce2f-40c6-951d-89091eb781b6" connectableBus2="_5c74cb26-ce2f-40c6-951d-89091eb781b6" voltageLevelId2="_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0" bus3="_e44141af-f1dc-44d3-bfa4-b674e5c953d7" connectableBus3="_e44141af-f1dc-44d3-bfa4-b674e5c953d7" voltageLevelId3="_469df5f7-058f-4451-a998-57a48e8a56fe">
+            <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="2" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="false" targetV="33.0">
                 <iidm:step r="0.9801" x="0.09801" g="0.08264462809917356" b="0.008264462809917356" rho="0.9"/>
                 <iidm:step r="1.089" x="0.1089" g="0.09182736455463728" b="0.009182736455463728" rho="1.0"/>
                 <iidm:step r="1.1979" x="0.11979" g="0.10101010101010101" b="0.0101010101010101" rho="1.1"/>
@@ -332,6 +332,7 @@
     <iidm:line id="_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_2" name="BE-Line_2_fict_2" r="1.935" x="34.2" g1="3.375E-5" b1="2.120575E-5" g2="3.375E-5" b2="2.120575E-5" bus1="_f96d552a-618d-4d0c-a39a-2dea3c411dee" connectableBus1="_f96d552a-618d-4d0c-a39a-2dea3c411dee" voltageLevelId1="_929ba893-c9dc-44d7-b1fd-30834bd3ab85" bus2="_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e" connectableBus2="_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e" voltageLevelId2="_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386" p1="-90.037005" q1="148.603743" p2="91.037005" q2="-150.603743"/>
     <iidm:line id="_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_3" name="BE-Line_2_fict_3" r="1.935" x="34.2" g1="3.375E-5" b1="2.120575E-5" g2="3.375E-5" b2="2.120575E-5" connectableBus1="_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e" voltageLevelId1="_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386" connectableBus2="_f96d552a-618d-4d0c-a39a-2dea3c411dee" voltageLevelId2="_929ba893-c9dc-44d7-b1fd-30834bd3ab85"/>
     <iidm:line id="_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_4" name="BE-Line_2_fict_4" r="1.935" x="34.2" g1="3.375E-5" b1="2.120575E-5" g2="3.375E-5" b2="2.120575E-5" bus1="_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e" connectableBus1="_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e" voltageLevelId1="_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386" connectableBus2="_f96d552a-618d-4d0c-a39a-2dea3c411dee" voltageLevelId2="_929ba893-c9dc-44d7-b1fd-30834bd3ab85"/>
+    <iidm:tieLine id="TL_fict" ucteXnodeCode="XNODE" bus1="_f70f6bad-eb8d-4b8f-8431-4ab93581514e" connectableBus1="_f70f6bad-eb8d-4b8f-8431-4ab93581514e" voltageLevelId1="_d0486169-2205-40b2-895e-b672ecb9e5fc" bus2="FICTITIOUS_BUS" connectableBus2="FICTITIOUS_BUS" voltageLevelId2="FICTITIOUS" id_1="TL_1" r_1="1.5" x_1="20.0" g1_1="0.0" b1_1="9.65E-5" g2_1="0.0" b2_1="9.65E-5" id_2="TL_2" r_2="1.5" x_2="13.0" g1_2="0.0" b1_2="9.65E-5" g2_2="0.0" b2_2="9.65E-5"/>
     <iidm:extension id="_550ebe0d-f2b2-48c1-991f-cebea43a21aa">
         <crc:coordinatedReactiveControl qPercent="100.0"/>
         <apc:activePowerControl participate="true" droop="0.0"/>
@@ -344,6 +345,7 @@
                 <cca:terminal id="_17086487-56ba-4979-b8de-064025a6b4da"/>
                 <cca:terminal id="_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_2" side="TWO"/>
                 <cca:boundary id="_b18cd1aa-7808-49b9-a7cf-605eaf07b006"/>
+                <cca:boundary id="TL_fict" side="ONE"/>
             </cca:controlArea>
         </cca:cgmesControlAreas>
         <csshm:cgmesSshMetadata description="CGMES Conformity Assessment: 'MicroGridTestConfiguration....BC (MAS BE) Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E “as it is”. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall  include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model." sshVersion="2" modelingAuthoritySet="http://elia.be/CGMES/2.4.15">
@@ -355,6 +357,9 @@
             <csm:dependentOn>urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20</csm:dependentOn>
         </csm:cgmesSvMetadata>
         <cc:cimCharacteristics topologyKind="BUS_BRANCH" cimVersion="16"/>
+    </iidm:extension>
+    <iidm:extension id="_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4">
+        <cdlbn:cgmesDanglingLineBoundaryNode isHvdc="true"/>
     </iidm:extension>
     <iidm:extension id="_3a3b27be-b18b-4385-b557-6735d733baf0">
         <crc:coordinatedReactiveControl qPercent="50.0"/>
