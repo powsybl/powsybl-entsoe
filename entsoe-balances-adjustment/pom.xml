@@ -21,7 +21,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.entsoe.balances_adjustment</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.entsoe.balances.adjustment</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
