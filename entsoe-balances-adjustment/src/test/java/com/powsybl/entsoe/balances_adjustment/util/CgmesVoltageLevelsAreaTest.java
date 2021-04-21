@@ -16,9 +16,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -30,10 +27,9 @@ public class CgmesVoltageLevelsAreaTest {
     public void test() {
         Network network = Importers.loadNetwork("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
         CgmesControlArea cgmesArea = network.getExtension(CgmesControlAreas.class).getCgmesControlArea("_BECONTROLAREA");
-        NetworkAreaFactory factory = new CgmesVoltageLevelsAreaFactory(cgmesArea, Collections.emptyList(),
-                Arrays.asList("_d0486169-2205-40b2-895e-b672ecb9e5fc",
-                        "_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386", "_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0", "_469df5f7-058f-4451-a998-57a48e8a56fe",
-                        "_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c"));
+        NetworkAreaFactory factory = new CgmesVoltageLevelsAreaFactory(cgmesArea, "_d0486169-2205-40b2-895e-b672ecb9e5fc",
+                "_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386", "_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0", "_469df5f7-058f-4451-a998-57a48e8a56fe",
+                "_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c");
         NetworkArea area = factory.create(network);
         assertEquals(5, area.getContainedBusViewBuses().size());
         Line line = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_2");

@@ -25,7 +25,7 @@ public class CgmesVoltageLevelsAreaFactory implements NetworkAreaFactory {
     private final List<String> voltageLevelIds;
 
     public CgmesVoltageLevelsAreaFactory(CgmesControlArea area, String... voltageLevelIds) {
-        this(area, null, Arrays.asList(voltageLevelIds));
+        this(area, Arrays.asList(voltageLevelIds));
     }
 
     public CgmesVoltageLevelsAreaFactory(CgmesControlArea area, List<String> voltageLevelIds) {
