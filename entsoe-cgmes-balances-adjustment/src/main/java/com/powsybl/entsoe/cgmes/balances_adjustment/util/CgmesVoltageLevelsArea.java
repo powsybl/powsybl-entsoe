@@ -42,17 +42,17 @@ class CgmesVoltageLevelsArea implements NetworkArea {
     private List<DanglingLine> createDanglingLinesCache(Network network, CgmesControlArea area, List<String> excludedXnodes) {
         return network.getDanglingLineStream()
                 .filter(this::isAreaBorder)
-                .filter(dl -> dl.getTerminal().getBusView().getBus() != null && dl.getTerminal().getBusView().getBus().isInMainSynchronousComponent())
-                .filter(dl -> dl.getExtension(CgmesDanglingLineBoundaryNode.class) == null || !dl.getExtension(CgmesDanglingLineBoundaryNode.class).isHvdc())
+                .filter(dl -> dl.getTerminal().getBusView().getBus() != null && dl.getTerminal().getBusView().getBus().isInMainSynchronousComponent()) // Only consider connected dangling lines in main synchronous component (other synchronous components are not considered)
+                .filter(dl -> dl.getExtension(CgmesDanglingLineBoundaryNode.class) == null || !dl.getExtension(CgmesDanglingLineBoundaryNode.class).isHvdc()) // Dangling lines connected to DC boundary points are disregarded
                 .filter(dl -> {
-                    if (area != null && (!area.getTerminals().isEmpty() || !area.getBoundaries().isEmpty())) {
+                    if (area != null && (!area.getTerminals().isEmpty() || !area.getBoundaries().isEmpty())) { // if CgmesControlArea is defined, dangling lines with no associated tie flows are disregarded
                         return area.getTerminals().stream().anyMatch(t -> t.getConnectable().getId().equals(dl.getId())) || area.getBoundaries().stream().anyMatch(bd -> bd.getConnectable().getId().equals(dl.getId()));
                     }
                     return true;
                 })
                 .filter(dl -> {
                     if (excludedXnodes != null) {
-                        return excludedXnodes.stream().noneMatch(xnodeCode -> dl.getUcteXnodeCode().equals(xnodeCode));
+                        return excludedXnodes.stream().noneMatch(xnodeCode -> dl.getUcteXnodeCode().equals(xnodeCode)); // There is the possibility to exclude dangling lines associated with boundary nodes with given X-node codes
                     }
                     return true;
                 })
@@ -63,11 +63,11 @@ class CgmesVoltageLevelsArea implements NetworkArea {
         return network.getLineStream()
                 .filter(this::isAreaBorder)
                 .filter(b -> b.getTerminal1().getBusView().getBus() != null && b.getTerminal1().getBusView().getBus().isInMainSynchronousComponent()
-                        && b.getTerminal2().getBusView().getBus() != null && b.getTerminal2().getBusView().getBus().isInMainSynchronousComponent())
-                .filter(b -> b.getExtension(CgmesLineBoundaryNode.class) == null || !b.getExtension(CgmesLineBoundaryNode.class).isHvdc())
-                .filter(b -> !b.hasProperty("isHvdc")) // necessary as extensions of merged lines are not well handled
+                        && b.getTerminal2().getBusView().getBus() != null && b.getTerminal2().getBusView().getBus().isInMainSynchronousComponent())  // Only consider branches connected on both sides and in main synchronous component (other synchronous components are not considered)
+                .filter(b -> b.getExtension(CgmesLineBoundaryNode.class) == null || !b.getExtension(CgmesLineBoundaryNode.class).isHvdc()) // Branches which model DC links are disregarded
+                .filter(b -> !b.hasProperty("isHvdc")) // necessary as extensions of merged lines are not well handled. FIXME: when it is merged on mergingview, this should be deleted.
                 .filter(b -> {
-                    if (area != null && (!area.getTerminals().isEmpty() || !area.getBoundaries().isEmpty())) {
+                    if (area != null && (!area.getTerminals().isEmpty() || !area.getBoundaries().isEmpty())) { // if CgmesControlArea is defined, branches with no associated tie flows are disregarded
                         if (b instanceof TieLine) {
                             return area.getTerminals().stream().anyMatch(t -> b.getId().contains(t.getConnectable().getId()))
                                     || area.getBoundaries().stream().anyMatch(bd -> b.getId().contains(bd.getConnectable().getId()));
@@ -80,7 +80,7 @@ class CgmesVoltageLevelsArea implements NetworkArea {
                 .filter(b -> {
                     if (b instanceof TieLine && excludedXnodes != null) {
                         TieLine tl = (TieLine) b;
-                        return excludedXnodes.stream().noneMatch(xnodeCode -> tl.getUcteXnodeCode().equals(xnodeCode));
+                        return excludedXnodes.stream().noneMatch(xnodeCode -> tl.getUcteXnodeCode().equals(xnodeCode)); // There is the possibility to exclude branches associated with boundary nodes with given X-node codes
                     }
                     return true;
                 })
