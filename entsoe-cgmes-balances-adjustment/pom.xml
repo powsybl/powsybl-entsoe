@@ -9,9 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>powsybl-entsoe-balances-adjustment</artifactId>
-    <name>AMPL converter implementation</name>
-    <description>A converter implementation based on CSV-like files</description>
+    <artifactId>powsybl-entsoe-cgmes-balances-adjustment</artifactId>
+    <name>ENTSO-E CGMES Balances adjustment components</name>
+    <description>Necessary components to run ENTSO-E CGMES-based balance computations</description>
 
     <build>
         <plugins>
@@ -21,7 +21,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.entsoe.balances.adjustment</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.entsoe.cgmes.balances.adjustment</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

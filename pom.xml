@@ -11,9 +11,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <modules>
-        <module>entsoe-balances-adjustment</module>
-    </modules>
 
     <parent>
         <groupId>com.powsybl</groupId>
@@ -52,4 +49,8 @@
         <powsyblba.version>1.4.0</powsyblba.version>
         <powsyblcore.version>4.2.0-SNAPSHOT</powsyblcore.version>
     </properties>
+
+    <modules>
+        <module>entsoe-cgmes-balances-adjustment</module>
+    </modules>
 </project>
