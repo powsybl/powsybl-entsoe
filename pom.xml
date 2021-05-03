@@ -41,4 +41,16 @@
             <organizationUrl>http://www.rte-france.com</organizationUrl>
         </developer>
     </developers>
+
+    <properties>
+        <java.version>11</java.version>
+        <junit.version>4.13.1</junit.version>
+
+        <powsyblba.version>1.4.0</powsyblba.version>
+        <powsyblcore.version>4.2.0-SNAPSHOT</powsyblcore.version>
+    </properties>
+
+    <modules>
+        <module>entsoe-cgmes-balances-adjustment</module>
+    </modules>
 </project>
