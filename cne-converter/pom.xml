@@ -76,7 +76,7 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm</artifactId>
+            <artifactId>powsybl-iidm-api</artifactId>
             <version>${powsyblcore.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
