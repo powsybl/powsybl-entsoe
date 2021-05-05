@@ -6,10 +6,10 @@
  */
 package com.powsybl.cne.converter;
 
-import com.powsybl.cne.converter.model.ContingencySeries;
-import com.powsybl.cne.converter.model.Measurement;
-import com.powsybl.cne.converter.model.MonitoredRegisteredResource;
-import com.powsybl.cne.converter.model.RegisteredResource;
+import com.powsybl.cne.model.ContingencySeries;
+import com.powsybl.cne.model.Measurement;
+import com.powsybl.cne.model.MonitoredRegisteredResource;
+import com.powsybl.cne.model.RegisteredResource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.security.SecurityAnalysisResult;
@@ -31,7 +31,7 @@ import java.util.Properties;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-final class SecurityAnalysisResultXml {
+public final class SecurityAnalysisResultXml {
 
     private SecurityAnalysisResultXml() {
     }

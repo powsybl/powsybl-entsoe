@@ -81,7 +81,7 @@ public class CneExporterTest extends AbstractConverterTest {
         // Target export file
         Path actualPath = workingDir.resolve("result.xml");
         // Try to export
-        SecurityAnalysisResultExporters.export(resultToExport, parameters, actualPath, "XML");
+        SecurityAnalysisResultExporters.export(resultToExport, parameters, actualPath, "CNE-XML");
         // Check exported file with expected one
         try (InputStream actual = Files.newInputStream(actualPath)) {
             compareTxt(getClass().getResourceAsStream("/cne.xml"), actual);
@@ -98,7 +98,7 @@ public class CneExporterTest extends AbstractConverterTest {
         // Target export file
         Path actualPath = workingDir.resolve("result.xml");
         // Try to export
-        SecurityAnalysisResultExporters.export(SecurityAnalysisResult.empty(), parameters, actualPath, "XML");
+        SecurityAnalysisResultExporters.export(SecurityAnalysisResult.empty(), parameters, actualPath, "CNE-XML");
         // Cannot compare file with expected one from resource -> datetime is not fixed
         Assert.assertTrue(Files.isRegularFile(actualPath));
     }
@@ -110,15 +110,15 @@ public class CneExporterTest extends AbstractConverterTest {
         // Target export object
         SecurityAnalysisResult resultToExport = SecurityAnalysisResult.empty();
         // Fail to export without mRID
-        Assert.assertThrows("mRID is missing", NullPointerException.class, () -> SecurityAnalysisResultExporters.export(resultToExport, actualPath, "XML"));
+        Assert.assertThrows("mRID is missing", NullPointerException.class, () -> SecurityAnalysisResultExporters.export(resultToExport, actualPath, "CNE-XML"));
     }
 
     @Test
     public void coverageTest() {
-        SecurityAnalysisResultExporter cneExporter = SecurityAnalysisResultExporters.getExporter("XML");
+        SecurityAnalysisResultExporter cneExporter = SecurityAnalysisResultExporters.getExporter("CNE-XML");
         Assert.assertNotNull(cneExporter);
         Assert.assertFalse(cneExporter.getComment().isEmpty());
-        Assert.assertEquals("XML", cneExporter.getFormat());
+        Assert.assertEquals("CNE-XML", cneExporter.getFormat());
     }
 
     private static SecurityAnalysisResult create() {

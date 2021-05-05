@@ -6,8 +6,8 @@
  */
 package com.powsybl.cne.converter;
 
-import com.powsybl.cne.converter.model.ContingencySeries;
-import com.powsybl.cne.converter.model.MonitoredRegisteredResource;
+import com.powsybl.cne.model.ContingencySeries;
+import com.powsybl.cne.model.MonitoredRegisteredResource;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
@@ -72,15 +72,15 @@ class SecurityAnalysisResultXmlWriterContext implements XmlWriterContext {
         return writer;
     }
 
-    public Properties getParameters() {
+    Properties getParameters() {
         return parameters;
     }
 
-    public List<MonitoredRegisteredResource> getPreMonitoredRegisteredResources() {
+    List<MonitoredRegisteredResource> getPreMonitoredRegisteredResources() {
         return preMonitoredRegisteredResources;
     }
 
-    public Map<ContingencySeries, List<MonitoredRegisteredResource>> getPostMonitoredRegisteredResources() {
+    Map<ContingencySeries, List<MonitoredRegisteredResource>> getPostMonitoredRegisteredResources() {
         return postMonitoredRegisteredResources;
     }
 }

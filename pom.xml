@@ -55,7 +55,7 @@
 
     <modules>
         <module>entsoe-cgmes-balances-adjustment</module>
-        <module>cne-converter</module>
+        <module>cne</module>
     </modules>
 
 </project>

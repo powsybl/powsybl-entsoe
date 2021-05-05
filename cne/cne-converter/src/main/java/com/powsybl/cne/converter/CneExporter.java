@@ -27,7 +27,7 @@ public class CneExporter implements SecurityAnalysisResultExporter {
 
     @Override
     public String getFormat() {
-        return "XML";
+        return "CNE-XML";
     }
 
     @Override
