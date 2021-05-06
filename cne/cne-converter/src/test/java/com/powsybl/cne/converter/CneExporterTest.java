@@ -49,68 +49,39 @@ public class CneExporterTest extends AbstractConverterTest {
         fileSystem.close();
     }
 
-    private void putRequiredParameter(final Properties parameters) {
-        // Required parameters
-        // mRID, sender_MarketParticipant.mRID, receiver_MarketParticipant.mRID
-        String mRID = "CNE export test";
-        parameters.put(CneConstants.MRID, mRID);
-        parameters.put(CneConstants.SENDER_MARKET_PARTICIPANT_MRID, mRID + " - Sender");
-        parameters.put(CneConstants.RECEIVER_MARKET_PARTICIPANT_MRID, mRID + " - Receiver");
-        parameters.put(CneConstants.TIME_SERIES_MRID, mRID + " - TimeSeries");
-        parameters.put(CneConstants.IN_DOMAIN_MRID, mRID + " - in_Domain");
-        parameters.put(CneConstants.OUT_DOMAIN_MRID, mRID + " - out_Domain");
-    }
-
-    private void putOptionalParameter(final Properties parameters) {
-        // Optional parameters
-        // createdDateTime, time_Period.timeInterval.start, time_Period.timeInterval.end
-        parameters.put(CneConstants.CREATED_DATETIME, "2018-03-27T16:16:47Z");
-        parameters.put(CneConstants.TIME_PERIOD + "." + CneConstants.TIME_INTERVAL + "." + CneConstants.START, "2018-03-28T08:00Z");
-        parameters.put(CneConstants.TIME_PERIOD + "." + CneConstants.TIME_INTERVAL + "." + CneConstants.END, "2018-03-28T09:00Z");
-    }
-
-    @Test
-    public void fullParametersTest() {
-        final Properties parameters = new Properties();
-        // Required parameters
-        putRequiredParameter(parameters);
-        // Optional parameters
-        putOptionalParameter(parameters);
-        // Target export object
-        SecurityAnalysisResult resultToExport = create();
+    public void exporterTest(SecurityAnalysisResult resultToExport, Properties parameters) throws IOException {
         // Target export file
         Path actualPath = workingDir.resolve("result.xml");
         // Try to export
         SecurityAnalysisResultExporters.export(resultToExport, parameters, actualPath, "CNE-XML");
-        // Check exported file with expected one
-        try (InputStream actual = Files.newInputStream(actualPath)) {
-            compareTxt(getClass().getResourceAsStream("/cne.xml"), actual);
+        // check the exported file and compare it to iidm reference file
+        try (InputStream is = Files.newInputStream(actualPath)) {
+            compareXml(getClass().getResourceAsStream("/cne.xml"), is);
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }
     }
 
     @Test
-    public void withoutOptionalParametersTest() {
-        final Properties parameters = new Properties();
-        // Required parameters
-        putRequiredParameter(parameters);
-        // Target export file
-        Path actualPath = workingDir.resolve("result.xml");
-        // Try to export
-        SecurityAnalysisResultExporters.export(SecurityAnalysisResult.empty(), parameters, actualPath, "CNE-XML");
-        // Cannot compare file with expected one from resource -> datetime is not fixed
-        Assert.assertTrue(Files.isRegularFile(actualPath));
+    public void exportTest() throws IOException {
+        Properties parameters = new Properties();
+        parameters.put("cne.export.xml." + CneConstants.MRID, "CNE export test");
+        exporterTest(create(), parameters);
     }
 
     @Test
-    public void withoutParametersTest() {
-        // Target export file
-        Path actualPath = workingDir.resolve("result.xml");
-        // Target export object
-        SecurityAnalysisResult resultToExport = SecurityAnalysisResult.empty();
+    public void exportTestWithoutMRID() throws IOException {
+        // Empty properties
+        final Properties parameters = new Properties();
+        final SecurityAnalysisResult result = create();
         // Fail to export without mRID
-        Assert.assertThrows("mRID is missing", NullPointerException.class, () -> SecurityAnalysisResultExporters.export(resultToExport, actualPath, "CNE-XML"));
+        try {
+            exporterTest(result, parameters);
+            Assert.fail("Expected an NullPointerException to be thrown");
+        }
+        catch (NullPointerException ex) {
+            Assert.assertEquals("mRID is missing", ex.getMessage());
+        }
     }
 
     @Test

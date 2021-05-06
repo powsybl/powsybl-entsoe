@@ -1,0 +1,9 @@
+import-export-parameters-default-value:
+  cne.export.xml.sender_MarketParticipant.mRID: "CNE export test - Sender"
+  cne.export.xml.receiver_MarketParticipant.mRID: "CNE export test - Receiver"
+  cne.export.xml.TimeSeries.mRID: "CNE export test - TimeSeries"
+  cne.export.xml.in_Domain.mRID: "CNE export test - in_Domain"
+  cne.export.xml.out_Domain.mRID: "CNE export test - out_Domain"
+  cne.export.xml.createdDateTime: "2018-03-27T16:16:47Z"
+  cne.export.xml.time_Period.timeInterval.start: "2018-03-28T08:00Z"
+  cne.export.xml.time_Period.timeInterval.end: "2018-03-28T09:00Z"

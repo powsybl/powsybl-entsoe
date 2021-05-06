@@ -53,6 +53,11 @@
              <artifactId>powsybl-contingency-api</artifactId>
              <version>${powsyblcore.version}</version>
          </dependency>
+         <dependency>
+             <groupId>com.powsybl</groupId>
+             <artifactId>powsybl-iidm-converter-api</artifactId>
+             <version>${powsyblcore.version}</version>
+         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-security-analysis-api</artifactId>
@@ -78,6 +83,12 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
+         <dependency>
+             <groupId>com.powsybl</groupId>
+             <artifactId>powsybl-config-test</artifactId>
+             <version>${powsyblcore.version}</version>
+             <scope>test</scope>
+         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
@@ -95,6 +106,12 @@
              <groupId>org.slf4j</groupId>
              <artifactId>slf4j-simple</artifactId>
              <version>${slf4j.version}</version>
+             <scope>test</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.xmlunit</groupId>
+             <artifactId>xmlunit-core</artifactId>
+             <version>${xmlunit.version}</version>
              <scope>test</scope>
          </dependency>
     </dependencies>

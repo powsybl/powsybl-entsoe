@@ -19,14 +19,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -47,12 +40,11 @@ public final class SecurityAnalysisResultXml {
 
     private static void writeMainAttributes(SecurityAnalysisResultXmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getWriter();
-        Properties parameters = context.getParameters();
+        ExportOptions parameters = context.getParameters();
         // mRID
-        String mRID = parameters.getProperty(CneConstants.MRID);
         writer.writeComment(" mRID proposal including hour in UTC and local time, only constraint is the limit of 35 characters ");
         writer.writeStartElement(CneConstants.MRID);
-        writer.writeCharacters(mRID);
+        writer.writeCharacters(parameters.getMRID());
         writer.writeEndElement(); // mRID
         // revisionNumber
         writer.writeStartElement(CneConstants.REVISION_NUMBER);
@@ -75,10 +67,9 @@ public final class SecurityAnalysisResultXml {
         // sender_MarketParticipant
         // mRID
         writer.writeComment(" A36 for \"Capacity Coordinator\" and A04 for \"System Operator\" ");
-        String sender = parameters.getProperty(CneConstants.SENDER_MARKET_PARTICIPANT_MRID);
         writer.writeStartElement(CneConstants.SENDER_MARKET_PARTICIPANT_MRID);
         writer.writeAttribute(CneConstants.CODING_SCHEME, "A01");
-        writer.writeCharacters(sender);
+        writer.writeCharacters(parameters.getSenderMarketParticipantMRID());
         writer.writeEndElement(); // sender_MarketParticipant.mRID
         // type
         writer.writeStartElement(CneConstants.SENDER_MARKET_PARTICIPANT_TYPE);
@@ -86,19 +77,17 @@ public final class SecurityAnalysisResultXml {
         writer.writeEndElement(); // sender_MarketParticipant.marketRole.type
         // receiver_MarketParticipant
         // mRID
-        String receiver = parameters.getProperty(CneConstants.RECEIVER_MARKET_PARTICIPANT_MRID);
         writer.writeStartElement(CneConstants.RECEIVER_MARKET_PARTICIPANT_MRID);
         writer.writeAttribute(CneConstants.CODING_SCHEME, "A01");
-        writer.writeCharacters(receiver);
+        writer.writeCharacters(parameters.getReceiverMarketParticipantMRID());
         writer.writeEndElement(); // receiver_MarketParticipant.mRID
         // type
         writer.writeStartElement(CneConstants.RECEIVER_MARKET_PARTICIPANT_TYPE);
         writer.writeCharacters("A36");
         writer.writeEndElement(); // receiver_MarketParticipant.marketRole.type
         // createdDateTime
-        Optional<String> createdDateTime = Optional.ofNullable(parameters.getProperty(CneConstants.CREATED_DATETIME));
         writer.writeStartElement(CneConstants.CREATED_DATETIME);
-        writer.writeCharacters(createdDateTime.orElseGet(() -> formatDateTime(Instant.now())));
+        writer.writeCharacters(parameters.getCreatedDatetime());
         writer.writeEndElement(); // createdDateTime
         // time_Period.timeInterval
         writer.writeComment(" optional fields: \"docStatus\", \"Received_MarketDocument\", \"Related_MarketDocument\" -> we could add those additional fields if needed ");
@@ -112,30 +101,26 @@ public final class SecurityAnalysisResultXml {
         writer.writeComment(" optional fields: \"domain.mRID\" used for CC to specify the region, not really needed for CSA ");
     }
 
-    private static void writeTimeInterval(XMLStreamWriter writer, Properties parameters) throws XMLStreamException {
+    private static void writeTimeInterval(XMLStreamWriter writer, ExportOptions parameters) throws XMLStreamException {
         // start
-        Optional<String> startDateTime = Optional.ofNullable(parameters.getProperty(CneConstants.TIME_PERIOD + "." + CneConstants.TIME_INTERVAL + "." + CneConstants.START));
-        var now = Instant.now();
         writer.writeStartElement(CneConstants.START);
-        writer.writeCharacters(startDateTime.orElseGet(() -> formatDateTime(now)));
+        writer.writeCharacters(parameters.getTimePeriodStart());
         writer.writeEndElement(); // start
         // end
-        Optional<String> endDateTime = Optional.ofNullable(parameters.getProperty(CneConstants.TIME_PERIOD + "." + CneConstants.TIME_INTERVAL + "." + CneConstants.END));
         writer.writeStartElement(CneConstants.END);
-        writer.writeCharacters(endDateTime.orElseGet(() -> formatDateTime(now.plusMillis(3600L * 1000L))));
+        writer.writeCharacters(parameters.getTimePeriodEnd());
         writer.writeEndElement(); // end
     }
 
     private static void writeTimeSeries(SecurityAnalysisResultXmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getWriter();
-        Properties parameters = context.getParameters();
+        ExportOptions parameters = context.getParameters();
         writer.writeComment(" One timeseries to provide ");
         writer.writeStartElement(CneConstants.TIME_SERIES);
         writer.writeComment(" mRID convention to be agreed, could include additional information ");
         // mRID
-        String mRID = parameters.getProperty(CneConstants.TIME_SERIES_MRID);
         writer.writeStartElement(CneConstants.MRID);
-        writer.writeCharacters(mRID);
+        writer.writeCharacters(parameters.getTimeSeriesMRID());
         writer.writeEndElement(); // mRID
         writer.writeComment(" B37 - Constraint situation : Constraint situation \"The timeseries describes the constraint situation for a given TimeInterval. A constraint situation can be: - composed of a list of network elements in outage associated for each outage to a list of network elements on which remedial actions have been carried out accordingly to contingency process  - or it can be an external constraint. ");
         writer.writeComment(" B54 - Network Constraint Situation : The TimeSeries describes the network elements to be taken into account to simulate a network constraint during the network load flow studies. The network situation includes the contingencies, the remedial actions, the monitored network elements and the potential additional constraints. ");
@@ -177,7 +162,7 @@ public final class SecurityAnalysisResultXml {
 
     private static void writePreContingencyResult(SecurityAnalysisResultXmlWriterContext context) throws XMLStreamException {
         final XMLStreamWriter writer = context.getWriter();
-        Properties parameters = context.getParameters();
+        ExportOptions parameters = context.getParameters();
         // Constraint_Series
         writer.writeStartElement(CneConstants.CONSTRAINT_SERIES);
         // mRID
@@ -196,7 +181,7 @@ public final class SecurityAnalysisResultXml {
         writer.writeEndElement(); // Constraint_Series
     }
 
-    private static void writeMonitoredRegisteredResource(final XMLStreamWriter writer, Properties parameters, List<MonitoredRegisteredResource> equipments) throws XMLStreamException {
+    private static void writeMonitoredRegisteredResource(final XMLStreamWriter writer, ExportOptions parameters, List<MonitoredRegisteredResource> equipments) throws XMLStreamException {
         // Monitored_RegisteredResource
         for (MonitoredRegisteredResource equipment : equipments) {
             writer.writeStartElement(CneConstants.MONITORED_REGISTERED_RESOURCE);
@@ -213,14 +198,12 @@ public final class SecurityAnalysisResultXml {
             // in_Domain.mRID
             writer.writeStartElement(CneConstants.IN_DOMAIN_MRID);
             writer.writeAttribute(CneConstants.CODING_SCHEME, "A01");
-            String inDomainId = parameters.getProperty(CneConstants.IN_DOMAIN_MRID);
-            writer.writeCharacters(inDomainId);
+            writer.writeCharacters(parameters.getInDomainMRID());
             writer.writeEndElement(); // in_Domain.mRID
             // out_Domain.mRID
             writer.writeStartElement(CneConstants.OUT_DOMAIN_MRID);
             writer.writeAttribute(CneConstants.CODING_SCHEME, "A01");
-            String outDomainId = parameters.getProperty(CneConstants.OUT_DOMAIN_MRID);
-            writer.writeCharacters(outDomainId);
+            writer.writeCharacters(parameters.getOutDomainMRID());
             writer.writeEndElement(); // out_Domain.mRID
             writer.writeComment(" Some work to be done to decide which measurement and with which units to be included here : %, Amperes, ");
             // Measurements
@@ -251,7 +234,7 @@ public final class SecurityAnalysisResultXml {
 
     private static void writePostContingencyResult(SecurityAnalysisResultXmlWriterContext context) throws XMLStreamException {
         final XMLStreamWriter writer = context.getWriter();
-        Properties parameters = context.getParameters();
+        ExportOptions parameters = context.getParameters();
 
         for (ContingencySeries key : context.getPostMonitoredRegisteredResources().keySet()) {
             // Constraint_Series
@@ -299,9 +282,9 @@ public final class SecurityAnalysisResultXml {
         }
     }
 
-    public static void write(SecurityAnalysisResult result, Properties parameters, Writer writer) throws IOException {
+    public static void write(SecurityAnalysisResult result, ExportOptions options, Writer writer) throws IOException {
         try (var os = new WriterOutputStream(writer, StandardCharsets.UTF_8)) {
-            var context = new SecurityAnalysisResultXmlWriterContext(result, parameters, initializeWriter(os));
+            var context = new SecurityAnalysisResultXmlWriterContext(result, options, initializeWriter(os));
             // Write root metadata
             writeMainAttributes(context);
             // Write TimeSeries token
@@ -315,11 +298,5 @@ public final class SecurityAnalysisResultXml {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
-    }
-
-    private static String formatDateTime(Instant instant) {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
-        // Remove milliseconds
-        return formatter.format(instant.with(ChronoField.MILLI_OF_SECOND, 0));
     }
 }

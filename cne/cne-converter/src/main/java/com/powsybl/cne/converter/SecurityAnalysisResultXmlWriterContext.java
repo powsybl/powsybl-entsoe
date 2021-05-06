@@ -27,15 +27,15 @@ class SecurityAnalysisResultXmlWriterContext implements XmlWriterContext {
 
     private final XMLStreamWriter writer;
 
-    private final Properties parameters;
+    private final ExportOptions options;
 
     private final List<MonitoredRegisteredResource> preMonitoredRegisteredResources = new ArrayList<>();
 
     private final Map<ContingencySeries, List<MonitoredRegisteredResource>> postMonitoredRegisteredResources = new HashMap<>();
 
-    SecurityAnalysisResultXmlWriterContext(SecurityAnalysisResult result, Properties parameters, XMLStreamWriter writer) {
+    SecurityAnalysisResultXmlWriterContext(SecurityAnalysisResult result, ExportOptions options, XMLStreamWriter writer) {
         this.writer = writer;
-        this.parameters = checkRequiredParameters(parameters);
+        this.options = checkRequiredParameters(options);
         // PreContingencyResult
         preMonitoredRegisteredResources.addAll(convert(result.getPreContingencyResult().getLimitViolations()));
         // PostContingencyResult
@@ -57,14 +57,14 @@ class SecurityAnalysisResultXmlWriterContext implements XmlWriterContext {
         return monitoredRegisteredResources;
     }
 
-    private Properties checkRequiredParameters(Properties parameters) {
-        Objects.requireNonNull(parameters.getProperty(CneConstants.MRID), CneConstants.MRID + MISSING_SUFFIX);
-        Objects.requireNonNull(parameters.getProperty(CneConstants.SENDER_MARKET_PARTICIPANT_MRID), CneConstants.SENDER_MARKET_PARTICIPANT_MRID + MISSING_SUFFIX);
-        Objects.requireNonNull(parameters.getProperty(CneConstants.RECEIVER_MARKET_PARTICIPANT_MRID), CneConstants.RECEIVER_MARKET_PARTICIPANT_MRID + MISSING_SUFFIX);
-        Objects.requireNonNull(parameters.getProperty(CneConstants.TIME_SERIES_MRID), CneConstants.TIME_SERIES_MRID + MISSING_SUFFIX);
-        Objects.requireNonNull(parameters.getProperty(CneConstants.IN_DOMAIN_MRID), CneConstants.IN_DOMAIN_MRID + MISSING_SUFFIX);
-        Objects.requireNonNull(parameters.getProperty(CneConstants.OUT_DOMAIN_MRID), CneConstants.OUT_DOMAIN_MRID + MISSING_SUFFIX);
-        return parameters;
+    private ExportOptions checkRequiredParameters(ExportOptions options) {
+        Objects.requireNonNull(options.getMRID(), CneConstants.MRID + MISSING_SUFFIX);
+        Objects.requireNonNull(options.getSenderMarketParticipantMRID(), CneConstants.SENDER_MARKET_PARTICIPANT_MRID + MISSING_SUFFIX);
+        Objects.requireNonNull(options.getReceiverMarketParticipantMRID(), CneConstants.RECEIVER_MARKET_PARTICIPANT_MRID + MISSING_SUFFIX);
+        Objects.requireNonNull(options.getTimeSeriesMRID(), CneConstants.TIME_SERIES_MRID + MISSING_SUFFIX);
+        Objects.requireNonNull(options.getInDomainMRID(), CneConstants.IN_DOMAIN_MRID + MISSING_SUFFIX);
+        Objects.requireNonNull(options.getOutDomainMRID(), CneConstants.OUT_DOMAIN_MRID + MISSING_SUFFIX);
+        return options;
     }
 
     @Override
@@ -72,8 +72,8 @@ class SecurityAnalysisResultXmlWriterContext implements XmlWriterContext {
         return writer;
     }
 
-    Properties getParameters() {
-        return parameters;
+    ExportOptions getParameters() {
+        return options;
     }
 
     List<MonitoredRegisteredResource> getPreMonitoredRegisteredResources() {
