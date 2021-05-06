@@ -78,8 +78,7 @@ public class CneExporterTest extends AbstractConverterTest {
         try {
             exporterTest(result, parameters);
             Assert.fail("Expected an NullPointerException to be thrown");
-        }
-        catch (NullPointerException ex) {
+        } catch (NullPointerException ex) {
             Assert.assertEquals("mRID is missing", ex.getMessage());
         }
     }
