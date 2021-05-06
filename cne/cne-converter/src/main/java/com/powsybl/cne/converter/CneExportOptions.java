@@ -14,20 +14,28 @@ class CneExportOptions {
     // String equivalent to cne.export.xml.mRID
     private String mRID;
 
+    // String equivalent to cne.export.xml.sender_MarketParticipant
     private String senderMarketParticipantMRID;
 
+    // String equivalent to cne.export.xml.receiver_MarketParticipant
     private String receiverMarketParticipantMRID;
 
+    // String equivalent to cne.export.xml.TimeSeries.mRID
     private String timeSeriesMRID;
 
+    // String equivalent to cne.export.xml.in_Domain.mRID
     private String inDomainMRID;
 
+    // String equivalent to cne.export.xml.out_Domain.mRID
     private String outDomainMRID;
 
+    // String equivalent to cne.export.xml.createdDateTime
     private String createdDatetime;
 
+    // String equivalent to cne.export.xml.time_Period.timeInterval.start
     private String timePeriodStart;
 
+    // String equivalent to cne.export.xml.time_Period.timeInterval.end
     private String timePeriodEnd;
 
     public String getMRID() {
