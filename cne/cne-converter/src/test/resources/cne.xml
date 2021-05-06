@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CriticalNetworkElement_MarketDocument xsi:schemaLocation="iec62325-451-n-cne_v2_0.xsd" xmlns="urn:iec62325.351:tc57wg16:451-n:cnedocument:2:0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <!-- mRID proposal including hour in UTC and local time, only constraint is the limit of 35 characters -->
+    <mRID>CNE export test</mRID>
+    <revisionNumber>1</revisionNumber>
+    <!-- type B15 for "Network constraint document" : "A document providing the network constraint situations used for the load flow studies. A network constraint situation includes contingencies, monitored elements and remedial actions." -->
+    <type>B15</type>
+    <!-- processType A01 for "Day-ahead" -->
+    <!-- processType A40 for "Intraday" -->
+    <!-- processType A45 for "Two days ahead" -->
+    <!-- processType A14 for "Forecast" : "The data contained in the document are to be handled in short, medium, long term forecasting process" -->
+    <!-- processType A16 for "Realised" : "The process for the treatment of realised data as opposed to forecast data." -->
+    <process.processType>A01</process.processType>
+    <!-- A36 for "Capacity Coordinator" and A04 for "System Operator" -->
+    <sender_MarketParticipant.mRID codingScheme="A01">CNE export test - Sender</sender_MarketParticipant.mRID>
+    <sender_MarketParticipant.marketRole.type>A36</sender_MarketParticipant.marketRole.type>
+    <receiver_MarketParticipant.mRID codingScheme="A01">CNE export test - Receiver</receiver_MarketParticipant.mRID>
+    <receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
+    <createdDateTime>2018-03-27T16:16:47Z</createdDateTime>
+    <!-- optional fields: "docStatus", "Received_MarketDocument", "Related_MarketDocument" -> we could add those additional fields if needed -->
+    <!-- "Related_MarketDocument" could contains the name of the grid model considered ? -->
+    <!-- "Related_MarketDocument" could contains the filename of the CRAC document containing the list of Contingencies ? -->
+    <!-- time_Period.timeInterval could be reduced to 15 min length for SN security analysis -->
+    <time_Period.timeInterval>
+        <start>2018-03-28T08:00Z</start>
+        <end>2018-03-28T09:00Z</end>
+    </time_Period.timeInterval>
+    <!-- optional fields: "domain.mRID" used for CC to specify the region, not really needed for CSA -->
+    <!-- One timeseries to provide -->
+    <TimeSeries>
+        <!-- mRID convention to be agreed, could include additional information -->
+        <mRID>CNE export test - TimeSeries</mRID>
+        <!-- B37 - Constraint situation : Constraint situation "The timeseries describes the constraint situation for a given TimeInterval. A constraint situation can be: - composed of a list of network elements in outage associated for each outage to a list of network elements on which remedial actions have been carried out accordingly to contingency process  - or it can be an external constraint. -->
+        <!-- B54 - Network Constraint Situation : The TimeSeries describes the network elements to be taken into account to simulate a network constraint during the network load flow studies. The network situation includes the contingencies, the remedial actions, the monitored network elements and the potential additional constraints. -->
+        <businessType>B37</businessType>
+        <!-- A01: sequential fixed size block. It maked no sense to use A03 -->
+        <curveType>A01</curveType>
+        <Period>
+            <timeInterval>
+                <start>2018-03-28T08:00Z</start>
+                <end>2018-03-28T09:00Z</end>
+            </timeInterval>
+            <!-- resolutions should be reduced for security analysis of snapshot -> "PT15M" -->
+            <resolution>PT60M</resolution>
+            <Point>
+                <position>1</position>
+                <!-- One constraint series for N state flows and one per contingency with constraint -->
+                <Constraint_Series>
+                    <!-- this mRID will identify the CO ? only -->
+                    <mRID>N State constraints</mRID>
+                    <!-- Mandatory - Check which business type is the most appropriate for reporting a constraint -->
+                    <businessType>B56</businessType>
+                    <!-- No contingency in this one because N state constraints are reported -->
+                    <Monitored_RegisteredResource>
+                        <mRID codingScheme="A02">NHV1_NHV2_1</mRID>
+                        <name>NHV1_NHV2_1</name>
+                        <!-- We can use in/out to be able to filter by constraint location -->
+                        <in_Domain.mRID codingScheme="A01">CNE export test - in_Domain</in_Domain.mRID>
+                        <out_Domain.mRID codingScheme="A01">CNE export test - out_Domain</out_Domain.mRID>
+                        <!-- Some work to be done to decide which measurement and with which units to be included here : %, Amperes, -->
+                        <Measurements>
+                            <measurementType>A01</measurementType>
+                            <unitSymbol>AMP</unitSymbol>
+                            <analogValues.value>110.0</analogValues.value>
+                        </Measurements>
+                    </Monitored_RegisteredResource>
+                </Constraint_Series>
+                <Constraint_Series>
+                    <!-- this mRID will identify the CO ? only -->
+                    <mRID>contingency</mRID>
+                    <!-- Mandatory - Check which business type is the most appropriate for reporting a constraint -->
+                    <businessType>B56</businessType>
+                    <Contingency_Series>
+                        <!-- Ensuring stability of mRID will be complex without an external Co Dictionary -->
+                        <mRID>contingency</mRID>
+                        <name>contingency</name>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">NHV1_NHV2_2</mRID>
+                            <name>NHV1_NHV2_2</name>
+                        </RegisteredResource>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">NHV1_NHV2_1</mRID>
+                            <name>NHV1_NHV2_1</name>
+                        </RegisteredResource>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">GEN</mRID>
+                            <name>GEN</name>
+                        </RegisteredResource>
+                        <RegisteredResource>
+                            <mRID codingScheme="A02">BBS1</mRID>
+                            <name>BBS1</name>
+                        </RegisteredResource>
+                    </Contingency_Series>
+                    <Monitored_RegisteredResource>
+                        <mRID codingScheme="A02">NHV1_NHV2_2</mRID>
+                        <name>NHV1_NHV2_2</name>
+                        <!-- We can use in/out to be able to filter by constraint location -->
+                        <in_Domain.mRID codingScheme="A01">CNE export test - in_Domain</in_Domain.mRID>
+                        <out_Domain.mRID codingScheme="A01">CNE export test - out_Domain</out_Domain.mRID>
+                        <!-- Some work to be done to decide which measurement and with which units to be included here : %, Amperes, -->
+                        <Measurements>
+                            <measurementType>A01</measurementType>
+                            <unitSymbol>AMP</unitSymbol>
+                            <analogValues.value>110.0</analogValues.value>
+                        </Measurements>
+                    </Monitored_RegisteredResource>
+                    <Monitored_RegisteredResource>
+                        <mRID codingScheme="A02">GEN</mRID>
+                        <name>GEN</name>
+                        <!-- We can use in/out to be able to filter by constraint location -->
+                        <in_Domain.mRID codingScheme="A01">CNE export test - in_Domain</in_Domain.mRID>
+                        <out_Domain.mRID codingScheme="A01">CNE export test - out_Domain</out_Domain.mRID>
+                        <!-- Some work to be done to decide which measurement and with which units to be included here : %, Amperes, -->
+                        <Measurements>
+                            <measurementType>A11</measurementType>
+                            <unitSymbol>KVT</unitSymbol>
+                            <analogValues.value>110.0</analogValues.value>
+                        </Measurements>
+                    </Monitored_RegisteredResource>
+                    <Monitored_RegisteredResource>
+                        <mRID codingScheme="A02">GEN2</mRID>
+                        <name>GEN2</name>
+                        <!-- We can use in/out to be able to filter by constraint location -->
+                        <in_Domain.mRID codingScheme="A01">CNE export test - in_Domain</in_Domain.mRID>
+                        <out_Domain.mRID codingScheme="A01">CNE export test - out_Domain</out_Domain.mRID>
+                        <!-- Some work to be done to decide which measurement and with which units to be included here : %, Amperes, -->
+                        <Measurements>
+                            <measurementType>A10</measurementType>
+                            <unitSymbol>KVT</unitSymbol>
+                            <analogValues.value>115.0</analogValues.value>
+                        </Measurements>
+                    </Monitored_RegisteredResource>
+                </Constraint_Series>
+            </Point>
+        </Period>
+    </TimeSeries>
+    <!-- optional class "Reason" could be used to provide additional information. Each reason node have a reason code and a reason text field (free text) -->
+    <!-- A95:Complementary information, B01:Incomplete document, B18:Failure, B27:Calculation process failed -->
+</CriticalNetworkElement_MarketDocument>
