@@ -30,6 +30,8 @@ import java.util.Properties;
 import static com.powsybl.cne.converter.CneConstants.*;
 
 /**
+ * CNE XML format export of an SecurityAnalysisResult.<p>
+ *
  * @author Thomas Adam <tadam at silicom.fr>
  */
 @AutoService(SecurityAnalysisResultExporter.class)
@@ -39,14 +41,19 @@ public class CneExporter implements SecurityAnalysisResultExporter {
 
     public static final String PREFIX = "cne.export.xml.";
 
+    // Required parameters
     private static final Parameter MRID_PARAMETER = new Parameter(PREFIX + MRID, ParameterType.STRING, "mRID", null);
     private static final Parameter SENDER_MARKET_PARTICIPANT_MRID_PARAMETER = new Parameter(PREFIX + SENDER_MARKET_PARTICIPANT_MRID, ParameterType.STRING, "", null);
     private static final Parameter RECEIVER_MARKET_PARTICIPANT_MRID_PARAMETER = new Parameter(PREFIX + RECEIVER_MARKET_PARTICIPANT_MRID, ParameterType.STRING, "", null);
     private static final Parameter TIME_SERIES_MRID_PARAMETER = new Parameter(PREFIX + TIME_SERIES_MRID, ParameterType.STRING, "", null);
     private static final Parameter IN_DOMAIN_PARAMETER = new Parameter(PREFIX + IN_DOMAIN_MRID, ParameterType.STRING, "", null);
     private static final Parameter OUT_DOMAIN_PARAMETER = new Parameter(PREFIX + OUT_DOMAIN_MRID, ParameterType.STRING, "", null);
+    // Optional parameters
+    // Current datetime (now) is used, if no created datetime is given
     private static final Parameter CREATED_DATETIME_PARAMETER = new Parameter(PREFIX + CREATED_DATETIME, ParameterType.STRING, "", formatDateTime(Instant.now()));
+    // Current datetime (now) is used, if no start datetime is given
     private static final Parameter TIME_PERIOD_START_PARAMETER = new Parameter(PREFIX + TIME_PERIOD + "." + TIME_INTERVAL + "." + START, ParameterType.STRING, "", formatDateTime(Instant.now()));
+    // Current datetime (now) + 1 hour is used, if no end datetime is given
     private static final Parameter TIME_PERIOD_END_PARAMETER = new Parameter(PREFIX + TIME_PERIOD + "." + TIME_INTERVAL + "." + END, ParameterType.STRING, "", formatDateTime(Instant.now().plusMillis(3600L * 1000L)));
 
     private final ParameterDefaultValueConfig defaultValueConfig;
@@ -71,17 +78,17 @@ public class CneExporter implements SecurityAnalysisResultExporter {
 
     /**
      * Required parameters properties key
-     * - CneConstants.MRID
-     * - CneConstants.SENDER_MARKET_PARTICIPANT_MRID
-     * - CneConstants.RECEIVER_MARKET_PARTICIPANT_MRID
-     * - CneConstants.TIME_SERIES + "." + CneConstants.MRID
-     * - CneConstants.IN_DOMAIN_MRID
-     * - CneConstants.OUT_DOMAIN_MRID
+     *   cne.export.xml.mRID
+     *   cne.export.xml.sender_MarketParticipant.mRID
+     *   cne.export.xml.receiver_MarketParticipant.mRID
+     *   cne.export.xml.TimeSeries.mRID
+     *   cne.export.xml.in_Domain.mRID
+     *   cne.export.xml.out_Domain.mRID
      *
      * Optional parameters properties key
-     * - CneConstants.CREATED_DATETIME
-     * - CneConstants.TIME_PERIOD + "." + CneConstants.TIME_INTERVAL + "." + CneConstants.START
-     * - CneConstants.TIME_PERIOD + "." + CneConstants.TIME_INTERVAL + "." + CneConstants.END
+     *   cne.export.xml.createdDateTime
+     *   cne.export.xml.time_Period.timeInterval.start
+     *   cne.export.xml.time_Period.timeInterval.end
      */
     @Override
     public void export(SecurityAnalysisResult result, Properties parameters, Writer writer) {
@@ -96,8 +103,8 @@ public class CneExporter implements SecurityAnalysisResultExporter {
         }
     }
 
-    private ExportOptions createExportOptions(Properties parameters) {
-        return new ExportOptions()
+    private CneExportOptions createExportOptions(Properties parameters) {
+        return new CneExportOptions()
                 .setMRID(ConversionParameters.readStringParameter(getFormat(), parameters, MRID_PARAMETER, defaultValueConfig))
                 .setSenderMarketParticipantMRID(ConversionParameters.readStringParameter(getFormat(), parameters, SENDER_MARKET_PARTICIPANT_MRID_PARAMETER, defaultValueConfig))
                 .setReceiverMarketParticipantMRID(ConversionParameters.readStringParameter(getFormat(), parameters, RECEIVER_MARKET_PARTICIPANT_MRID_PARAMETER, defaultValueConfig))

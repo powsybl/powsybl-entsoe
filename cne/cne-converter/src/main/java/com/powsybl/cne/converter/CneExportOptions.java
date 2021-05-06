@@ -6,13 +6,12 @@
  */
 package com.powsybl.cne.converter;
 
-import java.util.*;
-
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class ExportOptions {
+class CneExportOptions {
 
+    // String equivalent to cne.export.xml.mRID
     private String mRID;
 
     private String senderMarketParticipantMRID;
@@ -35,7 +34,7 @@ public class ExportOptions {
         return mRID;
     }
 
-    public ExportOptions setMRID(String mRID) {
+    public CneExportOptions setMRID(String mRID) {
         this.mRID = mRID;
         return this;
     }
@@ -44,7 +43,7 @@ public class ExportOptions {
         return senderMarketParticipantMRID;
     }
 
-    public ExportOptions setSenderMarketParticipantMRID(String senderMarketParticipantMRID) {
+    public CneExportOptions setSenderMarketParticipantMRID(String senderMarketParticipantMRID) {
         this.senderMarketParticipantMRID = senderMarketParticipantMRID;
         return this;
     }
@@ -53,7 +52,7 @@ public class ExportOptions {
         return receiverMarketParticipantMRID;
     }
 
-    public ExportOptions setReceiverMarketParticipantMRID(String receiverMarketParticipantMRID) {
+    public CneExportOptions setReceiverMarketParticipantMRID(String receiverMarketParticipantMRID) {
         this.receiverMarketParticipantMRID = receiverMarketParticipantMRID;
         return this;
     }
@@ -62,7 +61,7 @@ public class ExportOptions {
         return timeSeriesMRID;
     }
 
-    public ExportOptions setTimeSeriesMRID(String timeSeriesMRID) {
+    public CneExportOptions setTimeSeriesMRID(String timeSeriesMRID) {
         this.timeSeriesMRID = timeSeriesMRID;
         return this;
     }
@@ -71,7 +70,7 @@ public class ExportOptions {
         return inDomainMRID;
     }
 
-    public ExportOptions setInDomainMRID(String inDomainMRID) {
+    public CneExportOptions setInDomainMRID(String inDomainMRID) {
         this.inDomainMRID = inDomainMRID;
         return this;
     }
@@ -80,7 +79,7 @@ public class ExportOptions {
         return outDomainMRID;
     }
 
-    public ExportOptions setOutDomainMRID(String outDomainMRID) {
+    public CneExportOptions setOutDomainMRID(String outDomainMRID) {
         this.outDomainMRID = outDomainMRID;
         return this;
     }
@@ -89,7 +88,7 @@ public class ExportOptions {
         return createdDatetime;
     }
 
-    public ExportOptions setCreatedDatetime(String createdDatetime) {
+    public CneExportOptions setCreatedDatetime(String createdDatetime) {
         this.createdDatetime = createdDatetime;
         return this;
     }
@@ -98,7 +97,7 @@ public class ExportOptions {
         return timePeriodStart;
     }
 
-    public ExportOptions setTimePeriodStart(String timePeriodStart) {
+    public CneExportOptions setTimePeriodStart(String timePeriodStart) {
         this.timePeriodStart = timePeriodStart;
         return this;
     }
@@ -107,7 +106,7 @@ public class ExportOptions {
         return timePeriodEnd;
     }
 
-    public ExportOptions setTimePeriodEnd(String timePeriodEnd) {
+    public CneExportOptions setTimePeriodEnd(String timePeriodEnd) {
         this.timePeriodEnd = timePeriodEnd;
         return this;
     }

@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.Properties;
 
 /**
+ * Check CneExporter class
+ *
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class CneExporterTest extends AbstractConverterTest {
@@ -64,6 +66,8 @@ public class CneExporterTest extends AbstractConverterTest {
 
     @Test
     public void exportTest() throws IOException {
+        // mRID key is missing in config.yml file
+        // Add mRID property because it is required to export
         Properties parameters = new Properties();
         parameters.put("cne.export.xml." + CneConstants.MRID, "CNE export test");
         exporterTest(create(), parameters);
@@ -84,7 +88,8 @@ public class CneExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void coverageTest() {
+    public void baseTest() {
+        // Check getters / setters
         SecurityAnalysisResultExporter cneExporter = SecurityAnalysisResultExporters.getExporter("CNE-XML");
         Assert.assertNotNull(cneExporter);
         Assert.assertFalse(cneExporter.getComment().isEmpty());
@@ -92,7 +97,7 @@ public class CneExporterTest extends AbstractConverterTest {
     }
 
     private static SecurityAnalysisResult create() {
-        // Create a LimitViolation(CURRENT)
+        // Create a many LimitViolations
         LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
 
@@ -104,16 +109,17 @@ public class CneExporterTest extends AbstractConverterTest {
         LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115);
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
+        // Create a Contingency
         Contingency contingency = Contingency.builder("contingency")
                 .addBranch("NHV1_NHV2_2", "VLNHV1")
                 .addBranch("NHV1_NHV2_1")
                 .addGenerator("GEN")
                 .addBusbarSection("BBS1")
                 .build();
-
+        // Create a preContingencyResult & postContingencyResult
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
-
+        // Create SecurityAnalysisResult
         return new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
     }
 }

@@ -43,7 +43,6 @@
     </developers>
 
     <properties>
-        <assertj.version>3.11.0</assertj.version>
         <java.version>11</java.version>
         <jimfs.version>1.1</jimfs.version>
         <junit.version>4.13.1</junit.version>

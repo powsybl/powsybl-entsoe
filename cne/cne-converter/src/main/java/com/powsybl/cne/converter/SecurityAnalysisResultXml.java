@@ -40,7 +40,7 @@ public final class SecurityAnalysisResultXml {
 
     private static void writeMainAttributes(SecurityAnalysisResultXmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getWriter();
-        ExportOptions parameters = context.getParameters();
+        CneExportOptions parameters = context.getParameters();
         // mRID
         writer.writeComment(" mRID proposal including hour in UTC and local time, only constraint is the limit of 35 characters ");
         writer.writeStartElement(CneConstants.MRID);
@@ -101,7 +101,7 @@ public final class SecurityAnalysisResultXml {
         writer.writeComment(" optional fields: \"domain.mRID\" used for CC to specify the region, not really needed for CSA ");
     }
 
-    private static void writeTimeInterval(XMLStreamWriter writer, ExportOptions parameters) throws XMLStreamException {
+    private static void writeTimeInterval(XMLStreamWriter writer, CneExportOptions parameters) throws XMLStreamException {
         // start
         writer.writeStartElement(CneConstants.START);
         writer.writeCharacters(parameters.getTimePeriodStart());
@@ -114,7 +114,7 @@ public final class SecurityAnalysisResultXml {
 
     private static void writeTimeSeries(SecurityAnalysisResultXmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getWriter();
-        ExportOptions parameters = context.getParameters();
+        CneExportOptions parameters = context.getParameters();
         writer.writeComment(" One timeseries to provide ");
         writer.writeStartElement(CneConstants.TIME_SERIES);
         writer.writeComment(" mRID convention to be agreed, could include additional information ");
@@ -162,7 +162,7 @@ public final class SecurityAnalysisResultXml {
 
     private static void writePreContingencyResult(SecurityAnalysisResultXmlWriterContext context) throws XMLStreamException {
         final XMLStreamWriter writer = context.getWriter();
-        ExportOptions parameters = context.getParameters();
+        CneExportOptions parameters = context.getParameters();
         // Constraint_Series
         writer.writeStartElement(CneConstants.CONSTRAINT_SERIES);
         // mRID
@@ -181,7 +181,7 @@ public final class SecurityAnalysisResultXml {
         writer.writeEndElement(); // Constraint_Series
     }
 
-    private static void writeMonitoredRegisteredResource(final XMLStreamWriter writer, ExportOptions parameters, List<MonitoredRegisteredResource> equipments) throws XMLStreamException {
+    private static void writeMonitoredRegisteredResource(final XMLStreamWriter writer, CneExportOptions parameters, List<MonitoredRegisteredResource> equipments) throws XMLStreamException {
         // Monitored_RegisteredResource
         for (MonitoredRegisteredResource equipment : equipments) {
             writer.writeStartElement(CneConstants.MONITORED_REGISTERED_RESOURCE);
@@ -234,7 +234,7 @@ public final class SecurityAnalysisResultXml {
 
     private static void writePostContingencyResult(SecurityAnalysisResultXmlWriterContext context) throws XMLStreamException {
         final XMLStreamWriter writer = context.getWriter();
-        ExportOptions parameters = context.getParameters();
+        CneExportOptions parameters = context.getParameters();
 
         for (ContingencySeries key : context.getPostMonitoredRegisteredResources().keySet()) {
             // Constraint_Series
@@ -282,7 +282,7 @@ public final class SecurityAnalysisResultXml {
         }
     }
 
-    public static void write(SecurityAnalysisResult result, ExportOptions options, Writer writer) throws IOException {
+    public static void write(SecurityAnalysisResult result, CneExportOptions options, Writer writer) throws IOException {
         try (var os = new WriterOutputStream(writer, StandardCharsets.UTF_8)) {
             var context = new SecurityAnalysisResultXmlWriterContext(result, options, initializeWriter(os));
             // Write root metadata

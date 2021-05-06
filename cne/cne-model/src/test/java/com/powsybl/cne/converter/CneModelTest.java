@@ -21,6 +21,8 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * Check cne-model module
+ *
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class CneModelTest {

@@ -27,13 +27,13 @@ class SecurityAnalysisResultXmlWriterContext implements XmlWriterContext {
 
     private final XMLStreamWriter writer;
 
-    private final ExportOptions options;
+    private final CneExportOptions options;
 
     private final List<MonitoredRegisteredResource> preMonitoredRegisteredResources = new ArrayList<>();
 
     private final Map<ContingencySeries, List<MonitoredRegisteredResource>> postMonitoredRegisteredResources = new HashMap<>();
 
-    SecurityAnalysisResultXmlWriterContext(SecurityAnalysisResult result, ExportOptions options, XMLStreamWriter writer) {
+    SecurityAnalysisResultXmlWriterContext(SecurityAnalysisResult result, CneExportOptions options, XMLStreamWriter writer) {
         this.writer = writer;
         this.options = checkRequiredParameters(options);
         // PreContingencyResult
@@ -57,7 +57,7 @@ class SecurityAnalysisResultXmlWriterContext implements XmlWriterContext {
         return monitoredRegisteredResources;
     }
 
-    private ExportOptions checkRequiredParameters(ExportOptions options) {
+    private CneExportOptions checkRequiredParameters(CneExportOptions options) {
         Objects.requireNonNull(options.getMRID(), CneConstants.MRID + MISSING_SUFFIX);
         Objects.requireNonNull(options.getSenderMarketParticipantMRID(), CneConstants.SENDER_MARKET_PARTICIPANT_MRID + MISSING_SUFFIX);
         Objects.requireNonNull(options.getReceiverMarketParticipantMRID(), CneConstants.RECEIVER_MARKET_PARTICIPANT_MRID + MISSING_SUFFIX);
@@ -72,7 +72,7 @@ class SecurityAnalysisResultXmlWriterContext implements XmlWriterContext {
         return writer;
     }
 
-    ExportOptions getParameters() {
+    CneExportOptions getParameters() {
         return options;
     }
 
