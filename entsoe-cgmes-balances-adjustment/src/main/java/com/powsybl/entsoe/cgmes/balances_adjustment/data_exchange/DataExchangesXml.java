@@ -102,16 +102,16 @@ public final class DataExchangesXml {
 
     public static DataExchanges parse(Reader reader) {
         Objects.requireNonNull(reader);
-        ParsingContext context = new ParsingContext();
+        var context = new ParsingContext();
         try {
-            XMLInputFactory factory = XMLInputFactory.newInstance();
+            var factory = XMLInputFactory.newInstance();
             // disable resolving of external DTD entities
             factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
             factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
-            XMLStreamReader xmlReader = factory.createXMLStreamReader(reader);
+            var xmlReader = factory.createXMLStreamReader(reader);
             try {
                 XmlUtil.readUntilEndElement(DataExchangesConstants.ROOT, xmlReader,  () -> {
                     switch (xmlReader.getLocalName()) {
@@ -199,7 +199,7 @@ public final class DataExchangesXml {
     }
 
     private static StoredDoubleTimeSeries readTimeSeries(XMLStreamReader xmlReader) throws XMLStreamException {
-        ParsingTimeSeriesContext context = new ParsingTimeSeriesContext();
+        var context = new ParsingTimeSeriesContext();
 
         XmlUtil.readUntilEndElement(DataExchangesConstants.TIMESERIES, xmlReader, () -> {
             switch (xmlReader.getLocalName()) {
@@ -255,9 +255,9 @@ public final class DataExchangesXml {
             dataChunk = new UncompressedDoubleDataChunk(0, context.quantities.stream().mapToDouble(d -> d).toArray());
         } else {
             // Compressed chunk
-            int[] stepLengths = new int[context.positions.size()];
+            var stepLengths = new int[context.positions.size()];
             if (context.positions.size() > 1) {
-                for (int i = 1; i < context.positions.size(); i++) {
+                for (var i = 1; i < context.positions.size(); i++) {
                     int lastPosition = context.positions.get(i - 1);
                     int newPosition = context.positions.get(i);
                     stepLengths[i - 1] = newPosition - lastPosition;
@@ -272,7 +272,7 @@ public final class DataExchangesXml {
 
         // Instantiate new time series
         TimeSeriesIndex index = RegularTimeSeriesIndex.create(Instant.ofEpochMilli(context.period.getStartMillis()), Instant.ofEpochMilli(context.period.getEndMillis()), context.spacing);
-        TimeSeriesMetadata metadata = new TimeSeriesMetadata(context.mRID, TimeSeriesDataType.DOUBLE, context.tags, index);
+        var metadata = new TimeSeriesMetadata(context.mRID, TimeSeriesDataType.DOUBLE, context.tags, index);
         // Add new time series into DataExchanges
         return new StoredDoubleTimeSeries(metadata, dataChunk);
     }
@@ -300,7 +300,7 @@ public final class DataExchangesXml {
     }
 
     private static Interval readTimeInterval(XMLStreamReader xmlReader, String rootElement) throws XMLStreamException {
-        DateTime[] interval = new DateTime[2];
+        var interval = new DateTime[2];
         XmlUtil.readUntilEndElement(rootElement, xmlReader, () -> {
             switch (xmlReader.getLocalName()) {
                 case DataExchangesConstants.START :

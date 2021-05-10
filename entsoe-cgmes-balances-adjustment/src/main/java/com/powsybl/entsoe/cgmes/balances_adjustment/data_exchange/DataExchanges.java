@@ -282,8 +282,8 @@ public class DataExchanges {
 
     private double getValueAt(DoubleTimeSeries timeSeries, Instant instant, boolean exceptionOutOfBound) {
         RegularTimeSeriesIndex index = (RegularTimeSeriesIndex) timeSeries.getMetadata().getIndex();
-        Instant start = Instant.ofEpochMilli(index.getStartTime());
-        Instant end = Instant.ofEpochMilli(index.getEndTime());
+        var start = Instant.ofEpochMilli(index.getStartTime());
+        var end = Instant.ofEpochMilli(index.getEndTime());
 
         if (instant.isBefore(start) || instant.isAfter(end) || instant.equals(end)) {
             if (exceptionOutOfBound) {
@@ -292,7 +292,7 @@ public class DataExchanges {
             return 0;
         } else {
             long spacing = index.getSpacing();
-            Duration elapsed = Duration.between(start, instant);
+            var elapsed = Duration.between(start, instant);
             long point = elapsed.toMillis() / spacing;
             return timeSeries.toArray()[(int) point];
         }
