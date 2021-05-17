@@ -50,7 +50,7 @@
         <xmlunit.version>2.3.0</xmlunit.version>
 
         <powsyblba.version>1.4.0</powsyblba.version>
-        <powsyblcore.version>4.2.0-SNAPSHOT</powsyblcore.version>
+        <powsyblcore.version>4.2.0-RC1</powsyblcore.version>
     </properties>
 
     <modules>
