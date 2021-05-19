@@ -18,19 +18,19 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CgmesFictitiousAreaFactory implements NetworkAreaFactory {
+public class CgmesBoundariesAreaFactory implements NetworkAreaFactory {
 
     private final List<CgmesControlArea> areas = new ArrayList<>();
 
-    public CgmesFictitiousAreaFactory() {
+    public CgmesBoundariesAreaFactory() {
     }
 
-    public CgmesFictitiousAreaFactory(List<CgmesControlArea> areas) {
+    public CgmesBoundariesAreaFactory(List<CgmesControlArea> areas) {
         this.areas.addAll(Objects.requireNonNull(areas));
     }
 
     @Override
     public NetworkArea create(Network network) {
-        return new CgmesFictitiousArea(network, areas);
+        return new CgmesBoundariesArea(network, areas);
     }
 }

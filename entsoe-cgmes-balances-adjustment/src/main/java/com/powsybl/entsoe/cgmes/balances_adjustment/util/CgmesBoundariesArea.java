@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class CgmesFictitiousArea implements NetworkArea {
+class CgmesBoundariesArea implements NetworkArea {
 
     private final Set<DanglingLine> danglingLinesCache;
 
-    CgmesFictitiousArea(Network network, List<CgmesControlArea> areas) {
+    CgmesBoundariesArea(Network network, List<CgmesControlArea> areas) {
         danglingLinesCache = network.getDanglingLineStream()
                 .filter(dl -> dl.getExtension(CgmesDanglingLineBoundaryNode.class) == null || !dl.getExtension(CgmesDanglingLineBoundaryNode.class).isHvdc())
                 .filter(dl -> dl.getTerminal().getBusView().getBus() != null && dl.getTerminal().getBusView().getBus().isInMainSynchronousComponent())
