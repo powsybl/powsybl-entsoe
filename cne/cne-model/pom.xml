@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2021, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <artifactId>powsybl-entsoe</artifactId>
+        <artifactId>powsybl-cne</artifactId>
         <groupId>com.powsybl</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>powsybl-entsoe-cgmes-balances-adjustment</artifactId>
-    <name>ENTSO-E CGMES Balances adjustment components</name>
-    <description>Necessary components to run ENTSO-E CGMES-based balance computations</description>
+    <artifactId>powsybl-cne-model</artifactId>
+    <name>CNE model</name>
+    <description>CNE Data model</description>
 
     <build>
         <plugins>
@@ -21,39 +28,28 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.entsoe.cgmes.balances.adjustment</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.cne.model</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-    
 
     <dependencies>
+    <!-- Compile dependencies -->
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-balances-adjustment</artifactId>
-            <version>${powsyblba.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-cgmes-extensions</artifactId>
+            <artifactId>powsybl-contingency-api</artifactId>
             <version>${powsyblcore.version}</version>
         </dependency>
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>com.google.jimfs</groupId>
-            <artifactId>jimfs</artifactId>
-            <version>${jimfs.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-config-test</artifactId>
+            <artifactId>powsybl-security-analysis-api</artifactId>
             <version>${powsyblcore.version}</version>
-            <scope>test</scope>
         </dependency>
+
+    <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
