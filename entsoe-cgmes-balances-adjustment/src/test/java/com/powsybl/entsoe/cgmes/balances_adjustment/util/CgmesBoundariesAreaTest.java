@@ -8,11 +8,17 @@ package com.powsybl.entsoe.cgmes.balances_adjustment.util;
 
 import com.powsybl.balances_adjustment.util.NetworkArea;
 import com.powsybl.balances_adjustment.util.NetworkAreaFactory;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.stream.Stream;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -20,10 +26,24 @@ import static org.junit.Assert.assertEquals;
 public class CgmesBoundariesAreaTest {
 
     @Test
-    public void test() {
+    public void testWithNoArea() {
         Network network = DanglingLineNetworkFactory.create();
         NetworkAreaFactory factory = new CgmesBoundariesAreaFactory();
         NetworkArea area = factory.create(network);
         assertEquals(network.getDanglingLine("DL").getBoundary().getP(), area.getNetPosition(), 0.0);
+        assertTrue(area.getContainedBusViewBuses().isEmpty());
+    }
+
+    @Test
+    public void testWithArea() {
+        Network network = Importers.loadNetwork("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
+        NetworkAreaFactory factory = new CgmesBoundariesAreaFactory(new ArrayList<>(network.getExtension(CgmesControlAreas.class).getCgmesControlAreas()));
+        NetworkArea area = factory.create(network);
+        assertEquals(Stream.of(network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6"),
+                network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da"),
+                network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006"))
+                        .mapToDouble(dl -> dl.getBoundary().getP()).sum(),
+                area.getNetPosition(), 0.0);
+        assertTrue(area.getContainedBusViewBuses().isEmpty());
     }
 }
