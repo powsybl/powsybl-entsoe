@@ -11,8 +11,8 @@ import com.powsybl.cne.model.MonitoredRegisteredResource;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
-import com.powsybl.security.PostContingencyResult;
 import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.security.results.PostContingencyResult;
 
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
@@ -37,7 +37,7 @@ class SecurityAnalysisResultXmlWriterContext implements XmlWriterContext {
         this.writer = writer;
         this.options = checkRequiredParameters(options);
         // PreContingencyResult
-        preMonitoredRegisteredResources.addAll(convert(result.getPreContingencyResult().getLimitViolations()));
+        preMonitoredRegisteredResources.addAll(convert(result.getPreContingencyResult().getLimitViolationsResult().getLimitViolations()));
         // PostContingencyResult
         Collection<PostContingencyResult> postResults = result.getPostContingencyResults();
         postResults.forEach(p -> postMonitoredRegisteredResources.put(new ContingencySeries(p.getContingency()), convert(p.getLimitViolationsResult().getLimitViolations())));
