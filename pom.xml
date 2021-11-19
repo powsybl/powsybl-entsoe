@@ -56,6 +56,7 @@
     <modules>
         <module>entsoe-cgmes-balances-adjustment</module>
         <module>cne</module>
+        <module>glsk</module>
     </modules>
 
 </project>
