@@ -6,6 +6,7 @@
  */
 package com.powsybl.glsk.ucte.quality_check;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -21,12 +22,12 @@ public final class GlskQualityProcessor {
     private GlskQualityProcessor() {
     }
 
-    public static QualityReport process(String cgmName, InputStream cgmIs, InputStream glskIs, Instant localDate) {
-        return process(UcteGlskDocument.importGlsk(glskIs), Importers.loadNetwork(cgmName, cgmIs), localDate);
+    public static void process(String cgmName, InputStream cgmIs, InputStream glskIs, Instant localDate, Reporter reporter) {
+        process(UcteGlskDocument.importGlsk(glskIs), Importers.loadNetwork(cgmName, cgmIs), localDate, reporter);
     }
 
-    public static QualityReport process(UcteGlskDocument ucteGlskDocument, Network network, Instant instant) {
+    public static void process(UcteGlskDocument ucteGlskDocument, Network network, Instant instant, Reporter reporter) {
         GlskQualityCheckInput input = new GlskQualityCheckInput(ucteGlskDocument, network, instant);
-        return GlskQualityCheck.gskQualityCheck(input);
+        GlskQualityCheck.gskQualityCheck(input, reporter);
     }
 }

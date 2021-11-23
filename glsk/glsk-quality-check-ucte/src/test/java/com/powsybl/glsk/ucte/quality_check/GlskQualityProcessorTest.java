@@ -6,6 +6,8 @@
  */
 package com.powsybl.glsk.ucte.quality_check;
 
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -32,23 +34,28 @@ public class GlskQualityProcessorTest {
     public void qualityCheckWithCorrectValue() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
+        ReporterModel reporter = new ReporterModel("defaultTask", "defaultName");
+        GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"), reporter);
 
-        assertTrue(qualityReport.getQualityLogsByTso().isEmpty());
+        assertTrue(reporter.getReports().isEmpty());
     }
 
     @Test
     public void qualityCheckWithError1() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(FIRST_ERROR));
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
+        ReporterModel reporter = new ReporterModel("defaultTask", "defaultName");
+        GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"), reporter);
 
-        assertEquals(1, qualityReport.getAllQualityLogs().size());
-        assertEquals("GLSK node is not found in CGM", qualityReport.getAllQualityLogs().get(0).getMessage());
-        assertEquals("FFR2AA2 ", qualityReport.getAllQualityLogs().get(0).getNodeId());
-        assertEquals("10YFR-RTE------C", qualityReport.getAllQualityLogs().get(0).getTso());
-        assertEquals(1, qualityReport.getQualityLogsByTso().size());
-        assertEquals(1, qualityReport.getQualityLogs("10YFR-RTE------C").size());
+        assertEquals(1, reporter.getReports().size());
+        Report r = reporter.getReports().stream().findFirst().get();
+        assertEquals("GLSK node is not found in CGM", r.getDefaultMessage());
+        assertEquals("FFR2AA2 ", r.getValue("NodeId").toString());
+        assertEquals("10YFR-RTE------C", r.getValue("TSO").toString());
+        //Get unique TSO count in logs
+        assertEquals(1, reporter.getReports().stream().filter(rep -> rep.getValue("TSO").toString().equals("10YFR-RTE------C")).count());
+        //Get log count for RTE
+        assertEquals(1, reporter.getReports().stream().map(rep -> rep.getValue("TSO").toString()).distinct().count());
 
     }
 
@@ -56,36 +63,42 @@ public class GlskQualityProcessorTest {
     public void qualityCheckWithError2() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
         Network network = Importers.loadNetwork("testCase_error_2.xiidm", getClass().getResourceAsStream("/testCase_error_2.xiidm"));
-        QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
+        ReporterModel reporter = new ReporterModel("defaultTask", "defaultName");
+        GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"), reporter);
 
-        assertEquals(1, qualityReport.getAllQualityLogs().size());
-        assertEquals("GLSK node is present but has no running Generator or Load", qualityReport.getAllQualityLogs().get(0).getMessage());
-        assertEquals("FFR2AA1 ", qualityReport.getAllQualityLogs().get(0).getNodeId());
-        assertEquals("10YFR-RTE------C", qualityReport.getAllQualityLogs().get(0).getTso());
+        assertEquals(1, reporter.getReports().size());
+        Report r = reporter.getReports().stream().findFirst().get();
+        assertEquals("GLSK node is present but has no running Generator or Load", r.getDefaultMessage());
+        assertEquals("FFR2AA1 ", r.getValue("NodeId").toString());
+        assertEquals("10YFR-RTE------C", r.getValue("TSO").toString());
     }
 
     @Test
     public void qualityCheckWithError3() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
         Network network = Importers.loadNetwork("testCase_error_3.xiidm", getClass().getResourceAsStream("/testCase_error_3.xiidm"));
-        QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
+        ReporterModel reporter = new ReporterModel("defaultTask", "defaultName");
+        GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"), reporter);
 
-        assertEquals(1, qualityReport.getQualityLogsByTso().size());
-        assertEquals("GLSK node is connected to an island", qualityReport.getAllQualityLogs().get(0).getMessage());
-        assertEquals("FFR2AA1 ", qualityReport.getAllQualityLogs().get(0).getNodeId());
-        assertEquals("10YFR-RTE------C", qualityReport.getAllQualityLogs().get(0).getTso());
+        assertEquals(1, reporter.getReports().size());
+        Report r = reporter.getReports().stream().findFirst().get();
+        assertEquals("GLSK node is connected to an island", r.getDefaultMessage());
+        assertEquals("FFR2AA1 ", r.getValue("NodeId").toString());
+        assertEquals("10YFR-RTE------C", r.getValue("TSO").toString());
     }
 
     @Test
     public void qualityCheckLoadNotConnected() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
         Network network = Importers.loadNetwork("testCase_error_load_not_connected.xiidm", getClass().getResourceAsStream("/testCase_error_load_not_connected.xiidm"));
-        QualityReport qualityReport = GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"));
+        ReporterModel reporter = new ReporterModel("defaultTask", "defaultName");
+        GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"), reporter);
 
-        assertEquals(1, qualityReport.getQualityLogsByTso().size());
-        assertEquals("GLSK node is connected to an island", qualityReport.getAllQualityLogs().get(0).getMessage());
-        assertEquals("FFR2AA1 ", qualityReport.getAllQualityLogs().get(0).getNodeId());
-        assertEquals("10YFR-RTE------C", qualityReport.getAllQualityLogs().get(0).getTso());
+        assertEquals(1, reporter.getReports().size());
+        Report r = reporter.getReports().stream().findFirst().get();
+        assertEquals("GLSK node is connected to an island", r.getDefaultMessage());
+        assertEquals("FFR2AA1 ", r.getValue("NodeId").toString());
+        assertEquals("10YFR-RTE------C", r.getValue("TSO").toString());
     }
 
 }

@@ -6,6 +6,9 @@
  */
 package com.powsybl.glsk.ucte.quality_check;
 
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
 import com.powsybl.glsk.ucte.UcteGlskPoint;
@@ -24,19 +27,16 @@ class GlskQualityCheck {
 
     private static final String LOAD = "A05";
 
-    private final QualityReport qualityReport = new QualityReport();
-
-    public static QualityReport gskQualityCheck(GlskQualityCheckInput input) {
-        return new GlskQualityCheck().generateReport(input);
+    public static void gskQualityCheck(GlskQualityCheckInput input, Reporter reporter) {
+        new GlskQualityCheck().generateReport(input, reporter);
     }
 
-    private QualityReport generateReport(GlskQualityCheckInput input) {
+    private void generateReport(GlskQualityCheckInput input, Reporter reporter) {
         Map<String, UcteGlskPoint> glskPointMap = input.getUcteGlskDocument().getGlskPointsForInstant(input.getInstant());
-        glskPointMap.forEach((country, glskPoint) -> checkGlskPoint(glskPoint, input.getNetwork(), country));
-        return qualityReport;
+        glskPointMap.forEach((country, glskPoint) -> checkGlskPoint(glskPoint, input.getNetwork(), country, reporter));
     }
 
-    private void checkGlskPoint(AbstractGlskPoint glskPoint, Network network, String tso) {
+    private void checkGlskPoint(AbstractGlskPoint glskPoint, Network network, String tso, Reporter reporter) {
         List<String> manualGskGenerators =  glskPoint.getGlskShiftKeys().stream()
                 .filter(gskShiftKey -> gskShiftKey.getPsrType().equals(GENERATOR) && gskShiftKey.getBusinessType().equals("B43"))
                 .flatMap(gskShiftKey -> gskShiftKey.getRegisteredResourceArrayList().stream())
@@ -58,10 +58,10 @@ class GlskQualityCheck {
         glskPoint.getGlskShiftKeys().forEach(glskShiftKey -> {
             if (glskShiftKey.getPsrType().equals(GENERATOR)) {
                 glskShiftKey.getRegisteredResourceArrayList()
-                        .forEach(resource -> checkResource(resource, network.getGenerator(resource.getGeneratorId()), "Generator", network, tso));
+                        .forEach(resource -> checkResource(resource, network.getGenerator(resource.getGeneratorId()), "Generator", network, tso, reporter));
             } else if (glskShiftKey.getPsrType().equals(LOAD)) {
                 glskShiftKey.getRegisteredResourceArrayList()
-                        .forEach(resource -> checkResource(resource, network.getLoad(resource.getLoadId()), "Load", network, tso));
+                        .forEach(resource -> checkResource(resource, network.getLoad(resource.getLoadId()), "Load", network, tso, reporter));
             }
         });
     }
@@ -99,31 +99,27 @@ class GlskQualityCheck {
         }
     }
 
-    private void checkResource(AbstractGlskRegisteredResource registeredResource, Injection<?> injection, String type, Network network, String tso) {
+    private void checkResource(AbstractGlskRegisteredResource registeredResource, Injection<?> injection, String type, Network network, String tso, Reporter reporter) {
         if (injection == null) {
 
             if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) {
-                qualityReport.warn("1",
-                        registeredResource.getmRID(),
-                        type,
-                        tso,
-                        "GLSK node is not found in CGM");
+                reporter.report(new Report("1", "GLSK node is not found in CGM", Map.of(
+                        "NodeId", new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
+                        "Type", new TypedValue(type, "String"),
+                        "TSO", new TypedValue(tso, "String"))));
             } else {
-                qualityReport.warn("2",
-                        registeredResource.getmRID(),
-                        type,
-                        tso,
-                        "GLSK node is present but has no running Generator or Load");
+                reporter.report(new Report("2", "GLSK node is present but has no running Generator or Load", Map.of(
+                        "NodeId", new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
+                        "Type", new TypedValue(type, "String"),
+                        "TSO", new TypedValue(tso, "String"))));
             }
         } else {
             if (!injection.getTerminal().isConnected()
                     || !injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) {
-                qualityReport.warn(
-                        "3",
-                        registeredResource.getmRID(),
-                        type,
-                        tso,
-                        "GLSK node is connected to an island");
+                reporter.report(new Report("3", "GLSK node is connected to an island", Map.of(
+                        "NodeId", new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
+                        "Type", new TypedValue(type, "String"),
+                        "TSO", new TypedValue(tso, "String"))));
             }
         }
     }
