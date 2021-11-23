@@ -110,22 +110,22 @@ class GlskQualityCheck {
 
             if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) {
                 reporter.report(new Report("1", "GLSK node is not found in CGM", Map.of(
-                        NODE_ID_KEY, new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
-                        TYPE_KEY, new TypedValue(type, "String"),
-                        TSO_KEY, new TypedValue(tso, "String"))));
+                        NODE_ID_KEY, new TypedValue(registeredResource.getmRID(), ""),
+                        TYPE_KEY, new TypedValue(type, ""),
+                        TSO_KEY, new TypedValue(tso, ""))));
             } else {
                 reporter.report(new Report("2", "GLSK node is present but has no running Generator or Load", Map.of(
-                        NODE_ID_KEY, new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
-                        TYPE_KEY, new TypedValue(type, "String"),
-                        TSO_KEY, new TypedValue(tso, "String"))));
+                        NODE_ID_KEY, new TypedValue(registeredResource.getmRID(), ""),
+                        TYPE_KEY, new TypedValue(type, ""),
+                        TSO_KEY, new TypedValue(tso, ""))));
             }
         } else {
             if (!injection.getTerminal().isConnected()
                     || !injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) {
                 reporter.report(new Report("3", "GLSK node is connected to an island", Map.of(
-                        NODE_ID_KEY, new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
-                        TYPE_KEY, new TypedValue(type, "String"),
-                        TSO_KEY, new TypedValue(tso, "String"))));
+                        NODE_ID_KEY, new TypedValue(registeredResource.getmRID(), ""),
+                        TYPE_KEY, new TypedValue(type, ""),
+                        TSO_KEY, new TypedValue(tso, ""))));
             }
         }
     }
