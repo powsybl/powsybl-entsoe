@@ -27,6 +27,12 @@ class GlskQualityCheck {
 
     private static final String LOAD = "A05";
 
+    public static final String NODE_ID_KEY = "NodeId";
+
+    public static final String TYPE_KEY = "Type";
+
+    public static final String TSO_KEY = "TSO";
+
     public static void gskQualityCheck(GlskQualityCheckInput input, Reporter reporter) {
         new GlskQualityCheck().generateReport(input, reporter);
     }
@@ -104,22 +110,22 @@ class GlskQualityCheck {
 
             if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) {
                 reporter.report(new Report("1", "GLSK node is not found in CGM", Map.of(
-                        "NodeId", new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
-                        "Type", new TypedValue(type, "String"),
-                        "TSO", new TypedValue(tso, "String"))));
+                        NODE_ID_KEY, new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
+                        TYPE_KEY, new TypedValue(type, "String"),
+                        TSO_KEY, new TypedValue(tso, "String"))));
             } else {
                 reporter.report(new Report("2", "GLSK node is present but has no running Generator or Load", Map.of(
-                        "NodeId", new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
-                        "Type", new TypedValue(type, "String"),
-                        "TSO", new TypedValue(tso, "String"))));
+                        NODE_ID_KEY, new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
+                        TYPE_KEY, new TypedValue(type, "String"),
+                        TSO_KEY, new TypedValue(tso, "String"))));
             }
         } else {
             if (!injection.getTerminal().isConnected()
                     || !injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) {
                 reporter.report(new Report("3", "GLSK node is connected to an island", Map.of(
-                        "NodeId", new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
-                        "Type", new TypedValue(type, "String"),
-                        "TSO", new TypedValue(tso, "String"))));
+                        NODE_ID_KEY, new TypedValue(registeredResource.getmRID(), TypedValue.UNTYPED),
+                        TYPE_KEY, new TypedValue(type, "String"),
+                        TSO_KEY, new TypedValue(tso, "String"))));
             }
         }
     }
