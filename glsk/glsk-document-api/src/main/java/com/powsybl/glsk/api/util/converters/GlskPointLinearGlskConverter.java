@@ -12,7 +12,8 @@ import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
 import com.powsybl.glsk.api.AbstractGlskShiftKey;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ public final class GlskPointLinearGlskConverter {
      * @param glskPoint GLSK Point
      * @return farao-core LinearGlsk
      */
-    public static LinearGlsk convert(Network network, AbstractGlskPoint glskPoint) {
+    public static SensitivityVariableSet convert(Network network, AbstractGlskPoint glskPoint) {
 
         Map<String, Float> linearGlskMap = new HashMap<>();
         String linearGlskId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
@@ -75,7 +76,7 @@ public final class GlskPointLinearGlskConverter {
             }
         }
 
-        return new LinearGlsk(linearGlskId, linearGlskName, linearGlskMap);
+        return new SensitivityVariableSet(linearGlskId, linearGlskMapToWeightVariable(linearGlskMap));
     }
 
     /**
@@ -172,5 +173,13 @@ public final class GlskPointLinearGlskConverter {
             //unknown PsrType
             throw new GlskException("convertParticipationFactor PsrType not supported");
         }
+    }
+
+    private static List<WeightedSensitivityVariable> linearGlskMapToWeightVariable(Map<String, Float> linearGlskMap) {
+        List<WeightedSensitivityVariable> weightedSVs = new ArrayList<>();
+        for (Map.Entry<String, Float> e : linearGlskMap.entrySet()) {
+            weightedSVs.add(new WeightedSensitivityVariable(e.getKey(), e.getValue()));
+        }
+        return weightedSVs;
     }
 }

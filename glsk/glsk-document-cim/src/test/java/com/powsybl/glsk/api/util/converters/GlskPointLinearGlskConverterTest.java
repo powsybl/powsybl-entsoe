@@ -8,12 +8,12 @@
 package com.powsybl.glsk.api.util.converters;
 
 import com.powsybl.glsk.api.AbstractGlskPoint;
-import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.google.common.math.DoubleMath;
+import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,34 +67,34 @@ public class GlskPointLinearGlskConverterTest {
     @Test
     public void testConvertGlskPointToLinearGlskB42Country() {
 
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountry);
-        linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("GenCountry: " + k + "; factor = " + v)); //log
-        double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
+        SensitivityVariableSet linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountry);
+        linearGlsk.getVariables().forEach(elem -> LOGGER.info("GenCountry: " + elem.getId() + "; factor = " + elem.getWeight())); //log
+        double totalfactor = linearGlsk.getVariables().stream().map(elem -> elem.getWeight()).mapToDouble(Double::valueOf).sum();
         Assert.assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToLinearGlskB42CountryQuantity() {
 
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountryQuantity);
-        linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Country: " + k + "; factor = " + v)); //log
-        double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
+        SensitivityVariableSet linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountryQuantity);
+        linearGlsk.getVariables().forEach(e -> LOGGER.info("Country: " + e.getId() + "; factor = " + e.getWeight())); //log
+        double totalfactor = linearGlsk.getVariables().stream().map(elem -> elem.getWeight()).mapToDouble(Double::valueOf).sum();
         Assert.assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToLinearGlskB42Explicit() {
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointExplicitGskLsk);
-        linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Explicit: " + k + "; factor = " + v)); //log
-        double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
+        SensitivityVariableSet linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointExplicitGskLsk);
+        linearGlsk.getVariables().forEach(e -> LOGGER.info("Explicit: " + e.getId() + "; factor = " + e.getWeight())); //log
+        double totalfactor = linearGlsk.getVariables().stream().map(elem -> elem.getWeight()).mapToDouble(Double::valueOf).sum();
         Assert.assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToLinearGlskB43() {
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointParticipationFactorGskLsk);
-        linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Factor: " + k + "; factor = " + v)); //log
-        double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
+        SensitivityVariableSet linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointParticipationFactorGskLsk);
+        linearGlsk.getVariables().forEach(e -> LOGGER.info("Factor: " + e.getId() + "; factor = " + e.getWeight())); //log
+        double totalfactor = linearGlsk.getVariables().stream().map(elem -> elem.getWeight()).mapToDouble(Double::valueOf).sum();
         Assert.assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
     }
 

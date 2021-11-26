@@ -15,7 +15,7 @@ import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
 import com.powsybl.glsk.api.util.ZonalDataFromGlskDocument;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.time.Instant;
 import java.util.List;
@@ -37,7 +37,7 @@ public interface GlskDocument {
      * @param network: Network on which to map GLSK document information.
      * @return A {@link ZonalData} of {@link LinearGlsk} extracted from the GLSK document.
      */
-    default ZonalData<LinearGlsk> getZonalGlsks(Network network) {
+    default ZonalData<SensitivityVariableSet> getZonalGlsks(Network network) {
         return new ZonalDataFromGlskDocument<>(this, network, GlskPointLinearGlskConverter::convert);
     }
 
@@ -49,7 +49,7 @@ public interface GlskDocument {
      * @param instant: Instant at which extracted data will be available.
      * @return A {@link ZonalData} of {@link LinearGlsk} extracted from the GLSK document.
      */
-    default ZonalData<LinearGlsk> getZonalGlsks(Network network, Instant instant) {
+    default ZonalData<SensitivityVariableSet> getZonalGlsks(Network network, Instant instant) {
         return new ZonalDataFromGlskDocument<>(this, network, GlskPointLinearGlskConverter::convert, instant);
     }
 
@@ -59,7 +59,7 @@ public interface GlskDocument {
      * @param network: Network on which to map GLSK document information.
      * @return A {@link ZonalDataChronology} of {@link LinearGlsk} extracted from the GLSK document.
      */
-    default ZonalDataChronology<LinearGlsk> getZonalGlsksChronology(Network network) {
+    default ZonalDataChronology<SensitivityVariableSet> getZonalGlsksChronology(Network network) {
         return new ZonalDataChronologyFromGlskDocument<>(this, network, GlskPointLinearGlskConverter::convert);
     }
 

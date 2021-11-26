@@ -6,14 +6,14 @@
  */
 package com.powsybl.glsk.ucte;
 
-import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.action.util.Scalable;
 import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
-import com.powsybl.action.util.Scalable;
+import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Test;
 
 import java.time.Instant;
@@ -36,10 +36,10 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
-        ZonalData<LinearGlsk> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
-                .getZonalGlsks(network, instant);
-        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
+        ZonalData<SensitivityVariableSet> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
+                                                                             .getZonalGlsks(network, instant);
+        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getVariables().size());
+        assertEquals(0.3, ucteGlskProvider.getData("10YFR-RTE------C").getVariables().stream().filter(e -> e.getId().equals("FFR1AA1 _generator")).findAny().get().getWeight(), EPSILON);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2020-07-29T10:00:00Z");
 
-        ZonalData<LinearGlsk> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
+        ZonalData<SensitivityVariableSet> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
                 .getZonalGlsks(network, instant);
 
         assertTrue(ucteGlskProvider.getDataPerZone().isEmpty());
@@ -58,7 +58,7 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
-        ZonalData<LinearGlsk> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
+        ZonalData<SensitivityVariableSet> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/20170322_1844_SN3_FR2_GLSK_test.xml"))
                 .getZonalGlsks(network, instant);
 
         assertNull(ucteGlskProvider.getData("unknowncountry"));
@@ -68,7 +68,7 @@ public class UcteGlskValueProviderTest {
     public void testProvideUcteGlskWithWrongFormat() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
-        ZonalData<LinearGlsk> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
+        ZonalData<SensitivityVariableSet> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
                 .getZonalGlsks(network, instant);
         assertTrue(ucteGlskProvider.getDataPerZone().isEmpty());
     }
@@ -83,10 +83,10 @@ public class UcteGlskValueProviderTest {
         assertTrue(ucteScalableProvider.getData("10YFR-RTE------C").filterInjections(network).contains(network.getGenerator("FFR1AA1 _generator")));
         assertTrue(ucteScalableProvider.getData("10YFR-RTE------C").filterInjections(network).contains(network.getGenerator("FFR2AA1 _generator")));
 
-        ZonalData<LinearGlsk> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
-        assertEquals(2, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.5, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-        assertEquals(0.5, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _generator"), EPSILON);
+        ZonalData<SensitivityVariableSet> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
+        assertEquals(2, ucteGlskProvider.getData("10YFR-RTE------C").getVariables().size());
+        assertEquals(0.5, findWeight(ucteGlskProvider.getData("10YFR-RTE------C"), "FFR1AA1 _generator"), EPSILON);
+        assertEquals(0.5, findWeight(ucteGlskProvider.getData("10YFR-RTE------C"), "FFR2AA1 _generator"), EPSILON);
     }
 
     @Test
@@ -118,10 +118,10 @@ public class UcteGlskValueProviderTest {
         instants.add(Instant.parse("2016-07-29T11:59:59Z"));
         for (Instant i : instants) {
             ZonalData<LinearGlsk> ucteGlskProvidert = ucteGlskDocument.getZonalGlsks(network, i);
-            assertEquals(3, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().size());
-            assertEquals(0.3 * 1.0, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-            assertEquals(0.7 * 0.2, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-            assertEquals(0.7 * 0.8, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+            assertEquals(3, ucteGlskProvidert.getData("10YFR-RTE------C").getVariables().size());
+            assertEquals(0.3 * 1.0, findWeight(ucteGlskProvidert.getData("10YFR-RTE------C"),"FFR1AA1 _generator")), EPSILON);
+            assertEquals(0.7 * 0.2, findWeight(ucteGlskProvidert.getData("10YFR-RTE------C"),"FFR1AA1 _load")), EPSILON);
+            assertEquals(0.7 * 0.8, findWeight(ucteGlskProvidert.getData("10YFR-RTE------C"),"FFR2AA1 _load")), EPSILON);
         }
 
         List<Instant> instants2 = new ArrayList<>();
@@ -131,10 +131,10 @@ public class UcteGlskValueProviderTest {
 
         for (Instant i : instants2) {
             ZonalData<LinearGlsk> ucteGlskProvidert = ucteGlskDocument.getZonalGlsks(network, i);
-            assertEquals(3, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().size());
-            assertEquals(0.5 * 1.0, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-            assertEquals(0.5 * 0.6, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-            assertEquals(0.5 * 0.4, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+            assertEquals(3, ucteGlskProvidert.getData("10YFR-RTE------C").getVariables().size());
+            assertEquals(0.5 * 1.0, findWeight(ucteGlskProvidert.getData("10YFR-RTE------C"),"FFR1AA1 _generator")), EPSILON);
+            assertEquals(0.5 * 0.6, findWeight(ucteGlskProvidert.getData("10YFR-RTE------C"),"FFR1AA1 _load")), EPSILON);
+            assertEquals(0.5 * 0.4, findWeight(ucteGlskProvidert.getData("10YFR-RTE------C"),"FFR2AA1 _load")), EPSILON);
         }
 
         List<Instant> instants3 = new ArrayList<>();
@@ -144,10 +144,10 @@ public class UcteGlskValueProviderTest {
 
         for (Instant i : instants3) {
             ZonalData<LinearGlsk> ucteGlskProvidert = ucteGlskDocument.getZonalGlsks(network, i);
-            assertEquals(3, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().size());
-            assertEquals(0.3 * 1.0, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-            assertEquals(0.7 * 0.3, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-            assertEquals(0.7 * 0.7, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+            assertEquals(3, ucteGlskProvidert.getData("10YFR-RTE------C").getVariables().size());
+            assertEquals(0.3 * 1.0, findWeight(ucteGlskProvidert.getData("10YFR-RTE------C"), "FFR1AA1 _generator")), EPSILON);
+            assertEquals(0.7 * 0.3, findWeight(ucteGlskProvidert.getData("10YFR-RTE------C"), "FFR1AA1 _load")), EPSILON);
+            assertEquals(0.7 * 0.7, findWeight(ucteGlskProvidert.getData("10YFR-RTE------C"), "FFR2AA1 _load")), EPSILON);
         }
     }
 
@@ -156,7 +156,7 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestZeroGsk.xml"));
-        ZonalData<LinearGlsk> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
+        ZonalData<SensitivityVariableSet> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
         assertNull(ucteGlskProvider.getData("10YFR-RTE------C"));
     }
 
@@ -165,7 +165,12 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestZeroLsk.xml"));
-        ZonalData<LinearGlsk> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
+        ZonalData<SensitivityVariableSet> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
         assertNull(ucteGlskProvider.getData("10YFR-RTE------C"));
+    }
+
+    //For readability purpose
+    private double findWeight(SensitivityVariableSet variables, String id) {
+        return variables.getVariables().stream().filter(e -> e.getId().equals(id)).findAny().get().getWeight();
     }
 }

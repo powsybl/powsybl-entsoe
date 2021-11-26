@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
     <name>GLSK document - UCTE format</name>
     <description>Model of GLSK according to UCTE format with its importer.</description>
-    
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
