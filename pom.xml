@@ -51,6 +51,9 @@
 
         <powsyblba.version>1.6.0</powsyblba.version>
         <powsyblcore.version>4.3.1</powsyblcore.version>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ./target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
 
     </properties>
 
