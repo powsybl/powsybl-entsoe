@@ -21,7 +21,7 @@
         <!-- Dependencies versions -->
         <junit.version>4.13.1</junit.version>
         <powsybl.core.version>4.4.0</powsybl.core.version>
-        <sonar.coverage.jacoco.xmlReportPaths>../../glsk/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>../../target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <dependencies>
