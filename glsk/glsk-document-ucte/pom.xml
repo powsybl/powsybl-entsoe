@@ -25,6 +25,7 @@
         <powsybl.core.version>4.4.0</powsybl.core.version>
         <slf4j.version>1.7.30</slf4j.version>
         <threeten.version>1.5.0</threeten.version>
+        <sonar.coverage.jacoco.xmlReportPaths>../../glsk/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <dependencies>

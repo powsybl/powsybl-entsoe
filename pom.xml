@@ -51,6 +51,7 @@
 
         <powsyblba.version>1.6.0</powsyblba.version>
         <powsyblcore.version>4.3.1</powsyblcore.version>
+
     </properties>
 
     <modules>
