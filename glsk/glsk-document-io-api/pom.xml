@@ -14,10 +14,6 @@
     <name>GLSK document importers API</name>
     <description>Single entry point for GLSK document imports with interface for GLSK document importers.</description>
 
-    <properties>
-        <sonar.coverage.jacoco.xmlReportPaths>../../target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
