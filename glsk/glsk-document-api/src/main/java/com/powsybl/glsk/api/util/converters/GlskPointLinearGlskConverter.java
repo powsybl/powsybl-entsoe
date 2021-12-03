@@ -38,7 +38,7 @@ public final class GlskPointLinearGlskConverter {
      */
     public static SensitivityVariableSet convert(Network network, AbstractGlskPoint glskPoint) {
 
-        List<WeightedSensitivityVariable> weightedSVs = new ArrayList<>();
+        List<WeightedSensitivityVariable> weightedSensitivityVariables = new ArrayList<>();
         String linearGlskId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
 
         /* Linear GLSK is used as sensitivityVariable in FlowBasedComputation
@@ -58,23 +58,23 @@ public final class GlskPointLinearGlskConverter {
         for (AbstractGlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
             if (glskShiftKey.getBusinessType().equals("B42") && glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                 LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GLSK");
-                convertCountryProportional(network, glskShiftKey, weightedSVs);
+                convertCountryProportional(network, glskShiftKey, weightedSensitivityVariables);
             } else if (glskShiftKey.getBusinessType().equals("B42") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                 LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
-                convertExplicitProportional(network, glskShiftKey, weightedSVs);
+                convertExplicitProportional(network, glskShiftKey, weightedSensitivityVariables);
             } else if (glskShiftKey.getBusinessType().equals("B43")) {
                 LOGGER.debug("GLSK Type B43 --> participation factor proportional GSK");
                 if (glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                     throw new GlskException("Empty Registered Resources List in B43 type shift key.");
                 } else {
-                    convertParticipationFactor(network, glskShiftKey, weightedSVs);
+                    convertParticipationFactor(network, glskShiftKey, weightedSensitivityVariables);
                 }
             } else {
                 throw new GlskException("convert not supported");
             }
         }
 
-        return new SensitivityVariableSet(linearGlskId, weightedSVs);
+        return new SensitivityVariableSet(linearGlskId, weightedSensitivityVariables);
     }
 
     /**
