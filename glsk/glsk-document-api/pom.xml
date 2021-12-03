@@ -14,15 +14,6 @@
     <name>GLSK document API</name>
     <description>Model of GLSK document and associated interfaces to produce GLSK and Scalable providers.</description>
 
-    <properties>
-        <!-- Project properties -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <!-- Dependencies versions -->
-        <junit.version>4.13.1</junit.version>
-        <powsybl.core.version>4.4.0</powsybl.core.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -32,17 +23,17 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-action-util</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsyblcore.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsyblcore.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-sensitivity-analysis-api</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsyblcore.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
