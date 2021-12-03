@@ -16,16 +16,6 @@
     <name>GLSK quality check</name>
     <description>GLSK quality check module for UCTE formatted file</description>
 
-    <properties>
-        <!-- Project properties -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <!-- Dependencies versions -->
-        <junit.version>4.13.1</junit.version>
-        <powsybl.core.version>4.6.0-SNAPSHOT</powsybl.core.version>
-        <logback.version>1.2.3</logback.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -35,18 +25,18 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsyblcore.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-converter-api</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsyblcore.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsyblcore.version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -59,13 +49,13 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-config-test</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsyblcore.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-xml-converter</artifactId>
-            <version>${powsybl.core.version}</version>
+            <version>${powsyblcore.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
