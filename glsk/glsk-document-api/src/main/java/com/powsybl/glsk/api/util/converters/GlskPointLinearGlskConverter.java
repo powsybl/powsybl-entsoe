@@ -39,15 +39,7 @@ public final class GlskPointLinearGlskConverter {
     public static SensitivityVariableSet convert(Network network, AbstractGlskPoint glskPoint) {
 
         List<WeightedSensitivityVariable> weightedSensitivityVariables = new ArrayList<>();
-        String linearGlskId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
-
-        /* Linear GLSK is used as sensitivityVariable in FlowBasedComputation
-         * When it is added into sensivitityFactors, we should be able to find out LinearGlsk's country or NetWorkArea
-         * For the moment, LinearGlsk's name is used to trace LinearGlsk's country or NetworkArea.
-         * We could also added another attribute in LinearGlsk to mark this information,
-         * but this change need to be in Powsybl-core
-         */
-        String linearGlskName = glskPoint.getSubjectDomainmRID(); // Name of LinearGlsk is country's EIC code; or NetworkArea's ID in the future
+        String sensitivityVariableSetId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
 
         Objects.requireNonNull(glskPoint.getGlskShiftKeys());
 
@@ -74,7 +66,7 @@ public final class GlskPointLinearGlskConverter {
             }
         }
 
-        return new SensitivityVariableSet(linearGlskId, weightedSensitivityVariables);
+        return new SensitivityVariableSet(sensitivityVariableSetId, weightedSensitivityVariables);
     }
 
     /**
