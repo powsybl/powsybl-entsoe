@@ -73,7 +73,7 @@ public final class GlskPointScalableConverter {
         // generation, and to put all generators at Pmax at the same time when increasing generation.
         // Though the scaling is not symmetrical.
         List<AbstractGlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                .filter(generatorResource -> NetworkUtil.isCorrectGenerator(network.getGenerator(generatorResource.getGeneratorId())))
+                .filter(generatorResource -> NetworkUtil.isCorrect(network.getGenerator(generatorResource.getGeneratorId())))
                 .collect(Collectors.toList());
 
         Scalable upScalable = createRemainingCapacityScalable(network, glskShiftKey, generatorResources, GlskPointScalableConverter::getRemainingCapacityUp);
@@ -168,7 +168,7 @@ public final class GlskPointScalableConverter {
             LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GSK");
             List<Generator> generators = network.getGeneratorStream()
                     .filter(generator -> country.equals(getSubstationNullableCountry(generator.getTerminal().getVoltageLevel().getSubstation())))
-                    .filter(NetworkUtil::isCorrectGenerator)
+                    .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
             //calculate sum P of country's generators
             double totalCountryP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
@@ -179,7 +179,7 @@ public final class GlskPointScalableConverter {
             LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) LSK");
             List<Load> loads = network.getLoadStream()
                     .filter(load -> country.equals(getSubstationNullableCountry(load.getTerminal().getVoltageLevel().getSubstation())))
-                    .filter(NetworkUtil::isCorrectLoad)
+                    .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
             //calculate sum P of country's loads
             double totalCountryP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
@@ -202,7 +202,7 @@ public final class GlskPointScalableConverter {
             List<Generator> generators = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getGeneratorId)
                     .map(network::getGenerator)
-                    .filter(NetworkUtil::isCorrectGenerator)
+                    .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
             double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
 
@@ -214,7 +214,7 @@ public final class GlskPointScalableConverter {
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getLoadId)
                     .map(network::getLoad)
-                    .filter(NetworkUtil::isCorrectLoad)
+                    .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
             double totalP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
 
@@ -235,7 +235,7 @@ public final class GlskPointScalableConverter {
             LOGGER.debug("GLSK Type B43 GSK");
 
             List<AbstractGlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(generatorResource -> NetworkUtil.isCorrectGenerator(network.getGenerator(generatorResource.getGeneratorId())))
+                    .filter(generatorResource -> NetworkUtil.isCorrect(network.getGenerator(generatorResource.getGeneratorId())))
                     .collect(Collectors.toList());
 
             double totalFactor = generatorResources.stream().mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor).sum();
@@ -245,7 +245,7 @@ public final class GlskPointScalableConverter {
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B43 LSK");
             List<AbstractGlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(loadResource -> NetworkUtil.isCorrectLoad(network.getLoad(loadResource.getLoadId())))
+                    .filter(loadResource -> NetworkUtil.isCorrect(network.getLoad(loadResource.getLoadId())))
                     .collect(Collectors.toList());
 
             double totalFactor = loadResources.stream().mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor).sum();

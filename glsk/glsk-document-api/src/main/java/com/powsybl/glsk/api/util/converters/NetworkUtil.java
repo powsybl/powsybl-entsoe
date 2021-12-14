@@ -7,6 +7,7 @@
 package com.powsybl.glsk.api.util.converters;
 
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 
 /**
@@ -27,17 +28,10 @@ public final class NetworkUtil {
         return Math.max(MINIMAL_ABS_POWER_VALUE, Math.abs(load.getP0()));
     }
 
-    static boolean isCorrectGenerator(Generator generator) {
-        return generator != null &&
-                generator.getTerminal().isConnected() &&
-                generator.getTerminal().getBusView().getBus() != null &&
-                generator.getTerminal().getBusView().getBus().isInMainSynchronousComponent();
-    }
-
-    static boolean isCorrectLoad(Load load) {
-        return load != null &&
-                load.getTerminal().isConnected() &&
-                load.getTerminal().getBusView().getBus() != null &&
-                load.getTerminal().getBusView().getBus().isInMainSynchronousComponent();
+    static boolean isCorrect(Injection<?> injection) {
+        return injection != null &&
+               injection.getTerminal().isConnected() &&
+               injection.getTerminal().getBusView().getBus() != null &&
+               injection.getTerminal().getBusView().getBus().isInMainSynchronousComponent();
     }
 }
