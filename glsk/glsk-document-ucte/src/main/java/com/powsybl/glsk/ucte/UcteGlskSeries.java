@@ -27,23 +27,23 @@ public class UcteGlskSeries {
     /**
      * generator or load
      */
-    private String ucteBusinessType;
+    private final String ucteBusinessType;
     /**
      * id
      */
-    private String timeSeriesID;
+    private final String timeSeriesID;
     /**
      * share factor between LSK and GSK
      */
-    private double shareFactor;
+    private final double shareFactor;
     /**
      * block type: country, Manual, Auto
      */
-    private String ucteGlskBlockType;
+    private final String ucteGlskBlockType;
     /**
      * List of block in time series
      */
-    private List<UcteGlskPoint> ucteGlskBlocks;
+    private final List<UcteGlskPoint> ucteGlskBlocks;
     /**
      * Constant business type
      */

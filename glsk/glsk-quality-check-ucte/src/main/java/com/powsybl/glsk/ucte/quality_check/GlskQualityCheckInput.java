@@ -16,11 +16,11 @@ import java.time.Instant;
  */
 class GlskQualityCheckInput {
 
-    private UcteGlskDocument ucteGlskDocument;
+    private final UcteGlskDocument ucteGlskDocument;
 
-    private Network network;
+    private final Network network;
 
-    private Instant instant;
+    private final Instant instant;
 
     public UcteGlskDocument getUcteGlskDocument() {
         return ucteGlskDocument;

@@ -28,7 +28,7 @@ public class CimGlskTimeSeries {
     /**
      * country mrid
      */
-    private String subjectDomainmRID;
+    private final String subjectDomainmRID;
     /**
      * curve type A01 or A03
      */
@@ -36,7 +36,7 @@ public class CimGlskTimeSeries {
     /**
      * list of periods in the time series
      */
-    private List<CimGlskPeriod> cimGlskPeriods;
+    private final List<CimGlskPeriod> cimGlskPeriods;
 
     /**
      * @param element Time series element
