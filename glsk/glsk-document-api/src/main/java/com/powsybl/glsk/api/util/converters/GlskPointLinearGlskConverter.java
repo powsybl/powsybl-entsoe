@@ -122,7 +122,6 @@ public final class GlskPointLinearGlskConverter {
             List<Generator> generators = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getGeneratorId)
                     .map(network::getGenerator)
-                    .filter(generator -> generator != null)
                     .filter(NetworkUtil::isCorrectGenerator)
                     .collect(Collectors.toList());
             double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
@@ -132,7 +131,6 @@ public final class GlskPointLinearGlskConverter {
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getLoadId)
                     .map(network::getLoad)
-                    .filter(load -> load != null)
                     .filter(NetworkUtil::isCorrectLoad)
                     .collect(Collectors.toList());
             double totalLoad = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
@@ -153,7 +151,6 @@ public final class GlskPointLinearGlskConverter {
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
             List<AbstractGlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(generatorResource -> network.getGenerator(generatorResource.getGeneratorId()) != null)
                     .filter(generatorResource -> NetworkUtil.isCorrectGenerator(network.getGenerator(generatorResource.getGeneratorId())))
                     .collect(Collectors.toList());
             double totalFactor = generatorResources.stream().mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor).sum();
@@ -164,7 +161,6 @@ public final class GlskPointLinearGlskConverter {
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<AbstractGlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(loadResource -> network.getLoad(loadResource.getLoadId()) != null)
                     .filter(loadResource -> NetworkUtil.isCorrectLoad(network.getLoad(loadResource.getLoadId())))
                     .collect(Collectors.toList());
             double totalFactor = loadResources.stream().mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor).sum();

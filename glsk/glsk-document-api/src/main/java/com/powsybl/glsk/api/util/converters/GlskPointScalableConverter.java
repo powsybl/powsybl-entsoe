@@ -202,7 +202,6 @@ public final class GlskPointScalableConverter {
             List<Generator> generators = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getGeneratorId)
                     .map(network::getGenerator)
-                    .filter(Objects::nonNull)
                     .filter(NetworkUtil::isCorrectGenerator)
                     .collect(Collectors.toList());
             double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
@@ -215,7 +214,6 @@ public final class GlskPointScalableConverter {
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getLoadId)
                     .map(network::getLoad)
-                    .filter(Objects::nonNull)
                     .filter(NetworkUtil::isCorrectLoad)
                     .collect(Collectors.toList());
             double totalP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
