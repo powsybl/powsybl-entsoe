@@ -36,16 +36,19 @@ public class CimGlskShiftKey extends AbstractGlskShiftKey {
             throw new GlskException("BusinessType not supported: " + businessType);
         }
         this.psrType = element.getElementsByTagName("mktPSRType.psrType").item(0).getTextContent();
-        if (element.getElementsByTagName("quantity.quantity").getLength() > 0) {
-            this.quantity = Double.valueOf(element.getElementsByTagName("quantity.quantity").item(0).getTextContent());
+        NodeList quantities = element.getElementsByTagName("quantity.quantity");
+        if (quantities.getLength() > 0) {
+            this.quantity = Double.valueOf(quantities.item(0).getTextContent());
         } else {
             this.quantity = 1.0;
         }
         this.subjectDomainmRID = subjectDomainmRID;
-        this.meritOrderPosition = element.getElementsByTagName("attributeInstanceComponent.position").getLength() == 0 ? 0 :
-            Integer.valueOf(element.getElementsByTagName("attributeInstanceComponent.position").item(0).getTextContent());
-        this.flowDirection = element.getElementsByTagName("flowDirection.direction").getLength() == 0 ? "" :
-            element.getElementsByTagName("flowDirection.direction").item(0).getTextContent();
+        NodeList positions = element.getElementsByTagName("attributeInstanceComponent.position");
+        this.meritOrderPosition = positions.getLength() == 0 ? 0 :
+            Integer.valueOf(positions.item(0).getTextContent());
+        NodeList directions = element.getElementsByTagName("flowDirection.direction\"");
+        this.flowDirection = directions.getLength() == 0 ? "" :
+                directions.item(0).getTextContent();
         //registeredResources
         this.registeredResourceArrayList = new ArrayList<>();
         NodeList glskRegisteredResourcesElements = element.getElementsByTagName("RegisteredResource");

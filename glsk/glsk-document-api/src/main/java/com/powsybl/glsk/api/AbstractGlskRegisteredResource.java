@@ -22,7 +22,7 @@ public abstract class AbstractGlskRegisteredResource {
      */
     protected String name;
     /**
-     * participation factor between generator and load. default = 1
+     * participation factor between generator and load. default = 0
      */
     protected Double participationFactor;
     /**

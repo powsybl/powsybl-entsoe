@@ -202,8 +202,8 @@ public final class GlskPointScalableConverter {
 
             List<Generator> generators = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getGeneratorId)
-                    .filter(generatorId -> network.getGenerator(generatorId) != null)
-                    .map(network::getGenerator)
+                    .map(gid -> network.getGenerator(gid))
+                    .filter(generator -> generator != null)
                     .filter(NetworkUtil::isCorrectGenerator)
                     .collect(Collectors.toList());
             double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
@@ -215,8 +215,8 @@ public final class GlskPointScalableConverter {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getLoadId)
-                    .filter(loadId -> network.getLoad(loadId) != null)
-                    .map(network::getLoad)
+                    .map(lId -> network.getLoad(lId))
+                    .filter(load -> load != null)
                     .filter(NetworkUtil::isCorrectLoad)
                     .collect(Collectors.toList());
             double totalP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
@@ -261,10 +261,6 @@ public final class GlskPointScalableConverter {
     }
 
     private static Country getSubstationNullableCountry(Optional<Substation> substation) {
-        if (substation.isPresent()) {
-            return substation.get().getNullableCountry();
-        } else {
-            return null;
-        }
+        return substation.map(Substation::getNullableCountry).orElse(null);
     }
 }

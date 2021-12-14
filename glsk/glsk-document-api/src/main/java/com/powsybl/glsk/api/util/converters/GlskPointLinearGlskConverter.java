@@ -55,12 +55,14 @@ public final class GlskPointLinearGlskConverter {
         }
 
         for (AbstractGlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
-            if (glskShiftKey.getBusinessType().equals("B42") && glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
-                LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GLSK");
-                convertCountryProportional(network, glskShiftKey, linearGlskMap);
-            } else if (glskShiftKey.getBusinessType().equals("B42") && !glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
-                LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
-                convertExplicitProportional(network, glskShiftKey, linearGlskMap);
+            if (glskShiftKey.getBusinessType().equals("B42")) {
+                if (glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
+                    LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GLSK");
+                    convertCountryProportional(network, glskShiftKey, linearGlskMap);
+                } else {
+                    LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
+                    convertExplicitProportional(network, glskShiftKey, linearGlskMap);
+                }
             } else if (glskShiftKey.getBusinessType().equals("B43")) {
                 LOGGER.debug("GLSK Type B43 --> participation factor proportional GSK");
                 if (glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
@@ -119,8 +121,8 @@ public final class GlskPointLinearGlskConverter {
             //Generator A04
             List<Generator> generators = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getGeneratorId)
-                    .filter(generatorId -> network.getGenerator(generatorId) != null)
                     .map(network::getGenerator)
+                    .filter(generator -> generator != null)
                     .filter(NetworkUtil::isCorrectGenerator)
                     .collect(Collectors.toList());
             double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
@@ -129,8 +131,8 @@ public final class GlskPointLinearGlskConverter {
             //Load A05
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getLoadId)
-                    .filter(loadId -> network.getLoad(loadId) != null)
                     .map(network::getLoad)
+                    .filter(load -> load != null)
                     .filter(NetworkUtil::isCorrectLoad)
                     .collect(Collectors.toList());
             double totalLoad = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
@@ -177,10 +179,6 @@ public final class GlskPointLinearGlskConverter {
     }
 
     private static Country getSubstationNullableCountry(Optional<Substation> substation) {
-        if (substation.isPresent()) {
-            return substation.get().getNullableCountry();
-        } else {
-            return null;
-        }
+        return substation.map(Substation::getNullableCountry).orElse(null);
     }
 }

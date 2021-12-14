@@ -56,10 +56,11 @@ public class UcteGlskSeries {
         Node node = Objects.requireNonNull(element).getElementsByTagName("Area").item(0);
         Element nodeElement = (Element) node;
         this.area = nodeElement.getAttribute("v");
-        this.ucteBusinessType = ((Element) element.getElementsByTagName(BUSINESS_TYPE).item(0)).getAttribute("v");
+        NodeList types = element.getElementsByTagName(BUSINESS_TYPE);
+        this.ucteBusinessType = ((Element) types.item(0)).getAttribute("v");
         this.timeSeriesID = ((Element) element.getElementsByTagName("TimeSeriesIdentification").item(0)).getAttribute("v");
-        if (((Element) element.getElementsByTagName(BUSINESS_TYPE).item(0)).hasAttribute("share")) {
-            this.shareFactor = Double.parseDouble(((Element) element.getElementsByTagName(BUSINESS_TYPE).item(0)).getAttribute("share"));
+        if (((Element) types.item(0)).hasAttribute("share")) {
+            this.shareFactor = Double.parseDouble(((Element) types.item(0)).getAttribute("share"));
         } else {
             this.shareFactor = 100;
         }

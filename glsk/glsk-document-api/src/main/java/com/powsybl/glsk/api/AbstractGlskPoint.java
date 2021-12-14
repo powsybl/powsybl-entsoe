@@ -44,10 +44,10 @@ public abstract class AbstractGlskPoint {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("\n==== GSK Point ====\n");
+        builder.append("\n==== GLSK Point ====\n");
         builder.append("Position = ").append(position).append("\n");
         builder.append("PointInterval = ").append(pointInterval.toString()).append("\n");
-        builder.append("subjectDomainemRID = ").append(subjectDomainmRID).append("\n");
+        builder.append("subjectDomainmRID = ").append(subjectDomainmRID).append("\n");
         builder.append("CurveType = ").append(curveType).append("\n");
         for (AbstractGlskShiftKey key : glskShiftKeys) {
             builder.append(key.glskShiftKeyToString());

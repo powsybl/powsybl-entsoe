@@ -36,8 +36,7 @@ public final class CimGlskDocument implements GlskDocument {
     /**
      * IIDM GlskDocument: map < CountryCode, all GlskTimeSeries of the country
      */
-    private Map<String, CimGlskTimeSeries> mapGlskTimeSeries; //map<CountryCode, GlskTimesSeries of the Country>
-    //We consider there are one timeSeries per country. Otherwise: Map<Country, List<GlskTimesSeries>>. but do we have a use case?
+    private Map<String, CimGlskTimeSeries> mapGlskTimeSeries;
 
     /**
      * Interval start instant

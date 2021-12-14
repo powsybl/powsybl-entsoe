@@ -48,8 +48,9 @@ public class CimGlskTimeSeries {
                 .getElementsByTagName("subject_Domain.mRID")
                 .item(0)
                 .getTextContent();
-        this.curveType = element.getElementsByTagName("curveType").getLength() == 0 ? "A03" :
-                element.getElementsByTagName("curveType").item(0).getTextContent();
+        NodeList types = element.getElementsByTagName("curveType");
+        this.curveType = types.getLength() == 0 ? "A03" :
+                types.item(0).getTextContent();
         if (!this.curveType.equals("A03") && !this.curveType.equals("A01")) {
             throw new GlskException("CurveType not supported: " + this.curveType);
         }
