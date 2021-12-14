@@ -33,7 +33,7 @@ class GlskQualityCheck {
 
     public static final String TSO_KEY = "TSO";
 
-    public static final TypedValue WARN_SEVERITY = new TypedValue("UCTE_WARN", TypedValue.WARN_LOGLEVEL);
+    public static final TypedValue WARN_SEVERITY = new TypedValue("QUALITY_CHECK_WARN", TypedValue.WARN_LOGLEVEL);
 
     public static void gskQualityCheck(GlskQualityCheckInput input, Reporter reporter) {
         new GlskQualityCheck().generateReport(input, reporter);
