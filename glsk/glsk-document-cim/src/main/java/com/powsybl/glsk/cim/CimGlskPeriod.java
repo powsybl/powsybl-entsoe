@@ -72,7 +72,7 @@ public class CimGlskPeriod {
             Instant nextPointStart = getPeriodInterval().getEnd();
             for (int i = glskPoints.size() - 1; i >= 0; --i) {
                 AbstractGlskPoint point = glskPoints.get(i);
-                Interval newInterval = Interval.of(point.getPointInterval().getStart(), nextPointStart);
+                Interval newInterval = point.getPointInterval().withEnd(nextPointStart);
                 point.setPointInterval(newInterval);
                 nextPointStart = point.getPointInterval().getStart();
             }

@@ -28,13 +28,15 @@ public final class NetworkUtil {
     }
 
     static boolean isCorrectGenerator(Generator generator) {
-        return generator.getTerminal().isConnected() &&
+        return generator != null &&
+                generator.getTerminal().isConnected() &&
                 generator.getTerminal().getBusView().getBus() != null &&
                 generator.getTerminal().getBusView().getBus().isInMainSynchronousComponent();
     }
 
     static boolean isCorrectLoad(Load load) {
-        return load.getTerminal().isConnected() &&
+        return load != null &&
+                load.getTerminal().isConnected() &&
                 load.getTerminal().getBusView().getBus() != null &&
                 load.getTerminal().getBusView().getBus().isInMainSynchronousComponent();
     }

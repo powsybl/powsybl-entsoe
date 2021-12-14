@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * CIM type GlskDocument
@@ -105,12 +106,8 @@ public final class CimGlskDocument implements GlskDocument {
      * @return getter of all GlskPoint in document
      */
     public List<AbstractGlskPoint> getGlskPoints() {
-        List<AbstractGlskPoint> glskPointList = new ArrayList<>();
-        for (String s : getMapGlskTimeSeries().keySet()) {
-            List<AbstractGlskPoint> list = getMapGlskTimeSeries().get(s).getGlskPointListInGlskTimeSeries();
-            glskPointList.addAll(list);
-        }
-        return glskPointList;
+        return getMapGlskTimeSeries().values().stream()
+            .flatMap(s -> s.getGlskPointListInGlskTimeSeries().stream()).collect(Collectors.toList());
     }
 
     /**

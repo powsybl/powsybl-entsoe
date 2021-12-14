@@ -73,7 +73,6 @@ public final class GlskPointScalableConverter {
         // generation, and to put all generators at Pmax at the same time when increasing generation.
         // Though the scaling is not symmetrical.
         List<AbstractGlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                .filter(generatorResource -> network.getGenerator(generatorResource.getGeneratorId()) != null)
                 .filter(generatorResource -> NetworkUtil.isCorrectGenerator(network.getGenerator(generatorResource.getGeneratorId())))
                 .collect(Collectors.toList());
 
@@ -202,8 +201,8 @@ public final class GlskPointScalableConverter {
 
             List<Generator> generators = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getGeneratorId)
-                    .map(gid -> network.getGenerator(gid))
-                    .filter(generator -> generator != null)
+                    .map(network::getGenerator)
+                    .filter(Objects::nonNull)
                     .filter(NetworkUtil::isCorrectGenerator)
                     .collect(Collectors.toList());
             double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
@@ -215,8 +214,8 @@ public final class GlskPointScalableConverter {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .map(AbstractGlskRegisteredResource::getLoadId)
-                    .map(lId -> network.getLoad(lId))
-                    .filter(load -> load != null)
+                    .map(network::getLoad)
+                    .filter(Objects::nonNull)
                     .filter(NetworkUtil::isCorrectLoad)
                     .collect(Collectors.toList());
             double totalP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
@@ -238,7 +237,6 @@ public final class GlskPointScalableConverter {
             LOGGER.debug("GLSK Type B43 GSK");
 
             List<AbstractGlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(generatorResource -> network.getGenerator(generatorResource.getGeneratorId()) != null)
                     .filter(generatorResource -> NetworkUtil.isCorrectGenerator(network.getGenerator(generatorResource.getGeneratorId())))
                     .collect(Collectors.toList());
 
@@ -249,7 +247,6 @@ public final class GlskPointScalableConverter {
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B43 LSK");
             List<AbstractGlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(loadResource -> network.getLoad(loadResource.getLoadId()) != null)
                     .filter(loadResource -> NetworkUtil.isCorrectLoad(network.getLoad(loadResource.getLoadId())))
                     .collect(Collectors.toList());
 

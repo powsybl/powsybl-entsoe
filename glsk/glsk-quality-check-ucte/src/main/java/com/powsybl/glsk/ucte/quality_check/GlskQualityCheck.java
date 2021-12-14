@@ -8,6 +8,7 @@ package com.powsybl.glsk.ucte.quality_check;
 
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
 import com.powsybl.glsk.ucte.UcteGlskPoint;
@@ -31,6 +32,8 @@ class GlskQualityCheck {
     public static final String TYPE_KEY = "Type";
 
     public static final String TSO_KEY = "TSO";
+
+    public static final TypedValue WARN_SEVERITY = new TypedValue("UCTE_WARN", TypedValue.WARN_LOGLEVEL);
 
     public static void gskQualityCheck(GlskQualityCheckInput input, Reporter reporter) {
         new GlskQualityCheck().generateReport(input, reporter);
@@ -114,6 +117,7 @@ class GlskQualityCheck {
                     .withTypedValue(NODE_ID_KEY, registeredResource.getmRID(), "")
                     .withTypedValue(TYPE_KEY, type, "")
                     .withTypedValue(TSO_KEY, tso, "")
+                    .withSeverity(WARN_SEVERITY)
                     .build());
             } else {
                 reporter.report(Report.builder()
@@ -122,6 +126,7 @@ class GlskQualityCheck {
                     .withTypedValue(NODE_ID_KEY, registeredResource.getmRID(), "")
                     .withTypedValue(TYPE_KEY, type, "")
                     .withTypedValue(TSO_KEY, tso, "")
+                    .withSeverity(WARN_SEVERITY)
                     .build());
             }
         } else {
@@ -133,6 +138,7 @@ class GlskQualityCheck {
                     .withTypedValue(NODE_ID_KEY, registeredResource.getmRID(), "")
                     .withTypedValue(TYPE_KEY, type, "")
                     .withTypedValue(TSO_KEY, tso, "")
+                    .withSeverity(WARN_SEVERITY)
                     .build());
             }
         }
