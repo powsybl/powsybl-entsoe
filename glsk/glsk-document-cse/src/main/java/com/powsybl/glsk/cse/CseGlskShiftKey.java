@@ -24,40 +24,45 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
     public CseGlskShiftKey(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID) {
         initCommonMemberVariables(glskBlockElement, businessType, pointInterval, subjectDomainmRID);
 
-        if ("ManualGSKBlock".equals(glskBlockElement.getTagName())) {
-            this.businessType = "B43";
-            NodeList nodesList = glskBlockElement.getElementsByTagName("Node");
-            double currentFactorsSum = 0;
-            for (int i = 0; i < nodesList.getLength(); i++) {
-                Element nodeElement = (Element) nodesList.item(i);
-                CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
-                registeredResourceArrayList.add(cseRegisteredResource);
-                Optional<Double> initialFactor = cseRegisteredResource.getInitialFactor();
-                if (initialFactor.isPresent()) {
-                    currentFactorsSum += initialFactor.get();
+        switch (glskBlockElement.getTagName()) {
+            case "ManualGSKBlock":
+                this.businessType = "B43";
+                NodeList nodesList = glskBlockElement.getElementsByTagName("Node");
+                double currentFactorsSum = 0;
+                for (int i = 0; i < nodesList.getLength(); i++) {
+                    Element nodeElement = (Element) nodesList.item(i);
+                    CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
+                    registeredResourceArrayList.add(cseRegisteredResource);
+                    Optional<Double> initialFactor = cseRegisteredResource.getInitialFactor();
+                    if (initialFactor.isPresent()) {
+                        currentFactorsSum += initialFactor.get();
+                    }
                 }
-            }
 
-            if (currentFactorsSum == 0) {
-                throw new GlskException("Factors sum should not be 0");
-            }
-
-            for (AbstractGlskRegisteredResource registeredResource : registeredResourceArrayList) {
-                CseGlskRegisteredResource cseRegisteredResource = (CseGlskRegisteredResource) registeredResource;
-                Optional<Double> intialFactor = cseRegisteredResource.getInitialFactor();
-                if (intialFactor.isPresent()) {
-                    cseRegisteredResource.setParticipationFactor(intialFactor.get() / currentFactorsSum);
+                if (currentFactorsSum == 0) {
+                    throw new GlskException("Factors sum should not be 0");
                 }
-            }
-        } else if ("PropGSKBlock".equals(glskBlockElement.getTagName())) {
-            importImplicitProportionalBlock(glskBlockElement, "B42");
-        } else if ("PropLSKBlock".equals(glskBlockElement.getTagName())) {
-            this.psrType = "A05"; // Enforce psrType that does not respect "official" format specification
-            importImplicitProportionalBlock(glskBlockElement, "B42");
-        } else if ("ReserveGSKBlock".equals(glskBlockElement.getTagName())) {
-            importImplicitProportionalBlock(glskBlockElement, "B44");
-        } else {
-            throw new GlskException("Unknown UCTE Block type");
+
+                for (AbstractGlskRegisteredResource registeredResource : registeredResourceArrayList) {
+                    CseGlskRegisteredResource cseRegisteredResource = (CseGlskRegisteredResource) registeredResource;
+                    Optional<Double> intialFactor = cseRegisteredResource.getInitialFactor();
+                    if (intialFactor.isPresent()) {
+                        cseRegisteredResource.setParticipationFactor(intialFactor.get() / currentFactorsSum);
+                    }
+                }
+                break;
+            case "PropGSKBlock":
+                importImplicitProportionalBlock(glskBlockElement, "B42");
+                break;
+            case "PropLSKBlock":
+                this.psrType = "A05"; // Enforce psrType that does not respect "official" format specification
+                importImplicitProportionalBlock(glskBlockElement, "B42");
+                break;
+            case "ReserveGSKBlock":
+                importImplicitProportionalBlock(glskBlockElement, "B44");
+                break;
+            default:
+                throw new GlskException("Unknown UCTE Block type");
         }
     }
 

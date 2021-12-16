@@ -17,6 +17,8 @@ import com.powsybl.sensitivity.factors.variables.LinearGlsk;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -110,59 +112,43 @@ public class UcteGlskValueProviderTest {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestMultiShare2.xml"));
 
-        ZonalData<LinearGlsk> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, Instant.parse("2016-07-28T22:00:00Z"));
-        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.3 * 1.0, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-        assertEquals(0.7 * 0.2, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-        assertEquals(0.7 * 0.8, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+        List<Instant> instants = new ArrayList<>();
+        instants.add(Instant.parse("2016-07-28T22:00:00Z"));
+        instants.add(Instant.parse("2016-07-29T10:00:00Z"));
+        instants.add(Instant.parse("2016-07-29T11:59:59Z"));
+        for (Instant i : instants) {
+            ZonalData<LinearGlsk> ucteGlskProvidert = ucteGlskDocument.getZonalGlsks(network, i);
+            assertEquals(3, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().size());
+            assertEquals(0.3 * 1.0, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
+            assertEquals(0.7 * 0.2, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
+            assertEquals(0.7 * 0.8, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+        }
 
-        ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, Instant.parse("2016-07-29T10:00:00Z"));
-        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.3 * 1.0, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-        assertEquals(0.7 * 0.2, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-        assertEquals(0.7 * 0.8, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+        List<Instant> instants2 = new ArrayList<>();
+        instants2.add(Instant.parse("2016-07-29T12:00:00Z"));
+        instants2.add(Instant.parse("2016-07-29T16:00:00Z"));
+        instants2.add(Instant.parse("2016-07-29T18:59:59Z"));
 
-        ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, Instant.parse("2016-07-29T11:59:59Z"));
-        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.3 * 1.0, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-        assertEquals(0.7 * 0.2, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-        assertEquals(0.7 * 0.8, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+        for (Instant i : instants2) {
+            ZonalData<LinearGlsk> ucteGlskProvidert = ucteGlskDocument.getZonalGlsks(network, i);
+            assertEquals(3, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().size());
+            assertEquals(0.5 * 1.0, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
+            assertEquals(0.5 * 0.6, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
+            assertEquals(0.5 * 0.4, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+        }
 
-        ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, Instant.parse("2016-07-29T12:00:00Z"));
-        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.5 * 1.0, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-        assertEquals(0.5 * 0.6, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-        assertEquals(0.5 * 0.4, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+        List<Instant> instants3 = new ArrayList<>();
+        instants3.add(Instant.parse("2016-07-29T19:00:00Z"));
+        instants3.add(Instant.parse("2016-07-29T21:00:00Z"));
+        instants3.add(Instant.parse("2016-07-29T21:59:59Z"));
 
-        ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, Instant.parse("2016-07-29T16:00:00Z"));
-        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.5 * 1.0, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-        assertEquals(0.5 * 0.6, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-        assertEquals(0.5 * 0.4, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
-
-        ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, Instant.parse("2016-07-29T18:59:59Z"));
-        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.5 * 1.0, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-        assertEquals(0.5 * 0.6, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-        assertEquals(0.5 * 0.4, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
-
-        ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, Instant.parse("2016-07-29T19:00:00Z"));
-        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.3 * 1.0, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-        assertEquals(0.7 * 0.3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-        assertEquals(0.7 * 0.7, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
-
-        ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, Instant.parse("2016-07-29T21:00:00Z"));
-        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.3 * 1.0, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-        assertEquals(0.7 * 0.3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-        assertEquals(0.7 * 0.7, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
-
-        ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, Instant.parse("2016-07-29T21:59:59Z"));
-        assertEquals(3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().size());
-        assertEquals(0.3 * 1.0, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
-        assertEquals(0.7 * 0.3, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
-        assertEquals(0.7 * 0.7, ucteGlskProvider.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+        for (Instant i : instants3) {
+            ZonalData<LinearGlsk> ucteGlskProvidert = ucteGlskDocument.getZonalGlsks(network, i);
+            assertEquals(3, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().size());
+            assertEquals(0.3 * 1.0, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _generator"), EPSILON);
+            assertEquals(0.7 * 0.3, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR1AA1 _load"), EPSILON);
+            assertEquals(0.7 * 0.7, ucteGlskProvidert.getData("10YFR-RTE------C").getGLSKs().get("FFR2AA1 _load"), EPSILON);
+        }
     }
 
     @Test
