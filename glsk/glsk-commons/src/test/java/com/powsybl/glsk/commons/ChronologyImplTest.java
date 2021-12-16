@@ -143,12 +143,15 @@ public class ChronologyImplTest {
     @Test
     public void testLimitsOfIntervals() {
         Chronology<Integer> dataChronology = ChronologyImpl.create();
-        String instant = "2010-03-03T10:15:30.00Z";
-        String instantPlus1Hour = "2010-03-03T11:15:30.00Z";
-        String instantPlus1Hour1Day = "2010-03-04T11:15:30.00Z";
-        dataChronology.storeDataAtInstant(2, Instant.parse(instant));
-        dataChronology.storeDataAtInstant(2, Instant.parse(instantPlus1Hour), Duration.ofDays(1));
-        dataChronology.storeDataAtInstant(2, Instant.parse(instantPlus1Hour1Day));
+        Instant instant = Instant.parse("2010-03-03T10:15:30.00Z");
+        Instant instantPlus1Hour = Instant.parse("2010-03-03T11:15:30.00Z");
+        Instant instantPlus5Hour = Instant.parse("2010-03-03T15:15:30.00Z");
+        Instant instantPlus1Hour1Day = Instant.parse("2010-03-04T11:15:30.00Z");
+        dataChronology.storeDataAtInstant(2, instant);
+        dataChronology.storeDataAtInstant(2, instantPlus1Hour, Duration.ofDays(1));
+        dataChronology.storeDataAtInstant(3, instantPlus1Hour1Day);
+        assertEquals(2, dataChronology.selectInstant(instantPlus5Hour).intValue());
+        assertEquals(3, dataChronology.selectInstant(instantPlus1Hour1Day).intValue());
     }
 }
 
