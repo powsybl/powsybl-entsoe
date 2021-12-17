@@ -48,14 +48,23 @@
         <junit.version>4.13.1</junit.version>
         <slf4j.version>1.7.22</slf4j.version>
         <xmlunit.version>2.3.0</xmlunit.version>
-
         <powsyblba.version>1.8.0</powsyblba.version>
         <powsyblcore.version>4.6.0-RC1</powsyblcore.version>
+        <sonar.coverage.jacoco.xmlReportPaths>
+            ../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml,
+            ../../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml,
+            ../../../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+        <logback.version>1.2.3</logback.version>
+        <threeten.version>1.5.0</threeten.version>
+        <jackson.version>2.11.2</jackson.version>
     </properties>
 
     <modules>
         <module>entsoe-cgmes-balances-adjustment</module>
         <module>cne</module>
+        <module>glsk</module>
+        <module>distribution-entsoe</module>
     </modules>
 
 </project>
