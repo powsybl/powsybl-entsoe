@@ -25,12 +25,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class CgmesBoundariesAreaTest {
 
+    public static double DELTA_POWER = 1e-5;
+
     @Test
     public void testWithNoArea() {
         Network network = DanglingLineNetworkFactory.create();
         NetworkAreaFactory factory = new CgmesBoundariesAreaFactory();
         NetworkArea area = factory.create(network);
-        assertEquals(network.getDanglingLine("DL").getBoundary().getP(), area.getNetPosition(), 0.0);
+        assertEquals(network.getDanglingLine("DL").getBoundary().getP(), area.getNetPosition(), DELTA_POWER);
         assertTrue(area.getContainedBusViewBuses().isEmpty());
     }
 
@@ -43,7 +45,7 @@ public class CgmesBoundariesAreaTest {
                 network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da"),
                 network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006"))
                         .mapToDouble(dl -> dl.getBoundary().getP()).sum(),
-                area.getNetPosition(), 0.0);
+                area.getNetPosition(), DELTA_POWER);
         assertTrue(area.getContainedBusViewBuses().isEmpty());
     }
 }
