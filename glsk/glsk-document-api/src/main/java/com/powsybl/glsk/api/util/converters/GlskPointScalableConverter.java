@@ -88,7 +88,7 @@ public final class GlskPointScalableConverter {
         double totalFactor = generatorResources.stream().mapToDouble(resource -> remainingCapacityFunction.apply(resource, network)).sum();
         generatorResources.forEach(generatorResource -> {
             percentages.add((float) (100 * glskShiftKey.getQuantity().floatValue() * remainingCapacityFunction.apply(generatorResource, network) / totalFactor));
-            scalables.add(Scalable.onGenerator(generatorResource.getGeneratorId()));
+            scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
         });
         return Scalable.proportional(percentages, scalables);
     }
