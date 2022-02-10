@@ -20,6 +20,9 @@ import java.util.Optional;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class CseGlskShiftKey extends AbstractGlskShiftKey {
+    private static final int DEFAULT_ORDER = 0;
+
+    private int order;
 
     public CseGlskShiftKey(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID) {
         initCommonMemberVariables(glskBlockElement, businessType, pointInterval, subjectDomainmRID);
@@ -104,10 +107,16 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         } else {
             throw new GlskException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + businessType);
         }
-        this.quantity = Double.valueOf(((Element) glskBlockElement.getElementsByTagName("Factor").item(0)).getAttribute("v"));
+        this.quantity  = (0 == glskBlockElement.getElementsByTagName("Factor").getLength()) ? 1.0 :
+            Double.parseDouble(((Element) glskBlockElement.getElementsByTagName("Factor").item(0)).getAttribute("v")); //"factor" is optional
         this.glskShiftKeyInterval = pointInterval;
         this.subjectDomainmRID = subjectDomainmRID;
         this.registeredResourceArrayList = new ArrayList<>();
+        this.order  = (0 == glskBlockElement.getElementsByTagName("Order").getLength()) ? DEFAULT_ORDER :
+            Integer.parseInt((glskBlockElement.getElementsByTagName("Order").item(0)).getTextContent()); //order in hybrid cse glsk
+        if (glskBlockElement.getElementsByTagName("MaximumShift").getLength() != 0) {
+            this.maximumShift = Double.parseDouble(((Element) glskBlockElement.getElementsByTagName("MaximumShift").item(0)).getAttribute("v")); //maximum shift in hybrid cse glsk
+        }
     }
 
     private void importImplicitProportionalBlock(Element glskBlockElement, String businessType) {
@@ -119,5 +128,13 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
             CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
             registeredResourceArrayList.add(cseRegisteredResource);
         }
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public double getMaximumShift() {
+        return maximumShift;
     }
 }

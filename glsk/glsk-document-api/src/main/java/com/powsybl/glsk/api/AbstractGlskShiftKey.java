@@ -15,6 +15,7 @@ import java.util.List;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public abstract class AbstractGlskShiftKey {
+    private static final double DEFAULT_MAXIMUM_SHIFT = Double.MAX_VALUE;
 
     /**
      * business type of shift key. B42, B43, B45
@@ -49,6 +50,10 @@ public abstract class AbstractGlskShiftKey {
      * merit order direction
      */
     protected String flowDirection;
+    /**
+     * Maximum shift
+     */
+    protected double maximumShift = DEFAULT_MAXIMUM_SHIFT;
 
     /**
      * @return debug to string
@@ -132,4 +137,7 @@ public abstract class AbstractGlskShiftKey {
         return flowDirection;
     }
 
+    public double getMaximumShift() {
+        return maximumShift;
+    }
 }
