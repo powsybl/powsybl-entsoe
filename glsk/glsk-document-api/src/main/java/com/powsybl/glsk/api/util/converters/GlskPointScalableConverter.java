@@ -90,7 +90,7 @@ public final class GlskPointScalableConverter {
             percentages.add((float) (100 * glskShiftKey.getQuantity().floatValue() * remainingCapacityFunction.apply(generatorResource, network) / totalFactor));
             scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
         });
-        return Scalable.proportional(percentages, scalables);
+        return Scalable.proportional(percentages, scalables, true);
     }
 
     private static double getRemainingCapacityUp(AbstractGlskRegisteredResource resource, Network network) {
