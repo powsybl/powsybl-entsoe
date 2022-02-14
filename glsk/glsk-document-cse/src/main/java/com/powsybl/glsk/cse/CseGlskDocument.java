@@ -8,7 +8,6 @@ package com.powsybl.glsk.cse;
 
 import com.powsybl.action.util.Scalable;
 import com.powsybl.glsk.api.AbstractGlskPoint;
-import com.powsybl.glsk.api.AbstractGlskShiftKey;
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
 import com.powsybl.glsk.commons.GlskException;

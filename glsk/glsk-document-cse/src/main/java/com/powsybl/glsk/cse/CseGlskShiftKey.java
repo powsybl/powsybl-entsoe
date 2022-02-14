@@ -112,7 +112,9 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         this.registeredResourceArrayList = new ArrayList<>();
         if (isPartOfHybridShiftKey(glskBlockElement)) {
             this.order = getOrder(glskBlockElement);
-            this.maximumShift = getMaximumShift(glskBlockElement);
+            if (hasMaximumShift(glskBlockElement)) {
+                this.maximumShift = getMaximumShift(glskBlockElement);
+            }
         } else {
             this.quantity = getFactor(glskBlockElement);
         }
@@ -124,6 +126,10 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
 
     private static int getOrder(Element glskBlockElement) {
         return Integer.parseInt((glskBlockElement.getElementsByTagName("Order").item(0)).getTextContent());
+    }
+
+    private static boolean hasMaximumShift(Element glskBlockElement) {
+        return glskBlockElement.getElementsByTagName("MaximumShift").getLength() != 0;
     }
 
     private static double getMaximumShift(Element glskBlockElement) {
