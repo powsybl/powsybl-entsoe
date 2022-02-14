@@ -22,7 +22,7 @@ import java.util.Optional;
 public class CseGlskShiftKey extends AbstractGlskShiftKey {
     private static final int DEFAULT_ORDER = 0;
 
-    private int order;
+    private int order = DEFAULT_ORDER;
 
     public CseGlskShiftKey(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID) {
         initCommonMemberVariables(glskBlockElement, businessType, pointInterval, subjectDomainmRID);
@@ -107,16 +107,32 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         } else {
             throw new GlskException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + businessType);
         }
-        this.quantity  = (0 == glskBlockElement.getElementsByTagName("Factor").getLength()) ? 1.0 :
-            Double.parseDouble(((Element) glskBlockElement.getElementsByTagName("Factor").item(0)).getAttribute("v")); //"factor" is optional
         this.glskShiftKeyInterval = pointInterval;
         this.subjectDomainmRID = subjectDomainmRID;
         this.registeredResourceArrayList = new ArrayList<>();
-        this.order  = (0 == glskBlockElement.getElementsByTagName("Order").getLength()) ? DEFAULT_ORDER :
-            Integer.parseInt((glskBlockElement.getElementsByTagName("Order").item(0)).getTextContent()); //order in hybrid cse glsk
-        if (glskBlockElement.getElementsByTagName("MaximumShift").getLength() != 0) {
-            this.maximumShift = Double.parseDouble(((Element) glskBlockElement.getElementsByTagName("MaximumShift").item(0)).getAttribute("v")); //maximum shift in hybrid cse glsk
+        if (isPartOfHybridShiftKey(glskBlockElement)) {
+            this.order = getOrder(glskBlockElement);
+            this.maximumShift = getMaximumShift(glskBlockElement);
+        } else {
+            this.quantity = getFactor(glskBlockElement);
         }
+    }
+
+    private static boolean isPartOfHybridShiftKey(Element glskBlockElement) {
+        return glskBlockElement.getElementsByTagName("Order").getLength() != 0;
+    }
+
+    private static int getOrder(Element glskBlockElement) {
+        return Integer.parseInt((glskBlockElement.getElementsByTagName("Order").item(0)).getTextContent());
+    }
+
+    private static double getMaximumShift(Element glskBlockElement) {
+        //maximum shift in hybrid cse glsk
+        return Double.parseDouble(((Element) glskBlockElement.getElementsByTagName("MaximumShift").item(0)).getAttribute("v"));
+    }
+
+    private static double getFactor(Element glskBlockElement) {
+        return Double.parseDouble(((Element) glskBlockElement.getElementsByTagName("Factor").item(0)).getAttribute("v"));
     }
 
     private void importImplicitProportionalBlock(Element glskBlockElement, String businessType) {
@@ -132,9 +148,5 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
 
     public int getOrder() {
         return order;
-    }
-
-    public double getMaximumShift() {
-        return maximumShift;
     }
 }

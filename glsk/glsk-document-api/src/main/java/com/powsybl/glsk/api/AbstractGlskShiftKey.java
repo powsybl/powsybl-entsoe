@@ -15,6 +15,7 @@ import java.util.List;
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
 public abstract class AbstractGlskShiftKey {
+    private static final double DEFAULT_QUANTITY = 1.0;
     private static final double DEFAULT_MAXIMUM_SHIFT = Double.MAX_VALUE;
 
     /**
@@ -28,7 +29,7 @@ public abstract class AbstractGlskShiftKey {
     /**
      * explicit shift key factor
      */
-    protected Double quantity;
+    protected Double quantity = DEFAULT_QUANTITY;
     /**
      * list of registered resources
      */

@@ -118,9 +118,7 @@ public final class CseGlskDocument implements GlskDocument {
     }
 
     private boolean isHybridCseGlskPoint(List<AbstractGlskPoint> glskPointList) {
-        // if 2 shift keys have different orders, this is a hybrid glsk for Swiss's ID CSE GSK.
-        // Note: in CIM glsk format, there can be 2 shift keys, a GSK and a LSK, defined for a same zone,
-        // these 2 shift keys (GSK + LSK) should be merged into one single Scalable
+        // If 2 shift keys have different orders, this is a hybrid glsk for Swiss's ID CSE GSK.
         return glskPointList.get(0).getGlskShiftKeys().size() == 2 &&
             ((CseGlskShiftKey) glskPointList.get(0).getGlskShiftKeys().get(0)).getOrder() !=
                 ((CseGlskShiftKey) glskPointList.get(0).getGlskShiftKeys().get(1)).getOrder();

@@ -212,9 +212,12 @@ public final class GlskPointScalableConverter {
 
             generators.forEach(generator -> {
                 // Calculate factor of each generator
-                float percentage = glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP;
-                percentages.add(100 * percentage);
-                scalables.add(Scalable.onGenerator(generator.getId(), -Double.MAX_VALUE, NetworkUtil.pseudoTargetP(generator) + percentage * glskShiftKey.getMaximumShift()));
+                float factor = glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP;
+                percentages.add(100 * factor);
+                // In case of global shift key limitation we will limit the generator proportionally to
+                // its participation in the global proportional scalable
+                double maxGeneratorValue = NetworkUtil.pseudoTargetP(generator) + factor * glskShiftKey.getMaximumShift();
+                scalables.add(Scalable.onGenerator(generator.getId(), -Double.MAX_VALUE, maxGeneratorValue));
             });
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
