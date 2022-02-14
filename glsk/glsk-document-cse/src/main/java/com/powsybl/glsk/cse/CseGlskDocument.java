@@ -31,12 +31,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public final class CseGlskDocument implements GlskDocument {
     private static final String LINEAR_GLSK_NOT_HANDLED = "CSE GLSK document does not handle Linear GLSK conversion";
+
     /**
      * list of GlskPoint in the given Glsk document
      */
@@ -104,24 +106,26 @@ public final class CseGlskDocument implements GlskDocument {
         Map<String, Scalable> zonalData = new HashMap<>();
         for (Map.Entry<String, List<AbstractGlskPoint>> entry : cseGlskPoints.entrySet()) {
             String area = entry.getKey();
-            List<AbstractGlskPoint> glskPoints = entry.getValue();
-            if (isHybridCseGlskPoint(glskPoints)) {
-                List<AbstractGlskShiftKey> shiftKeys = glskPoints.get(0).getGlskShiftKeys();
-                Scalable scalable1 = GlskPointScalableConverter.convert(network, List.of(shiftKeys.get(0)));
-                Scalable scalable2 = GlskPointScalableConverter.convert(network, List.of(shiftKeys.get(1)));
-                zonalData.put(area, Scalable.upDown(Scalable.stack(scalable1, scalable2), scalable2));
+            // There is always only one GlskPoint for a zone
+            AbstractGlskPoint zonalGlskPoint = entry.getValue().get(0);
+            if (isHybridCseGlskPoint(zonalGlskPoint)) {
+                List<Scalable> scalables = zonalGlskPoint.getGlskShiftKeys().stream()
+                    .sorted(Comparator.comparingInt(sk -> ((CseGlskShiftKey) sk).getOrder()))
+                    .map(sk -> GlskPointScalableConverter.convert(network, List.of(sk)))
+                    .collect(Collectors.toList());
+                zonalData.put(area, Scalable.upDown(Scalable.stack(scalables.get(0), scalables.get(1)), scalables.get(1)));
             } else {
-                zonalData.put(area, GlskPointScalableConverter.convert(network, glskPoints.get(0)));
+                zonalData.put(area, GlskPointScalableConverter.convert(network, zonalGlskPoint));
             }
         }
         return new ZonalDataImpl<>(zonalData);
     }
 
-    private boolean isHybridCseGlskPoint(List<AbstractGlskPoint> glskPointList) {
+    private boolean isHybridCseGlskPoint(AbstractGlskPoint zonalGlskPoint) {
         // If 2 shift keys have different orders, this is a hybrid glsk for Swiss's ID CSE GSK.
-        return glskPointList.get(0).getGlskShiftKeys().size() == 2 &&
-            ((CseGlskShiftKey) glskPointList.get(0).getGlskShiftKeys().get(0)).getOrder() !=
-                ((CseGlskShiftKey) glskPointList.get(0).getGlskShiftKeys().get(1)).getOrder();
+        return zonalGlskPoint.getGlskShiftKeys().size() == 2 &&
+            ((CseGlskShiftKey) zonalGlskPoint.getGlskShiftKeys().get(0)).getOrder() !=
+                ((CseGlskShiftKey) zonalGlskPoint.getGlskShiftKeys().get(1)).getOrder();
     }
 
     @Override
