@@ -15,7 +15,7 @@ import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataChronology;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.apache.commons.lang3.NotImplementedException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -86,17 +86,17 @@ public final class CseGlskDocument implements GlskDocument {
     }
 
     @Override
-    public ZonalData<LinearGlsk> getZonalGlsks(Network network) {
+    public ZonalData<SensitivityVariableSet> getZonalGlsks(Network network) {
         throw new NotImplementedException(LINEAR_GLSK_NOT_HANDLED);
     }
 
     @Override
-    public ZonalData<LinearGlsk> getZonalGlsks(Network network, Instant instant) {
+    public ZonalData<SensitivityVariableSet> getZonalGlsks(Network network, Instant instant) {
         throw new NotImplementedException(LINEAR_GLSK_NOT_HANDLED);
     }
 
     @Override
-    public ZonalDataChronology<LinearGlsk> getZonalGlsksChronology(Network network) {
+    public ZonalDataChronology<SensitivityVariableSet> getZonalGlsksChronology(Network network) {
         throw new NotImplementedException(LINEAR_GLSK_NOT_HANDLED);
     }
 
