@@ -12,7 +12,8 @@ import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
 import com.powsybl.glsk.api.AbstractGlskShiftKey;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +36,9 @@ public final class GlskPointLinearGlskConverter {
      * @param glskPoint GLSK Point
      * @return farao-core LinearGlsk
      */
-    public static LinearGlsk convert(Network network, AbstractGlskPoint glskPoint) {
+    public static SensitivityVariableSet convert(Network network, AbstractGlskPoint glskPoint) {
 
-        Map<String, Float> linearGlskMap = new HashMap<>();
-        String linearGlskId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
+        String sensitivityVariableSetId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
 
         /* Linear GLSK is used as sensitivityVariable in FlowBasedComputation
          * When it is added into sensivitityFactors, we should be able to find out LinearGlsk's country or NetWorkArea
@@ -46,9 +46,10 @@ public final class GlskPointLinearGlskConverter {
          * We could also added another attribute in LinearGlsk to mark this information,
          * but this change need to be in Powsybl-core
          */
-        String linearGlskName = glskPoint.getSubjectDomainmRID(); // Name of LinearGlsk is country's EIC code; or NetworkArea's ID in the future
 
         Objects.requireNonNull(glskPoint.getGlskShiftKeys());
+
+        List<WeightedSensitivityVariable> weightedSensitivityVariables = new ArrayList<>();
 
         if (glskPoint.getGlskShiftKeys().size() > 2) {
             throw new GlskException("Multi (GSK+LSK) shift keys not supported yet...");
@@ -58,32 +59,32 @@ public final class GlskPointLinearGlskConverter {
             if (glskShiftKey.getBusinessType().equals("B42")) {
                 if (glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                     LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GLSK");
-                    convertCountryProportional(network, glskShiftKey, linearGlskMap);
+                    convertCountryProportional(network, glskShiftKey, weightedSensitivityVariables);
                 } else {
                     LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
-                    convertExplicitProportional(network, glskShiftKey, linearGlskMap);
+                    convertExplicitProportional(network, glskShiftKey, weightedSensitivityVariables);
                 }
             } else if (glskShiftKey.getBusinessType().equals("B43")) {
                 LOGGER.debug("GLSK Type B43 --> participation factor proportional GSK");
                 if (glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                     throw new GlskException("Empty Registered Resources List in B43 type shift key.");
                 } else {
-                    convertParticipationFactor(network, glskShiftKey, linearGlskMap);
+                    convertParticipationFactor(network, glskShiftKey, weightedSensitivityVariables);
                 }
             } else {
                 throw new GlskException("convert not supported");
             }
         }
 
-        return new LinearGlsk(linearGlskId, linearGlskName, linearGlskMap);
+        return new SensitivityVariableSet(sensitivityVariableSetId, weightedSensitivityVariables);
     }
 
     /**
      * @param network iidm network
      * @param glskShiftKey country type shiftkey
-     * @param linearGlskMap linearGlsk to be filled
+     * @param weightedSensitivityVariables linearGlsk to be filled
      */
-    private static void convertCountryProportional(Network network, AbstractGlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap) {
+    private static void convertCountryProportional(Network network, AbstractGlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
         Country country = new CountryEICode(glskShiftKey.getSubjectDomainmRID()).getCountry();
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
@@ -95,7 +96,8 @@ public final class GlskPointLinearGlskConverter {
             //calculate sum P of country's generators
             double totalCountryP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
             //calculate factor of each generator
-            generators.forEach(generator -> linearGlskMap.put(generator.getId(), glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalCountryP));
+            generators.forEach(generator -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(generator.getId(),
+                    glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalCountryP)));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<Load> loads = network.getLoadStream()
@@ -103,7 +105,8 @@ public final class GlskPointLinearGlskConverter {
                     .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
             double totalCountryLoad = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
-            loads.forEach(load -> linearGlskMap.put(load.getId(), glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalCountryLoad));
+            loads.forEach(load -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(load.getId(),
+                    glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalCountryLoad)));
         } else {
             //unknown PsrType
             throw new GlskException("convertCountryProportional PsrType not supported");
@@ -113,9 +116,9 @@ public final class GlskPointLinearGlskConverter {
     /**
      * @param network iidm network
      * @param glskShiftKey explicit type shiftkey
-     * @param linearGlskMap linearGlsk to be filled
+     * @param weightedSensitivityVariables linearGlsk to be filled
      */
-    private static void convertExplicitProportional(Network network, AbstractGlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap) {
+    private static void convertExplicitProportional(Network network, AbstractGlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
@@ -125,7 +128,8 @@ public final class GlskPointLinearGlskConverter {
                     .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
             double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
-            generators.forEach(generator -> linearGlskMap.put(generator.getId(), glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP));
+            generators.forEach(generator -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(generator.getId(),
+                    glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP)));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
@@ -134,7 +138,8 @@ public final class GlskPointLinearGlskConverter {
                     .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
             double totalLoad = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
-            loads.forEach(load -> linearGlskMap.put(load.getId(), glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalLoad));
+            loads.forEach(load -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(load.getId(),
+                    glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalLoad)));
         } else {
             //unknown PsrType
             throw new GlskException("convertExplicitProportional PsrType not supported");
@@ -144,9 +149,9 @@ public final class GlskPointLinearGlskConverter {
     /**
      * @param network iidm network
      * @param glskShiftKey parcitipation factor type shiftkey
-     * @param linearGlskMap linearGlsk to be filled
+     * @param weightedSensitivityVariables linearGlsk to be filled
      */
-    private static void convertParticipationFactor(Network network, AbstractGlskShiftKey glskShiftKey, Map<String, Float> linearGlskMap) {
+    private static void convertParticipationFactor(Network network, AbstractGlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
@@ -157,7 +162,8 @@ public final class GlskPointLinearGlskConverter {
             if (totalFactor < 1e-10) {
                 throw new GlskException("total factor is zero");
             }
-            generatorResources.forEach(generatorResource -> linearGlskMap.put(generatorResource.getGeneratorId(), glskShiftKey.getQuantity().floatValue() * (float) generatorResource.getParticipationFactor() / (float) totalFactor));
+            generatorResources.forEach(generatorResource -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(generatorResource.getGeneratorId(),
+                    glskShiftKey.getQuantity().floatValue() * (float) generatorResource.getParticipationFactor() / (float) totalFactor)));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<AbstractGlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
@@ -167,7 +173,8 @@ public final class GlskPointLinearGlskConverter {
             if (totalFactor < 1e-10) {
                 throw new GlskException("total factor is zero");
             }
-            loadResources.forEach(loadResource -> linearGlskMap.put(loadResource.getLoadId(), glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor));
+            loadResources.forEach(loadResource -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(loadResource.getLoadId(),
+                    glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor)));
         } else {
             //unknown PsrType
             throw new GlskException("convertParticipationFactor PsrType not supported");

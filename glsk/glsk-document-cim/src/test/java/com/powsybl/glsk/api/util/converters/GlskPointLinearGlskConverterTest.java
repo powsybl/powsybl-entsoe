@@ -13,7 +13,8 @@ import com.powsybl.glsk.cim.CimGlskDocument;
 import com.google.common.math.DoubleMath;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.WeightedSensitivityVariable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,34 +68,34 @@ public class GlskPointLinearGlskConverterTest {
     @Test
     public void testConvertGlskPointToLinearGlskB42Country() {
 
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountry);
-        linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("GenCountry: " + k + "; factor = " + v)); //log
-        double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
+        SensitivityVariableSet linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountry);
+        linearGlsk.getVariables().forEach(variable -> LOGGER.info("GenCountry: " + variable.getId() + "; factor = " + variable.getWeight())); //log
+        double totalfactor = linearGlsk.getVariables().stream().mapToDouble(WeightedSensitivityVariable::getWeight).sum();
         Assert.assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToLinearGlskB42CountryQuantity() {
 
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountryQuantity);
-        linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Country: " + k + "; factor = " + v)); //log
-        double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
+        SensitivityVariableSet linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointCountryQuantity);
+        linearGlsk.getVariables().forEach(variable -> LOGGER.info("Country: " + variable.getId() + "; factor = " + variable.getWeight())); //log
+        double totalfactor = linearGlsk.getVariables().stream().mapToDouble(WeightedSensitivityVariable::getWeight).sum();
         Assert.assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToLinearGlskB42Explicit() {
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointExplicitGskLsk);
-        linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Explicit: " + k + "; factor = " + v)); //log
-        double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
+        SensitivityVariableSet linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointExplicitGskLsk);
+        linearGlsk.getVariables().forEach(variable -> LOGGER.info("Explicit: " + variable.getId() + "; factor = " + variable.getWeight())); //log
+        double totalfactor = linearGlsk.getVariables().stream().mapToDouble(WeightedSensitivityVariable::getWeight).sum();
         Assert.assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToLinearGlskB43() {
-        LinearGlsk linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointParticipationFactorGskLsk);
-        linearGlsk.getGLSKs().forEach((k, v) -> LOGGER.info("Factor: " + k + "; factor = " + v)); //log
-        double totalfactor = linearGlsk.getGLSKs().values().stream().mapToDouble(Double::valueOf).sum();
+        SensitivityVariableSet linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glskPointParticipationFactorGskLsk);
+        linearGlsk.getVariables().forEach(variable -> LOGGER.info("Factor: " + variable.getId() + "; factor = " + variable.getWeight())); //log
+        double totalfactor = linearGlsk.getVariables().stream().mapToDouble(WeightedSensitivityVariable::getWeight).sum();
         Assert.assertTrue(DoubleMath.fuzzyEquals(1.0, totalfactor, 0.0001));
     }
 
