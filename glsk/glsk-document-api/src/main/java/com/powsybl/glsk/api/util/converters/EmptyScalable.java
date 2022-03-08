@@ -25,7 +25,7 @@ public class EmptyScalable implements Scalable {
 
     @Override
     public void reset(Network network) {
-
+        // Nothing to do
     }
 
     @Override
@@ -50,7 +50,7 @@ public class EmptyScalable implements Scalable {
 
     @Override
     public void listGenerators(Network network, List<Generator> list, List<String> list1) {
-
+        // Nothing to do
     }
 
     @Override
@@ -65,7 +65,7 @@ public class EmptyScalable implements Scalable {
 
     @Override
     public void filterInjections(Network network, List<Injection> list, List<String> list1) {
-
+        // Nothing to do
     }
 
     @Override
