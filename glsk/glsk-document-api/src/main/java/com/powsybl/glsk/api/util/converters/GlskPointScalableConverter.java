@@ -95,6 +95,7 @@ public final class GlskPointScalableConverter {
         double totalFactor = generatorResources.stream().mapToDouble(resource -> remainingCapacityFunction.apply(resource, network)).sum();
         generatorResources.forEach(generatorResource -> {
             float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * remainingCapacityFunction.apply(generatorResource, network) / totalFactor);
+            // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
             if (generatorPercentage > 0) {
                 percentages.add(generatorPercentage);
                 scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
@@ -188,6 +189,7 @@ public final class GlskPointScalableConverter {
             //calculate factor of each generator
             generators.forEach(generator -> {
                 float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoTargetP(generator) / totalCountryP);
+                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
                 if (generatorPercentage > 0) {
                     percentages.add(generatorPercentage);
                     scalables.add(Scalable.onGenerator(generator.getId()));
@@ -203,6 +205,7 @@ public final class GlskPointScalableConverter {
             double totalCountryP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
             loads.forEach(load -> {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / totalCountryP);
+                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
                 if (loadPercentage > 0) {
                     percentages.add(loadPercentage);
                     scalables.add(Scalable.onLoad(load.getId()));
@@ -232,6 +235,7 @@ public final class GlskPointScalableConverter {
             generators.forEach(generator -> {
                 // Calculate factor of each generator
                 float factor = (float) (glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoTargetP(generator) / totalP);
+                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
                 if (factor > 0) {
                     percentages.add(100 * factor);
                     // In case of global shift key limitation we will limit the generator proportionally to
@@ -251,6 +255,7 @@ public final class GlskPointScalableConverter {
 
             loads.forEach(load -> {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / totalP);
+                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
                 if (loadPercentage > 0) {
                     // For now glsk shift key maximum shift is not handled for loads by lack of specification
                     percentages.add(loadPercentage);
@@ -279,6 +284,7 @@ public final class GlskPointScalableConverter {
 
             generatorResources.forEach(generatorResource -> {
                 float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * generatorResource.getParticipationFactor() / totalFactor);
+                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
                 if (generatorPercentage > 0) {
                     percentages.add(generatorPercentage);
                     scalables.add(Scalable.onGenerator(generatorResource.getGeneratorId()));
@@ -294,6 +300,7 @@ public final class GlskPointScalableConverter {
 
             loadResources.forEach(loadResource -> {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * loadResource.getParticipationFactor() / totalFactor);
+                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
                 if (loadPercentage > 0) {
                     percentages.add(loadPercentage);
                     scalables.add(Scalable.onLoad(loadResource.getLoadId()));
