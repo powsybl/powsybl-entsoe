@@ -314,4 +314,27 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2500., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
     }
+
+    @Test
+    public void checkRemainingCapacityWithDifferentKindOfInitialLimitations() {
+        // BBE1 has initially no remaining up capacity due to network limitation but BBE3 has remaining up capacity
+        // NNL1 has initially no remaining up capacity due to GLSK limits but NNL2 has remaining up capacity
+        // FFR1 has initially no remaining up capacity due to network limitation and FFR2 has initially no remaining up capacity due to GLSK limits
+        Network network = Importers.loadNetwork("testCaseWithInitialLimits.xiidm", getClass().getResourceAsStream("/testCaseWithInitialLimits.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithInitialLimits.xml"));
+
+        assertEquals(1500, network.getGenerator("BBE1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2500, network.getGenerator("BBE3AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(6500, glskDocument.getZonalScalable(network).getData("BE_RESERVE").scale(network, 10000), EPSILON);
+        assertEquals(1500, network.getGenerator("BBE1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(9000, network.getGenerator("BBE3AA1 _generator").getTargetP(), EPSILON);
+
+        assertEquals(1500, network.getGenerator("NNL1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(500, network.getGenerator("NNL2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(500, glskDocument.getZonalScalable(network).getData("NL_RESERVE").scale(network, 500), EPSILON);
+        assertEquals(1500, network.getGenerator("NNL1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(1000, network.getGenerator("NNL2AA1 _generator").getTargetP(), EPSILON);
+
+        assertEquals(0, glskDocument.getZonalScalable(network).getData("FR_RESERVE").scale(network, 6000), EPSILON);
+    }
 }
