@@ -45,14 +45,12 @@
     <properties>
         <java.version>11</java.version>
         <powsyblba.version>1.11.0</powsyblba.version>
-        <powsyblcore.version>4.8.0-SNAPSHOT</powsyblcore.version>
+        <powsyblcore.version>4.8.0-RC1</powsyblcore.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml,
             ../../../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
-        <threeten.version>1.5.0</threeten.version>
-        <jackson.version>2.11.2</jackson.version>
     </properties>
 
     <modules>
@@ -70,17 +68,6 @@
                 <version>${powsyblcore.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.threeten</groupId>
-                <artifactId>threeten-extra</artifactId>
-                <version>${threeten.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
