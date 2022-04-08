@@ -8,15 +8,19 @@ package com.powsybl.glsk.ucte.quality_check;
 
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
 import com.powsybl.glsk.ucte.UcteGlskPoint;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.powsybl.commons.reporter.TypedValue.WARN_SEVERITY;
 
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
@@ -32,8 +36,6 @@ class GlskQualityCheck {
     public static final String TYPE_KEY = "Type";
 
     public static final String TSO_KEY = "TSO";
-
-    public static final TypedValue WARN_SEVERITY = new TypedValue("QUALITY_CHECK_WARN", TypedValue.WARN_LOGLEVEL);
 
     public static void gskQualityCheck(GlskQualityCheckInput input, Reporter reporter) {
         new GlskQualityCheck().generateReport(input, reporter);
