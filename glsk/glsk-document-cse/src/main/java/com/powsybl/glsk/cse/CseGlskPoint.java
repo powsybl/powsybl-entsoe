@@ -16,6 +16,8 @@ import org.w3c.dom.NodeList;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import static com.powsybl.glsk.api.util.Util.getUniqueNode;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
@@ -26,12 +28,12 @@ public class CseGlskPoint extends AbstractGlskPoint {
     public CseGlskPoint(Element element) {
         Objects.requireNonNull(element);
         this.position = 1;
-        this.pointInterval = Interval.parse(((Element) element.getElementsByTagName("TimeInterval").item(0)).getAttribute("v"));
-        this.subjectDomainmRID = ((Element) element.getElementsByTagName("Area").item(0)).getAttribute("v");
+        this.pointInterval = Interval.parse(((Element) getUniqueNode(element, "TimeInterval")).getAttribute("v"));
+        this.subjectDomainmRID = ((Element) getUniqueNode(element, "Area")).getAttribute("v");
         this.curveType = "A03";
         this.glskShiftKeys = new ArrayList<>();
 
-        String businessType = ((Element) element.getElementsByTagName("BusinessType").item(0)).getAttribute("v");
+        String businessType = ((Element) getUniqueNode(element, "BusinessType")).getAttribute("v");
         NodeList childNodes = element.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node childNode = childNodes.item(i);
@@ -59,14 +61,14 @@ public class CseGlskPoint extends AbstractGlskPoint {
     }
 
     private void importMeritOrderBlock(Element blockElement, String businessType) {
-        Element upBlockElement = (Element) blockElement.getElementsByTagName("Up").item(0);
+        Element upBlockElement = (Element) getUniqueNode(blockElement, "Up");
         NodeList upNodesList = upBlockElement.getElementsByTagName("Node");
         for (int j = 0; j < upNodesList.getLength(); j++) {
             // Up nodes have positive merit order position
             // First is 1 last is N to be easily recognized in GLSK point conversion.
             glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID, j + 1));
         }
-        Element downBlockElement = (Element) blockElement.getElementsByTagName("Down").item(0);
+        Element downBlockElement = (Element) getUniqueNode(blockElement, "Down");
         NodeList downNodesList = downBlockElement.getElementsByTagName("Node");
         for (int j = 0; j < downNodesList.getLength(); j++) {
             // Down nodes have negative merit order position

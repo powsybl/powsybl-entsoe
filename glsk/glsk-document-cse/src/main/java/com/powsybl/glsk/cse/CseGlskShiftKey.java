@@ -11,11 +11,12 @@ import com.powsybl.glsk.api.AbstractGlskShiftKey;
 import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.Optional;
+
+import static com.powsybl.glsk.api.util.Util.getUniqueNode;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -140,11 +141,6 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
 
     private static double getFactor(Element glskBlockElement) {
         return Double.parseDouble(((Element) getUniqueNode(glskBlockElement, "Factor")).getAttribute("v"));
-    }
-
-    private static Node getUniqueNode(Element glskBlockElement, String tag) {
-        return Optional.ofNullable(glskBlockElement.getElementsByTagName(tag).item(0))
-            .orElseThrow(() -> new GlskException(String.format("Impossible to import GLSK: %s tag is missing", tag)));
     }
 
     private void importImplicitProportionalBlock(Element glskBlockElement, String businessType) {
