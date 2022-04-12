@@ -7,6 +7,7 @@
 package com.powsybl.glsk.cse;
 
 import com.powsybl.glsk.api.AbstractGlskPoint;
+import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,18 +37,22 @@ public class CseGlskPoint extends AbstractGlskPoint {
             Node childNode = childNodes.item(i);
             if (childNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element childElement = (Element) childNode;
-                switch (childElement.getNodeName()) {
-                    case "ManualGSKBlock":
-                    case "PropGSKBlock":
-                    case "PropLSKBlock":
-                    case "ReserveGSKBlock":
-                        importStandardBlock(childElement, businessType);
-                        break;
-                    case "MeritOrderGSKBlock":
-                        importMeritOrderBlock(childElement, businessType);
-                        break;
-                    default:
-                        break;
+                try {
+                    switch (childElement.getNodeName()) {
+                        case "ManualGSKBlock":
+                        case "PropGSKBlock":
+                        case "PropLSKBlock":
+                        case "ReserveGSKBlock":
+                            importStandardBlock(childElement, businessType);
+                            break;
+                        case "MeritOrderGSKBlock":
+                            importMeritOrderBlock(childElement, businessType);
+                            break;
+                        default:
+                            break;
+                    }
+                } catch (GlskException e) {
+                    throw new GlskException(String.format("Impossible to import GLSK on area %s", subjectDomainmRID), e);
                 }
             }
         }

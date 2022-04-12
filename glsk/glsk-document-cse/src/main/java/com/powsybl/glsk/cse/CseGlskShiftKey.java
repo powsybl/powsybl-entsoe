@@ -11,6 +11,7 @@ import com.powsybl.glsk.api.AbstractGlskShiftKey;
 import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
@@ -88,13 +89,13 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
             // Up scalable element
             // Position is 1 to N for up scalable
             // Though, in XML file, we have to get child position - 1
-            Element upBlockElement = (Element) glskBlockElement.getElementsByTagName("Up").item(0);
+            Element upBlockElement = (Element) getUniqueNode(glskBlockElement, "Up");
             return (Element) upBlockElement.getElementsByTagName("Node").item(position - 1);
         } else {
             // Down scalable element
             // Position is -1 to -N for down scalable
             // Though, in XML file, we have to get child -position - 1
-            Element downBlockElement = (Element) glskBlockElement.getElementsByTagName("Down").item(0);
+            Element downBlockElement = (Element) getUniqueNode(glskBlockElement, "Down");
             return (Element) downBlockElement.getElementsByTagName("Node").item(-position - 1);
         }
     }
@@ -125,7 +126,7 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
     }
 
     private static int getOrder(Element glskBlockElement) {
-        return Integer.parseInt((glskBlockElement.getElementsByTagName("Order").item(0)).getTextContent());
+        return Integer.parseInt(getUniqueNode(glskBlockElement, "Order").getTextContent());
     }
 
     private static boolean hasMaximumShift(Element glskBlockElement) {
@@ -134,11 +135,16 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
 
     private static double getMaximumShift(Element glskBlockElement) {
         //maximum shift in hybrid cse glsk
-        return Double.parseDouble(((Element) glskBlockElement.getElementsByTagName("MaximumShift").item(0)).getAttribute("v"));
+        return Double.parseDouble(((Element) getUniqueNode(glskBlockElement, "MaximumShift")).getAttribute("v"));
     }
 
     private static double getFactor(Element glskBlockElement) {
-        return Double.parseDouble(((Element) glskBlockElement.getElementsByTagName("Factor").item(0)).getAttribute("v"));
+        return Double.parseDouble(((Element) getUniqueNode(glskBlockElement, "Factor")).getAttribute("v"));
+    }
+
+    private static Node getUniqueNode(Element glskBlockElement, String tag) {
+        return Optional.ofNullable(glskBlockElement.getElementsByTagName(tag).item(0))
+            .orElseThrow(() -> new GlskException(String.format("Impossible to import GLSK: %s tag is missing", tag)));
     }
 
     private void importImplicitProportionalBlock(Element glskBlockElement, String businessType) {
