@@ -23,6 +23,6 @@ public final class Util {
 
     public static Node getUniqueNode(Element glskBlockElement, String tag) {
         return Optional.ofNullable(glskBlockElement.getElementsByTagName(tag).item(0))
-            .orElseThrow(() -> new GlskException(String.format("Impossible to import GLSK: %s tag is missing", tag)));
+            .orElseThrow(() -> new GlskException(String.format("Impossible to import GLSK: <%s> tag is missing", tag)));
     }
 }
