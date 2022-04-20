@@ -183,6 +183,17 @@ public class CseGlskDocumentImporterTest {
     }
 
     @Test
+    public void checkCseGlskDocumentImporterCorrectlyConvertPropLskBlocksWithPassingLoadsAsGenerators() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        Scalable propGlskScalable = glskDocument.getZonalScalable(network).getData("FR_PROPGLSK");
+
+        propGlskScalable.scale(network, 20000);
+        assertEquals(-333.3334, network.getLoad("FFR1AA1 _load").getP0(), EPSILON);
+        assertEquals(-1166.6667, network.getLoad("FFR2AA1 _load").getP0(), EPSILON);
+    }
+
+    @Test
     public void checkCseGlskDocumentImporterCorrectlyImportMeritOrderGskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         List<AbstractGlskPoint> list = cseGlskDocument.getGlskPoints("FR_MERITORDER");

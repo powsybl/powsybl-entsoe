@@ -139,28 +139,6 @@ public final class GlskPointScalableConverter {
         return Scalable.upDown(upScalable, downScalable);
     }
 
-    private static Scalable getGeneratorScalableWithLimits(Network network, AbstractGlskRegisteredResource generatorRegisteredResource) {
-        String generatorId = generatorRegisteredResource.getGeneratorId();
-        double incomingMaxP = generatorRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
-        double incomingMinP = generatorRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
-        // Fixes some inconsistencies between GLSK and network that may raise an exception in
-        // PowSyBl when actually scaling the network.
-        // TODO: Solve this issue in PowSyBl framework.
-        Generator generator = network.getGenerator(generatorId);
-        if (generator != null) {
-            double generatorTargetP = generator.getTargetP();
-            if (!Double.isNaN(incomingMaxP) && incomingMaxP < generatorTargetP) {
-                LOGGER.warn("Generator '{}' has initial target P that is above GLSK max P. Extending GLSK max P from {} to {}.", generatorId, incomingMaxP, generatorTargetP);
-                incomingMaxP = generatorTargetP;
-            }
-            if (!Double.isNaN(incomingMinP) && incomingMinP > generatorTargetP) {
-                LOGGER.warn("Generator '{}' has initial target P that is above GLSK min P. Extending GLSK min P from {} to {}.", generatorId, incomingMinP, generatorTargetP);
-                incomingMinP = generatorTargetP;
-            }
-        }
-        return Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
-    }
-
     /**
      * convert country proportional glsk point to scalable
      * @param network iidm network
@@ -191,12 +169,13 @@ public final class GlskPointScalableConverter {
                     .filter(load -> country.equals(getSubstationNullableCountry(load.getTerminal().getVoltageLevel().getSubstation())))
                     .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
+
             //calculate sum P of country's loads
             double totalCountryP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
             loads.forEach(load -> {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / totalCountryP);
                 percentages.add(loadPercentage);
-                scalables.add(Scalable.onLoad(load.getId()));
+                scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
             });
         }
     }
@@ -241,7 +220,7 @@ public final class GlskPointScalableConverter {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / totalP);
                 // For now glsk shift key maximum shift is not handled for loads by lack of specification
                 percentages.add(loadPercentage);
-                scalables.add(Scalable.onLoad(load.getId()));
+                scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
             });
         }
     }
@@ -266,7 +245,7 @@ public final class GlskPointScalableConverter {
             generatorResources.forEach(generatorResource -> {
                 float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * generatorResource.getParticipationFactor() / totalFactor);
                 percentages.add(generatorPercentage);
-                scalables.add(Scalable.onGenerator(generatorResource.getGeneratorId()));
+                scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
             });
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B43 LSK");
@@ -278,14 +257,57 @@ public final class GlskPointScalableConverter {
 
             loadResources.forEach(loadResource -> {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * loadResource.getParticipationFactor() / totalFactor);
-
                 percentages.add(loadPercentage);
-                scalables.add(Scalable.onLoad(loadResource.getLoadId()));
+                scalables.add(getLoadScalableWithLimits(network, loadResource));
             });
         }
     }
 
     private static Country getSubstationNullableCountry(Optional<Substation> substation) {
         return substation.map(Substation::getNullableCountry).orElse(null);
+    }
+
+    private static Scalable getGeneratorScalableWithLimits(Network network, AbstractGlskRegisteredResource generatorRegisteredResource) {
+        String generatorId = generatorRegisteredResource.getGeneratorId();
+        double incomingMaxP = generatorRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
+        double incomingMinP = generatorRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
+        // Fixes some inconsistencies between GLSK and network that may raise an exception in
+        // PowSyBl when actually scaling the network.
+        // TODO: Solve this issue in PowSyBl framework.
+        Generator generator = network.getGenerator(generatorId);
+        if (generator != null) {
+            double generatorTargetP = generator.getTargetP();
+            if (!Double.isNaN(incomingMaxP) && incomingMaxP < generatorTargetP) {
+                LOGGER.warn("Generator '{}' has initial target P that is above GLSK max P. Extending GLSK max P from {} to {}.", generatorId, incomingMaxP, generatorTargetP);
+                incomingMaxP = generatorTargetP;
+            }
+            if (!Double.isNaN(incomingMinP) && incomingMinP > generatorTargetP) {
+                LOGGER.warn("Generator '{}' has initial target P that is above GLSK min P. Extending GLSK min P from {} to {}.", generatorId, incomingMinP, generatorTargetP);
+                incomingMinP = generatorTargetP;
+            }
+        }
+        return Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
+    }
+
+    private static Scalable getLoadScalableWithLimits(Network network, AbstractGlskRegisteredResource generatorRegisteredResource) {
+        String loadId = generatorRegisteredResource.getLoadId();
+        double incomingMaxP = generatorRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
+        double incomingMinP = generatorRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
+        // Fixes some inconsistencies between GLSK and network that may raise an exception in
+        // PowSyBl when actually scaling the network.
+        // TODO: Solve this issue in PowSyBl framework.
+        Load load = network.getLoad(loadId);
+        if (load != null) {
+            double loadP0 = load.getP0();
+            if (!Double.isNaN(incomingMaxP) && incomingMaxP < loadP0) {
+                LOGGER.warn("Load '{}' has initial P0 that is above GLSK max P. Extending GLSK max P from {} to {}.", loadId, incomingMaxP, loadP0);
+                incomingMaxP = loadP0;
+            }
+            if (!Double.isNaN(incomingMinP) && incomingMinP > loadP0) {
+                LOGGER.warn("load '{}' has initial P0 that is above GLSK min P. Extending GLSK min P from {} to {}.", loadId, incomingMinP, loadP0);
+                incomingMinP = loadP0;
+            }
+        }
+        return Scalable.onLoad(loadId, incomingMinP, incomingMaxP);
     }
 }
