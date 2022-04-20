@@ -68,9 +68,6 @@ public final class GlskPointScalableConverter {
                 throw new GlskException("In convert glskShiftKey business type not supported");
             }
         }
-        if (percentages.isEmpty()) {
-            return new EmptyScalable();
-        }
         return Scalable.proportional(percentages, scalables, true);
     }
 
@@ -95,15 +92,11 @@ public final class GlskPointScalableConverter {
         double totalFactor = generatorResources.stream().mapToDouble(resource -> remainingCapacityFunction.apply(resource, network)).sum();
         generatorResources.forEach(generatorResource -> {
             float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * remainingCapacityFunction.apply(generatorResource, network) / totalFactor);
-            // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
-            if (generatorPercentage > 0) {
+            if (!Double.isNaN(generatorPercentage)) {
                 percentages.add(generatorPercentage);
                 scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
             }
         });
-        if (percentages.isEmpty()) {
-            return new EmptyScalable();
-        }
         return Scalable.proportional(percentages, scalables, true);
     }
 
@@ -167,11 +160,8 @@ public final class GlskPointScalableConverter {
             //calculate factor of each generator
             generators.forEach(generator -> {
                 float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoTargetP(generator) / totalCountryP);
-                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
-                if (generatorPercentage > 0) {
-                    percentages.add(generatorPercentage);
-                    scalables.add(Scalable.onGenerator(generator.getId()));
-                }
+                percentages.add(generatorPercentage);
+                scalables.add(Scalable.onGenerator(generator.getId()));
             });
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) LSK");
@@ -184,11 +174,8 @@ public final class GlskPointScalableConverter {
             double totalCountryP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
             loads.forEach(load -> {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / totalCountryP);
-                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
-                if (loadPercentage > 0) {
-                    percentages.add(loadPercentage);
-                    scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
-                }
+                percentages.add(loadPercentage);
+                scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
             });
         }
     }
@@ -214,14 +201,11 @@ public final class GlskPointScalableConverter {
             generators.forEach(generator -> {
                 // Calculate factor of each generator
                 float factor = (float) (glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoTargetP(generator) / totalP);
-                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
-                if (factor > 0) {
-                    percentages.add(100 * factor);
-                    // In case of global shift key limitation we will limit the generator proportionally to
-                    // its participation in the global proportional scalable
-                    double maxGeneratorValue = NetworkUtil.pseudoTargetP(generator) + factor * glskShiftKey.getMaximumShift();
-                    scalables.add(Scalable.onGenerator(generator.getId(), -Double.MAX_VALUE, maxGeneratorValue));
-                }
+                percentages.add(100 * factor);
+                // In case of global shift key limitation we will limit the generator proportionally to
+                // its participation in the global proportional scalable
+                double maxGeneratorValue = NetworkUtil.pseudoTargetP(generator) + factor * glskShiftKey.getMaximumShift();
+                scalables.add(Scalable.onGenerator(generator.getId(), -Double.MAX_VALUE, maxGeneratorValue));
             });
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
@@ -234,12 +218,9 @@ public final class GlskPointScalableConverter {
 
             loads.forEach(load -> {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / totalP);
-                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
-                if (loadPercentage > 0) {
-                    // For now glsk shift key maximum shift is not handled for loads by lack of specification
-                    percentages.add(loadPercentage);
-                    scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
-                }
+                // For now glsk shift key maximum shift is not handled for loads by lack of specification
+                percentages.add(loadPercentage);
+                scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
             });
         }
     }
@@ -263,11 +244,8 @@ public final class GlskPointScalableConverter {
 
             generatorResources.forEach(generatorResource -> {
                 float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * generatorResource.getParticipationFactor() / totalFactor);
-                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
-                if (generatorPercentage > 0) {
-                    percentages.add(generatorPercentage);
-                    scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
-                }
+                percentages.add(generatorPercentage);
+                scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
             });
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B43 LSK");
@@ -279,11 +257,8 @@ public final class GlskPointScalableConverter {
 
             loadResources.forEach(loadResource -> {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * loadResource.getParticipationFactor() / totalFactor);
-                // FIXME: this filter can be removed once not participating elements are better handled in ProportionalScalable
-                if (loadPercentage > 0) {
-                    percentages.add(loadPercentage);
-                    scalables.add(getLoadScalableWithLimits(network, loadResource));
-                }
+                percentages.add(loadPercentage);
+                scalables.add(getLoadScalableWithLimits(network, loadResource));
             });
         }
     }
