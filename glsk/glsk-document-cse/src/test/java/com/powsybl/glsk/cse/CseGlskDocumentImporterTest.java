@@ -10,10 +10,12 @@ import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.action.util.Scalable;
+import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -336,5 +338,11 @@ public class CseGlskDocumentImporterTest {
         assertEquals(1000, network.getGenerator("NNL2AA1 _generator").getTargetP(), EPSILON);
 
         assertEquals(0, glskDocument.getZonalScalable(network).getData("FR_RESERVE").scale(network, 6000), EPSILON);
+    }
+
+    @Test
+    public void checkGlskExceptionWhenMissingTag() {
+        InputStream is = getClass().getResourceAsStream("/testGlskMissingTag.xml");
+        assertThrows(GlskException.class, () -> CseGlskDocument.importGlsk(is));
     }
 }

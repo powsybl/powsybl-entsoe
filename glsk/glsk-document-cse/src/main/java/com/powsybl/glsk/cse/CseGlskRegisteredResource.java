@@ -12,6 +12,8 @@ import org.w3c.dom.Element;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.glsk.api.util.Util.getUniqueNode;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
@@ -20,7 +22,7 @@ public class CseGlskRegisteredResource extends AbstractGlskRegisteredResource {
 
     public CseGlskRegisteredResource(Element element) {
         Objects.requireNonNull(element);
-        this.name = ((Element) element.getElementsByTagName("Name").item(0)).getAttribute("v");
+        this.name = ((Element) getUniqueNode(element, "Name")).getAttribute("v");
         this.mRID = this.name;
         this.initialFactor = getContentAsDoubleOrNull(element, "Factor");
         this.maximumCapacity = negativeIfNotNull(getContentAsDoubleOrNull(element, "Pmax"));
