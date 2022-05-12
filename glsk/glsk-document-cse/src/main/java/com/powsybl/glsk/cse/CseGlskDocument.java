@@ -7,8 +7,8 @@
 package com.powsybl.glsk.cse;
 
 import com.powsybl.action.util.Scalable;
-import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.GlskDocument;
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.commons.ZonalData;
@@ -41,7 +41,7 @@ public final class CseGlskDocument implements GlskDocument {
     /**
      * list of GlskPoint in the given Glsk document
      */
-    private final Map<String, List<AbstractGlskPoint>> cseGlskPoints = new TreeMap<>();
+    private final Map<String, List<GlskPoint>> cseGlskPoints = new TreeMap<>();
 
     public static CseGlskDocument importGlsk(Document document) {
         return new CseGlskDocument(document);
@@ -68,7 +68,7 @@ public final class CseGlskDocument implements GlskDocument {
         for (int i = 0; i < timeSeriesNodeList.getLength(); i++) {
             if (timeSeriesNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element timeSeriesElement = (Element) timeSeriesNodeList.item(i);
-                AbstractGlskPoint glskPoint = new CseGlskPoint(timeSeriesElement);
+                GlskPoint glskPoint = new CseGlskPoint(timeSeriesElement);
                 cseGlskPoints.computeIfAbsent(glskPoint.getSubjectDomainmRID(), area -> new ArrayList<>());
                 cseGlskPoints.get(glskPoint.getSubjectDomainmRID()).add(glskPoint);
             }
@@ -81,7 +81,7 @@ public final class CseGlskDocument implements GlskDocument {
     }
 
     @Override
-    public List<AbstractGlskPoint> getGlskPoints(String zone) {
+    public List<GlskPoint> getGlskPoints(String zone) {
         return cseGlskPoints.getOrDefault(zone, Collections.emptyList());
     }
 
@@ -103,10 +103,10 @@ public final class CseGlskDocument implements GlskDocument {
     @Override
     public ZonalData<Scalable> getZonalScalable(Network network) {
         Map<String, Scalable> zonalData = new HashMap<>();
-        for (Map.Entry<String, List<AbstractGlskPoint>> entry : cseGlskPoints.entrySet()) {
+        for (Map.Entry<String, List<GlskPoint>> entry : cseGlskPoints.entrySet()) {
             String area = entry.getKey();
             // There is always only one GlskPoint for a zone
-            AbstractGlskPoint zonalGlskPoint = entry.getValue().get(0);
+            GlskPoint zonalGlskPoint = entry.getValue().get(0);
             if (isHybridCseGlskPoint(zonalGlskPoint)) {
                 List<Scalable> scalables = zonalGlskPoint.getGlskShiftKeys().stream()
                     .sorted(Comparator.comparingInt(sk -> ((CseGlskShiftKey) sk).getOrder()))
@@ -120,7 +120,7 @@ public final class CseGlskDocument implements GlskDocument {
         return new ZonalDataImpl<>(zonalData);
     }
 
-    private boolean isHybridCseGlskPoint(AbstractGlskPoint zonalGlskPoint) {
+    private boolean isHybridCseGlskPoint(GlskPoint zonalGlskPoint) {
         // If 2 shift keys have different orders, this is a hybrid glsk for Swiss's ID CSE GSK.
         return zonalGlskPoint.getGlskShiftKeys().size() == 2 &&
             ((CseGlskShiftKey) zonalGlskPoint.getGlskShiftKeys().get(0)).getOrder() !=

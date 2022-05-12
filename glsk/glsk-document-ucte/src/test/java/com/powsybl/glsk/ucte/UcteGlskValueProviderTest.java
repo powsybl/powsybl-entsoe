@@ -6,8 +6,8 @@
  */
 package com.powsybl.glsk.ucte;
 
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;
@@ -92,7 +92,7 @@ public class UcteGlskValueProviderTest {
     @Test
     public void checkConversionOfMultiGskSeriesToScalable() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        AbstractGlskPoint multiGlskSeries = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/ThreeGskSeries.xml")).getGlskPoints("10YFR-RTE------C").get(0);
+        GlskPoint multiGlskSeries = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/ThreeGskSeries.xml")).getGlskPoints("10YFR-RTE------C").get(0);
         Scalable scalable = GlskPointScalableConverter.convert(network, multiGlskSeries);
         double generationBeforeScale = network.getGeneratorStream().mapToDouble(Generator::getTargetP).sum();
         assertEquals(24500.0, generationBeforeScale, 0.1);

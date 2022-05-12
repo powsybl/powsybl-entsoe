@@ -6,8 +6,8 @@
  */
 package com.powsybl.glsk.ucte;
 
-import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.GlskDocument;
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Document;
@@ -33,7 +33,7 @@ public final class UcteGlskDocument implements GlskDocument {
     /**
      * list of GlskPoint in the give Glsk document
      */
-    private final List<AbstractGlskPoint> listUcteGlskBlocks;
+    private final List<GlskPoint> listUcteGlskBlocks;
     /**
      * map of Country EIC and time series
      */
@@ -148,7 +148,7 @@ public final class UcteGlskDocument implements GlskDocument {
     /**
      * @return getter list of glsk point in the document
      */
-    public List<AbstractGlskPoint> getListUcteGlskBlocks() {
+    public List<GlskPoint> getListUcteGlskBlocks() {
         return listUcteGlskBlocks;
     }
 
@@ -175,7 +175,7 @@ public final class UcteGlskDocument implements GlskDocument {
     }
 
     @Override
-    public List<AbstractGlskPoint> getGlskPoints(String zone) {
+    public List<GlskPoint> getGlskPoints(String zone) {
         return new ArrayList<>(getUcteGlskPointsByCountry().get(zone));
     }
 

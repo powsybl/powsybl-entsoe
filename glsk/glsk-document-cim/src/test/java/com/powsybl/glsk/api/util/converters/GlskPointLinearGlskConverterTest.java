@@ -7,7 +7,7 @@
 
 package com.powsybl.glsk.api.util.converters;
 
-import com.powsybl.glsk.api.AbstractGlskPoint;
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.google.common.math.DoubleMath;
@@ -39,12 +39,12 @@ public class GlskPointLinearGlskConverterTest {
     private static final String GLSKB43LSKZERO = "/GlskB43ParticipationFactorLskZero.xml";
 
     private Network testNetwork;
-    private AbstractGlskPoint glskPointCountry;
-    private AbstractGlskPoint glskPointCountryQuantity;
-    private AbstractGlskPoint glskPointExplicitGskLsk;
-    private AbstractGlskPoint glskPointParticipationFactorGskLsk;
-    private AbstractGlskPoint glskPointParticipationFactorGskZero;
-    private AbstractGlskPoint glskPointParticipationFactorLskZero;
+    private GlskPoint glskPointCountry;
+    private GlskPoint glskPointCountryQuantity;
+    private GlskPoint glskPointExplicitGskLsk;
+    private GlskPoint glskPointParticipationFactorGskLsk;
+    private GlskPoint glskPointParticipationFactorGskZero;
+    private GlskPoint glskPointParticipationFactorLskZero;
 
     private InputStream getResourceAsStream(String resource) {
         return getClass().getResourceAsStream(resource);

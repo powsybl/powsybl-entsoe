@@ -6,8 +6,8 @@
  */
 package com.powsybl.glsk.cim;
 
-import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.GlskDocument;
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Document;
@@ -105,7 +105,7 @@ public final class CimGlskDocument implements GlskDocument {
     /**
      * @return getter of all GlskPoint in document
      */
-    public List<AbstractGlskPoint> getGlskPoints() {
+    public List<GlskPoint> getGlskPoints() {
         return getMapGlskTimeSeries().values().stream()
             .flatMap(s -> s.getGlskPointListInGlskTimeSeries().stream()).collect(Collectors.toList());
     }
@@ -119,7 +119,7 @@ public final class CimGlskDocument implements GlskDocument {
     }
 
     @Override
-    public List<AbstractGlskPoint> getGlskPoints(String zone) {
+    public List<GlskPoint> getGlskPoints(String zone) {
         return getMapGlskTimeSeries().get(zone).getGlskPointListInGlskTimeSeries();
     }
 

@@ -7,12 +7,12 @@
 
 package com.powsybl.glsk.api.util;
 
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataChronology;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.glsk.commons.chronology.Chronology;
 import com.powsybl.glsk.commons.chronology.ChronologyImpl;
-import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.api.util.converters.GlskPointToLinearDataConverter;
@@ -41,8 +41,8 @@ public class ZonalDataChronologyFromGlskDocument<I> implements ZonalDataChronolo
             Chronology<I> dataChronology = ChronologyImpl.create();
 
             //mapping with DataChronology
-            List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone);
-            for (AbstractGlskPoint point : glskPointList) {
+            List<GlskPoint> glskPointList = glskDocument.getGlskPoints(zone);
+            for (GlskPoint point : glskPointList) {
                 I linearData = converter.convert(network, point);
                 dataChronology.storeDataOnInterval(linearData, point.getPointInterval());
             }

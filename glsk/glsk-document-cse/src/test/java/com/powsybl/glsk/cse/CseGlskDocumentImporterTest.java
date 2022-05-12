@@ -6,8 +6,8 @@
  */
 package com.powsybl.glsk.cse;
 
-import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.GlskDocument;
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.glsk.commons.GlskException;
@@ -29,7 +29,7 @@ public class CseGlskDocumentImporterTest {
     @Test
     public void checkCseGlskDocumentImporterCorrectlyImportManualGskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
-        List<AbstractGlskPoint> list = cseGlskDocument.getGlskPoints("FR_MANUAL");
+        List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MANUAL");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(1, list.get(0).getGlskShiftKeys().size());
@@ -54,7 +54,7 @@ public class CseGlskDocumentImporterTest {
     @Test
     public void checkCseGlskDocumentImporterCorrectlyImportReserveGskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
-        List<AbstractGlskPoint> list = cseGlskDocument.getGlskPoints("FR_RESERVE");
+        List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_RESERVE");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(1, list.get(0).getGlskShiftKeys().size());
@@ -126,7 +126,7 @@ public class CseGlskDocumentImporterTest {
     @Test
     public void checkCseGlskDocumentImporterCorrectlyImportPropGskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
-        List<AbstractGlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGSK");
+        List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGSK");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(1, list.get(0).getGlskShiftKeys().size());
@@ -153,7 +153,7 @@ public class CseGlskDocumentImporterTest {
     @Test
     public void checkCseGlskDocumentImporterCorrectlyImportPropGlskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
-        List<AbstractGlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGLSK");
+        List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGLSK");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(2, list.get(0).getGlskShiftKeys().size());
@@ -196,7 +196,7 @@ public class CseGlskDocumentImporterTest {
     @Test
     public void checkCseGlskDocumentImporterCorrectlyImportMeritOrderGskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
-        List<AbstractGlskPoint> list = cseGlskDocument.getGlskPoints("FR_MERITORDER");
+        List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MERITORDER");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(7, list.get(0).getGlskShiftKeys().size());

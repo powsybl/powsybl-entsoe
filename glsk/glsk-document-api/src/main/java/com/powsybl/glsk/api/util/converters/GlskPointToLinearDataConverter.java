@@ -7,7 +7,7 @@
 
 package com.powsybl.glsk.api.util.converters;
 
-import com.powsybl.glsk.api.AbstractGlskPoint;
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -15,5 +15,5 @@ import com.powsybl.iidm.network.Network;
  */
 public interface GlskPointToLinearDataConverter<I> {
 
-    I convert(Network network, AbstractGlskPoint glskPoint);
+    I convert(Network network, GlskPoint glskPoint);
 }

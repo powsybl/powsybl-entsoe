@@ -6,7 +6,7 @@
  */
 package com.powsybl.glsk.cim;
 
-import com.powsybl.glsk.api.AbstractGlskPoint;
+import com.powsybl.glsk.api.GlskPoint;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -37,7 +37,7 @@ public class CimGlskPeriod {
     /**
      * List of GlskPoint in the Period
      */
-    private List<AbstractGlskPoint> glskPoints;
+    private List<GlskPoint> glskPoints;
 
     /**
      * @param element Dom element
@@ -54,7 +54,7 @@ public class CimGlskPeriod {
         this.glskPoints = new ArrayList<>();
         NodeList glskPointsNodes = element.getElementsByTagName("Point");
         for (int i = 0; i < glskPointsNodes.getLength(); i++) {
-            AbstractGlskPoint glskPoint = new CimGlskPoint((Element) glskPointsNodes.item(i), this.periodInterval, this.resolution, subjectDomainmRID, curveType);
+            GlskPoint glskPoint = new CimGlskPoint((Element) glskPointsNodes.item(i), this.periodInterval, this.resolution, subjectDomainmRID, curveType);
             glskPoints.add(glskPoint);
         }
         resetGlskPointsIntervalAccordingToCurveType();
@@ -71,7 +71,7 @@ public class CimGlskPeriod {
         if (curveType.equals("A03")) {
             Instant nextPointStart = getPeriodInterval().getEnd();
             for (int i = glskPoints.size() - 1; i >= 0; --i) {
-                AbstractGlskPoint point = glskPoints.get(i);
+                GlskPoint point = glskPoints.get(i);
                 Interval newInterval = point.getPointInterval().withEnd(nextPointStart);
                 point.setPointInterval(newInterval);
                 nextPointStart = point.getPointInterval().getStart();
@@ -89,7 +89,7 @@ public class CimGlskPeriod {
     /**
      * @return getter all glsk points in period
      */
-    public List<AbstractGlskPoint> getGlskPoints() {
+    public List<GlskPoint> getGlskPoints() {
         return glskPoints;
     }
 

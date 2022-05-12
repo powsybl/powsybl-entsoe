@@ -6,10 +6,10 @@
  */
 package com.powsybl.glsk.api.util.converters;
 
+import com.powsybl.glsk.api.GlskPoint;
+import com.powsybl.glsk.api.GlskRegisteredResource;
+import com.powsybl.glsk.api.GlskShiftKey;
 import com.powsybl.glsk.commons.CountryEICode;
-import com.powsybl.glsk.api.AbstractGlskPoint;
-import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
-import com.powsybl.glsk.api.AbstractGlskShiftKey;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.sensitivity.SensitivityVariableSet;
@@ -36,7 +36,7 @@ public final class GlskPointLinearGlskConverter {
      * @param glskPoint GLSK Point
      * @return farao-core LinearGlsk
      */
-    public static SensitivityVariableSet convert(Network network, AbstractGlskPoint glskPoint) {
+    public static SensitivityVariableSet convert(Network network, GlskPoint glskPoint) {
 
         String sensitivityVariableSetId = glskPoint.getSubjectDomainmRID() + ":" + glskPoint.getPointInterval().toString();
 
@@ -55,7 +55,7 @@ public final class GlskPointLinearGlskConverter {
             throw new GlskException("Multi (GSK+LSK) shift keys not supported yet...");
         }
 
-        for (AbstractGlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
+        for (GlskShiftKey glskShiftKey : glskPoint.getGlskShiftKeys()) {
             if (glskShiftKey.getBusinessType().equals("B42")) {
                 if (glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                     LOGGER.debug("GLSK Type B42, empty registered resources list --> country (proportional) GLSK");
@@ -84,7 +84,7 @@ public final class GlskPointLinearGlskConverter {
      * @param glskShiftKey country type shiftkey
      * @param weightedSensitivityVariables linearGlsk to be filled
      */
-    private static void convertCountryProportional(Network network, AbstractGlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
+    private static void convertCountryProportional(Network network, GlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
         Country country = new CountryEICode(glskShiftKey.getSubjectDomainmRID()).getCountry();
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
@@ -118,12 +118,12 @@ public final class GlskPointLinearGlskConverter {
      * @param glskShiftKey explicit type shiftkey
      * @param weightedSensitivityVariables linearGlsk to be filled
      */
-    private static void convertExplicitProportional(Network network, AbstractGlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
+    private static void convertExplicitProportional(Network network, GlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
             List<Generator> generators = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .map(AbstractGlskRegisteredResource::getGeneratorId)
+                    .map(GlskRegisteredResource::getGeneratorId)
                     .map(network::getGenerator)
                     .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
@@ -133,7 +133,7 @@ public final class GlskPointLinearGlskConverter {
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .map(AbstractGlskRegisteredResource::getLoadId)
+                    .map(GlskRegisteredResource::getLoadId)
                     .map(network::getLoad)
                     .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
@@ -151,14 +151,14 @@ public final class GlskPointLinearGlskConverter {
      * @param glskShiftKey parcitipation factor type shiftkey
      * @param weightedSensitivityVariables linearGlsk to be filled
      */
-    private static void convertParticipationFactor(Network network, AbstractGlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
+    private static void convertParticipationFactor(Network network, GlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
-            List<AbstractGlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
+            List<GlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .filter(generatorResource -> NetworkUtil.isCorrect(network.getGenerator(generatorResource.getGeneratorId())))
                     .collect(Collectors.toList());
-            double totalFactor = generatorResources.stream().mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor).sum();
+            double totalFactor = generatorResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
             if (totalFactor < 1e-10) {
                 throw new GlskException("total factor is zero");
             }
@@ -166,10 +166,10 @@ public final class GlskPointLinearGlskConverter {
                     glskShiftKey.getQuantity().floatValue() * (float) generatorResource.getParticipationFactor() / (float) totalFactor)));
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
-            List<AbstractGlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
+            List<GlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
                     .filter(loadResource -> NetworkUtil.isCorrect(network.getLoad(loadResource.getLoadId())))
                     .collect(Collectors.toList());
-            double totalFactor = loadResources.stream().mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor).sum();
+            double totalFactor = loadResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
             if (totalFactor < 1e-10) {
                 throw new GlskException("total factor is zero");
             }
