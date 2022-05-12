@@ -69,7 +69,7 @@ public final class CseGlskDocument implements GlskDocument {
             if (timeSeriesNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element timeSeriesElement = (Element) timeSeriesNodeList.item(i);
                 AbstractGlskPoint glskPoint = new CseGlskPoint(timeSeriesElement);
-                cseGlskPoints.computeIfAbsent(glskPoint.getSubjectDomainmRID(), area -> cseGlskPoints.put(area, new ArrayList<>()));
+                cseGlskPoints.computeIfAbsent(glskPoint.getSubjectDomainmRID(), area -> new ArrayList<>());
                 cseGlskPoints.get(glskPoint.getSubjectDomainmRID()).add(glskPoint);
             }
         }
