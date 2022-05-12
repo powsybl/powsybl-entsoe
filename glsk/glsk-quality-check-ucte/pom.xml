@@ -16,17 +16,10 @@
     <name>GLSK quality check</name>
     <description>GLSK quality check module for UCTE formatted file</description>
 
-    <properties>
-        <!-- Project properties -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-document-ucte</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>

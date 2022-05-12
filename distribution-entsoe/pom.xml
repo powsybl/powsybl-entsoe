@@ -27,63 +27,43 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cne-converter</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cne-model</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-entsoe-cgmes-balances-adjustment</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-commons</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-document-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-document-cim</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-document-cse</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-document-io-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-document-ucte</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-quality-check-ucte</artifactId>
-            <version>${project.version}</version>
         </dependency>
-
     </dependencies>
 
     <profiles>
