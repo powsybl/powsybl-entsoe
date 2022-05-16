@@ -6,8 +6,8 @@
  */
 package com.powsybl.glsk.cse;
 
-import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
 import com.powsybl.glsk.api.AbstractGlskShiftKey;
+import com.powsybl.glsk.api.GlskRegisteredResource;
 import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
@@ -48,7 +48,7 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
                     throw new GlskException("Factors sum should not be 0");
                 }
 
-                for (AbstractGlskRegisteredResource registeredResource : registeredResourceArrayList) {
+                for (GlskRegisteredResource registeredResource : registeredResourceArrayList) {
                     CseGlskRegisteredResource cseRegisteredResource = (CseGlskRegisteredResource) registeredResource;
                     Optional<Double> intialFactor = cseRegisteredResource.getInitialFactor();
                     if (intialFactor.isPresent()) {

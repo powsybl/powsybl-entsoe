@@ -7,8 +7,8 @@
 
 package com.powsybl.glsk.api.util;
 
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.commons.ZonalDataImpl;
-import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.api.util.converters.GlskPointToLinearDataConverter;
@@ -30,7 +30,7 @@ public class ZonalDataFromGlskDocument<I> extends ZonalDataImpl<I> {
     public ZonalDataFromGlskDocument(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter, Instant instant) {
         super(new HashMap<>());
         for (String zone : glskDocument.getZones()) {
-            List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone).stream()
+            List<GlskPoint> glskPointList = glskDocument.getGlskPoints(zone).stream()
                 .filter(glskPoint -> glskPoint.getPointInterval().contains(instant))
                 .collect(Collectors.toList());
             try {
@@ -44,12 +44,12 @@ public class ZonalDataFromGlskDocument<I> extends ZonalDataImpl<I> {
     public ZonalDataFromGlskDocument(GlskDocument glskDocument, Network network, GlskPointToLinearDataConverter<I> converter) {
         super(new HashMap<>());
         for (String zone : glskDocument.getZones()) {
-            List<AbstractGlskPoint> glskPointList = glskDocument.getGlskPoints(zone);
+            List<GlskPoint> glskPointList = glskDocument.getGlskPoints(zone);
             addLinearDataFromList(network, converter, glskPointList, zone);
         }
     }
 
-    private void addLinearDataFromList(Network network, GlskPointToLinearDataConverter<I> converter, List<AbstractGlskPoint> glskPointList, String country) {
+    private void addLinearDataFromList(Network network, GlskPointToLinearDataConverter<I> converter, List<GlskPoint> glskPointList, String country) {
         if (glskPointList.size() > 1) {
             throw new GlskException("Cannot instantiate simple linear data because several glsk point match given instant");
         } else if (!glskPointList.isEmpty()) {

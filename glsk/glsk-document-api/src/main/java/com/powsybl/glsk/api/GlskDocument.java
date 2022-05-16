@@ -27,7 +27,7 @@ public interface GlskDocument {
 
     List<String> getZones();
 
-    List<AbstractGlskPoint> getGlskPoints(String zone);
+    List<GlskPoint> getGlskPoints(String zone);
 
     /**
      * This method will produce a GLSK provider which is not time-specific. It is not guarantee that all GLSK document

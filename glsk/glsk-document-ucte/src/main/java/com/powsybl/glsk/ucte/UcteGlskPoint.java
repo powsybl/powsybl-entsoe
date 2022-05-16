@@ -8,8 +8,8 @@
 package com.powsybl.glsk.ucte;
 
 import com.powsybl.glsk.api.AbstractGlskPoint;
-import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
-import com.powsybl.glsk.api.AbstractGlskShiftKey;
+import com.powsybl.glsk.api.GlskRegisteredResource;
+import com.powsybl.glsk.api.GlskShiftKey;
 import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
@@ -56,19 +56,19 @@ public class UcteGlskPoint extends AbstractGlskPoint {
 
     //build a country GSK B42 empty regitered resources list
     private void caseCountryGskBlock(String ucteBusinessType, Double shareFactor) {
-        AbstractGlskShiftKey countryGlskShiftKey = new UcteGlskShiftKey("B42", ucteBusinessType, this.subjectDomainmRID, this.pointInterval, shareFactor);
+        GlskShiftKey countryGlskShiftKey = new UcteGlskShiftKey("B42", ucteBusinessType, this.subjectDomainmRID, this.pointInterval, shareFactor);
         glskShiftKeys.add(countryGlskShiftKey);
     }
 
     //build a B43 participation factor
     private void caseManualGskBlock(Element element, String ucteBusinessType, Double shareFactor) {
-        AbstractGlskShiftKey manuelGlskShiftKey = new UcteGlskShiftKey("B43", ucteBusinessType, this.subjectDomainmRID, this.pointInterval, shareFactor);
+        GlskShiftKey manuelGlskShiftKey = new UcteGlskShiftKey("B43", ucteBusinessType, this.subjectDomainmRID, this.pointInterval, shareFactor);
         //set registeredResourcesList for manuelGlskShiftKey
-        List<AbstractGlskRegisteredResource> registerdResourceArrayList = new ArrayList<>();
+        List<GlskRegisteredResource> registerdResourceArrayList = new ArrayList<>();
         NodeList ucteGlskNodesList = element.getElementsByTagName("ManualNodes");
 
         for (int i = 0; i < ucteGlskNodesList.getLength(); ++i) {
-            AbstractGlskRegisteredResource ucteGlskNode = new UcteGlskRegisteredResource((Element) ucteGlskNodesList.item(i));
+            GlskRegisteredResource ucteGlskNode = new UcteGlskRegisteredResource((Element) ucteGlskNodesList.item(i));
             registerdResourceArrayList.add(ucteGlskNode);
         }
         manuelGlskShiftKey.setRegisteredResourceArrayList(registerdResourceArrayList);
@@ -77,12 +77,12 @@ public class UcteGlskPoint extends AbstractGlskPoint {
 
     /* build a B42 explicit */
     private void caseAutoGskBlock(Element element, String ucteBusinessType, Double shareFactor) {
-        AbstractGlskShiftKey autoGlskShiftKey = new UcteGlskShiftKey("B42", ucteBusinessType, this.subjectDomainmRID, this.pointInterval, shareFactor);
-        List<AbstractGlskRegisteredResource> registerdResourceArrayList = new ArrayList<>();
+        GlskShiftKey autoGlskShiftKey = new UcteGlskShiftKey("B42", ucteBusinessType, this.subjectDomainmRID, this.pointInterval, shareFactor);
+        List<GlskRegisteredResource> registerdResourceArrayList = new ArrayList<>();
         NodeList ucteGlskNodesList = element.getElementsByTagName("AutoNodes");
 
         for (int i = 0; i < ucteGlskNodesList.getLength(); ++i) {
-            AbstractGlskRegisteredResource ucteGlskNode = new UcteGlskRegisteredResource((Element) ucteGlskNodesList.item(i));
+            GlskRegisteredResource ucteGlskNode = new UcteGlskRegisteredResource((Element) ucteGlskNodesList.item(i));
             registerdResourceArrayList.add(ucteGlskNode);
         }
         autoGlskShiftKey.setRegisteredResourceArrayList(registerdResourceArrayList);
