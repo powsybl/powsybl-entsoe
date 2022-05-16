@@ -9,10 +9,9 @@ package com.powsybl.glsk.api;
 import java.util.Optional;
 
 /**
- * Registered Resource: a generator or a load, with its participation factor
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public abstract class AbstractGlskRegisteredResource {
+public abstract class AbstractGlskRegisteredResource implements GlskRegisteredResource {
     /**
      * mRID of registered resource
      */
@@ -34,65 +33,47 @@ public abstract class AbstractGlskRegisteredResource {
      */
     protected Double minimumCapacity;
 
-    /**
-     * @return getter country mrid
-     */
+    @Override
     public String getmRID() {
         return mRID;
     }
 
-    /**
-     * @param mRID setter mrid
-     */
+    @Override
     public void setmRID(String mRID) {
         this.mRID = mRID;
     }
 
-    /**
-     * @return get name
-     */
+    @Override
     public String getName() {
         return name;
     }
 
-    /**
-     * @param name set name
-     */
+    @Override
     public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * @return get participation factor
-     */
+    @Override
     public double getParticipationFactor() {
         return participationFactor != null ? participationFactor : 0.0;
     }
 
-    /**
-     * @return getter max value
-     */
+    @Override
     public Optional<Double> getMaximumCapacity() {
         return Optional.ofNullable(maximumCapacity);
     }
 
-    /**
-     * @return getter min value
-     */
+    @Override
     public Optional<Double> getMinimumCapacity() {
         return Optional.ofNullable(minimumCapacity);
     }
 
-    /**
-     * @return the genrator Id according to type of Glsk File
-     */
+    @Override
     public String getGeneratorId() {
         return mRID;
     }
 
-    /**
-     * @return the load Id according to the type of Glsk File
-     */
+    @Override
     public String getLoadId() {
         return mRID;
     }

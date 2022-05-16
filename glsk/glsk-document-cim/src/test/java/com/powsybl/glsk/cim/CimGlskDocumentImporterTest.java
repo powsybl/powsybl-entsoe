@@ -6,9 +6,9 @@
  */
 package com.powsybl.glsk.cim;
 
-import com.powsybl.glsk.api.AbstractGlskPoint;
-import com.powsybl.glsk.api.AbstractGlskShiftKey;
 import com.powsybl.glsk.api.GlskDocument;
+import com.powsybl.glsk.api.GlskPoint;
+import com.powsybl.glsk.api.GlskShiftKey;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class CimGlskDocumentImporterTest {
     @Test
     public void testGlskDocumentImportB45() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB45TEST));
-        List<AbstractGlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
+        List<GlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
         assertFalse(glskShiftKeys.isEmpty());
     }
 
@@ -66,8 +66,8 @@ public class CimGlskDocumentImporterTest {
     public void testGlskDocumentImporterWithFileName() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42TEST));
 
-        List<AbstractGlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
-        for (AbstractGlskPoint point : glskPointList) {
+        List<GlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
+        for (GlskPoint point : glskPointList) {
             assertEquals(Interval.parse("2018-08-28T22:00:00Z/2018-08-29T22:00:00Z"), point.getPointInterval());
             assertEquals(Integer.valueOf(1), point.getPosition());
         }
@@ -78,8 +78,8 @@ public class CimGlskDocumentImporterTest {
     public void testGlskDocumentImporterGlskMultiPoints() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKMULTIPOINTSTEST));
 
-        List<AbstractGlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
-        for (AbstractGlskPoint point : glskPointList) {
+        List<GlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
+        for (GlskPoint point : glskPointList) {
             LOGGER.info("Position: " + point.getPosition() + "; PointInterval: " + point.getPointInterval().toString());
         }
         assertFalse(glskPointList.isEmpty());

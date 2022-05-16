@@ -6,7 +6,7 @@
  */
 package com.powsybl.glsk.cim;
 
-import com.powsybl.glsk.api.AbstractGlskPoint;
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.commons.GlskException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -65,10 +65,10 @@ public class CimGlskTimeSeries {
     /**
      * @return get all glsk point in a time series
      */
-    public List<AbstractGlskPoint> getGlskPointListInGlskTimeSeries() {
-        List<AbstractGlskPoint> glskPointList = new ArrayList<>();
+    public List<GlskPoint> getGlskPointListInGlskTimeSeries() {
+        List<GlskPoint> glskPointList = new ArrayList<>();
         for (CimGlskPeriod p : getGlskPeriods()) {
-            List<AbstractGlskPoint> list = p.getGlskPoints();
+            List<GlskPoint> list = p.getGlskPoints();
             glskPointList.addAll(list);
         }
         return glskPointList;

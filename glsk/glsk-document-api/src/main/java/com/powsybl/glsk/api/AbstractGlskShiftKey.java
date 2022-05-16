@@ -11,10 +11,9 @@ import org.threeten.extra.Interval;
 import java.util.List;
 
 /**
- * Shift Key
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public abstract class AbstractGlskShiftKey {
+public abstract class AbstractGlskShiftKey implements GlskShiftKey {
     private static final double DEFAULT_QUANTITY = 1.0;
     private static final double DEFAULT_MAXIMUM_SHIFT = Double.MAX_VALUE;
 
@@ -33,7 +32,7 @@ public abstract class AbstractGlskShiftKey {
     /**
      * list of registered resources
      */
-    protected List<AbstractGlskRegisteredResource> registeredResourceArrayList;
+    protected List<GlskRegisteredResource> registeredResourceArrayList;
 
     /**
      * time interval of shift key
@@ -56,9 +55,7 @@ public abstract class AbstractGlskShiftKey {
      */
     protected double maximumShift = DEFAULT_MAXIMUM_SHIFT;
 
-    /**
-     * @return debug to string
-     */
+    @Override
     public String glskShiftKeyToString() {
         return "\t==== GSK Shift Key ====\n" +
                 "\tBusinessType = " + businessType + "\n" +
@@ -68,76 +65,57 @@ public abstract class AbstractGlskShiftKey {
                 "\tRegisteredResource size = " + registeredResourceArrayList.size() + "\n";
     }
 
-    /**
-     * @return getter businesstype
-     */
+    @Override
     public String getBusinessType() {
         return businessType;
     }
 
-    /**
-     * @param businessType setter business type
-     */
+    @Override
     public void setBusinessType(String businessType) {
         this.businessType = businessType;
     }
 
-    /**
-     * @return getter psrType
-     */
+    @Override
     public String getPsrType() {
         return psrType;
     }
 
-    /**
-     * @param psrType setter psrType
-     */
+    @Override
     public void setPsrType(String psrType) {
         this.psrType = psrType;
     }
 
-    /**
-     * @return getter quantity
-     */
+    @Override
     public Double getQuantity() {
         return quantity;
     }
 
-    /**
-     * @return get list of registered resources
-     */
-    public List<AbstractGlskRegisteredResource> getRegisteredResourceArrayList() {
+    @Override
+    public List<GlskRegisteredResource> getRegisteredResourceArrayList() {
         return registeredResourceArrayList;
     }
 
-    /**
-     * @param registeredResourceArrayList setter registered resources
-     */
-    public void setRegisteredResourceArrayList(List<AbstractGlskRegisteredResource> registeredResourceArrayList) {
+    @Override
+    public void setRegisteredResourceArrayList(List<GlskRegisteredResource> registeredResourceArrayList) {
         this.registeredResourceArrayList = registeredResourceArrayList;
     }
 
-    /**
-     * @return getter country mrid
-     */
+    @Override
     public String getSubjectDomainmRID() {
         return subjectDomainmRID;
     }
 
-    /**
-     * @return getter merit order position
-     */
+    @Override
     public int getMeritOrderPosition() {
         return meritOrderPosition;
     }
 
-    /**
-     * @return getter merit order direction
-     */
+    @Override
     public String getFlowDirection() {
         return flowDirection;
     }
 
+    @Override
     public double getMaximumShift() {
         return maximumShift;
     }

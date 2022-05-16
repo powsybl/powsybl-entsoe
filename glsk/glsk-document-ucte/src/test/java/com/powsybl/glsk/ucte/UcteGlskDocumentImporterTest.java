@@ -6,8 +6,8 @@
  */
 package com.powsybl.glsk.ucte;
 
-import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
-import com.powsybl.glsk.api.AbstractGlskShiftKey;
+import com.powsybl.glsk.api.GlskRegisteredResource;
+import com.powsybl.glsk.api.GlskShiftKey;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.google.common.math.DoubleMath;
@@ -69,7 +69,7 @@ public class UcteGlskDocumentImporterTest {
         for (int i = 0; i < ucteGlskDocument.getListGlskSeries().size(); i++) {
             for (int j = 0; j < ucteGlskDocument.getListGlskSeries().get(i).getUcteGlskBlocks().size(); j++) {
                 assertTrue(DoubleMath.fuzzyEquals(1.0,
-                        ucteGlskDocument.getListGlskSeries().get(i).getUcteGlskBlocks().get(j).getGlskShiftKeys().stream().mapToDouble(AbstractGlskShiftKey::getQuantity).sum(),
+                        ucteGlskDocument.getListGlskSeries().get(i).getUcteGlskBlocks().get(j).getGlskShiftKeys().stream().mapToDouble(GlskShiftKey::getQuantity).sum(),
                         1e-5));
             }
         }
@@ -114,7 +114,7 @@ public class UcteGlskDocumentImporterTest {
                 .getRegisteredResourceArrayList()
                 .stream()
                 .filter(glskRegisteredResource -> glskRegisteredResource.getmRID().equals("N_EC-42 "))
-                .mapToDouble(AbstractGlskRegisteredResource::getParticipationFactor)
+                .mapToDouble(GlskRegisteredResource::getParticipationFactor)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Not good"));
 

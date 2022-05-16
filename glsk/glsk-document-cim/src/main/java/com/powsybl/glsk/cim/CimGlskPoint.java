@@ -8,7 +8,7 @@
 package com.powsybl.glsk.cim;
 
 import com.powsybl.glsk.api.AbstractGlskPoint;
-import com.powsybl.glsk.api.AbstractGlskShiftKey;
+import com.powsybl.glsk.api.GlskShiftKey;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -56,7 +56,7 @@ public class CimGlskPoint extends AbstractGlskPoint {
         this.glskShiftKeys = new ArrayList<>();
         NodeList glskShiftKeyNodes = element.getElementsByTagName("SKBlock_TimeSeries");
         for (int i = 0; i < glskShiftKeyNodes.getLength(); i++) {
-            AbstractGlskShiftKey glskShiftKey = new CimGlskShiftKey((Element) glskShiftKeyNodes.item(i), this.pointInterval, subjectDomainmRID);
+            GlskShiftKey glskShiftKey = new CimGlskShiftKey((Element) glskShiftKeyNodes.item(i), this.pointInterval, subjectDomainmRID);
             glskShiftKeys.add(glskShiftKey);
         }
     }

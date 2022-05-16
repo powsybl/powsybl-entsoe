@@ -8,8 +8,8 @@ package com.powsybl.glsk.ucte.quality_check;
 
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.glsk.api.AbstractGlskPoint;
-import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
+import com.powsybl.glsk.api.GlskPoint;
+import com.powsybl.glsk.api.GlskRegisteredResource;
 import com.powsybl.glsk.ucte.UcteGlskPoint;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.LoadType;
@@ -46,15 +46,15 @@ class GlskQualityCheck {
         glskPointMap.forEach((country, glskPoint) -> checkGlskPoint(glskPoint, input.getNetwork(), country, reporter));
     }
 
-    private void checkGlskPoint(AbstractGlskPoint glskPoint, Network network, String tso, Reporter reporter) {
+    private void checkGlskPoint(GlskPoint glskPoint, Network network, String tso, Reporter reporter) {
         List<String> manualGskGenerators =  glskPoint.getGlskShiftKeys().stream()
                 .filter(gskShiftKey -> gskShiftKey.getPsrType().equals(GENERATOR) && gskShiftKey.getBusinessType().equals("B43"))
                 .flatMap(gskShiftKey -> gskShiftKey.getRegisteredResourceArrayList().stream())
-                .map(AbstractGlskRegisteredResource::getGeneratorId).collect(Collectors.toList());
+                .map(GlskRegisteredResource::getGeneratorId).collect(Collectors.toList());
         List<String> manualGskLoads =  glskPoint.getGlskShiftKeys().stream()
                 .filter(gskShiftKey -> gskShiftKey.getPsrType().equals(LOAD) && gskShiftKey.getBusinessType().equals("B43"))
                 .flatMap(gskShiftKey -> gskShiftKey.getRegisteredResourceArrayList().stream())
-                .map(AbstractGlskRegisteredResource::getLoadId).collect(Collectors.toList());
+                .map(GlskRegisteredResource::getLoadId).collect(Collectors.toList());
 
         network.getVoltageLevelStream().forEach(voltageLevel -> voltageLevel.getBusBreakerView().getBuses().forEach(bus -> {
             if (manualGskGenerators.contains(bus.getId() + "_generator")) {
@@ -109,7 +109,7 @@ class GlskQualityCheck {
         }
     }
 
-    private void checkResource(AbstractGlskRegisteredResource registeredResource, Injection<?> injection, String type, Network network, String tso, Reporter reporter) {
+    private void checkResource(GlskRegisteredResource registeredResource, Injection<?> injection, String type, Network network, String tso, Reporter reporter) {
         if (injection == null) {
 
             if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) {

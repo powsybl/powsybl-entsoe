@@ -12,11 +12,9 @@ import java.time.Instant;
 import java.util.List;
 
 /**
- * GlskPoint: contain a Generator Shift Key and/or a Load Shift Key
- * for a certain Interval and a certain Country
  *  @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  */
-public abstract class AbstractGlskPoint {
+public abstract class AbstractGlskPoint implements GlskPoint {
     /**
      * position of the point; default value is 1; start from 1;
      */
@@ -28,7 +26,7 @@ public abstract class AbstractGlskPoint {
     /**
      * list of shift keys of point
      */
-    protected List<AbstractGlskShiftKey> glskShiftKeys;
+    protected List<GlskShiftKey> glskShiftKeys;
     /**
      * country's mrid
      */
@@ -38,9 +36,6 @@ public abstract class AbstractGlskPoint {
      */
     protected String curveType;
 
-    /**
-     * @return String info of glsk point
-     */
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -49,37 +44,29 @@ public abstract class AbstractGlskPoint {
         builder.append("PointInterval = ").append(pointInterval.toString()).append("\n");
         builder.append("subjectDomainmRID = ").append(subjectDomainmRID).append("\n");
         builder.append("CurveType = ").append(curveType).append("\n");
-        for (AbstractGlskShiftKey key : glskShiftKeys) {
+        for (GlskShiftKey key : glskShiftKeys) {
             builder.append(key.glskShiftKeyToString());
         }
         builder.append("\n");
         return builder.toString();
     }
 
-    /**
-     * @return get point's position
-     */
+    @Override
     public Integer getPosition() {
         return position;
     }
 
-    /**
-     * @param position position setter
-     */
+    @Override
     public void setPosition(Integer position) {
         this.position = position;
     }
 
-    /**
-     * @return get all shift keys in points
-     */
-    public List<AbstractGlskShiftKey> getGlskShiftKeys() {
+    @Override
+    public List<GlskShiftKey> getGlskShiftKeys() {
         return glskShiftKeys;
     }
 
-    /**
-     * @return get interval of point
-     */
+    @Override
     public Interval getPointInterval() {
         return pointInterval;
     }
@@ -88,23 +75,17 @@ public abstract class AbstractGlskPoint {
         return pointInterval.contains(instant);
     }
 
-    /**
-     * @param pointInterval set interval of point
-     */
+    @Override
     public void setPointInterval(Interval pointInterval) {
         this.pointInterval =  pointInterval;
     }
 
-    /**
-     * @return get country mrid
-     */
+    @Override
     public String getSubjectDomainmRID() {
         return subjectDomainmRID;
     }
 
-    /**
-     * @return get curvetype
-     */
+    @Override
     public String getCurveType() {
         return curveType;
     }
