@@ -6,11 +6,11 @@
  */
 package com.powsybl.glsk.api.util.converters;
 
+import com.google.common.math.DoubleMath;
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.cim.CimGlskDocument;
-import com.google.common.math.DoubleMath;
-import com.powsybl.action.util.Scalable;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
 import org.junit.Before;

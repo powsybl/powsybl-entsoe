@@ -7,13 +7,13 @@
 
 package com.powsybl.glsk.api;
 
-import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.glsk.commons.ZonalDataChronology;
 import com.powsybl.glsk.api.util.ZonalDataChronologyFromGlskDocument;
+import com.powsybl.glsk.api.util.ZonalDataFromGlskDocument;
 import com.powsybl.glsk.api.util.converters.GlskPointLinearGlskConverter;
 import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
-import com.powsybl.glsk.api.util.ZonalDataFromGlskDocument;
-import com.powsybl.action.util.Scalable;
+import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataChronology;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 

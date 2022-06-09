@@ -21,11 +21,11 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-action-util</artifactId>
+            <artifactId>powsybl-iidm-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-api</artifactId>
+            <artifactId>powsybl-iidm-modification</artifactId>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>

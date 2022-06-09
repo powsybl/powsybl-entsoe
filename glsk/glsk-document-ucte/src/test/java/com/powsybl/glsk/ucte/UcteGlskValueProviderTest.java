@@ -7,10 +7,10 @@
 package com.powsybl.glsk.ucte;
 
 import com.powsybl.glsk.api.GlskPoint;
-import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
-import com.powsybl.action.util.Scalable;
+import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
