@@ -9,9 +9,9 @@ package com.powsybl.glsk.cse;
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
-import com.powsybl.action.util.Scalable;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 

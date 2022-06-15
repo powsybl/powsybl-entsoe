@@ -8,7 +8,6 @@ package com.powsybl.cne.converter;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
@@ -105,15 +104,15 @@ public class CneExporter implements SecurityAnalysisResultExporter {
 
     private CneExportOptions createExportOptions(Properties parameters) {
         return new CneExportOptions()
-                .setMRID(ConversionParameters.readStringParameter(getFormat(), parameters, MRID_PARAMETER, defaultValueConfig))
-                .setSenderMarketParticipantMRID(ConversionParameters.readStringParameter(getFormat(), parameters, SENDER_MARKET_PARTICIPANT_MRID_PARAMETER, defaultValueConfig))
-                .setReceiverMarketParticipantMRID(ConversionParameters.readStringParameter(getFormat(), parameters, RECEIVER_MARKET_PARTICIPANT_MRID_PARAMETER, defaultValueConfig))
-                .setTimeSeriesMRID(ConversionParameters.readStringParameter(getFormat(), parameters, TIME_SERIES_MRID_PARAMETER, defaultValueConfig))
-                .setInDomainMRID(ConversionParameters.readStringParameter(getFormat(), parameters, IN_DOMAIN_PARAMETER, defaultValueConfig))
-                .setOutDomainMRID(ConversionParameters.readStringParameter(getFormat(), parameters, OUT_DOMAIN_PARAMETER, defaultValueConfig))
-                .setCreatedDatetime(ConversionParameters.readStringParameter(getFormat(), parameters, CREATED_DATETIME_PARAMETER, defaultValueConfig))
-                .setTimePeriodStart(ConversionParameters.readStringParameter(getFormat(), parameters, TIME_PERIOD_START_PARAMETER, defaultValueConfig))
-                .setTimePeriodEnd(ConversionParameters.readStringParameter(getFormat(), parameters, TIME_PERIOD_END_PARAMETER, defaultValueConfig));
+                .setMRID(Parameter.readString(getFormat(), parameters, MRID_PARAMETER, defaultValueConfig))
+                .setSenderMarketParticipantMRID(Parameter.readString(getFormat(), parameters, SENDER_MARKET_PARTICIPANT_MRID_PARAMETER, defaultValueConfig))
+                .setReceiverMarketParticipantMRID(Parameter.readString(getFormat(), parameters, RECEIVER_MARKET_PARTICIPANT_MRID_PARAMETER, defaultValueConfig))
+                .setTimeSeriesMRID(Parameter.readString(getFormat(), parameters, TIME_SERIES_MRID_PARAMETER, defaultValueConfig))
+                .setInDomainMRID(Parameter.readString(getFormat(), parameters, IN_DOMAIN_PARAMETER, defaultValueConfig))
+                .setOutDomainMRID(Parameter.readString(getFormat(), parameters, OUT_DOMAIN_PARAMETER, defaultValueConfig))
+                .setCreatedDatetime(Parameter.readString(getFormat(), parameters, CREATED_DATETIME_PARAMETER, defaultValueConfig))
+                .setTimePeriodStart(Parameter.readString(getFormat(), parameters, TIME_PERIOD_START_PARAMETER, defaultValueConfig))
+                .setTimePeriodEnd(Parameter.readString(getFormat(), parameters, TIME_PERIOD_END_PARAMETER, defaultValueConfig));
     }
 
     private static String formatDateTime(Instant instant) {

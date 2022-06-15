@@ -11,7 +11,7 @@ import com.powsybl.glsk.api.GlskRegisteredResource;
 import com.powsybl.glsk.api.GlskShiftKey;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.glsk.commons.GlskException;
-import com.powsybl.action.util.Scalable;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
