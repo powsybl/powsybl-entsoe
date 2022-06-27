@@ -19,24 +19,14 @@ public class CimGlskRegisteredResource extends AbstractGlskRegisteredResource {
 
     public CimGlskRegisteredResource(Element element) {
         Objects.requireNonNull(element);
-        this.mRID = removeRdfPrefix(element.getElementsByTagName("mRID").item(0).getTextContent());
+        this.mRID = element.getElementsByTagName("mRID").item(0).getTextContent();
         this.name = element.getElementsByTagName("name").item(0).getTextContent();
         this.participationFactor = getContentAsDoubleOrNull(element, "sK_ResourceCapacity.defaultCapacity");
         this.maximumCapacity = getContentAsDoubleOrNull(element, "resourceCapacity.maximumCapacity");
         this.minimumCapacity = getContentAsDoubleOrNull(element, "resourceCapacity.minimumCapacity");
     }
 
-    private static String removeRdfPrefix(String s) {
-        String s1 = s;
-        // rdf:ID is the mRID plus an underscore added at the beginning of the string
-        // We may decide if we want to preserve or not the underscore
-        if (s1.length() > 0 && s1.charAt(0) == '_') {
-            s1 = s1.substring(1);
-        }
-        return s1;
-    }
-
-    private static Double getContentAsDoubleOrNull(Element baseElement, String tag) {
+    private Double getContentAsDoubleOrNull(Element baseElement, String tag) {
         return baseElement.getElementsByTagName(tag).getLength() == 0 ? null :
                 Double.parseDouble(baseElement.getElementsByTagName(tag).item(0).getTextContent());
     }
