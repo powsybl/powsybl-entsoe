@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-entsoe</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <packaging>pom</packaging>
 
     <name>ENTSO-E</name>
