@@ -11,6 +11,7 @@ import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.action.util.Scalable;
 import com.powsybl.glsk.commons.GlskException;
+import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -349,6 +350,15 @@ public class CseGlskDocumentImporterTest {
         assertEquals(1000, network.getGenerator("NNL2AA1 _generator").getTargetP(), EPSILON);
 
         assertEquals(0, glskDocument.getZonalScalable(network).getData("FR_RESERVE").scale(network, 6000), EPSILON);
+    }
+
+    @Test
+    public void checkFactorTagIsOptional() {
+        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        InputStream is = getClass().getResourceAsStream("/testGlskWithMissingFactorTag.xml");
+        ZonalData<Scalable> zs = CseGlskDocument.importGlsk(is).getZonalScalable(network);
+
+        assertEquals(4, zs.getDataPerZone().size());
     }
 
     @Test

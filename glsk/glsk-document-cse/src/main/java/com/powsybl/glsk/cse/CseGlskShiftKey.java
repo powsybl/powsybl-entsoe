@@ -11,10 +11,12 @@ import com.powsybl.glsk.api.GlskRegisteredResource;
 import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import static com.powsybl.glsk.api.util.Util.getUniqueNode;
 
@@ -50,9 +52,9 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
 
                 for (GlskRegisteredResource registeredResource : registeredResourceArrayList) {
                     CseGlskRegisteredResource cseRegisteredResource = (CseGlskRegisteredResource) registeredResource;
-                    Optional<Double> intialFactor = cseRegisteredResource.getInitialFactor();
-                    if (intialFactor.isPresent()) {
-                        cseRegisteredResource.setParticipationFactor(intialFactor.get() / currentFactorsSum);
+                    Optional<Double> initialFactor = cseRegisteredResource.getInitialFactor();
+                    if (initialFactor.isPresent()) {
+                        cseRegisteredResource.setParticipationFactor(initialFactor.get() / currentFactorsSum);
                     }
                 }
                 break;
@@ -118,7 +120,7 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
                 this.maximumShift = getMaximumShift(glskBlockElement);
             }
         } else {
-            this.quantity = getFactor(glskBlockElement);
+            getFactor(glskBlockElement).ifPresent(factor -> this.quantity = factor);
         }
     }
 
@@ -139,8 +141,21 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         return Double.parseDouble(((Element) getUniqueNode(glskBlockElement, "MaximumShift")).getAttribute("v"));
     }
 
-    private static double getFactor(Element glskBlockElement) {
-        return Double.parseDouble(((Element) getUniqueNode(glskBlockElement, "Factor")).getAttribute("v"));
+    /*
+    Here we should only retrieve the <Factor> tag at the level of the GlskShiftKey. So we cannot use the method
+    getElementsByTagName because it returns all the elements of the hierarchy -- with child tags.
+     */
+    private static OptionalDouble getFactor(Element glskBlockElement) {
+        NodeList nodeList = glskBlockElement.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                Element element = (Element) nodeList.item(i);
+                if ("Factor".equals(element.getTagName())) {
+                    return OptionalDouble.of(Double.parseDouble(element.getAttribute("v")));
+                }
+            }
+        }
+        return OptionalDouble.empty();
     }
 
     private void importImplicitProportionalBlock(Element glskBlockElement, String businessType) {
