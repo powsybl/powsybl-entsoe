@@ -16,6 +16,7 @@ import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import static com.powsybl.glsk.api.util.Util.getUniqueNode;
 
@@ -144,17 +145,17 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
     Here we should only retrieve the <Factor> tag at the level of the GlskShiftKey. So we cannot use the method
     getElementsByTagName because it returns all the elements of the hierarchy -- with child tags.
      */
-    private static Optional<Double> getFactor(Element glskBlockElement) {
+    private static OptionalDouble getFactor(Element glskBlockElement) {
         NodeList nodeList = glskBlockElement.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
                 Element element = (Element) nodeList.item(i);
                 if ("Factor".equals(element.getTagName())) {
-                    return Optional.of(Double.parseDouble(element.getAttribute("v")));
+                    return OptionalDouble.of(Double.parseDouble(element.getAttribute("v")));
                 }
             }
         }
-        return Optional.empty();
+        return OptionalDouble.empty();
     }
 
     private void importImplicitProportionalBlock(Element glskBlockElement, String businessType) {
