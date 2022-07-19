@@ -66,6 +66,9 @@ public class DecomposedFlow {
         return loopFlowsMap.values().stream().reduce(0., Double::sum);
     }
 
+    /**
+     * @deprecated Still used for test purpose, but to be removed soon
+     */
     @Deprecated
     double getReferenceOrientedTotalFlow() {
         return getTotalFlow() * Math.signum(getAcReferenceFlow());

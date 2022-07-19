@@ -30,11 +30,11 @@ class XnecSelector {
             .collect(Collectors.toList());
     }
 
-    private boolean isConnected(Branch branch) {
+    private boolean isConnected(Branch<?> branch) {
         return branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected();
     }
 
-    private boolean isInMainSynchronousComponent(Branch branch) {
+    private boolean isInMainSynchronousComponent(Branch<?> branch) {
         return NetworkUtil.isTerminalInMainSynchronousComponent(branch.getTerminal1())
             && NetworkUtil.isTerminalInMainSynchronousComponent(branch.getTerminal2());
     }
