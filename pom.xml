@@ -75,8 +75,8 @@
         <module>entsoe-cgmes-balances-adjustment</module>
         <module>cne</module>
         <module>glsk</module>
-        <module>distribution-entsoe</module>
         <module>flow-decomposition</module>
+        <module>distribution-entsoe</module>
     </modules>
 
     <dependencyManagement>
