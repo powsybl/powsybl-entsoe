@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class CsvExporter {
-    public static final Path DEFAULT_EXPORT_DIR = Path.of("/tmp");
+    public static final Path DEFAULT_EXPORT_DIR = Path.of(System.getProperty("java.io.tmpdir"));
     public static final Charset CHARSET = StandardCharsets.UTF_8;
     public static final CSVFormat FORMAT = CSVFormat.RFC4180;
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvExporter.class);
