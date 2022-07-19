@@ -40,17 +40,35 @@
             <organization>RTE</organization>
             <organizationUrl>http://www.rte-france.com</organizationUrl>
         </developer>
+
+        <developer>
+            <name>Sebastien MURGEY</name>
+            <email>sebastien.murgey@rte-france.com</email>
+            <organization>RTE</organization>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
+        </developer>
+
+        <developer>
+            <name>Hugo SCHINDLER</name>
+            <email>hugo.schindler@rte-france.com</email>
+            <organization>RTE</organization>
+            <organizationUrl>https://www.rte-france.com</organizationUrl>
+        </developer>
     </developers>
 
     <properties>
         <java.version>11</java.version>
         <powsyblba.version>1.13.0</powsyblba.version>
         <powsyblcore.version>4.9.0</powsyblcore.version>
+        <powsyblopenloadflow.version>0.21.0</powsyblopenloadflow.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml,
             ../../../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <ejml.version>0.41</ejml.version>
+        <commonscsv.version>1.9.0</commonscsv.version>
+        <junit-jupiter.version>5.5.2</junit-jupiter.version>
     </properties>
 
     <modules>
@@ -58,6 +76,7 @@
         <module>cne</module>
         <module>glsk</module>
         <module>distribution-entsoe</module>
+        <module>flow-decomposition</module>
     </modules>
 
     <dependencyManagement>
