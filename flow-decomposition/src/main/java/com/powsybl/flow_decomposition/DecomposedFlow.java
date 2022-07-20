@@ -26,7 +26,7 @@ public class DecomposedFlow {
     static final String AC_REFERENCE_FLOW_COLUMN_NAME = "Reference AC Flow";
     static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
 
-    DecomposedFlow(Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow) {
+    public DecomposedFlow(Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow) {
         this.loopFlowsMap.putAll(loopFlowsMap);
         this.allocatedFlow = allocatedFlow;
         this.pstFlow = pstFlow;
@@ -39,7 +39,11 @@ public class DecomposedFlow {
     }
 
     public double getLoopFlow(Country country) {
-        return loopFlowsMap.getOrDefault(NetworkUtil.getLoopFlowIdFromCountry(country), DEFAULT_FLOW);
+        return getLoopFlow(NetworkUtil.getLoopFlowIdFromCountry(country));
+    }
+
+    public double getLoopFlow(String country) {
+        return loopFlowsMap.getOrDefault(country, DEFAULT_FLOW);
     }
 
     public Map<String, Double> getLoopFlows() {
@@ -58,7 +62,7 @@ public class DecomposedFlow {
         return dcReferenceFlow;
     }
 
-    double getTotalFlow() {
+    public double getTotalFlow() {
         return getAllocatedFlow() + getPstFlow() + getTotalLoopFlow();
     }
 

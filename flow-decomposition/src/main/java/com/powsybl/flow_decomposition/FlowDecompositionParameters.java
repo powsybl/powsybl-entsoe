@@ -15,19 +15,19 @@ import java.util.Objects;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class FlowDecompositionParameters {
-    static final boolean SAVE_INTERMEDIATES = true;
-    static final boolean DO_NOT_SAVE_INTERMEDIATES = false;
-    static final boolean ENABLE_RESCALED_RESULTS = true;
-    static final boolean DISABLE_RESCALED_RESULTS = false;
-    static final double DISABLE_SENSITIVITY_EPSILON = -1;
-    static final boolean DISABLE_LOSSES_COMPENSATION = false;
-    static final boolean ENABLE_LOSSES_COMPENSATION = true;
-    static final double DISABLE_LOSSES_COMPENSATION_EPSILON = -1;
-    private static final boolean DEFAULT_SAVE_INTERMEDIATES = DO_NOT_SAVE_INTERMEDIATES;
-    private static final boolean DEFAULT_ENABLE_LOSSES_COMPENSATION = DISABLE_LOSSES_COMPENSATION;
-    private static final double DEFAULT_LOSSES_COMPENSATION_EPSILON = 1e-5;
-    private static final double DEFAULT_SENSITIVITY_EPSILON = 1e-5;
-    private static final boolean DEFAULT_RESCALE_ENABLED = DISABLE_RESCALED_RESULTS;
+    public static final boolean SAVE_INTERMEDIATES = true;
+    public static final boolean DO_NOT_SAVE_INTERMEDIATES = false;
+    public static final boolean ENABLE_RESCALED_RESULTS = true;
+    public static final boolean DISABLE_RESCALED_RESULTS = false;
+    public static final double DISABLE_SENSITIVITY_EPSILON = -1;
+    public static final boolean DISABLE_LOSSES_COMPENSATION = false;
+    public static final boolean ENABLE_LOSSES_COMPENSATION = true;
+    public static final double DISABLE_LOSSES_COMPENSATION_EPSILON = -1;
+    public static final boolean DEFAULT_SAVE_INTERMEDIATES = DO_NOT_SAVE_INTERMEDIATES;
+    public static final boolean DEFAULT_ENABLE_LOSSES_COMPENSATION = DISABLE_LOSSES_COMPENSATION;
+    public static final double DEFAULT_LOSSES_COMPENSATION_EPSILON = 1e-5;
+    public static final double DEFAULT_SENSITIVITY_EPSILON = 1e-5;
+    public static final boolean DEFAULT_RESCALE_ENABLED = DISABLE_RESCALED_RESULTS;
     private boolean saveIntermediates;
     private boolean enableLossesCompensation;
     private double lossesCompensationEpsilon;
