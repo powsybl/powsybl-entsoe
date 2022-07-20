@@ -36,7 +36,7 @@ class DecomposedFlowsRescaler {
         Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
         double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
         double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
-        double deltaToRescale = (acReferenceFlow - dcReferenceFlow) * Math.signum(acReferenceFlow);
+        double deltaToRescale = (acReferenceFlow * Math.signum(acReferenceFlow) - decomposedFlow.getTotalFlow());
         double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + loopFlows.values().stream().mapToDouble(this::reLU).sum();
         Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
