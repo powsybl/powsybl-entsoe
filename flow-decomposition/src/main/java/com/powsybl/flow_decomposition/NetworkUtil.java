@@ -20,14 +20,14 @@ import java.util.stream.IntStream;
  * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
  * @author Sebastien Murgey{@literal <sebastien.murgey at rte-france.com>}
  */
-final class NetworkUtil {
+public final class NetworkUtil {
     static final String LOOP_FLOWS_COLUMN_PREFIX = "Loop Flow from";
 
     private NetworkUtil() {
         throw new AssertionError("Utility class should not be instantiated");
     }
 
-    static String getLoopFlowIdFromCountry(Country country) {
+    public static String getLoopFlowIdFromCountry(Country country) {
         return String.format("%s %s", LOOP_FLOWS_COLUMN_PREFIX, country.toString());
     }
 
