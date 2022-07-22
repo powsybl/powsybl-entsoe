@@ -19,7 +19,7 @@ import java.util.*;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class FlowDecompositionComputer {
-    public static final boolean DC_LOAD_FLOW = true;
+    static final boolean DC_LOAD_FLOW = true;
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;

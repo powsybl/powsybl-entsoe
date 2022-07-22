@@ -26,7 +26,7 @@ public class DecomposedFlow {
     static final String AC_REFERENCE_FLOW_COLUMN_NAME = "Reference AC Flow";
     static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
 
-    public DecomposedFlow(Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow) {
+    protected DecomposedFlow(Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow) {
         this.loopFlowsMap.putAll(loopFlowsMap);
         this.allocatedFlow = allocatedFlow;
         this.pstFlow = pstFlow;

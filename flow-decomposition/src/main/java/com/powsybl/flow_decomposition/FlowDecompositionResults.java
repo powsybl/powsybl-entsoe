@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * @see DecomposedFlow
  */
 public class FlowDecompositionResults {
-    public static final boolean FILL_ZEROS = true;
+    static final boolean FILL_ZEROS = true;
     static final boolean NOT_FILL_ZEROS = false;
     private static final boolean DEFAULT_FILL_ZEROS = NOT_FILL_ZEROS;
     private final boolean saveIntermediates;
