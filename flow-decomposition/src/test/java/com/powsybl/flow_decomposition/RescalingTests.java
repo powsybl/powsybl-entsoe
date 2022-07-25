@@ -22,8 +22,29 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RescalingTests {
     private static final double EPSILON = 1e-5;
 
-    @Test
-    void testAcerNormalizationWithPositiveBiggerReferenceFlows() {
+    private void checkRescaleAcReference(double acReferenceFlow, double dcReferenceFlow, DecomposedFlow rescaledFlow, double expectedAllocatedFlow, double expectedPstFlow, double expectedLoopFlowBE, double expectedLoopFlowES) {
+        double expectedLoopFlowFR = -300;
+        double expectedLoopFlowGE = -100;
+        assertEquals(Math.abs(acReferenceFlow), rescaledFlow.getTotalFlow(), EPSILON);
+        assertEquals(expectedAllocatedFlow, rescaledFlow.getAllocatedFlow(), EPSILON);
+        assertEquals(expectedPstFlow, rescaledFlow.getPstFlow(), EPSILON);
+        assertEquals(expectedLoopFlowBE, rescaledFlow.getLoopFlow(Country.BE), EPSILON);
+        assertEquals(expectedLoopFlowFR, rescaledFlow.getLoopFlow(Country.FR), EPSILON);
+        assertEquals(expectedLoopFlowGE, rescaledFlow.getLoopFlow(Country.GE), EPSILON);
+        assertEquals(expectedLoopFlowES, rescaledFlow.getLoopFlow(Country.ES), EPSILON);
+        assertEquals(acReferenceFlow, rescaledFlow.getAcReferenceFlow(), EPSILON);
+        assertEquals(dcReferenceFlow, rescaledFlow.getDcReferenceFlow(), EPSILON);
+    }
+
+    private void checkRescaleSmallerAcReference(double acReferenceFlow, double dcReferenceFlow, DecomposedFlow rescaledFlow) {
+        checkRescaleAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow, 80, 160, 400, 560);
+    }
+
+    private void checkRescaleBiggerAcReference(double acReferenceFlow, double dcReferenceFlow, DecomposedFlow rescaledFlow) {
+        checkRescaleAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow, 120, 240, 600, 840);
+    }
+
+    private DecomposedFlow getDecomposedFlow(double acReferenceFlow, double dcReferenceFlow) {
         Map<String, Double> loopFlows = new TreeMap<>();
         double allocatedFlow = 100;
         double pstFlow = 200.;
@@ -31,103 +52,79 @@ class RescalingTests {
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.FR), -300.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
-        double acReferenceFlow = 1400.;
-        double dcReferenceFlow = 1100.;
-        DecomposedFlow decomposedFlow = new DecomposedFlow(loopFlows, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow);
-        assertEquals(dcReferenceFlow, decomposedFlow.getReferenceOrientedTotalFlow(), EPSILON);
+        return new DecomposedFlow(loopFlows, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow);
+    }
+
+    private DecomposedFlow getRescaledFlow(double acReferenceFlow, double dcReferenceFlow) {
+        DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
+        assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
 
         DecomposedFlowsRescaler rescaler = new DecomposedFlowsRescaler();
-        DecomposedFlow rescaledFlow = rescaler.rescale(decomposedFlow);
-        assertEquals(acReferenceFlow, rescaledFlow.getReferenceOrientedTotalFlow(), EPSILON);
-        assertEquals(120, rescaledFlow.getAllocatedFlow(), EPSILON);
-        assertEquals(240, rescaledFlow.getPstFlow(), EPSILON);
-        assertEquals(600, rescaledFlow.getLoopFlow(Country.BE), EPSILON);
-        assertEquals(-300, rescaledFlow.getLoopFlow(Country.FR), EPSILON);
-        assertEquals(-100, rescaledFlow.getLoopFlow(Country.GE), EPSILON);
-        assertEquals(840, rescaledFlow.getLoopFlow(Country.ES), EPSILON);
-        assertEquals(acReferenceFlow, rescaledFlow.getAcReferenceFlow(), EPSILON);
-        assertEquals(dcReferenceFlow, rescaledFlow.getDcReferenceFlow(), EPSILON);
+        return rescaler.rescale(decomposedFlow);
+    }
+
+    @Test
+    void testAcerNormalizationWithPositiveBiggerReferenceFlows() {
+        double acReferenceFlow = 1400.;
+        double dcReferenceFlow = 1100.;
+        DecomposedFlow rescaledFlow = getRescaledFlow(acReferenceFlow, dcReferenceFlow);
+        checkRescaleBiggerAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow);
+    }
+
+    @Test
+    void testAcerNormalizationWithNegativeAbsoluteBiggerReferenceFlows() {
+        double acReferenceFlow = -1400.;
+        double dcReferenceFlow = 1100.;
+        DecomposedFlow rescaledFlow = getRescaledFlow(acReferenceFlow, dcReferenceFlow);
+        checkRescaleBiggerAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow);
     }
 
     @Test
     void testAcerNormalizationWithPositiveSmallerReferenceFlows() {
-        Map<String, Double> loopFlows = new TreeMap<>();
-        double allocatedFlow = 100;
-        double pstFlow = 200.;
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.BE), 500.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.FR), -300.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         double acReferenceFlow = 800.;
         double dcReferenceFlow = 1100.;
-        DecomposedFlow decomposedFlow = new DecomposedFlow(loopFlows, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow);
-        assertEquals(dcReferenceFlow, decomposedFlow.getReferenceOrientedTotalFlow(), EPSILON);
+        DecomposedFlow rescaledFlow = getRescaledFlow(acReferenceFlow, dcReferenceFlow);
+        checkRescaleSmallerAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow);
+    }
 
-        DecomposedFlowsRescaler rescaler = new DecomposedFlowsRescaler();
-        DecomposedFlow rescaledFlow = rescaler.rescale(decomposedFlow);
-        assertEquals(acReferenceFlow, rescaledFlow.getReferenceOrientedTotalFlow(), EPSILON);
-        assertEquals(80, rescaledFlow.getAllocatedFlow(), EPSILON);
-        assertEquals(160, rescaledFlow.getPstFlow(), EPSILON);
-        assertEquals(400, rescaledFlow.getLoopFlow(Country.BE), EPSILON);
-        assertEquals(-300, rescaledFlow.getLoopFlow(Country.FR), EPSILON);
-        assertEquals(-100, rescaledFlow.getLoopFlow(Country.GE), EPSILON);
-        assertEquals(560, rescaledFlow.getLoopFlow(Country.ES), EPSILON);
-        assertEquals(acReferenceFlow, rescaledFlow.getAcReferenceFlow(), EPSILON);
-        assertEquals(dcReferenceFlow, rescaledFlow.getDcReferenceFlow(), EPSILON);
+    @Test
+    void testAcerNormalizationWithNegativeAbsoluteSmallerReferenceFlows() {
+        double acReferenceFlow = -800.;
+        double dcReferenceFlow = 1100.;
+        DecomposedFlow rescaledFlow = getRescaledFlow(acReferenceFlow, dcReferenceFlow);
+        checkRescaleSmallerAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow);
     }
 
     @Test
     void testAcerNormalizationWithNegativeBiggerReferenceFlows() {
-        Map<String, Double> loopFlows = new TreeMap<>();
-        double allocatedFlow = 100;
-        double pstFlow = 200.;
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.BE), 500.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.FR), -300.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         double acReferenceFlow = -1400.;
         double dcReferenceFlow = -1100.;
-        DecomposedFlow decomposedFlow = new DecomposedFlow(loopFlows, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow);
-        assertEquals(dcReferenceFlow, decomposedFlow.getReferenceOrientedTotalFlow(), EPSILON);
+        DecomposedFlow rescaledFlow = getRescaledFlow(acReferenceFlow, dcReferenceFlow);
+        checkRescaleBiggerAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow);
+    }
 
-        DecomposedFlowsRescaler rescaler = new DecomposedFlowsRescaler();
-        DecomposedFlow rescaledFlow = rescaler.rescale(decomposedFlow);
-        assertEquals(acReferenceFlow, rescaledFlow.getReferenceOrientedTotalFlow(), EPSILON);
-        assertEquals(120, rescaledFlow.getAllocatedFlow(), EPSILON);
-        assertEquals(240, rescaledFlow.getPstFlow(), EPSILON);
-        assertEquals(600, rescaledFlow.getLoopFlow(Country.BE), EPSILON);
-        assertEquals(-300, rescaledFlow.getLoopFlow(Country.FR), EPSILON);
-        assertEquals(-100, rescaledFlow.getLoopFlow(Country.GE), EPSILON);
-        assertEquals(840, rescaledFlow.getLoopFlow(Country.ES), EPSILON);
-        assertEquals(acReferenceFlow, rescaledFlow.getAcReferenceFlow(), EPSILON);
-        assertEquals(dcReferenceFlow, rescaledFlow.getDcReferenceFlow(), EPSILON);
+    @Test
+    void testAcerNormalizationWithPositiveAbsoluteBiggerReferenceFlows() {
+        double acReferenceFlow = 1400.;
+        double dcReferenceFlow = -1100.;
+        DecomposedFlow rescaledFlow = getRescaledFlow(acReferenceFlow, dcReferenceFlow);
+        checkRescaleBiggerAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow);
     }
 
     @Test
     void testAcerNormalizationWithNegativeSmallerReferenceFlows() {
-        Map<String, Double> loopFlows = new TreeMap<>();
-        double allocatedFlow = 100;
-        double pstFlow = 200.;
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.BE), 500.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.FR), -300.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         double acReferenceFlow = -800.;
         double dcReferenceFlow = -1100.;
-        DecomposedFlow decomposedFlow = new DecomposedFlow(loopFlows, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow);
-        assertEquals(dcReferenceFlow, decomposedFlow.getReferenceOrientedTotalFlow(), EPSILON);
+        DecomposedFlow rescaledFlow = getRescaledFlow(acReferenceFlow, dcReferenceFlow);
+        checkRescaleSmallerAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow);
+    }
 
-        DecomposedFlowsRescaler rescaler = new DecomposedFlowsRescaler();
-        DecomposedFlow rescaledFlow = rescaler.rescale(decomposedFlow);
-        assertEquals(acReferenceFlow, rescaledFlow.getReferenceOrientedTotalFlow(), EPSILON);
-        assertEquals(80, rescaledFlow.getAllocatedFlow(), EPSILON);
-        assertEquals(160, rescaledFlow.getPstFlow(), EPSILON);
-        assertEquals(400, rescaledFlow.getLoopFlow(Country.BE), EPSILON);
-        assertEquals(-300, rescaledFlow.getLoopFlow(Country.FR), EPSILON);
-        assertEquals(-100, rescaledFlow.getLoopFlow(Country.GE), EPSILON);
-        assertEquals(560, rescaledFlow.getLoopFlow(Country.ES), EPSILON);
-        assertEquals(acReferenceFlow, rescaledFlow.getAcReferenceFlow(), EPSILON);
-        assertEquals(dcReferenceFlow, rescaledFlow.getDcReferenceFlow(), EPSILON);
+    @Test
+    void testAcerNormalizationWithPositiveAbsoluteSmallerReferenceFlows() {
+        double acReferenceFlow = 800.;
+        double dcReferenceFlow = -1100.;
+        DecomposedFlow rescaledFlow = getRescaledFlow(acReferenceFlow, dcReferenceFlow);
+        checkRescaleSmallerAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow);
     }
 
     @Test
@@ -156,10 +153,10 @@ class RescalingTests {
 
         for (String xnecId : flowDecompositionResults.getDecomposedFlowMap().keySet()) {
             DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMapBeforeRescaling().get(xnecId);
-            assertEquals(decomposedFlow.getDcReferenceFlow(), decomposedFlow.getReferenceOrientedTotalFlow(), EPSILON);
+            assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
             if (enableRescaledResults) {
                 DecomposedFlow rescaledDecomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnecId);
-                assertEquals(rescaledDecomposedFlow.getAcReferenceFlow(), rescaledDecomposedFlow.getReferenceOrientedTotalFlow(), EPSILON);
+                assertEquals(Math.abs(rescaledDecomposedFlow.getAcReferenceFlow()), rescaledDecomposedFlow.getTotalFlow(), EPSILON);
             }
         }
     }
