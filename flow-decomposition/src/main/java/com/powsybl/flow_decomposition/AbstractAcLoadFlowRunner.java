@@ -21,7 +21,7 @@ abstract class AbstractAcLoadFlowRunner<T> {
     }
 
     protected LoadFlowParameters enforceAcLoadFlowCalculation(LoadFlowParameters initialLoadFlowParameters) {
-        LoadFlowParameters acEnforcedParameters = initialLoadFlowParameters.copy();
+        LoadFlowParameters acEnforcedParameters = LoadFlowParameters.load(); // WARNING we want to copy but there is a bug with Graal VM ! initialLoadFlowParameters.copy();
         acEnforcedParameters.setDc(AC_LOAD_FLOW);
         return acEnforcedParameters;
     }

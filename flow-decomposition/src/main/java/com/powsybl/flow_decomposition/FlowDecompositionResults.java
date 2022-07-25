@@ -45,12 +45,14 @@ public class FlowDecompositionResults {
     private Map<String, Double> dcNodalInjections;
     private Map<String, DecomposedFlow> decomposedFlowsMapBeforeRescaling;
     private Map<String, DecomposedFlow> decomposedFlowMapAfterRescaling;
+    private Set<Country> zoneSet;
 
     FlowDecompositionResults(Network network, FlowDecompositionParameters parameters) {
         this.saveIntermediates = parameters.doesSaveIntermediates();
         this.networkId = network.getNameOrId();
         String date = new SimpleDateFormat("yyyyMMdd-HHmmss").format(Date.from(Instant.now()));
         this.id = "Flow_Decomposition_Results_of_" + date + "_on_network_" + networkId;
+        this.zoneSet = network.getCountries();
     }
 
     /**
@@ -65,6 +67,13 @@ public class FlowDecompositionResults {
      */
     public String getId() {
         return id;
+    }
+
+    /**
+     * @return the set of available zones in this result
+     */
+    public Set<Country> getZoneSet() {
+        return zoneSet;
     }
 
     /**
