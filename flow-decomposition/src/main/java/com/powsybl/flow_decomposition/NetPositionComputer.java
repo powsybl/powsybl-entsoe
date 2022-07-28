@@ -38,10 +38,10 @@ class NetPositionComputer extends AbstractAcLoadFlowRunner<Map<Country, Double>>
     static Map<Country, Double> computeNetPositions(Network network) {
         Map<Country, Double> netPositions = new EnumMap<>(Country.class);
 
-        network.getDanglingLineStream().forEach(danglingLine -> {
-            Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
-            addLeavingFlow(netPositions, danglingLine, country);
-        });
+        //network.getDanglingLineStream().forEach(danglingLine -> {
+        //    Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
+        //    addLeavingFlow(netPositions, danglingLine, country);
+        //});
 
         network.getLineStream().forEach(line -> {
             Country countrySide1 = NetworkUtil.getTerminalCountry(line.getTerminal1());
