@@ -67,6 +67,22 @@ public final class NetworkUtil {
             ));
     }
 
+    static List<Branch> getAllValidBranches(Network network) {
+        return network.getBranchStream()
+            .filter(NetworkUtil::isConnected)
+            .filter(NetworkUtil::isInMainSynchronousComponent) // Is connectedCompenent enough ?
+            .collect(Collectors.toList());
+    }
+
+    private static boolean isConnected(Branch<?> branch) {
+        return branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected();
+    }
+
+    private static boolean isInMainSynchronousComponent(Branch<?> branch) {
+        return isTerminalInMainSynchronousComponent(branch.getTerminal1())
+            && isTerminalInMainSynchronousComponent(branch.getTerminal2());
+    }
+
     static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
     }

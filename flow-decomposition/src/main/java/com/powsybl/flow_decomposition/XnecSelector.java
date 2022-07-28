@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -18,28 +18,28 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class XnecSelector {
-    List<Branch> run(Network network) {
-        return selectXnecs(network);
+    public static final double PTDF_THRESHOLD = 0.05;
+
+    List<Branch> run(Network network, Map<String, Map<Country, Double>> zonalPtdf) {
+        return selectXnecs(network, zonalPtdf);
     }
 
-    private List<Branch> selectXnecs(Network network) {
-        return network.getBranchStream()
-            .filter(this::isConnected)
-            .filter(this::isInMainSynchronousComponent)
-            .filter(this::isAnInterconnection)
+    private List<Branch> selectXnecs(Network network, Map<String, Map<Country, Double>> zonalPtdf) {
+        return NetworkUtil.getAllValidBranches(network)
+            .stream()
+            .filter(branch -> isAXnec(branch, zonalPtdf.getOrDefault(branch.getId(), Collections.emptyMap()).values()))
             .collect(Collectors.toList());
     }
 
-    private boolean isConnected(Branch<?> branch) {
-        return branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected();
+    private boolean isAXnec(Branch branch, Collection<Double> countryPtdfList) {
+        return isAnInterconnection(branch) || hasMoreThan5PercentPtdf(countryPtdfList);
     }
 
-    private boolean isInMainSynchronousComponent(Branch<?> branch) {
-        return NetworkUtil.isTerminalInMainSynchronousComponent(branch.getTerminal1())
-            && NetworkUtil.isTerminalInMainSynchronousComponent(branch.getTerminal2());
+    private static boolean hasMoreThan5PercentPtdf(Collection<Double> countryPtdfList) {
+        return (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) > PTDF_THRESHOLD;
     }
 
-    private boolean isAnInterconnection(Branch<?> branch) {
+    static boolean isAnInterconnection(Branch<?> branch) {
         Country country1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
         Country country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
         return !country1.equals(country2);
