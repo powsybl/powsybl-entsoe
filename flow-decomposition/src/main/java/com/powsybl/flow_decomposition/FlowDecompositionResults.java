@@ -39,13 +39,14 @@ public class FlowDecompositionResults {
     private Map<String, Double> dcReferenceFlow;
     private Map<Country, Double> acNetPosition;
     private Map<Country, Map<String, Double>> glsks;
+    private Map<String, Map<Country, Double>> zonalPtdf;
     private SparseMatrixWithIndexesTriplet ptdfMatrix;
     private SparseMatrixWithIndexesTriplet psdfMatrix;
     private SparseMatrixWithIndexesTriplet nodalInjectionsMatrix;
     private Map<String, Double> dcNodalInjections;
     private Map<String, DecomposedFlow> decomposedFlowsMapBeforeRescaling;
     private Map<String, DecomposedFlow> decomposedFlowMapAfterRescaling;
-    private Set<Country> zoneSet;
+    private final Set<Country> zoneSet;
 
     FlowDecompositionResults(Network network, FlowDecompositionParameters parameters) {
         this.saveIntermediates = parameters.doesSaveIntermediates();
@@ -114,6 +115,17 @@ public class FlowDecompositionResults {
      */
     public Optional<Map<Country, Map<String, Double>>> getGlsks() {
         return Optional.ofNullable(glsks);
+    }
+
+    /**
+     * Zonal PTDFs are an intermediate results.
+     * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
+     * They are represented as a map of map.
+     * The first key is a XNEC id, the second key is the country and the value is the PTDF.
+     * @return An optional containing PTDFs
+     */
+    public Optional<Map<String, Map<Country, Double>>> getZonalPtdfMap() {
+        return Optional.ofNullable(zonalPtdf);
     }
 
     /**
@@ -218,39 +230,52 @@ public class FlowDecompositionResults {
         this.decomposedFlowMapAfterRescaling = decomposedFlowMap;
     }
 
-    void saveACNetPosition(Map<Country, Double> acNetPosition) {
+    Map<Country, Double> saveACNetPosition(Map<Country, Double> acNetPosition) {
         if (saveIntermediates) {
             this.acNetPosition = acNetPosition;
         }
+        return acNetPosition;
     }
 
-    void saveGlsks(Map<Country, Map<String, Double>> glsks) {
+    Map<Country, Map<String, Double>> saveGlsks(Map<Country, Map<String, Double>> glsks) {
         if (saveIntermediates) {
             this.glsks = glsks;
         }
+        return glsks;
     }
 
-    void savePtdfMatrix(SparseMatrixWithIndexesTriplet ptdfMatrix) {
+    SparseMatrixWithIndexesTriplet savePtdfMatrix(SparseMatrixWithIndexesTriplet ptdfMatrix) {
         if (saveIntermediates) {
             this.ptdfMatrix = ptdfMatrix;
         }
+        return ptdfMatrix;
     }
 
-    void savePsdfMatrix(SparseMatrixWithIndexesTriplet psdfMatrix) {
+    SparseMatrixWithIndexesTriplet savePsdfMatrix(SparseMatrixWithIndexesTriplet psdfMatrix) {
         if (saveIntermediates) {
             this.psdfMatrix = psdfMatrix;
         }
+        return psdfMatrix;
     }
 
-    void saveNodalInjectionsMatrix(SparseMatrixWithIndexesTriplet nodalInjectionsMatrix) {
+    SparseMatrixWithIndexesTriplet saveNodalInjectionsMatrix(SparseMatrixWithIndexesTriplet nodalInjectionsMatrix) {
         if (saveIntermediates) {
             this.nodalInjectionsMatrix = nodalInjectionsMatrix;
         }
+        return nodalInjectionsMatrix;
     }
 
-    void saveDcNodalInjections(Map<String, Double> dcNodalInjections) {
+    Map<String, Double> saveDcNodalInjections(Map<String, Double> dcNodalInjections) {
         if (saveIntermediates) {
             this.dcNodalInjections = dcNodalInjections;
         }
+        return dcNodalInjections;
+    }
+
+    public Map<String, Map<Country, Double>> saveZonalPtdf(Map<String, Map<Country, Double>> zonalPtdf) {
+        if (saveIntermediates) {
+            this.zonalPtdf = zonalPtdf;
+        }
+        return zonalPtdf;
     }
 }
