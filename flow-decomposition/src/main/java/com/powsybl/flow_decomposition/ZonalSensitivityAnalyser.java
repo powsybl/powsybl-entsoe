@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -23,14 +24,19 @@ import java.util.stream.Collectors;
  */
 class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final boolean SENSITIVITY_VARIABLE_SET = true;
+    private final FlowDecompositionParameters parameters;
 
-    public ZonalSensitivityAnalyser(LoadFlowParameters loadFlowParameters) {
+    public ZonalSensitivityAnalyser(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters) {
         super(loadFlowParameters);
+        this.parameters = parameters;
     }
 
     public Map<String, Map<Country, Double>> run(Network network,
                                                  Map<Country, Map<String, Double>> glsks,
                                                  SensitivityVariableType sensitivityVariableType) {
+        if (!parameters.computeZonalPtdf()) {
+            return Collections.emptyMap();
+        }
         List<Branch> functionList = NetworkUtil.getAllValidBranches(network);
         List<String> variableList = getVariableList(glsks);
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);

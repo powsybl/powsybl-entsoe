@@ -36,7 +36,7 @@ class XnecSelector {
     }
 
     private static boolean hasMoreThan5PercentPtdf(Collection<Double> countryPtdfList) {
-        return (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) > PTDF_THRESHOLD;
+        return (!countryPtdfList.isEmpty()) && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) > PTDF_THRESHOLD;
     }
 
     static boolean isAnInterconnection(Branch<?> branch) {

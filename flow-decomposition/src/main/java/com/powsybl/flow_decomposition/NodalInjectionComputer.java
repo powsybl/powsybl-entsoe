@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
  */
 class NodalInjectionComputer {
     private static final double DEFAULT_GLSK_FACTOR = 0.0;
+    public static final double DEFAULT_NET_POSITION = 0.0;
     private final NetworkMatrixIndexes networkMatrixIndexes;
 
     NodalInjectionComputer(NetworkMatrixIndexes networkMatrixIndexes) {
@@ -52,7 +53,7 @@ class NodalInjectionComputer {
         Map<Country, Double> netPositions) {
         Country injectionCountry = NetworkUtil.getInjectionCountry(injection);
         return glsks.get(injectionCountry).getOrDefault(injection.getId(), DEFAULT_GLSK_FACTOR)
-            * netPositions.get(injectionCountry);
+            * netPositions.getOrDefault(injectionCountry, DEFAULT_NET_POSITION);
     }
 
     private SparseMatrixWithIndexesTriplet getEmptyNodalInjectionMatrix(Map<Country, Map<String, Double>> glsks, Integer size) {

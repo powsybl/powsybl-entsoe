@@ -85,7 +85,7 @@ public class FlowDecompositionComputer {
     private Map<String, Map<Country, Double>> getZonalPtdf(Network network,
                                                            Map<Country, Map<String, Double>> glsks,
                                                            FlowDecompositionResults flowDecompositionResults) {
-        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters);
+        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters, parameters);
         Map<String, Map<Country, Double>> zonalPtdf = zonalSensitivityAnalyser.run(network,
             glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
         return flowDecompositionResults.saveZonalPtdf(zonalPtdf);
