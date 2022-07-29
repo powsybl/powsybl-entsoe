@@ -23,16 +23,20 @@ public class FlowDecompositionParameters {
     public static final boolean DISABLE_LOSSES_COMPENSATION = false;
     public static final boolean ENABLE_LOSSES_COMPENSATION = true;
     public static final double DISABLE_LOSSES_COMPENSATION_EPSILON = -1;
+    public static final boolean DISABLE_COMPUTE_ZONAL_PTDF = false;
+    public static final boolean ENABLE_COMPUTE_ZONAL_PTDF = true;
     public static final boolean DEFAULT_SAVE_INTERMEDIATES = DO_NOT_SAVE_INTERMEDIATES;
     public static final boolean DEFAULT_ENABLE_LOSSES_COMPENSATION = DISABLE_LOSSES_COMPENSATION;
     public static final double DEFAULT_LOSSES_COMPENSATION_EPSILON = 1e-5;
     public static final double DEFAULT_SENSITIVITY_EPSILON = 1e-5;
     public static final boolean DEFAULT_RESCALE_ENABLED = DISABLE_RESCALED_RESULTS;
+    private static final boolean DEFAULT_COMPUTE_ZONAL_PTDF = DISABLE_COMPUTE_ZONAL_PTDF;
     private boolean saveIntermediates;
     private boolean enableLossesCompensation;
     private double lossesCompensationEpsilon;
     private double sensitivityEpsilon;
     private boolean rescaleEnabled;
+    private boolean computeZonalPtdf;
 
     public static FlowDecompositionParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -53,6 +57,7 @@ public class FlowDecompositionParameters {
             parameters.setLossesCompensationEpsilon(moduleConfig.getDoubleProperty("losses-compensation-epsilon", DEFAULT_LOSSES_COMPENSATION_EPSILON));
             parameters.setSensitivityEpsilon(moduleConfig.getDoubleProperty("sensitivity-epsilon", DEFAULT_SENSITIVITY_EPSILON));
             parameters.setRescaleEnabled(moduleConfig.getBooleanProperty("rescale-enabled", DEFAULT_RESCALE_ENABLED));
+            parameters.setComputeZonalPtdf(moduleConfig.getBooleanProperty("compute-zonal-ptdf", DEFAULT_COMPUTE_ZONAL_PTDF));
         });
     }
 
@@ -62,6 +67,7 @@ public class FlowDecompositionParameters {
         this.lossesCompensationEpsilon = DEFAULT_LOSSES_COMPENSATION_EPSILON;
         this.sensitivityEpsilon = DEFAULT_SENSITIVITY_EPSILON;
         this.rescaleEnabled = DEFAULT_RESCALE_ENABLED;
+        this.computeZonalPtdf = DEFAULT_COMPUTE_ZONAL_PTDF;
     }
 
     public boolean doesSaveIntermediates() {
@@ -102,5 +108,13 @@ public class FlowDecompositionParameters {
 
     public void setRescaleEnabled(boolean rescaleEnabled) {
         this.rescaleEnabled = rescaleEnabled;
+    }
+
+    public boolean computeZonalPtdf() {
+        return computeZonalPtdf;
+    }
+
+    public void setComputeZonalPtdf(boolean computeZonalPtdf) {
+        this.computeZonalPtdf = computeZonalPtdf;
     }
 }
