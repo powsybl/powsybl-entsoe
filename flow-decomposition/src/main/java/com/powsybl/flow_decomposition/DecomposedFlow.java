@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
+import org.apache.commons.math3.util.Pair;
 
 import java.util.*;
 
@@ -21,17 +22,19 @@ public class DecomposedFlow {
     private final double pstFlow;
     private final double acReferenceFlow;
     private final double dcReferenceFlow;
+    private final Pair<Country, Country> countries;
     static final String ALLOCATED_COLUMN_NAME = "Allocated Flow";
     static final String PST_COLUMN_NAME = "PST Flow";
     static final String AC_REFERENCE_FLOW_COLUMN_NAME = "Reference AC Flow";
     static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
 
-    protected DecomposedFlow(Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow) {
+    protected DecomposedFlow(Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow, Pair<Country, Country> countries) {
         this.loopFlowsMap.putAll(loopFlowsMap);
         this.allocatedFlow = allocatedFlow;
         this.pstFlow = pstFlow;
         this.acReferenceFlow = acReferenceFlow;
         this.dcReferenceFlow = dcReferenceFlow;
+        this.countries = countries;
     }
 
     public double getAllocatedFlow() {
@@ -62,12 +65,27 @@ public class DecomposedFlow {
         return dcReferenceFlow;
     }
 
+    public Pair<Country, Country> getCountries() {
+        return countries;
+    }
+
     public double getTotalFlow() {
         return getAllocatedFlow() + getPstFlow() + getTotalLoopFlow();
     }
 
     private double getTotalLoopFlow() {
         return loopFlowsMap.values().stream().reduce(0., Double::sum);
+    }
+
+    public double getInternalFlow() {
+        if (!isInternalBranch()) {
+            return 0.0;
+        }
+        return getLoopFlow(getCountries().getFirst());
+    }
+
+    private boolean isInternalBranch() {
+        return Objects.equals(getCountries().getFirst(), getCountries().getSecond());
     }
 
     /**

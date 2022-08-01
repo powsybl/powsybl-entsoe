@@ -8,6 +8,7 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.math3.util.Pair;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -47,6 +48,7 @@ public class FlowDecompositionResults {
     private Map<String, DecomposedFlow> decomposedFlowsMapBeforeRescaling;
     private Map<String, DecomposedFlow> decomposedFlowMapAfterRescaling;
     private final Set<Country> zoneSet;
+    private Map<String, Pair<Country, Country>> xnecToCountryMap;
 
     FlowDecompositionResults(Network network, FlowDecompositionParameters parameters) {
         this.saveIntermediates = parameters.doesSaveIntermediates();
@@ -203,7 +205,7 @@ public class FlowDecompositionResults {
         double allocatedFlow = allocatedAndLoopFlowMap.get(DecomposedFlow.ALLOCATED_COLUMN_NAME);
         double pstFlow = pstFlowMap.get(xnecId).get(DecomposedFlow.PST_COLUMN_NAME);
         return new DecomposedFlow(loopFlowsMap, allocatedFlow, pstFlow,
-            acReferenceFlow.get(xnecId), dcReferenceFlow.get(xnecId));
+            acReferenceFlow.get(xnecId), dcReferenceFlow.get(xnecId), xnecToCountryMap.get(xnecId));
     }
 
     void saveAllocatedAndLoopFlowsMatrix(SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix) {
@@ -277,5 +279,9 @@ public class FlowDecompositionResults {
             this.zonalPtdf = zonalPtdf;
         }
         return zonalPtdf;
+    }
+
+    public void saveXnecToCountry(Map<String, Pair<Country, Country>> xnecToCountry) {
+        this.xnecToCountryMap = xnecToCountry;
     }
 }
