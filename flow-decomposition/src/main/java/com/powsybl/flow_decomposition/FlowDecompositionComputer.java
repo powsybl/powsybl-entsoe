@@ -39,7 +39,7 @@ public class FlowDecompositionComputer {
         //AC LF
         Map<Country, Map<String, Double>> glsks = getGlsks(network, flowDecompositionResults);
         Map<String, Map<Country, Double>> zonalPtdf = getZonalPtdf(network, glsks, flowDecompositionResults);
-        List<Branch> xnecList = new XnecSelector().run(network, zonalPtdf);
+        List<Branch> xnecList = new XnecSelector().run(network, zonalPtdf, flowDecompositionResults);
         Map<Country, Double> netPositions = getZonesNetPosition(network, flowDecompositionResults);
         flowDecompositionResults.saveAcReferenceFlow(getXnecReferenceFlows(xnecList));
         compensateLosses(network);
