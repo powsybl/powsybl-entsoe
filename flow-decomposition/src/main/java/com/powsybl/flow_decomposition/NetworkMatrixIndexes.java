@@ -74,6 +74,7 @@ class NetworkMatrixIndexes {
         return getAllNetworkInjections(network)
             .filter(this::isInjectionConnected)
             .filter(this::isInjectionInMainSynchronousComponent)
+            .filter(this::hasFiniteP)
             .collect(Collectors.toList());
     }
 
@@ -89,6 +90,10 @@ class NetworkMatrixIndexes {
 
     private boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {
         return NetworkUtil.isTerminalInMainSynchronousComponent(injection.getTerminal());
+    }
+
+    private boolean hasFiniteP(Injection<?> injection) {
+        return Double.isFinite(injection.getTerminal().getP());
     }
 
     private List<String> getNodeIdList(List<Injection<?>> nodeList) {

@@ -6,10 +6,9 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.NodeBreakerTopology;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 
@@ -69,6 +68,10 @@ class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
         }
     }
 
+    private Terminal getSendingTerminal(Branch<?> branch) {
+        return branch.getTerminal1().getP() > 0 ? branch.getTerminal1() : branch.getTerminal2();
+    }
+
     private void compensateLossesOnTieLine(TieLine tieLine) {
         double r1 = tieLine.getHalf1().getR();
         double r2 = tieLine.getHalf2().getR();
@@ -87,16 +90,34 @@ class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
 
     private void createLoadForLossesOnTerminal(Terminal terminal, String lossesId, double losses) {
         if (Math.abs(losses) > epsilon) {
-            terminal.getVoltageLevel().newLoad()
-                .setId(lossesId)
-                .setBus(terminal.getBusBreakerView().getBus().getId())
-                .setP0(losses)
-                .setQ0(0)
-                .add();
+            if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                getLoadAdder(terminal, lossesId, losses)
+                    .setBus(terminal.getBusBreakerView().getBus().getId())
+                    .add();
+            } else if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                VoltageLevel vl = terminal.getVoltageLevel();
+                VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
+                //topo.newBusbarSection().setId("fict"+topo.getMaximumNodeIndex())
+                //    .setNode(terminal.getNodeBreakerView().getNode())
+                //    .add();
+                if (topo.getBusbarSectionCount() > 0) {
+                    String id = topo.getBusbarSections().iterator().next().getId();
+                    BusbarSection bb = topo.getBusbarSection(id);
+                    int connectionNode = NodeBreakerTopology.newStandardConnection(bb);
+                    getLoadAdder(terminal, lossesId, losses)
+                        .setNode(connectionNode)
+                        .add();
+                }
+            } else {
+                throw new PowsyblException(String.format("Topology %s not supported", terminal.getVoltageLevel().getTopologyKind()));
+            }
         }
     }
 
-    private Terminal getSendingTerminal(Branch<?> branch) {
-        return branch.getTerminal1().getP() > 0 ? branch.getTerminal1() : branch.getTerminal2();
+    private static LoadAdder getLoadAdder(Terminal terminal, String lossesId, double losses) {
+        return terminal.getVoltageLevel().newLoad()
+            .setId(lossesId)
+            .setP0(losses)
+            .setQ0(0);
     }
 }
