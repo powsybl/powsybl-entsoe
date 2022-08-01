@@ -40,7 +40,7 @@ public class FlowDecompositionComputer {
         //AC LF
         Map<Country, Map<String, Double>> glsks = getGlsks(network, flowDecompositionResults);
         Map<String, Map<Country, Double>> zonalPtdf = getZonalPtdf(network, glsks, flowDecompositionResults);
-        List<Branch> xnecList = getXnecList(network, zonalPtdf);
+        List<Branch> xnecList = getXnecList(network, zonalPtdf, flowDecompositionResults);
         Map<Country, Double> netPositions = getZonesNetPosition(network, flowDecompositionResults);
         flowDecompositionResults.saveAcReferenceFlow(getXnecReferenceFlows(xnecList));
         compensateLosses(network);
@@ -69,7 +69,7 @@ public class FlowDecompositionComputer {
         return flowDecompositionResults;
     }
 
-    private List<Branch> getXnecList(Network network, Map<String, Map<Country, Double>> zonalPtdf) {
+    private List<Branch> getXnecList(Network network, Map<String, Map<Country, Double>> zonalPtdf, FlowDecompositionResults flowDecompositionResults) {
         XnecSelector xnecSelector;
         switch (parameters.getXnecSelectionStrategy()) {
             case ONLY_INTERCONNECTIONS:
@@ -82,7 +82,9 @@ public class FlowDecompositionComputer {
                 throw new PowsyblException(String.format("XnecSelectionStrategy %s is not valid",
                     parameters.getXnecSelectionStrategy()));
         }
-        return xnecSelector.run(network);
+        List<Branch> xnecList = xnecSelector.run(network);
+        flowDecompositionResults.saveXnecToCountry(NetworkUtil.getXnecToCountry(xnecList));
+        return xnecList;
     }
 
     private static LoadFlowParameters initLoadFlowParameters() {

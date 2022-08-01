@@ -8,6 +8,7 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.math3.util.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -85,5 +86,14 @@ public final class NetworkUtil {
 
     static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
+    }
+
+    static Map<String, Pair<Country, Country>> getXnecToCountry(List<Branch> xnecList) {
+        return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, NetworkUtil::getCountryPair));
+    }
+
+    private static Pair<Country, Country> getCountryPair(Branch branch) {
+        return new Pair<>(NetworkUtil.getTerminalCountry(branch.getTerminal1()),
+            NetworkUtil.getTerminalCountry(branch.getTerminal2()));
     }
 }
