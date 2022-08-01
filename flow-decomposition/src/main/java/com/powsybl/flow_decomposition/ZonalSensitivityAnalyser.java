@@ -34,7 +34,7 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     public Map<String, Map<Country, Double>> run(Network network,
                                                  Map<Country, Map<String, Double>> glsks,
                                                  SensitivityVariableType sensitivityVariableType) {
-        if (!parameters.computeZonalPtdf()) {
+        if (parameters.getXnecSelectionStrategy() == FlowDecompositionParameters.XnecSelectionStrategy.ONLY_INTERCONNECTIONS) {
             return Collections.emptyMap();
         }
         List<Branch> functionList = NetworkUtil.getAllValidBranches(network);

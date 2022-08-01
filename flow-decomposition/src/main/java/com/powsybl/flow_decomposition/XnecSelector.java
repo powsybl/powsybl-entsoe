@@ -7,42 +7,15 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-class XnecSelector {
-    public static final double PTDF_THRESHOLD = 0.05;
+interface XnecSelector {
 
-    List<Branch> run(Network network, Map<String, Map<Country, Double>> zonalPtdf) {
-        return selectXnecs(network, zonalPtdf);
-    }
-
-    private List<Branch> selectXnecs(Network network, Map<String, Map<Country, Double>> zonalPtdf) {
-        return NetworkUtil.getAllValidBranches(network)
-            .stream()
-            .filter(branch -> isAXnec(branch, zonalPtdf.getOrDefault(branch.getId(), Collections.emptyMap()).values()))
-            .collect(Collectors.toList());
-    }
-
-    private boolean isAXnec(Branch branch, Collection<Double> countryPtdfList) {
-        return isAnInterconnection(branch) || hasMoreThan5PercentPtdf(countryPtdfList);
-    }
-
-    private static boolean hasMoreThan5PercentPtdf(Collection<Double> countryPtdfList) {
-        return (!countryPtdfList.isEmpty()) && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) > PTDF_THRESHOLD;
-    }
-
-    static boolean isAnInterconnection(Branch<?> branch) {
-        Country country1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
-        Country country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
-        return !country1.equals(country2);
-    }
-
+    List<Branch> run(Network network);
 }

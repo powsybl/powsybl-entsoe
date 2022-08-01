@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
@@ -39,7 +40,7 @@ public class FlowDecompositionComputer {
         //AC LF
         Map<Country, Map<String, Double>> glsks = getGlsks(network, flowDecompositionResults);
         Map<String, Map<Country, Double>> zonalPtdf = getZonalPtdf(network, glsks, flowDecompositionResults);
-        List<Branch> xnecList = new XnecSelector().run(network, zonalPtdf);
+        List<Branch> xnecList = getXnecList(network, zonalPtdf);
         Map<Country, Double> netPositions = getZonesNetPosition(network, flowDecompositionResults);
         flowDecompositionResults.saveAcReferenceFlow(getXnecReferenceFlows(xnecList));
         compensateLosses(network);
@@ -66,6 +67,22 @@ public class FlowDecompositionComputer {
         rescale(flowDecompositionResults);
 
         return flowDecompositionResults;
+    }
+
+    private List<Branch> getXnecList(Network network, Map<String, Map<Country, Double>> zonalPtdf) {
+        XnecSelector xnecSelector;
+        switch (parameters.getXnecSelectionStrategy()) {
+            case ONLY_INTERCONNECTIONS:
+                xnecSelector = new XnecSelectorInterconnection();
+                break;
+            case ZONE_TO_ZONE_PTDF_CRITERIA:
+                xnecSelector = new XnecSelector5percPtdf(zonalPtdf);
+                break;
+            default:
+                throw new PowsyblException(String.format("XnecSelectionStrategy %s is not valid",
+                    parameters.getXnecSelectionStrategy()));
+        }
+        return xnecSelector.run(network);
     }
 
     private static LoadFlowParameters initLoadFlowParameters() {
