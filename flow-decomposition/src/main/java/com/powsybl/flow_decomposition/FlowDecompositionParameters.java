@@ -76,12 +76,14 @@ public class FlowDecompositionParameters {
         return saveIntermediates;
     }
 
-    public void setSaveIntermediates(boolean saveIntermediates) {
+    public FlowDecompositionParameters setSaveIntermediates(boolean saveIntermediates) {
         this.saveIntermediates = saveIntermediates;
+        return this;
     }
 
-    public void setEnableLossesCompensation(boolean enableLossesCompensation) {
+    public FlowDecompositionParameters setEnableLossesCompensation(boolean enableLossesCompensation) {
         this.enableLossesCompensation = enableLossesCompensation;
+        return this;
     }
 
     public boolean isLossesCompensationEnabled() {
@@ -92,31 +94,35 @@ public class FlowDecompositionParameters {
         return lossesCompensationEpsilon;
     }
 
-    public void setLossesCompensationEpsilon(double lossesCompensationEpsilon) {
+    public FlowDecompositionParameters setLossesCompensationEpsilon(double lossesCompensationEpsilon) {
         this.lossesCompensationEpsilon = lossesCompensationEpsilon;
+        return this;
     }
 
     public double getSensitivityEpsilon() {
         return sensitivityEpsilon;
     }
 
-    public void setSensitivityEpsilon(double sensitivityEpsilon) {
+    public FlowDecompositionParameters setSensitivityEpsilon(double sensitivityEpsilon) {
         this.sensitivityEpsilon = sensitivityEpsilon;
+        return this;
     }
 
     public boolean isRescaleEnabled() {
         return rescaleEnabled;
     }
 
-    public void setRescaleEnabled(boolean rescaleEnabled) {
+    public FlowDecompositionParameters setRescaleEnabled(boolean rescaleEnabled) {
         this.rescaleEnabled = rescaleEnabled;
+        return this;
     }
 
     public XnecSelectionStrategy getXnecSelectionStrategy() {
         return xnecSelectionStrategy;
     }
 
-    public void setXnecSelectionStrategy(XnecSelectionStrategy xnecSelectionStrategy) {
+    public FlowDecompositionParameters setXnecSelectionStrategy(XnecSelectionStrategy xnecSelectionStrategy) {
         this.xnecSelectionStrategy = xnecSelectionStrategy;
+        return this;
     }
 }
