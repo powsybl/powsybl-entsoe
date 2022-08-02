@@ -59,7 +59,7 @@ public class FlowDecompositionParameters {
             parameters.setLossesCompensationEpsilon(moduleConfig.getDoubleProperty("losses-compensation-epsilon", DEFAULT_LOSSES_COMPENSATION_EPSILON));
             parameters.setSensitivityEpsilon(moduleConfig.getDoubleProperty("sensitivity-epsilon", DEFAULT_SENSITIVITY_EPSILON));
             parameters.setRescaleEnabled(moduleConfig.getBooleanProperty("rescale-enabled", DEFAULT_RESCALE_ENABLED));
-            parameters.setXnecSelectionStrategy(moduleConfig.getEnumProperty("compute-zonal-ptdf", XnecSelectionStrategy.class, DEFAULT_COMPUTE_ZONAL_PTDF));
+            parameters.setXnecSelectionStrategy(moduleConfig.getEnumProperty("branch-selection-strategy", XnecSelectionStrategy.class, DEFAULT_COMPUTE_ZONAL_PTDF));
         });
     }
 
