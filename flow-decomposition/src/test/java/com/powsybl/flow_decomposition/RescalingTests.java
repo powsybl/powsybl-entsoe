@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -161,5 +162,23 @@ class RescalingTests {
                 assertEquals(Math.abs(rescaledDecomposedFlow.getAcReferenceFlow()), rescaledDecomposedFlow.getTotalFlow(), EPSILON);
             }
         }
+    }
+
+    @Test
+    void testNormalizationNaNAcReferenceNetwork() {
+        String networkFileName = "NETWORK_LOOP_FLOW_WITH_COUNTRIES.uct";
+        Network network = AllocatedFlowTests.importNetwork(networkFileName);
+
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
+        flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION);
+        flowDecompositionParameters.setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+        flowDecompositionParameters.setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON);
+        flowDecompositionParameters.setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
+
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
+
+        assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get("BLOAD 11 FLOAD 11 1").getAcReferenceFlow()));
+        assertTrue(Double.isFinite(flowDecompositionResults.getDecomposedFlowMap().get("BLOAD 11 FLOAD 11 1").getAllocatedFlow()));
     }
 }
