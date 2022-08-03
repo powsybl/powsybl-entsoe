@@ -10,6 +10,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
@@ -39,32 +40,14 @@ class LossesCompensationTests {
         Network network = importNetwork(networkFileName);
         LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
             FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+        LoadFlow.run(network, loadFlowParameters);
         lossesCompensator.run(network);
 
-        assessSingleLoadTwoGeneratorsNetworkLossesCompensation(network);
-    }
-
-    @Test
-    void checkThatLossesCompensationDoesEnforceAcLoadflow() {
-        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
-
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
-        loadFlowParameters.setDc(FlowDecompositionComputer.DC_LOAD_FLOW);
-
-        Network network = importNetwork(networkFileName);
-        LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
-            FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
-        lossesCompensator.run(network);
-
-        assessSingleLoadTwoGeneratorsNetworkLossesCompensation(network);
-    }
-
-    private void assessSingleLoadTwoGeneratorsNetworkLossesCompensation(Network network) {
-        Load lossesFgenBload = network.getLoad("LOSSES FGEN1 11 BLOAD 11 1");
+        Load lossesFgenBload = network.getLoad("LOSSES FGEN1 11");
         assertNotNull(lossesFgenBload);
         assertEquals("FGEN1 1", lossesFgenBload.getTerminal().getVoltageLevel().getId());
         assertEquals(0.0625, lossesFgenBload.getP0(), EPSILON);
-        Load lossesBloadBgen = network.getLoad("LOSSES BLOAD 11 BGEN2 11 1");
+        Load lossesBloadBgen = network.getLoad("LOSSES BGEN2 11");
         assertNotNull(lossesBloadBgen);
         assertEquals("BGEN2 1", lossesBloadBgen.getTerminal().getVoltageLevel().getId());
         assertEquals(0.0625, lossesBloadBgen.getP0(), EPSILON);
@@ -80,16 +63,17 @@ class LossesCompensationTests {
         Network network = importNetwork(networkFileName);
         LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
             FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+        LoadFlow.run(network, loadFlowParameters);
         lossesCompensator.run(network);
 
-        Load lossesFgenBload = network.getLoad("LOSSES FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
+        Load lossesFgenBload = network.getLoad("LOSSES X     11");
         assertNull(lossesFgenBload);
 
-        Load lossesFgenX = network.getLoad("LOSSES FGEN1 11 X     11 1");
+        Load lossesFgenX = network.getLoad("LOSSES FGEN1 11");
         assertNotNull(lossesFgenX);
         assertEquals("FGEN1 1", lossesFgenX.getTerminal().getVoltageLevel().getId());
         assertEquals(0.015625, lossesFgenX.getP0(), EPSILON);
-        Load lossesBloadX = network.getLoad("LOSSES X     11 BLOAD 11 1");
+        Load lossesBloadX = network.getLoad("LOSSES BLOAD 11");
         assertNotNull(lossesBloadX);
         assertEquals("BLOAD 1", lossesBloadX.getTerminal().getVoltageLevel().getId());
         assertEquals(0.046875, lossesBloadX.getP0(), EPSILON);

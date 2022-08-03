@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.math3.util.Pair;
@@ -49,6 +50,7 @@ public class FlowDecompositionResults {
     private Map<String, DecomposedFlow> decomposedFlowMapAfterRescaling;
     private final Set<Country> zoneSet;
     private Map<String, Pair<Country, Country>> xnecToCountryMap;
+    private List<Contingency> contingencies;
 
     FlowDecompositionResults(Network network, FlowDecompositionParameters parameters) {
         this.saveIntermediates = parameters.doesSaveIntermediates();
@@ -97,7 +99,7 @@ public class FlowDecompositionResults {
     }
 
     /**
-     * GLSKs are an intermediate results.
+     * GLSKs are an intermediate result.
      * They are represented as a sparse map of map.
      * The first key is a zone, the second key is a node id and the value is the GLSK of the node in the country.
      * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
@@ -109,7 +111,7 @@ public class FlowDecompositionResults {
     }
 
     /**
-     * GLSKs are an intermediate results.
+     * GLSKs are an intermediate result.
      * They are represented as a sparse map of map.
      * The first key is a zone, the second key is a node id and the value is the GLSK of the node in the country.
      * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
@@ -120,7 +122,7 @@ public class FlowDecompositionResults {
     }
 
     /**
-     * Zonal PTDFs are an intermediate results.
+     * Zonal PTDFs are an intermediate result.
      * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
      * They are represented as a map of map.
      * The first key is a XNEC id, the second key is the country and the value is the PTDF.
@@ -131,7 +133,7 @@ public class FlowDecompositionResults {
     }
 
     /**
-     * PTDFs are an intermediate results.
+     * PTDFs are an intermediate result.
      * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
      * They are represented as a sparse map of map.
      * The first key is a XNEC id, the second key is a node id and the value is the PTDF.
@@ -142,7 +144,7 @@ public class FlowDecompositionResults {
     }
 
     /**
-     * PSDFs are an intermediate results.
+     * PSDFs are an intermediate result.
      * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
      * They are represented as a sparse map of map.
      * The first key is a XNEC id, the second key is a node id and the value is the PSDF.
@@ -153,7 +155,7 @@ public class FlowDecompositionResults {
     }
 
     /**
-     * Nodal injections are an intermediate results.
+     * Nodal injections are an intermediate result.
      * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
      * They are represented as a sparse map of map.
      * The first key is a node id, the second key is a column identifier and the value is the nodal injection.
@@ -173,7 +175,7 @@ public class FlowDecompositionResults {
     }
 
     /**
-     * DC Nodal injections are an intermediate results.
+     * DC Nodal injections are an intermediate result.
      * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
      * They are represented as a map.
      * The key is a node id and the value is the DC nodal injection.
@@ -181,6 +183,15 @@ public class FlowDecompositionResults {
      */
     public Optional<Map<String, Double>> getDcNodalInjectionsMap() {
         return Optional.ofNullable(dcNodalInjections);
+    }
+
+    /**
+     * Contingency list is an intermediate result
+     * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
+     * @return An optional containing the contingencies
+     */
+    public Optional<List<Contingency>> getContingencies() {
+        return Optional.ofNullable(contingencies);
     }
 
     private boolean isDecomposedFlowMapCacheValid() {
@@ -274,14 +285,21 @@ public class FlowDecompositionResults {
         return dcNodalInjections;
     }
 
-    public Map<String, Map<Country, Double>> saveZonalPtdf(Map<String, Map<Country, Double>> zonalPtdf) {
+    Map<String, Map<Country, Double>> saveZonalPtdf(Map<String, Map<Country, Double>> zonalPtdf) {
         if (saveIntermediates) {
             this.zonalPtdf = zonalPtdf;
         }
         return zonalPtdf;
     }
 
-    public void saveXnecToCountry(Map<String, Pair<Country, Country>> xnecToCountry) {
+    void saveXnecToCountry(Map<String, Pair<Country, Country>> xnecToCountry) {
         this.xnecToCountryMap = xnecToCountry;
+    }
+
+    List<Contingency> saveContingencies(List<Contingency> contingencies) {
+        if (saveIntermediates) {
+            this.contingencies = contingencies;
+        }
+        return contingencies;
     }
 }

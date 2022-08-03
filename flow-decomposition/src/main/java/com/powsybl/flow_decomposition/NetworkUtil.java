@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.util.Pair;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,12 +89,24 @@ public final class NetworkUtil {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
-    static Map<String, Pair<Country, Country>> getXnecToCountry(List<Branch> xnecList) {
-        return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, NetworkUtil::getCountryPair));
+    static Map<String, Pair<Country, Country>> getXnecToCountry(Map<Branch, String> xnecList) {
+        return xnecList.keySet().stream().collect(Collectors.toMap(Identifiable::getId, NetworkUtil::getCountryPair));
     }
 
     private static Pair<Country, Country> getCountryPair(Branch branch) {
         return new Pair<>(NetworkUtil.getTerminalCountry(branch.getTerminal1()),
             NetworkUtil.getTerminalCountry(branch.getTerminal2()));
+    }
+
+    static Map<Branch, String> selectWorstContingencyPerBranch(Network network, List<Branch> branchList) {
+        String originVariant = network.getVariantManager().getWorkingVariantId();
+        Map<Branch, String> mapBranchContingency = branchList.stream().collect(Collectors.toMap(Function.identity(), branch -> network.getVariantManager().getVariantIds()
+            .stream().collect(Collectors.toMap(Function.identity(), variantId -> {
+                network.getVariantManager().setWorkingVariant(variantId);
+                return -(Math.abs(branch.getTerminal1().getP()) + Math.abs(branch.getTerminal2().getP())) / 2;
+            })).entrySet().stream().sorted(Comparator.comparing(Map.Entry::getValue))
+            .map(Map.Entry::getKey).collect(Collectors.toList()).iterator().next()));
+        network.getVariantManager().setWorkingVariant(originVariant);
+        return mapBranchContingency;
     }
 }

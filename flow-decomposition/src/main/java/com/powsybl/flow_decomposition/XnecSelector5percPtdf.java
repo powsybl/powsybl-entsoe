@@ -10,10 +10,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -27,11 +24,12 @@ class XnecSelector5percPtdf implements XnecSelector {
         this.zonalPtdf = zonalPtdf;
     }
 
-    public List<Branch> run(Network network) {
-        return NetworkUtil.getAllValidBranches(network)
+    public Map<Branch, String> run(Network network) {
+        List<Branch> branchList = NetworkUtil.getAllValidBranches(network)
             .stream()
             .filter(this::isAXnec)
             .collect(Collectors.toList());
+        return NetworkUtil.selectWorstContingencyPerBranch(network, branchList);
     }
 
     private boolean isAXnec(Branch branch) {

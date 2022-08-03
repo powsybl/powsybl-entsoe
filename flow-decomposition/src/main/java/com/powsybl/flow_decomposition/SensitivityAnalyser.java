@@ -13,6 +13,7 @@ import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     SensitivityAnalyser(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters, Network network, NetworkMatrixIndexes networkMatrixIndexes) {
-        this(loadFlowParameters, parameters, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
+        this(loadFlowParameters, parameters, network, new ArrayList<>(networkMatrixIndexes.getXnecList().keySet()), networkMatrixIndexes.getXnecIndex());
     }
 
     SparseMatrixWithIndexesTriplet run(List<String> variableList,

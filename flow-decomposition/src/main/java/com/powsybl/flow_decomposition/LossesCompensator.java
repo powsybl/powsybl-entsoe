@@ -6,11 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 /**
@@ -45,31 +41,54 @@ class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
         return hasP0(branch.getTerminal1()) && hasP0(branch.getTerminal2());
     }
 
+    @Override
     Void run(Network network) {
-        LoadFlow.run(network, loadFlowParameters);
-        network.getBranchStream()
-            .filter(this::hasBuses)
-            .filter(this::hasP0s)
-            .forEach(this::compensateLossesOnBranch);
+        addNullLoadsOnBuses(network);
+        String originVariant = network.getVariantManager().getWorkingVariantId();
+        network.getVariantManager().getVariantIds().forEach(variantId -> compensateVariant(network, variantId));
+        network.getVariantManager().setWorkingVariant(originVariant);
         return null;
+    }
+
+    private void addNullLoadsOnBuses(Network network) {
+        network.getBusBreakerView().getBusStream()
+            //.filter(Bus::isInMainSynchronousComponent)
+            .forEach(this::addNullLoad);
+    }
+
+    private void addNullLoad(Bus bus) {
+        bus.getVoltageLevel().newLoad()
+            .setId(getLossesId(bus.getId()))
+            .setBus(bus.getId())
+            .setP0(0)
+            .setQ0(0)
+            .add();
     }
 
     private String getLossesId(String id) {
         return String.format("LOSSES %s", id);
     }
 
-    private void compensateLossesOnBranch(Branch<?> branch) {
+    private void compensateVariant(Network network, String variantId) {
+        network.getVariantManager().setWorkingVariant(variantId);
+        //LoadFlow.run(network, loadFlowParameters);
+        network.getBranchStream()
+            .filter(this::hasBuses)
+            .filter(this::hasP0s)
+            .forEach(branch -> this.compensateLossesOnBranch(branch, network));
+    }
+
+    private void compensateLossesOnBranch(Branch<?> branch, Network network) {
         if (branch instanceof TieLine) {
-            compensateLossesOnTieLine((TieLine) branch);
+            compensateLossesOnTieLine((TieLine) branch, network);
         } else {
             Terminal sendingTerminal = getSendingTerminal(branch);
-            String lossesId = getLossesId(branch.getId());
             double losses = branch.getTerminal1().getP() + branch.getTerminal2().getP();
-            createLoadForLossesOnTerminal(sendingTerminal, lossesId, losses);
+            updateLoadForLossesOnTerminal(sendingTerminal, losses, network);
         }
     }
 
-    private void compensateLossesOnTieLine(TieLine tieLine) {
+    private void compensateLossesOnTieLine(TieLine tieLine, Network network) {
         double r1 = tieLine.getHalf1().getR();
         double r2 = tieLine.getHalf2().getR();
         double r = r1 + r2;
@@ -78,21 +97,15 @@ class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
         double losses = terminal1.getP() + terminal2.getP();
         double lossesSide1 = losses * r1 / r;
         double lossesSide2 = losses * r2 / r;
-        String lossesIdSide1 = getLossesId(tieLine.getHalf1().getId());
-        String lossesIdSide2 = getLossesId(tieLine.getHalf2().getId());
 
-        createLoadForLossesOnTerminal(terminal1, lossesIdSide1, lossesSide1);
-        createLoadForLossesOnTerminal(terminal2, lossesIdSide2, lossesSide2);
+        updateLoadForLossesOnTerminal(terminal1, lossesSide1, network);
+        updateLoadForLossesOnTerminal(terminal2, lossesSide2, network);
     }
 
-    private void createLoadForLossesOnTerminal(Terminal terminal, String lossesId, double losses) {
+    private void updateLoadForLossesOnTerminal(Terminal terminal, double losses, Network network) {
         if (Math.abs(losses) > epsilon) {
-            terminal.getVoltageLevel().newLoad()
-                .setId(lossesId)
-                .setBus(terminal.getBusBreakerView().getBus().getId())
-                .setP0(losses)
-                .setQ0(0)
-                .add();
+            Load load = network.getLoad(getLossesId(terminal.getBusBreakerView().getBus().getId()));
+            load.setP0(load.getP0() + losses);
         }
     }
 

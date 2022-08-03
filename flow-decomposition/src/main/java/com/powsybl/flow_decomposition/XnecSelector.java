@@ -17,5 +17,5 @@ import java.util.*;
  */
 interface XnecSelector {
 
-    List<Branch> run(Network network);
+    Map<Branch, String> run(Network network);
 }

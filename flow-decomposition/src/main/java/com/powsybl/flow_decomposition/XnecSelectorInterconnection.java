@@ -11,17 +11,19 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class XnecSelectorInterconnection implements XnecSelector {
-    public List<Branch> run(Network network) {
-        return NetworkUtil.getAllValidBranches(network)
+    public Map<Branch, String> run(Network network) {
+        List<Branch> branchList = NetworkUtil.getAllValidBranches(network)
             .stream()
             .filter(XnecSelectorInterconnection::isAnInterconnection)
             .collect(Collectors.toList());
+        return NetworkUtil.selectWorstContingencyPerBranch(network, branchList);
     }
 
     static boolean isAnInterconnection(Branch<?> branch) {
