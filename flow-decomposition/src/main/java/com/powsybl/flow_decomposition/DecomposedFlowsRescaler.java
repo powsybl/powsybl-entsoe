@@ -40,12 +40,16 @@ class DecomposedFlowsRescaler {
         double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
         double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
         Pair<Country, Country> countries = decomposedFlow.getCountries();
-        double deltaToRescale = acReferenceFlow * Math.signum(acReferenceFlow) - decomposedFlow.getTotalFlow();
-        double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + loopFlows.values().stream().mapToDouble(this::reLU).sum();
-        Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
+        if (Double.isFinite(acReferenceFlow)) {
+            double deltaToRescale = acReferenceFlow * Math.signum(acReferenceFlow) - decomposedFlow.getTotalFlow();
+            double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + loopFlows.values().stream().mapToDouble(this::reLU).sum();
+            Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
-        double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
-        double rescaledPstFlow = rescaleValue(pstFlow, deltaToRescale, sumOfReLUFlows);
-        return new DecomposedFlow(rescaledLoopFlows, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow, countries);
+            double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
+            double rescaledPstFlow = rescaleValue(pstFlow, deltaToRescale, sumOfReLUFlows);
+            return new DecomposedFlow(rescaledLoopFlows, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow, countries);
+        } else {
+            return decomposedFlow;
+        }
     }
 }
