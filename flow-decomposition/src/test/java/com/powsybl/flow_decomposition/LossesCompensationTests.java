@@ -81,19 +81,23 @@ class LossesCompensationTests {
 
     @Test
     void checkThatDefaultFlowDecompositionDoesNotCompensateLosses() {
+        String variantId = "InitialState";
+        String xnec = Xnec.createId("FLOAD 11 BLOAD 11 1", variantId);
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES_EXTRA_SUBSTATION.uct";
         Network network = importNetwork(networkFileName);
 
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
 
-        assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getAllocatedFlow(), EPSILON);
-        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getLoopFlow(Country.FR), EPSILON);
-        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getLoopFlow(Country.BE), EPSILON);
+        assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get(xnec).getAllocatedFlow(), EPSILON);
+        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get(xnec).getLoopFlow(Country.FR), EPSILON);
+        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get(xnec).getLoopFlow(Country.BE), EPSILON);
     }
 
     @Test
     void checkThatEnablingLossesCompensationDoesImpactFlowDecompositionCorrectly() {
+        String variantId = "InitialState";
+        String xnec = Xnec.createId("FLOAD 11 BLOAD 11 1", variantId);
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES_EXTRA_SUBSTATION.uct";
         Network network = importNetwork(networkFileName);
 
@@ -102,13 +106,15 @@ class LossesCompensationTests {
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
 
-        assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getAllocatedFlow(), EPSILON);
-        assertEquals(-0.609, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getLoopFlow(Country.FR), EPSILON);
-        assertEquals(-0.609, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getLoopFlow(Country.BE), EPSILON);
+        assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get(xnec).getAllocatedFlow(), EPSILON);
+        assertEquals(-0.609, flowDecompositionResults.getDecomposedFlowMap().get(xnec).getLoopFlow(Country.FR), EPSILON);
+        assertEquals(-0.609, flowDecompositionResults.getDecomposedFlowMap().get(xnec).getLoopFlow(Country.BE), EPSILON);
     }
 
     @Test
     void checkThatDisablingLossesCompensationDoesImpactFlowDecompositionCorrectly() {
+        String variantId = "InitialState";
+        String xnec = Xnec.createId("FLOAD 11 BLOAD 11 1", variantId);
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES_EXTRA_SUBSTATION.uct";
         Network network = importNetwork(networkFileName);
 
@@ -117,8 +123,8 @@ class LossesCompensationTests {
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
 
-        assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getAllocatedFlow(), EPSILON);
-        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getLoopFlow(Country.FR), EPSILON);
-        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getLoopFlow(Country.BE), EPSILON);
+        assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get(xnec).getAllocatedFlow(), EPSILON);
+        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get(xnec).getLoopFlow(Country.FR), EPSILON);
+        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get(xnec).getLoopFlow(Country.BE), EPSILON);
     }
 }

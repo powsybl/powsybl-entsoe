@@ -10,7 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.util.Pair;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -72,7 +71,7 @@ public final class NetworkUtil {
     static List<Branch> getAllValidBranches(Network network) {
         return network.getBranchStream()
             .filter(NetworkUtil::isConnected)
-            .filter(NetworkUtil::isInMainSynchronousComponent) // Is connectedCompenent enough ?
+            .filter(NetworkUtil::isInMainSynchronousComponent) // Is connectedComponent enough ?
             .collect(Collectors.toList());
     }
 
@@ -89,24 +88,12 @@ public final class NetworkUtil {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
-    static Map<String, Pair<Country, Country>> getXnecToCountry(Map<Branch, String> xnecList) {
-        return xnecList.keySet().stream().collect(Collectors.toMap(Identifiable::getId, NetworkUtil::getCountryPair));
+    static Map<String, Pair<Country, Country>> getXnecToCountry(List<Xnec> xnecList) {
+        return xnecList.stream().collect(Collectors.toMap(Xnec::getId, NetworkUtil::getCountryPair));
     }
 
-    private static Pair<Country, Country> getCountryPair(Branch branch) {
-        return new Pair<>(NetworkUtil.getTerminalCountry(branch.getTerminal1()),
-            NetworkUtil.getTerminalCountry(branch.getTerminal2()));
-    }
-
-    static Map<Branch, String> selectWorstContingencyPerBranch(Network network, List<Branch> branchList) {
-        String originVariant = network.getVariantManager().getWorkingVariantId();
-        Map<Branch, String> mapBranchContingency = branchList.stream().collect(Collectors.toMap(Function.identity(), branch -> network.getVariantManager().getVariantIds()
-            .stream().collect(Collectors.toMap(Function.identity(), variantId -> {
-                network.getVariantManager().setWorkingVariant(variantId);
-                return -(Math.abs(branch.getTerminal1().getP()) + Math.abs(branch.getTerminal2().getP())) / 2;
-            })).entrySet().stream().sorted(Comparator.comparing(Map.Entry::getValue))
-            .map(Map.Entry::getKey).collect(Collectors.toList()).iterator().next()));
-        network.getVariantManager().setWorkingVariant(originVariant);
-        return mapBranchContingency;
+    private static Pair<Country, Country> getCountryPair(Xnec xnec) {
+        return new Pair<>(NetworkUtil.getTerminalCountry(xnec.getBranch().getTerminal1()),
+            NetworkUtil.getTerminalCountry(xnec.getBranch().getTerminal2()));
     }
 }

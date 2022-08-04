@@ -6,9 +6,9 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class ReferenceFlowComputer {
-    Map<String, Double> run(Map<Branch, String> xnecList) {
-        return xnecList.keySet().stream()
-            .collect(Collectors.toMap(
-                Identifiable::getId,
-                branch -> branch.getTerminal1().getP()
-            ));
+    Map<String, Double> run(List<Xnec> xnecList, Network network) {
+        Map<String, Double> referenceFlowPerXnec = xnecList.stream().collect(Collectors.toMap(Xnec::getId, xnec -> {
+            network.getVariantManager().setWorkingVariant(xnec.getVariantId());
+            return xnec.getBranch().getTerminal1().getP();
+        }));
+        return referenceFlowPerXnec;
     }
 }

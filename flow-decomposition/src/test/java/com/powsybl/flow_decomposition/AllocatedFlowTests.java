@@ -34,7 +34,8 @@ class AllocatedFlowTests {
         String genBe = "BGEN2 11_generator";
         String loadBe = "BLOAD 11_load";
         String genFr = "FGEN1 11_generator";
-        String xnecFrBee = "FGEN1 11 BLOAD 11 1";
+        String variantId = "InitialState";
+        String xnecFrBee = Xnec.createId("FGEN1 11 BLOAD 11 1", variantId);
         String allocated = "Allocated Flow";
 
         Network network = importNetwork(networkFileName);
@@ -65,7 +66,7 @@ class AllocatedFlowTests {
 
         var optionalNetPositions = flowDecompositionResults.getAcNetPositions();
         assertTrue(optionalNetPositions.isPresent());
-        var netPositions = optionalNetPositions.get();
+        var netPositions = optionalNetPositions.get().get(variantId);
         assertEquals(100.0935, netPositions.get(Country.FR), EPSILON);
         assertEquals(-100.0935, netPositions.get(Country.BE), EPSILON);
 
@@ -79,8 +80,8 @@ class AllocatedFlowTests {
         var optionalNodalInjections = flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap();
         assertTrue(optionalNodalInjections.isPresent());
         var nodalInjections = optionalNodalInjections.get();
-        assertEquals(-100.0935, nodalInjections.get(genBe).get(allocated), EPSILON);
-        assertEquals(+100.0935, nodalInjections.get(genFr).get(allocated), EPSILON);
+        assertEquals(-100.0935, nodalInjections.get(variantId).get(genBe).get(allocated), EPSILON);
+        assertEquals(+100.0935, nodalInjections.get(variantId).get(genFr).get(allocated), EPSILON);
     }
 
     @Test
@@ -89,7 +90,8 @@ class AllocatedFlowTests {
         String genBe = "BGEN2 11_generator";
         String loadBe = "BLOAD 11_load";
         String genFr = "FGEN1 11_generator";
-        String xnecFrBee = "BLOAD 11 FGEN1 11 1";
+        String variantId = "InitialState";
+        String xnecFrBee = Xnec.createId("BLOAD 11 FGEN1 11 1", variantId);
         String allocated = "Allocated Flow";
 
         Network network = importNetwork(networkFileName);
@@ -109,7 +111,7 @@ class AllocatedFlowTests {
 
         var optionalNetPositions = flowDecompositionResults.getAcNetPositions();
         assertTrue(optionalNetPositions.isPresent());
-        var netPositions = optionalNetPositions.get();
+        var netPositions = optionalNetPositions.get().get(variantId);
         assertEquals(100.0935, netPositions.get(Country.FR), EPSILON);
         assertEquals(-100.0935, netPositions.get(Country.BE), EPSILON);
 
@@ -123,8 +125,8 @@ class AllocatedFlowTests {
         var optionalNodalInjections = flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap();
         assertTrue(optionalNodalInjections.isPresent());
         var nodalInjections = optionalNodalInjections.get();
-        assertEquals(-100.0935, nodalInjections.get(genBe).get(allocated), EPSILON);
-        assertEquals(+100.0935, nodalInjections.get(genFr).get(allocated), EPSILON);
+        assertEquals(-100.0935, nodalInjections.get(variantId).get(genBe).get(allocated), EPSILON);
+        assertEquals(+100.0935, nodalInjections.get(variantId).get(genFr).get(allocated), EPSILON);
     }
 
     @Test

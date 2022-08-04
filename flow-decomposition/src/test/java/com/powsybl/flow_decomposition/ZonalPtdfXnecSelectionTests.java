@@ -24,8 +24,8 @@ class ZonalPtdfXnecSelectionTests {
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsNoZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isPresent());
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().get().isEmpty());
+        assertTrue(flowDecompositionResults.getZonalPtdf().isPresent());
+        assertTrue(flowDecompositionResults.getZonalPtdf().get().isEmpty());
     }
 
     @Test
@@ -34,8 +34,8 @@ class ZonalPtdfXnecSelectionTests {
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsWithZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isPresent());
-        assertFalse(flowDecompositionResults.getZonalPtdfMap().get().isEmpty());
+        assertTrue(flowDecompositionResults.getZonalPtdf().isPresent());
+        assertFalse(flowDecompositionResults.getZonalPtdf().get().isEmpty());
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 
@@ -45,8 +45,8 @@ class ZonalPtdfXnecSelectionTests {
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsNoZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isPresent());
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().get().isEmpty());
+        assertTrue(flowDecompositionResults.getZonalPtdf().isPresent());
+        assertTrue(flowDecompositionResults.getZonalPtdf().get().isEmpty());
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 
@@ -56,8 +56,8 @@ class ZonalPtdfXnecSelectionTests {
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsWithZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isPresent());
-        assertFalse(flowDecompositionResults.getZonalPtdfMap().get().isEmpty());
+        assertTrue(flowDecompositionResults.getZonalPtdf().isPresent());
+        assertFalse(flowDecompositionResults.getZonalPtdf().get().isEmpty());
         assertEquals(2 + 10 - 1, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 

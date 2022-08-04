@@ -154,9 +154,13 @@ class RescalingTests {
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
 
+        assertCoherenceTotalFlow(enableRescaledResults, flowDecompositionResults);
+    }
+
+    static void assertCoherenceTotalFlow(boolean enableRescaledResults, FlowDecompositionResults flowDecompositionResults) {
         for (String xnecId : flowDecompositionResults.getDecomposedFlowMap().keySet()) {
             DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMapBeforeRescaling().get(xnecId);
-            assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
+            assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
             if (enableRescaledResults) {
                 DecomposedFlow rescaledDecomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnecId);
                 assertEquals(Math.abs(rescaledDecomposedFlow.getAcReferenceFlow()), rescaledDecomposedFlow.getTotalFlow(), EPSILON);
@@ -178,7 +182,7 @@ class RescalingTests {
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
 
-        assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get("BLOAD 11 FLOAD 11 1").getAcReferenceFlow()));
-        assertTrue(Double.isFinite(flowDecompositionResults.getDecomposedFlowMap().get("BLOAD 11 FLOAD 11 1").getAllocatedFlow()));
+        assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get("BLOAD 11 FLOAD 11 1_InitialState").getAcReferenceFlow()));
+        assertTrue(Double.isFinite(flowDecompositionResults.getDecomposedFlowMap().get("BLOAD 11 FLOAD 11 1_InitialState").getAllocatedFlow()));
     }
 }

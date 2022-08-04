@@ -19,10 +19,11 @@ class InternalFlowTests {
 
     public static final String NETWORK_FILE_NAME = "NETWORK_PARALLEL_LINES_PTDF.uct";
     private static final double EPSILON = 1e-3;
-    public static final String X_INTERNAL_FR_FORMAT = "FGEN  11 FLOAD 11 %d";
+    public static final String VARIANT_ID = "InitialState";
+    public static final String X_INTERNAL_FR_FORMAT = Xnec.createId("FGEN  11 FLOAD 11 %d", VARIANT_ID);
 
-    public static final String X_GFR_LBE = "FGEN  11 BLOAD 11 1";
-    public static final String X_LFR_LBE = "FLOAD 11 BLOAD 11 1";
+    public static final String X_GFR_LBE = Xnec.createId("FGEN  11 BLOAD 11 1", VARIANT_ID);
+    public static final String X_LFR_LBE = Xnec.createId("FLOAD 11 BLOAD 11 1", VARIANT_ID);
 
     @Test
     void testNetworkWithoutInternalFlow() {

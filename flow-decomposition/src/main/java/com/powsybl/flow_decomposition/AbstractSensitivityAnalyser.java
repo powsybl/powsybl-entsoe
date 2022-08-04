@@ -8,7 +8,6 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityFactor;
@@ -42,9 +41,9 @@ abstract class AbstractSensitivityAnalyser {
     }
 
     protected List<SensitivityFactor> getFactors(List<String> variableList,
-                                       List<Branch> functionList,
-                                       SensitivityVariableType sensitivityVariableType,
-                                       boolean sensitivityVariableSet) {
+                                                 List<Xnec> functionList,
+                                                 SensitivityVariableType sensitivityVariableType,
+                                                 boolean sensitivityVariableSet) {
         List<SensitivityFactor> factors = new ArrayList<>();
         variableList.forEach(
             variable -> functionList.forEach(
@@ -53,12 +52,12 @@ abstract class AbstractSensitivityAnalyser {
         return factors;
     }
 
-    protected SensitivityFactor getSensitivityFactor(Branch<?> function,
-                                                   String variable,
-                                                   SensitivityVariableType sensitivityVariableType,
-                                                   boolean sensitivityVariableSet) {
+    protected SensitivityFactor getSensitivityFactor(Xnec function,
+                                                     String variable,
+                                                     SensitivityVariableType sensitivityVariableType,
+                                                     boolean sensitivityVariableSet) {
         return new SensitivityFactor(
-            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, function.getId(),
+            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, function.getBranch().getId(),
             sensitivityVariableType, variable,
             sensitivityVariableSet,
             ContingencyContext.none()

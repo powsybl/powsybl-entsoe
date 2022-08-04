@@ -6,9 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
@@ -37,7 +35,7 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
         if (parameters.getXnecSelectionStrategy() == FlowDecompositionParameters.XnecSelectionStrategy.ONLY_INTERCONNECTIONS) {
             return Collections.emptyMap();
         }
-        List<Branch> functionList = NetworkUtil.getAllValidBranches(network);
+        List<Xnec> functionList = XnecSelector.getNStateXnecs(network, NetworkUtil.getAllValidBranches(network));
         List<String> variableList = getVariableList(glsks);
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);
         List<SensitivityFactor> factors = getFactors(variableList, functionList,
@@ -78,9 +76,9 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private Map<String, Map<Country, Double>> getZonalPtdfMap(List<String> variableList,
-                                                              List<Branch> functionList,
+                                                              List<Xnec> functionList,
                                                               SensitivityAnalysisResult sensitivityResult) {
-        return functionList.stream().map(Identifiable::getId).collect(Collectors.toMap(
+        return functionList.stream().map(xnec -> xnec.getBranch().getId()).collect(Collectors.toMap(
             Function.identity(),
             branch -> variableList.stream().collect(Collectors.toMap(
                 Country::valueOf,

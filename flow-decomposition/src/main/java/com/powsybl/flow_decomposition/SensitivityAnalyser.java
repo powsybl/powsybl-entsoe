@@ -6,14 +6,12 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,14 +24,14 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalyser.class);
     private static final boolean SENSITIVITY_VARIABLE_SET = false;
     private final Network network;
-    private final List<Branch> functionList;
+    private final List<Xnec> functionList;
     private final Map<String, Integer> functionIndex;
     private final FlowDecompositionParameters parameters;
 
     SensitivityAnalyser(LoadFlowParameters loadFlowParameters,
                         FlowDecompositionParameters parameters,
                         Network network,
-                        List<Branch> functionList,
+                        List<Xnec> functionList,
                         Map<String, Integer> functionIndex) {
         super(loadFlowParameters);
         this.parameters = parameters;
@@ -43,7 +41,7 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     SensitivityAnalyser(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters, Network network, NetworkMatrixIndexes networkMatrixIndexes) {
-        this(loadFlowParameters, parameters, network, new ArrayList<>(networkMatrixIndexes.getXnecList().keySet()), networkMatrixIndexes.getXnecIndex());
+        this(loadFlowParameters, parameters, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
     }
 
     SparseMatrixWithIndexesTriplet run(List<String> variableList,
@@ -97,6 +95,7 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
         double sensitivity = sensitivityValue.getValue();
         double referenceOrientedSensitivity = sensitivityValue.getFunctionReference() < 0 ?
             -sensitivity : sensitivity;
-        sensitivityMatrixTriplet.addItem(factor.getFunctionId(), factor.getVariableId(), referenceOrientedSensitivity);
+        String functionId = Xnec.createId(factor.getFunctionId(), network.getVariantManager().getWorkingVariantId());
+        sensitivityMatrixTriplet.addItem(functionId, factor.getVariableId(), referenceOrientedSensitivity);
     }
 }

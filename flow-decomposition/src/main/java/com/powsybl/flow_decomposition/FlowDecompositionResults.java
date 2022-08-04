@@ -14,6 +14,7 @@ import org.apache.commons.math3.util.Pair;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -29,26 +30,22 @@ import java.util.stream.Collectors;
  * @see DecomposedFlow
  */
 public class FlowDecompositionResults {
-    static final boolean FILL_ZEROS = true;
-    static final boolean NOT_FILL_ZEROS = false;
-    private static final boolean DEFAULT_FILL_ZEROS = NOT_FILL_ZEROS;
     private final boolean saveIntermediates;
     private final String id;
     private final String networkId;
-    private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
-    private Map<String, Map<String, Double>> pstFlowMap;
+    private final Map<String, Map<String, Double>> allocatedAndLoopFlowsMatrixMap;
+    private final Map<String, Map<String, Double>> pstFlowMap;
     private Map<String, Double> acReferenceFlow;
-    private Map<String, Double> dcReferenceFlow;
-    private Map<Country, Double> acNetPosition;
+    private final Map<String, Double> dcReferenceFlow;
+    private Map<String, Map<Country, Double>> acNetPosition;
     private Map<Country, Map<String, Double>> glsks;
     private Map<String, Map<Country, Double>> zonalPtdf;
-    private SparseMatrixWithIndexesTriplet ptdfMatrix;
-    private SparseMatrixWithIndexesTriplet psdfMatrix;
-    private SparseMatrixWithIndexesTriplet nodalInjectionsMatrix;
-    private Map<String, Double> dcNodalInjections;
+    private Map<String, Map<String, Double>> ptdfMatrixMap;
+    private Map<String, Map<String, Double>> psdfMatrixMap;
+    private Map<String, Map<String, Map<String, Double>>> nodalInjectionsMatrixMap;
+    private Map<String, Map<String, Double>> dcNodalInjections;
     private Map<String, DecomposedFlow> decomposedFlowsMapBeforeRescaling;
     private Map<String, DecomposedFlow> decomposedFlowMapAfterRescaling;
-    private final Set<Country> zoneSet;
     private Map<String, Pair<Country, Country>> xnecToCountryMap;
     private List<Contingency> contingencies;
 
@@ -57,7 +54,16 @@ public class FlowDecompositionResults {
         this.networkId = network.getNameOrId();
         String date = new SimpleDateFormat("yyyyMMdd-HHmmss").format(Date.from(Instant.now()));
         this.id = "Flow_Decomposition_Results_of_" + date + "_on_network_" + networkId;
-        this.zoneSet = network.getCountries();
+        dcReferenceFlow = new HashMap<>();
+        int numberOfVariants = network.getVariantManager().getVariantIds().size();
+        pstFlowMap = new HashMap<>();
+        allocatedAndLoopFlowsMatrixMap = new HashMap<>();
+        if (saveIntermediates) {
+            dcNodalInjections = new HashMap<>(numberOfVariants);
+            nodalInjectionsMatrixMap = new HashMap<>(numberOfVariants);
+            ptdfMatrixMap = new HashMap<>();
+            psdfMatrixMap = new HashMap<>();
+        }
     }
 
     /**
@@ -78,7 +84,13 @@ public class FlowDecompositionResults {
      * @return the set of available zones in this result
      */
     public Set<Country> getZoneSet() {
-        return zoneSet;
+        Set<Country> countries = getZoneSet(Pair::getFirst);
+        countries.addAll(getZoneSet(Pair::getSecond));
+        return countries;
+    }
+
+    private Set<Country> getZoneSet(Function<Pair<Country, Country>, Country> map) {
+        return xnecToCountryMap.values().stream().map(map).collect(Collectors.toSet());
     }
 
     /**
@@ -106,7 +118,7 @@ public class FlowDecompositionResults {
      *
      * @return An optional containing GLSKs.
      */
-    public Optional<Map<Country, Double>> getAcNetPositions() {
+    public Optional<Map<String, Map<Country, Double>>> getAcNetPositions() {
         return Optional.ofNullable(acNetPosition);
     }
 
@@ -128,7 +140,7 @@ public class FlowDecompositionResults {
      * The first key is a XNEC id, the second key is the country and the value is the PTDF.
      * @return An optional containing PTDFs
      */
-    public Optional<Map<String, Map<Country, Double>>> getZonalPtdfMap() {
+    public Optional<Map<String, Map<Country, Double>>> getZonalPtdf() {
         return Optional.ofNullable(zonalPtdf);
     }
 
@@ -137,10 +149,11 @@ public class FlowDecompositionResults {
      * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
      * They are represented as a sparse map of map.
      * The first key is a XNEC id, the second key is a node id and the value is the PTDF.
+     *
      * @return An optional containing PTDFs
      */
     public Optional<Map<String, Map<String, Double>>> getPtdfMap() {
-        return Optional.ofNullable(ptdfMatrix).map(SparseMatrixWithIndexesTriplet::toMap);
+        return Optional.ofNullable(ptdfMatrixMap);
     }
 
     /**
@@ -148,10 +161,11 @@ public class FlowDecompositionResults {
      * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
      * They are represented as a sparse map of map.
      * The first key is a XNEC id, the second key is a node id and the value is the PSDF.
+     *
      * @return An optional containing PSDFs
      */
     public Optional<Map<String, Map<String, Double>>> getPsdfMap() {
-        return Optional.ofNullable(psdfMatrix).map(SparseMatrixWithIndexesTriplet::toMap);
+        return Optional.ofNullable(psdfMatrixMap);
     }
 
     /**
@@ -162,16 +176,11 @@ public class FlowDecompositionResults {
      * The one of the column id is the {@code "Allocated Flow"}. It corresponds to the allocated nodal injection.
      * The other column ids are Zone Ids as Strings with a prefix {@code "Loop Flow from XX"}.
      * Each column corresponds to the nodal injection in this zone.
-     * @param fillZeros Ignore the sparse property of the nodal injections.
-     *                  It fills blanks with zeros.
+     *
      * @return An optional containing nodal injections
      */
-    public Optional<Map<String, Map<String, Double>>> getAllocatedAndLoopFlowNodalInjectionsMap(boolean fillZeros) {
-        return Optional.ofNullable(nodalInjectionsMatrix).map(matrix -> matrix.toMap(fillZeros));
-    }
-
-    public Optional<Map<String, Map<String, Double>>> getAllocatedAndLoopFlowNodalInjectionsMap() {
-        return getAllocatedAndLoopFlowNodalInjectionsMap(DEFAULT_FILL_ZEROS);
+    public Optional<Map<String, Map<String, Map<String, Double>>>> getAllocatedAndLoopFlowNodalInjectionsMap() {
+        return Optional.ofNullable(nodalInjectionsMatrixMap);
     }
 
     /**
@@ -179,9 +188,10 @@ public class FlowDecompositionResults {
      * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
      * They are represented as a map.
      * The key is a node id and the value is the DC nodal injection.
+     *
      * @return An optional containing DC nodal injections
      */
-    public Optional<Map<String, Double>> getDcNodalInjectionsMap() {
+    public Optional<Map<String, Map<String, Double>>> getDcNodalInjectionsMap() {
         return Optional.ofNullable(dcNodalInjections);
     }
 
@@ -201,7 +211,7 @@ public class FlowDecompositionResults {
     private void initializeDecomposedFlowMapCache() {
         invalidateDecomposedFlowMapCache();
         decomposedFlowsMapBeforeRescaling = new TreeMap<>();
-        allocatedAndLoopFlowsMatrix.toMap()
+        allocatedAndLoopFlowsMatrixMap
             .forEach((xnecId, decomposedFlow) -> decomposedFlowsMapBeforeRescaling.put(xnecId, createDecomposedFlow(xnecId, decomposedFlow)));
     }
 
@@ -214,18 +224,18 @@ public class FlowDecompositionResults {
                 .filter(entry -> entry.getKey().startsWith(NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         double allocatedFlow = allocatedAndLoopFlowMap.get(DecomposedFlow.ALLOCATED_COLUMN_NAME);
-        double pstFlow = pstFlowMap.get(xnecId).get(DecomposedFlow.PST_COLUMN_NAME);
+        Double pstFlow = pstFlowMap.getOrDefault(xnecId, Collections.emptyMap()).getOrDefault(DecomposedFlow.PST_COLUMN_NAME, DecomposedFlow.DEFAULT_FLOW);
         return new DecomposedFlow(loopFlowsMap, allocatedFlow, pstFlow,
             acReferenceFlow.get(xnecId), dcReferenceFlow.get(xnecId), xnecToCountryMap.get(xnecId));
     }
 
     void saveAllocatedAndLoopFlowsMatrix(SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix) {
-        this.allocatedAndLoopFlowsMatrix = allocatedAndLoopFlowsMatrix;
+        this.allocatedAndLoopFlowsMatrixMap.putAll(allocatedAndLoopFlowsMatrix.toMap());
         invalidateDecomposedFlowMapCache();
     }
 
     void savePstFlowMatrix(SparseMatrixWithIndexesCSC pstFlowMatrix) {
-        this.pstFlowMap = pstFlowMatrix.toMap(FILL_ZEROS);
+        this.pstFlowMap.putAll(pstFlowMatrix.toMap());
         invalidateDecomposedFlowMapCache();
     }
 
@@ -235,7 +245,7 @@ public class FlowDecompositionResults {
     }
 
     void saveDcReferenceFlow(Map<String, Double> dcReferenceFlow) {
-        this.dcReferenceFlow = dcReferenceFlow;
+        this.dcReferenceFlow.putAll(dcReferenceFlow);
         invalidateDecomposedFlowMapCache();
     }
 
@@ -243,7 +253,7 @@ public class FlowDecompositionResults {
         this.decomposedFlowMapAfterRescaling = decomposedFlowMap;
     }
 
-    Map<Country, Double> saveACNetPosition(Map<Country, Double> acNetPosition) {
+    Map<String, Map<Country, Double>> saveACNetPosition(Map<String, Map<Country, Double>> acNetPosition) {
         if (saveIntermediates) {
             this.acNetPosition = acNetPosition;
         }
@@ -259,28 +269,28 @@ public class FlowDecompositionResults {
 
     SparseMatrixWithIndexesTriplet savePtdfMatrix(SparseMatrixWithIndexesTriplet ptdfMatrix) {
         if (saveIntermediates) {
-            this.ptdfMatrix = ptdfMatrix;
+            this.ptdfMatrixMap.putAll(ptdfMatrix.toMap());
         }
         return ptdfMatrix;
     }
 
     SparseMatrixWithIndexesTriplet savePsdfMatrix(SparseMatrixWithIndexesTriplet psdfMatrix) {
         if (saveIntermediates) {
-            this.psdfMatrix = psdfMatrix;
+            this.psdfMatrixMap.putAll(psdfMatrix.toMap());
         }
         return psdfMatrix;
     }
 
-    SparseMatrixWithIndexesTriplet saveNodalInjectionsMatrix(SparseMatrixWithIndexesTriplet nodalInjectionsMatrix) {
+    SparseMatrixWithIndexesTriplet saveNodalInjectionsMatrix(SparseMatrixWithIndexesTriplet nodalInjectionsMatrix, String workingVariantId) {
         if (saveIntermediates) {
-            this.nodalInjectionsMatrix = nodalInjectionsMatrix;
+            this.nodalInjectionsMatrixMap.put(workingVariantId, nodalInjectionsMatrix.toMap());
         }
         return nodalInjectionsMatrix;
     }
 
-    Map<String, Double> saveDcNodalInjections(Map<String, Double> dcNodalInjections) {
+    Map<String, Double> saveDcNodalInjections(Map<String, Double> dcNodalInjections, String workingVariantId) {
         if (saveIntermediates) {
-            this.dcNodalInjections = dcNodalInjections;
+            this.dcNodalInjections.put(workingVariantId, dcNodalInjections);
         }
         return dcNodalInjections;
     }

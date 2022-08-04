@@ -27,8 +27,9 @@ class PstFlowTests {
 
         String pst = "BLOAD 11 BLOAD 12 2";
 
-        String x1 = "FGEN  11 BLOAD 11 1";
-        String x2 = "FGEN  11 BLOAD 12 1";
+        String variantId = "InitialState";
+        String x1 = Xnec.createId("FGEN  11 BLOAD 11 1", variantId);
+        String x2 = Xnec.createId("FGEN  11 BLOAD 12 1", variantId);
 
         Network network = AllocatedFlowTests.importNetwork(networkFileName);
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
@@ -53,8 +54,9 @@ class PstFlowTests {
 
         String pst = "BLOAD 11 BLOAD 12 2";
 
-        String x1 = "FGEN  11 BLOAD 11 1";
-        String x2 = "FGEN  11 BLOAD 12 1";
+        String variantId = "InitialState";
+        String x1 = Xnec.createId("FGEN  11 BLOAD 11 1", variantId);
+        String x2 = Xnec.createId("FGEN  11 BLOAD 12 1", variantId);
 
         Network network = AllocatedFlowTests.importNetwork(networkFileName);
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();

@@ -8,7 +8,6 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -21,7 +20,7 @@ import java.util.stream.Stream;
  * @author Sebastien Murgey{@literal <sebastien.murgey at rte-france.com>}
  */
 class NetworkMatrixIndexes {
-    private final Map<Branch, String> xnecList;
+    private final List<Xnec> xnecList;
     private final List<Injection<?>> nodeList;
     private final List<String> nodeIdList;
     private final List<String> pstList;
@@ -29,7 +28,7 @@ class NetworkMatrixIndexes {
     private final Map<String, Integer> nodeIndex;
     private final Map<String, Integer> pstIndex;
 
-    NetworkMatrixIndexes(Network network, Map<Branch, String> xnecList) {
+    NetworkMatrixIndexes(Network network, List<Xnec> xnecList) {
         this.xnecList = xnecList;
         nodeList = getNodeList(network);
         nodeIdList = getNodeIdList(nodeList);
@@ -39,7 +38,7 @@ class NetworkMatrixIndexes {
         pstIndex = NetworkUtil.getIndex(pstList);
     }
 
-    Map<Branch, String> getXnecList() {
+    List<Xnec> getXnecList() {
         return xnecList;
     }
 
@@ -114,12 +113,11 @@ class NetworkMatrixIndexes {
         return pst.getPhaseTapChanger().getNeutralStep().isPresent();
     }
 
-    private Map<String, Integer> getXnecIndex(Map<Branch, String> xnecList) {
-        List<Branch> branchList = new ArrayList<>(xnecList.keySet());
+    private Map<String, Integer> getXnecIndex(List<Xnec> xnecList) {
         return IntStream.range(0, xnecList.size())
             .boxed()
             .collect(Collectors.toMap(
-                i -> branchList.get(i).getId(),
+                i -> xnecList.get(i).getId(),
                 Function.identity()
             ));
     }
