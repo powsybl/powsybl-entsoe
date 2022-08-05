@@ -13,7 +13,8 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -27,10 +28,10 @@ class ContingencyComputer {
         contingencyStrategy = parameters.getContingencyStrategy();
     }
 
-    List<Contingency> run(Network network) {
+    Map<String, Contingency> run(Network network) {
         switch (contingencyStrategy) {
             case ONLY_N_STATE:
-                return Collections.emptyList();
+                return Collections.emptyMap();
             case AUTO_CONTINGENCY:
                 return getAutoContingencyList(network);
             default:
@@ -39,12 +40,15 @@ class ContingencyComputer {
         }
     }
 
-    private static List<Contingency> getAutoContingencyList(Network network) {
+    private static Map<String, Contingency> getAutoContingencyList(Network network) {
         return network.getBranchStream()
             .sorted(Comparator.comparing(branch -> Math.abs(branch.getTerminal1().getP())))
             .limit(10)
             .map(Identifiable::getId)
-            .map(branch -> Contingency.builder(branch).addBranch(branch).build())
-            .collect(Collectors.toList());
+            .collect(Collectors.toMap(Function.identity(), ContingencyComputer::getContingency));
+    }
+
+    private static Contingency getContingency(String branch) {
+        return Contingency.builder(branch).addBranch(branch).build();
     }
 }

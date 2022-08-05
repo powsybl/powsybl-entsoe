@@ -35,7 +35,7 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
         if (parameters.getXnecSelectionStrategy() == FlowDecompositionParameters.XnecSelectionStrategy.ONLY_INTERCONNECTIONS) {
             return Collections.emptyMap();
         }
-        List<Xnec> functionList = XnecSelector.getNStateXnecs(network, NetworkUtil.getAllValidBranches(network));
+        List<XnecWithDecomposition> functionList = XnecSelector.getNStateXnecs(network, NetworkUtil.getAllValidBranches(network));
         List<String> variableList = getVariableList(glsks);
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);
         List<SensitivityFactor> factors = getFactors(variableList, functionList,
@@ -76,7 +76,7 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private Map<String, Map<Country, Double>> getZonalPtdfMap(List<String> variableList,
-                                                              List<Xnec> functionList,
+                                                              List<XnecWithDecomposition> functionList,
                                                               SensitivityAnalysisResult sensitivityResult) {
         return functionList.stream().map(xnec -> xnec.getBranch().getId()).collect(Collectors.toMap(
             Function.identity(),

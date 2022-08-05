@@ -47,6 +47,7 @@ class RescalingTests {
     }
 
     private DecomposedFlow getDecomposedFlow(double acReferenceFlow, double dcReferenceFlow) {
+        Xnec xnec = null;
         Map<String, Double> loopFlows = new TreeMap<>();
         double allocatedFlow = 100;
         double pstFlow = 200.;
@@ -55,14 +56,14 @@ class RescalingTests {
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Pair<Country, Country> countries = new Pair<>(Country.FR, Country.FR);
-        return new DecomposedFlow(loopFlows, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow, countries);
+        return new DecomposedFlow(xnec, loopFlows, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow);
     }
 
     private DecomposedFlow getRescaledFlow(double acReferenceFlow, double dcReferenceFlow) {
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
         assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
 
-        DecomposedFlowsRescaler rescaler = new DecomposedFlowsRescaler();
+        DecomposedFlowsRescaler rescaler = new DecomposedFlowsRescalerACER();
         return rescaler.rescale(decomposedFlow);
     }
 
@@ -158,12 +159,12 @@ class RescalingTests {
     }
 
     static void assertCoherenceTotalFlow(boolean enableRescaledResults, FlowDecompositionResults flowDecompositionResults) {
-        for (String xnecId : flowDecompositionResults.getDecomposedFlowMap().keySet()) {
-            DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMapBeforeRescaling().get(xnecId);
+        for (XnecWithDecomposition xnec : flowDecompositionResults.getXnecsWithDecomposition()) {
+            DecomposedFlow decomposedFlow = xnec.getDecomposedFlowBeforeRescaling();
             assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
             if (enableRescaledResults) {
-                DecomposedFlow rescaledDecomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnecId);
-                assertEquals(Math.abs(rescaledDecomposedFlow.getAcReferenceFlow()), rescaledDecomposedFlow.getTotalFlow(), EPSILON);
+                DecomposedFlow rescaledDecomposedFlow = xnec.getDecomposedFlow();
+                assertEquals(Math.abs(rescaledDecomposedFlow.getAcReferenceFlow()), Math.abs(rescaledDecomposedFlow.getTotalFlow()), EPSILON);
             }
         }
     }
@@ -182,7 +183,7 @@ class RescalingTests {
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
 
-        assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get("BLOAD 11 FLOAD 11 1_InitialState").getAcReferenceFlow()));
-        assertTrue(Double.isFinite(flowDecompositionResults.getDecomposedFlowMap().get("BLOAD 11 FLOAD 11 1_InitialState").getAllocatedFlow()));
+        assertTrue(Double.isNaN(flowDecompositionResults.get("BLOAD 11 FLOAD 11 1_InitialState").getAcReferenceFlow()));
+        assertTrue(Double.isFinite(flowDecompositionResults.get("BLOAD 11 FLOAD 11 1_InitialState").getAllocatedFlow()));
     }
 }

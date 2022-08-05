@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,8 +54,7 @@ class AllocatedFlowTests {
         assertTrue(zones.contains(Country.BE));
         assertEquals(2, zones.size());
 
-        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
-        assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
+        assertEquals(100.0935, flowDecompositionResults.get(xnecFrBee).getAllocatedFlow(), EPSILON);
 
         var optionalGlsks = flowDecompositionResults.getGlsks();
         assertTrue(optionalGlsks.isPresent());
@@ -70,14 +68,14 @@ class AllocatedFlowTests {
         assertEquals(100.0935, netPositions.get(Country.FR), EPSILON);
         assertEquals(-100.0935, netPositions.get(Country.BE), EPSILON);
 
-        var optionalPtdfs = flowDecompositionResults.getPtdfMap();
+        var optionalPtdfs = flowDecompositionResults.getNodalPtdf();
         assertTrue(optionalPtdfs.isPresent());
         var ptdfs = optionalPtdfs.get();
         assertEquals(-0.5, ptdfs.get(xnecFrBee).get(loadBe), EPSILON);
         assertEquals(-0.5, ptdfs.get(xnecFrBee).get(genBe), EPSILON);
         assertEquals(+0.5, ptdfs.get(xnecFrBee).get(genFr), EPSILON);
 
-        var optionalNodalInjections = flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap();
+        var optionalNodalInjections = flowDecompositionResults.getNodalInjections();
         assertTrue(optionalNodalInjections.isPresent());
         var nodalInjections = optionalNodalInjections.get();
         assertEquals(-100.0935, nodalInjections.get(variantId).get(genBe).get(allocated), EPSILON);
@@ -100,8 +98,7 @@ class AllocatedFlowTests {
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
 
-        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
-        assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
+        assertEquals(100.0935, flowDecompositionResults.get(xnecFrBee).getAllocatedFlow(), EPSILON);
 
         var optionalGlsks = flowDecompositionResults.getGlsks();
         assertTrue(optionalGlsks.isPresent());
@@ -115,14 +112,14 @@ class AllocatedFlowTests {
         assertEquals(100.0935, netPositions.get(Country.FR), EPSILON);
         assertEquals(-100.0935, netPositions.get(Country.BE), EPSILON);
 
-        var optionalPtdfs = flowDecompositionResults.getPtdfMap();
+        var optionalPtdfs = flowDecompositionResults.getNodalPtdf();
         assertTrue(optionalPtdfs.isPresent());
         var ptdfs = optionalPtdfs.get();
         assertEquals(-0.5, ptdfs.get(xnecFrBee).get(loadBe), EPSILON);
         assertEquals(-0.5, ptdfs.get(xnecFrBee).get(genBe), EPSILON);
         assertEquals(+0.5, ptdfs.get(xnecFrBee).get(genFr), EPSILON);
 
-        var optionalNodalInjections = flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap();
+        var optionalNodalInjections = flowDecompositionResults.getNodalInjections();
         assertTrue(optionalNodalInjections.isPresent());
         var nodalInjections = optionalNodalInjections.get();
         assertEquals(-100.0935, nodalInjections.get(variantId).get(genBe).get(allocated), EPSILON);
@@ -136,8 +133,8 @@ class AllocatedFlowTests {
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
         assertTrue(flowDecompositionResults.getGlsks().isEmpty());
-        assertTrue(flowDecompositionResults.getPtdfMap().isEmpty());
-        assertTrue(flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap().isEmpty());
+        assertTrue(flowDecompositionResults.getNodalPtdf().isEmpty());
+        assertTrue(flowDecompositionResults.getNodalInjections().isEmpty());
     }
 
 }

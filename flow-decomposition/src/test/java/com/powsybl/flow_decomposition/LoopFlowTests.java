@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -54,10 +52,10 @@ class LoopFlowTests {
         assertEquals(1.0, glsks.get(Country.ES).get(gEs), EPSILON);
         assertEquals(1.0, glsks.get(Country.FR).get(gFr), EPSILON);
 
-        var optionalPtdfs = flowDecompositionResults.getPtdfMap();
+        var optionalPtdfs = flowDecompositionResults.getNodalPtdf();
         assertTrue(optionalPtdfs.isPresent());
 
-        var optionalReferenceNodalInjections = flowDecompositionResults.getDcNodalInjectionsMap();
+        var optionalReferenceNodalInjections = flowDecompositionResults.getDcNodalInjections();
         assertTrue(optionalReferenceNodalInjections.isPresent());
         var referenceNodalInjections = optionalReferenceNodalInjections.get().get(variantId);
         assertEquals(100, referenceNodalInjections.get(gBe));
@@ -67,7 +65,7 @@ class LoopFlowTests {
         assertEquals(-100, referenceNodalInjections.get(lEs));
         assertEquals(-100, referenceNodalInjections.get(lFr));
 
-        var optionalNodalInjections = flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap();
+        var optionalNodalInjections = flowDecompositionResults.getNodalInjections();
         assertTrue(optionalNodalInjections.isPresent());
         var nodalInjections = optionalNodalInjections.get();
         assertEquals(0, nodalInjections.get(variantId).get(gBe).get(allocated), EPSILON);
@@ -83,22 +81,21 @@ class LoopFlowTests {
         assertEquals(-100, nodalInjections.get(variantId).get(lEs).get(NetworkUtil.getLoopFlowIdFromCountry(Country.ES)), EPSILON);
         assertEquals(-100, nodalInjections.get(variantId).get(lFr).get(NetworkUtil.getLoopFlowIdFromCountry(Country.FR)), EPSILON);
 
-        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
-        assertEquals(0, decomposedFlowMap.get(x1).getAllocatedFlow(), EPSILON);
-        assertEquals(0, decomposedFlowMap.get(x2).getAllocatedFlow(), EPSILON);
-        assertEquals(0, decomposedFlowMap.get(x4).getAllocatedFlow(), EPSILON);
-        assertEquals(0, decomposedFlowMap.get(x5).getAllocatedFlow(), EPSILON);
-        assertEquals(0, decomposedFlowMap.get(x1).getLoopFlow(Country.BE), EPSILON);
-        assertEquals(100, decomposedFlowMap.get(x1).getLoopFlow(Country.ES), EPSILON);
-        assertEquals(0, decomposedFlowMap.get(x1).getLoopFlow(Country.FR), EPSILON);
-        assertEquals(0, decomposedFlowMap.get(x2).getLoopFlow(Country.BE), EPSILON);
-        assertEquals(100, decomposedFlowMap.get(x2).getLoopFlow(Country.ES), EPSILON);
-        assertEquals(100, decomposedFlowMap.get(x2).getLoopFlow(Country.FR), EPSILON);
-        assertEquals(0, decomposedFlowMap.get(x4).getLoopFlow(Country.BE), EPSILON);
-        assertEquals(100, decomposedFlowMap.get(x4).getLoopFlow(Country.ES), EPSILON);
-        assertEquals(100, decomposedFlowMap.get(x4).getLoopFlow(Country.FR), EPSILON);
-        assertEquals(0, decomposedFlowMap.get(x5).getLoopFlow(Country.BE), EPSILON);
-        assertEquals(100, decomposedFlowMap.get(x5).getLoopFlow(Country.ES), EPSILON);
-        assertEquals(0, decomposedFlowMap.get(x5).getLoopFlow(Country.FR), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x1).getAllocatedFlow(), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x2).getAllocatedFlow(), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x4).getAllocatedFlow(), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x5).getAllocatedFlow(), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x1).getLoopFlow(Country.BE), EPSILON);
+        assertEquals(100, flowDecompositionResults.get(x1).getLoopFlow(Country.ES), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x1).getLoopFlow(Country.FR), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x2).getLoopFlow(Country.BE), EPSILON);
+        assertEquals(100, flowDecompositionResults.get(x2).getLoopFlow(Country.ES), EPSILON);
+        assertEquals(100, flowDecompositionResults.get(x2).getLoopFlow(Country.FR), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x4).getLoopFlow(Country.BE), EPSILON);
+        assertEquals(100, flowDecompositionResults.get(x4).getLoopFlow(Country.ES), EPSILON);
+        assertEquals(100, flowDecompositionResults.get(x4).getLoopFlow(Country.FR), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x5).getLoopFlow(Country.BE), EPSILON);
+        assertEquals(100, flowDecompositionResults.get(x5).getLoopFlow(Country.ES), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x5).getLoopFlow(Country.FR), EPSILON);
     }
 }

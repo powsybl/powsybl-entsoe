@@ -6,7 +6,10 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
 
 import java.util.Objects;
 
@@ -16,21 +19,31 @@ import java.util.Objects;
 public class Xnec {
     private final Branch branch;
     private final String variantId;
+    private final Contingency contingency;
+    private final Country countryTerminal1;
+    private final Country countryTerminal2;
 
-    Xnec(Branch branch, String variantId) {
+    Xnec(Branch branch, String variantId, Contingency contingency) {
         this.branch = branch;
         this.variantId = variantId;
+        this.contingency = contingency;
+        this.countryTerminal1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
+        this.countryTerminal2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
     }
 
-    Branch getBranch() {
+    Xnec(Branch branch, String variantId) {
+        this(branch, variantId, null);
+    }
+
+    public Branch getBranch() {
         return branch;
     }
 
-    String getVariantId() {
+    public String getVariantId() {
         return variantId;
     }
 
-    String getId() {
+    public String getId() {
         return createId(branch.getId(), variantId);
     }
 
@@ -38,7 +51,23 @@ public class Xnec {
         return branchId + "_" + variantId;
     }
 
-    public boolean isValid() {
-        return !Objects.equals(branch.getId(), variantId);
+    public Contingency getContingency() {
+        return contingency;
+    }
+
+    public Country getCountryTerminal1() {
+        return countryTerminal1;
+    }
+
+    public Country getCountryTerminal2() {
+        return countryTerminal2;
+    }
+
+    public boolean isInternalBranch() {
+        return Objects.equals(getCountryTerminal1(), getCountryTerminal2());
+    }
+
+    boolean isBranchNotContainedInContingency() {
+        return contingency.getElements().stream().map(ContingencyElement::getId).noneMatch(s -> s.equals(branch.getId()));
     }
 }

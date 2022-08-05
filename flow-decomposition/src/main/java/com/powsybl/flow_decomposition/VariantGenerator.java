@@ -9,28 +9,29 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class VariantGenerator {
-    public void run(Network network, List<Contingency> contingencies) {
-        if (!contingencies.isEmpty()) {
+    public void run(Network network, Map<String, Contingency> variantContingencyMap) {
+        if (!variantContingencyMap.isEmpty()) {
             String originVariantId = network.getVariantManager().getWorkingVariantId();
-            network.getVariantManager().cloneVariant(originVariantId, getVariantIds(contingencies));
-            contingencies.forEach(contingency -> applyContingencyOnNetwork(network, contingency));
+            network.getVariantManager().cloneVariant(originVariantId, getVariantIds(variantContingencyMap));
+            variantContingencyMap.forEach((variantId, contingency) -> applyContingencyOnNetwork(network, variantId, contingency));
             network.getVariantManager().setWorkingVariant(originVariantId);
         }
     }
 
-    private static List<String> getVariantIds(List<Contingency> contingencies) {
-        return contingencies.stream().map(Contingency::getId).collect(Collectors.toList());
+    private static List<String> getVariantIds(Map<String, Contingency> contingencies) {
+        return new ArrayList<>(contingencies.keySet());
     }
 
-    private static void applyContingencyOnNetwork(Network network, Contingency contingency) {
-        network.getVariantManager().setWorkingVariant(contingency.getId());
+    private static void applyContingencyOnNetwork(Network network, String variantId, Contingency contingency) {
+        network.getVariantManager().setWorkingVariant(variantId);
         contingency.toModification().apply(network);
     }
 }

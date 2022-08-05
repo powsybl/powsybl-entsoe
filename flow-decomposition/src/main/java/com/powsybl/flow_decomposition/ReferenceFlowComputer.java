@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.ObjDoubleConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -17,11 +18,12 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class ReferenceFlowComputer {
-    Map<String, Double> run(List<Xnec> xnecList, Network network) {
-        Map<String, Double> referenceFlowPerXnec = xnecList.stream().collect(Collectors.toMap(Xnec::getId, xnec -> {
+    Map<String, Double> run(List<XnecWithDecomposition> xnecList, Network network, ObjDoubleConsumer<DecomposedFlow> consumer) {
+        return xnecList.stream().collect(Collectors.toMap(Xnec::getId, xnec -> {
             network.getVariantManager().setWorkingVariant(xnec.getVariantId());
-            return xnec.getBranch().getTerminal1().getP();
+            double p = xnec.getBranch().getTerminal1().getP();
+            consumer.accept(xnec.getDecomposedFlowBeforeRescaling(), p);
+            return p;
         }));
-        return referenceFlowPerXnec;
     }
 }

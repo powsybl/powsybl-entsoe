@@ -6,50 +6,25 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Country;
-import org.apache.commons.math3.util.Pair;
-
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
+import java.util.List;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-class DecomposedFlowsRescaler {
+interface DecomposedFlowsRescaler {
 
-    private double reLU(double value) {
+    default double reLU(double value) {
         return value > 0 ? value : 0.;
     }
 
-    private double rescaleValue(double initialValue, double delta, double sumOfReLUFlows) {
+    default double rescaleValue(double initialValue, double delta, double sumOfReLUFlows) {
         return initialValue + delta * reLU(initialValue) / sumOfReLUFlows;
     }
 
-    Map<String, DecomposedFlow> rescale(Map<String, DecomposedFlow> decomposedFlowMap) {
-        Map<String, DecomposedFlow> rescaledDecomposedFlowMap = new TreeMap<>();
-        decomposedFlowMap.forEach((s, decomposedFlow) -> rescaledDecomposedFlowMap.put(s, rescale(decomposedFlow)));
-        return rescaledDecomposedFlowMap;
-    }
+    DecomposedFlow rescale(DecomposedFlow decomposedFlow);
 
-    DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
-        double allocatedFlow = decomposedFlow.getAllocatedFlow();
-        double pstFlow = decomposedFlow.getPstFlow();
-        Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
-        double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
-        double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
-        Pair<Country, Country> countries = decomposedFlow.getCountries();
-        if (Double.isFinite(acReferenceFlow)) {
-            double deltaToRescale = acReferenceFlow * Math.signum(acReferenceFlow) - decomposedFlow.getTotalFlow();
-            double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + loopFlows.values().stream().mapToDouble(this::reLU).sum();
-            Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
-            double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
-            double rescaledPstFlow = rescaleValue(pstFlow, deltaToRescale, sumOfReLUFlows);
-            return new DecomposedFlow(rescaledLoopFlows, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow, countries);
-        } else {
-            return decomposedFlow;
-        }
+    default void rescale(List<XnecWithDecomposition> xnecList) {
+        xnecList.forEach(xnec -> xnec.setDecomposedFlow(rescale(xnec.getDecomposedFlowBeforeRescaling())));
     }
 }

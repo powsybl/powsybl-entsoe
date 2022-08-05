@@ -37,22 +37,11 @@ class SparseMatrixWithIndexesCSC extends AbstractSparseMatrixWithIndexes {
             .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
     }
 
-    private void getZeroMatrixAsMap(Map<String, Map<String, Double>> result) {
-        for (String col : colIndex.keySet()) {
-            for (String row : rowIndex.keySet()) {
-                result.computeIfAbsent(row, v -> new TreeMap<>())
-                    .put(col, 0.0);
-            }
-        }
-    }
-
-    Map<String, Map<String, Double>> toMap(boolean fillZeros) {
+    @Override
+    Map<String, Map<String, Double>> toMap() {
         Map<Integer, String> colIndexInverse = inverseIndex(colIndex);
         Map<Integer, String> rowIndexInverse = inverseIndex(rowIndex);
         Map<String, Map<String, Double>> result = new TreeMap<>();
-        if (fillZeros) {
-            getZeroMatrixAsMap(result);
-        }
         for (Iterator<DMatrixSparse.CoordinateRealValue> iterator = cscMatrix.createCoordinateIterator(); iterator.hasNext(); ) {
             DMatrixSparse.CoordinateRealValue cell = iterator.next();
             result.computeIfAbsent(rowIndexInverse.get(cell.row), v -> new TreeMap<>())

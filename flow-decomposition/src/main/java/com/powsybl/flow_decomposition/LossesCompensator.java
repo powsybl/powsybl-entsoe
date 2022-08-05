@@ -7,22 +7,20 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.loadflow.LoadFlowParameters;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
+class LossesCompensator {
     private final double epsilon;
 
-    LossesCompensator(LoadFlowParameters initialLoadFlowParameters, double epsilon) {
-        super(initialLoadFlowParameters);
+    LossesCompensator(double epsilon) {
         this.epsilon = epsilon;
     }
 
-    LossesCompensator(LoadFlowParameters initialLoadFlowParameters, FlowDecompositionParameters parameters) {
-        this(initialLoadFlowParameters, parameters.getLossesCompensationEpsilon());
+    LossesCompensator(FlowDecompositionParameters parameters) {
+        this(parameters.getLossesCompensationEpsilon());
     }
 
     private boolean hasBus(Terminal terminal) {
@@ -41,13 +39,11 @@ class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
         return hasP0(branch.getTerminal1()) && hasP0(branch.getTerminal2());
     }
 
-    @Override
-    Void run(Network network) {
+    void run(Network network) {
         addNullLoadsOnBuses(network);
         String originVariant = network.getVariantManager().getWorkingVariantId();
         network.getVariantManager().getVariantIds().forEach(variantId -> compensateVariant(network, variantId));
         network.getVariantManager().setWorkingVariant(originVariant);
-        return null;
     }
 
     private void addNullLoadsOnBuses(Network network) {
@@ -71,7 +67,6 @@ class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
 
     private void compensateVariant(Network network, String variantId) {
         network.getVariantManager().setWorkingVariant(variantId);
-        //LoadFlow.run(network, loadFlowParameters);
         network.getBranchStream()
             .filter(this::hasBuses)
             .filter(this::hasP0s)

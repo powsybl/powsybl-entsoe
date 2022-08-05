@@ -7,7 +7,6 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -18,13 +17,7 @@ import java.util.stream.Collectors;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
  */
-class NetPositionComputer extends AbstractAcLoadFlowRunner<Map<String, Map<Country, Double>>> {
-
-    NetPositionComputer(LoadFlowParameters initialLoadFlowParameters) {
-        super(initialLoadFlowParameters);
-    }
-
-    @Override
+class NetPositionComputer {
     Map<String, Map<Country, Double>> run(Network network) {
         return network.getVariantManager().getVariantIds().stream().collect(Collectors.toMap(Function.identity(), variantId -> {
             network.getVariantManager().setWorkingVariant(variantId);

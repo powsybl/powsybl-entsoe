@@ -7,9 +7,9 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
-import org.apache.commons.math3.util.Pair;
 
 import java.util.*;
+import java.util.function.ObjDoubleConsumer;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -17,24 +17,37 @@ import java.util.*;
  */
 public class DecomposedFlow {
     public static final double DEFAULT_FLOW = 0.;
+    private final Xnec xnec;
     private final Map<String, Double> loopFlowsMap = new TreeMap<>();
-    private final double allocatedFlow;
-    private final double pstFlow;
-    private final double acReferenceFlow;
-    private final double dcReferenceFlow;
-    private final Pair<Country, Country> countries;
+    private double allocatedFlow;
+    private double pstFlow;
+    private double acReferenceFlow;
+    private double dcReferenceFlow;
     static final String ALLOCATED_COLUMN_NAME = "Allocated Flow";
     static final String PST_COLUMN_NAME = "PST Flow";
     static final String AC_REFERENCE_FLOW_COLUMN_NAME = "Reference AC Flow";
     static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
 
-    protected DecomposedFlow(Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow, Pair<Country, Country> countries) {
+    protected DecomposedFlow(Xnec xnec, Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow) {
+        this.xnec = xnec;
         this.loopFlowsMap.putAll(loopFlowsMap);
         this.allocatedFlow = allocatedFlow;
         this.pstFlow = pstFlow;
         this.acReferenceFlow = acReferenceFlow;
         this.dcReferenceFlow = dcReferenceFlow;
-        this.countries = countries;
+    }
+
+    protected DecomposedFlow(Xnec xnec) {
+        this(xnec, Collections.emptyMap(), DEFAULT_FLOW, DEFAULT_FLOW, DEFAULT_FLOW, DEFAULT_FLOW);
+    }
+
+    @Override
+    public String toString() {
+        return getAllKeyMap().toString();
+    }
+
+    public Xnec getXnec() {
+        return xnec;
     }
 
     public double getAllocatedFlow() {
@@ -65,40 +78,39 @@ public class DecomposedFlow {
         return dcReferenceFlow;
     }
 
-    public Pair<Country, Country> getCountries() {
-        return countries;
-    }
-
     public double getTotalFlow() {
         return getAllocatedFlow() + getPstFlow() + getTotalLoopFlow();
     }
 
-    private double getTotalLoopFlow() {
+    public double getTotalLoopFlow() {
         return loopFlowsMap.values().stream().reduce(0., Double::sum);
     }
 
     public double getInternalFlow() {
-        if (!isInternalBranch()) {
-            return 0.0;
+        if (xnec.isInternalBranch()) {
+            return getLoopFlow(xnec.getCountryTerminal1());
         }
-        return getLoopFlow(getCountries().getFirst());
+        return 0.0;
     }
 
-    private boolean isInternalBranch() {
-        return Objects.equals(getCountries().getFirst(), getCountries().getSecond());
+    void setAcReferenceFlow(double acReferenceFlow) {
+        this.acReferenceFlow = acReferenceFlow;
     }
 
-    /**
-     * @deprecated Still used for test purpose, but to be removed soon
-     */
-    @Deprecated
-    double getReferenceOrientedTotalFlow() {
-        return getTotalFlow() * Math.signum(getAcReferenceFlow());
+    void setDcReferenceFlow(double dcReferenceFlow) {
+        this.dcReferenceFlow = dcReferenceFlow;
     }
 
-    @Override
-    public String toString() {
-        return getAllKeyMap().toString();
+    void setAllocatedFlow(double allocatedFlow) {
+        this.allocatedFlow = allocatedFlow;
+    }
+
+    void setLoopFlow(Map<String, Double> loopFlowsMap) {
+        this.loopFlowsMap.putAll(loopFlowsMap);
+    }
+
+    void setPstFlow(double pstFlow) {
+        this.pstFlow = pstFlow;
     }
 
     private TreeMap<String, Double> getAllKeyMap() {

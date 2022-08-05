@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.iidm.network.Country;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -19,9 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -41,25 +41,20 @@ public class CsvExporter {
     public void export(Path dirPath, FlowDecompositionResults flowDecompositionResults) {
         LOGGER.info("Saving rescaled flow decomposition (id: {}) of network {} in directory {}",
             flowDecompositionResults.getId(), flowDecompositionResults.getNetworkId(), dirPath);
-        export(dirPath, flowDecompositionResults.getId(), flowDecompositionResults.getDecomposedFlowMap());
+        export(dirPath, flowDecompositionResults.getId(), flowDecompositionResults.getXnecsWithDecomposition(), flowDecompositionResults.getZoneSet());
     }
 
-    void export(Path dirPath, String basename, Map<String, DecomposedFlow> decomposedFlowMap) {
+    void export(Path dirPath, String basename, List<XnecWithDecomposition> xnecWithDecompositionMap, Set<Country> zoneSet) {
         Path path = Paths.get(dirPath.toString(), basename + ".csv");
         try (
             BufferedWriter writer = Files.newBufferedWriter(path, CHARSET);
             CSVPrinter printer = new CSVPrinter(writer, FORMAT)
         ) {
-            Set<String> allLoopFlowKeys = aggregateAllLoopFlowKeys(decomposedFlowMap);
-            printHeaderRow(allLoopFlowKeys, printer);
-            printContentRows(decomposedFlowMap, allLoopFlowKeys, printer);
+            printHeaderRow(zoneSet, printer);
+            printContentRows(xnecWithDecompositionMap, zoneSet, printer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private Set<String> aggregateAllLoopFlowKeys(Map<String, DecomposedFlow> decomposedFlowMap) {
-        return decomposedFlowMap.values().stream().flatMap(decomposedFlow -> decomposedFlow.getLoopFlows().keySet().stream()).collect(Collectors.toSet());
     }
 
     private void failSilentlyPrint(CSVPrinter printer, Object valueToPrint) {
@@ -78,25 +73,26 @@ public class CsvExporter {
         }
     }
 
-    private void printHeaderRow(Set<String> loopFlowKeys, CSVPrinter printer) {
+    private void printHeaderRow(Set<Country> loopFlowKeys, CSVPrinter printer) {
         failSilentlyPrint(printer, EMPTY_CELL_VALUE);
         failSilentlyPrint(printer, DecomposedFlow.ALLOCATED_COLUMN_NAME);
         failSilentlyPrint(printer, DecomposedFlow.PST_COLUMN_NAME);
-        loopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, loopFlowKey));
+        loopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, NetworkUtil.getLoopFlowIdFromCountry(loopFlowKey)));
         failSilentlyPrint(printer, DecomposedFlow.AC_REFERENCE_FLOW_COLUMN_NAME);
         failSilentlyPrint(printer, DecomposedFlow.DC_REFERENCE_FLOW_COLUMN_NAME);
         failSilentlyPrintLn(printer);
     }
 
-    private void printContentRows(Map<String, DecomposedFlow> decomposedFlowMap, Set<String> allLoopFlowKeys, CSVPrinter printer) {
-        decomposedFlowMap.forEach((xnecId, decomposedFlow) -> printContentRow(xnecId, decomposedFlow, allLoopFlowKeys, printer));
+    private void printContentRows(List<XnecWithDecomposition> decomposedFlowMap, Set<Country> allLoopFlowKeys, CSVPrinter printer) {
+        decomposedFlowMap.forEach(xnecWithDecomposition -> printContentRow(xnecWithDecomposition.getId(), xnecWithDecomposition, allLoopFlowKeys, printer));
     }
 
-    private void printContentRow(String xnecId, DecomposedFlow decomposedFlow, Set<String> allLoopFlowKeys, CSVPrinter printer) {
+    private void printContentRow(String xnecId, XnecWithDecomposition xnecWithDecomposition, Set<Country> allLoopFlowKeys, CSVPrinter printer) {
+        DecomposedFlow decomposedFlow = xnecWithDecomposition.getDecomposedFlow();
         failSilentlyPrint(printer, xnecId);
         failSilentlyPrint(printer, decomposedFlow.getAllocatedFlow());
         failSilentlyPrint(printer, decomposedFlow.getPstFlow());
-        allLoopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, decomposedFlow.getLoopFlows().getOrDefault(loopFlowKey, DecomposedFlow.DEFAULT_FLOW)));
+        allLoopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, decomposedFlow.getLoopFlows().getOrDefault(NetworkUtil.getLoopFlowIdFromCountry(loopFlowKey), DecomposedFlow.DEFAULT_FLOW)));
         failSilentlyPrint(printer, decomposedFlow.getAcReferenceFlow());
         failSilentlyPrint(printer, decomposedFlow.getDcReferenceFlow());
         failSilentlyPrintLn(printer);

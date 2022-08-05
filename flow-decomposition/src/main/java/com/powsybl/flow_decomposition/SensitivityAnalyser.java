@@ -24,14 +24,14 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalyser.class);
     private static final boolean SENSITIVITY_VARIABLE_SET = false;
     private final Network network;
-    private final List<Xnec> functionList;
+    private final List<XnecWithDecomposition> functionList;
     private final Map<String, Integer> functionIndex;
     private final FlowDecompositionParameters parameters;
 
     SensitivityAnalyser(LoadFlowParameters loadFlowParameters,
                         FlowDecompositionParameters parameters,
                         Network network,
-                        List<Xnec> functionList,
+                        List<XnecWithDecomposition> functionList,
                         Map<String, Integer> functionIndex) {
         super(loadFlowParameters);
         this.parameters = parameters;

@@ -36,7 +36,7 @@ class ZonalPtdfXnecSelectionTests {
 
         assertTrue(flowDecompositionResults.getZonalPtdf().isPresent());
         assertFalse(flowDecompositionResults.getZonalPtdf().get().isEmpty());
-        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
+        assertEquals(2, flowDecompositionResults.getXnecsWithDecomposition().size());
     }
 
     @Test
@@ -47,7 +47,7 @@ class ZonalPtdfXnecSelectionTests {
 
         assertTrue(flowDecompositionResults.getZonalPtdf().isPresent());
         assertTrue(flowDecompositionResults.getZonalPtdf().get().isEmpty());
-        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
+        assertEquals(2, flowDecompositionResults.getXnecsWithDecomposition().size());
     }
 
     @Test
@@ -58,7 +58,7 @@ class ZonalPtdfXnecSelectionTests {
 
         assertTrue(flowDecompositionResults.getZonalPtdf().isPresent());
         assertFalse(flowDecompositionResults.getZonalPtdf().get().isEmpty());
-        assertEquals(2 + 10 - 1, flowDecompositionResults.getDecomposedFlowMap().size());
+        assertEquals(2 + 10 - 1, flowDecompositionResults.getXnecsWithDecomposition().size());
     }
 
     private static Network getHighPtdfNetwork() {

@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -23,9 +24,9 @@ class XnecSelector5percPtdf implements XnecSelector {
         this.zonalPtdf = zonalPtdf;
     }
 
-    public List<Xnec> run(Network network) {
+    public List<XnecWithDecomposition> run(Network network, Map<String, Contingency> variantContingenciesMap) {
         List<Branch> branchList = XnecSelector.getBranches(network, this::isAXnec);
-        return XnecSelector.getXnecList(network, branchList);
+        return XnecSelector.getXnecList(network, branchList, variantContingenciesMap);
     }
 
     private boolean isAXnec(Branch branch) {
