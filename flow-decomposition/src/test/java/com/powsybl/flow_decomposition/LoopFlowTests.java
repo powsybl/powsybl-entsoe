@@ -97,5 +97,26 @@ class LoopFlowTests {
         assertEquals(0, flowDecompositionResults.get(x5).getLoopFlow(Country.BE), EPSILON);
         assertEquals(100, flowDecompositionResults.get(x5).getLoopFlow(Country.ES), EPSILON);
         assertEquals(0, flowDecompositionResults.get(x5).getLoopFlow(Country.FR), EPSILON);
+
+        assertTrue(Double.isNaN(flowDecompositionResults.get(x1).getAcReferenceFlow()));
+        assertEquals(100, flowDecompositionResults.get(x1).getDcReferenceFlow(), EPSILON);
+        assertEquals(100, flowDecompositionResults.get(x1).getTotalFlow(), EPSILON);
+        assertEquals(100, flowDecompositionResults.get(x1).getTotalLoopFlow(), EPSILON);
+        assertEquals(3, flowDecompositionResults.get(x1).getLoopFlows().size());
+        assertTrue(Double.isNaN(flowDecompositionResults.get(x2).getAcReferenceFlow()));
+        assertEquals(200, flowDecompositionResults.get(x2).getDcReferenceFlow(), EPSILON);
+        assertEquals(200, flowDecompositionResults.get(x2).getTotalFlow(), EPSILON);
+        assertEquals(200, flowDecompositionResults.get(x2).getTotalLoopFlow(), EPSILON);
+        assertEquals(3, flowDecompositionResults.get(x2).getLoopFlows().size());
+        assertTrue(Double.isNaN(flowDecompositionResults.get(x4).getAcReferenceFlow()));
+        assertEquals(200, flowDecompositionResults.get(x4).getDcReferenceFlow(), EPSILON);
+        assertEquals(200, flowDecompositionResults.get(x4).getTotalFlow(), EPSILON);
+        assertEquals(200, flowDecompositionResults.get(x4).getTotalLoopFlow(), EPSILON);
+        assertEquals(3, flowDecompositionResults.get(x1).getLoopFlows().size());
+        assertTrue(Double.isNaN(flowDecompositionResults.get(x4).getAcReferenceFlow()));
+        assertEquals(100, flowDecompositionResults.get(x5).getDcReferenceFlow(), EPSILON);
+        assertEquals(100, flowDecompositionResults.get(x5).getTotalFlow(), EPSILON);
+        assertEquals(100, flowDecompositionResults.get(x5).getTotalLoopFlow(), EPSILON);
+        assertEquals(1, flowDecompositionResults.get(x5).getLoopFlows().size());
     }
 }

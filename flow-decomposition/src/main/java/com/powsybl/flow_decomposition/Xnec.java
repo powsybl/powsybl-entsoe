@@ -11,6 +11,7 @@ import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 
+import java.util.LinkedHashMap;
 import java.util.Objects;
 
 /**
@@ -69,5 +70,21 @@ public class Xnec {
 
     boolean isBranchNotContainedInContingency() {
         return contingency.getElements().stream().map(ContingencyElement::getId).noneMatch(s -> s.equals(branch.getId()));
+    }
+
+    private LinkedHashMap<String, String> getMap() {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        map.put("xnec id", getId());
+        map.put("branch", getBranch().getId());
+        map.put("contingency", getContingency() == null ? "None" : getContingency().getId());
+        map.put("network variant", getVariantId());
+        map.put("country of terminal 1", getCountryTerminal1().toString());
+        map.put("country of terminal 2", getCountryTerminal2().toString());
+        return map;
+    }
+
+    @Override
+    public String toString() {
+        return getMap().toString();
     }
 }

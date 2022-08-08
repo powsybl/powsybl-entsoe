@@ -9,7 +9,6 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Country;
 
 import java.util.*;
-import java.util.function.ObjDoubleConsumer;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -56,10 +55,6 @@ public class DecomposedFlow {
 
     public double getLoopFlow(Country country) {
         return getLoopFlow(NetworkUtil.getLoopFlowIdFromCountry(country));
-    }
-
-    public double getLoopFlow(String country) {
-        return loopFlowsMap.getOrDefault(country, DEFAULT_FLOW);
     }
 
     public Map<String, Double> getLoopFlows() {
@@ -111,6 +106,10 @@ public class DecomposedFlow {
 
     void setPstFlow(double pstFlow) {
         this.pstFlow = pstFlow;
+    }
+
+    double getLoopFlow(String country) {
+        return loopFlowsMap.getOrDefault(country, DEFAULT_FLOW);
     }
 
     private TreeMap<String, Double> getAllKeyMap() {

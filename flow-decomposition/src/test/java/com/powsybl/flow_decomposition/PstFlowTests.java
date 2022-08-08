@@ -41,8 +41,8 @@ class PstFlowTests {
         assertEquals(-420.042573, psdf.get(x1).get(pst), EPSILON);
         assertEquals(420.042573, psdf.get(x2).get(pst), EPSILON);
 
-        assertEquals(0, flowDecompositionResults.get(x1).getDecomposedFlow().getPstFlow(), EPSILON);
-        assertEquals(0, flowDecompositionResults.get(x2).getDecomposedFlow().getPstFlow(), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x1).getPstFlow(), EPSILON);
+        assertEquals(0, flowDecompositionResults.get(x2).getPstFlow(), EPSILON);
     }
 
     @Test

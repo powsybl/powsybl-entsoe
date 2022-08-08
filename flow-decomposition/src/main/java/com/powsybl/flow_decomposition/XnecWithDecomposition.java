@@ -10,6 +10,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -49,10 +50,6 @@ public class XnecWithDecomposition extends Xnec {
         return decomposedFlow.getLoopFlow(country);
     }
 
-    public double getLoopFlow(String country) {
-        return decomposedFlow.getLoopFlow(country);
-    }
-
     public Map<String, Double> getLoopFlows() {
         return decomposedFlow.getLoopFlows();
     }
@@ -79,5 +76,18 @@ public class XnecWithDecomposition extends Xnec {
 
     public double getInternalFlow() {
         return decomposedFlow.getInternalFlow();
+    }
+
+    @Override
+    public String toString() {
+        return toMap().toString();
+    }
+
+    private LinkedHashMap<String, String> toMap() {
+        LinkedHashMap<String, String> map = new LinkedHashMap<>();
+        map.put("xnec", super.toString());
+        map.put("decomposed before rescaling", decomposedFlowBeforeRescaling.toString());
+        map.put("decomposed after rescaling", decomposedFlow.toString());
+        return map;
     }
 }

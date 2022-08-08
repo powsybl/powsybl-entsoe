@@ -127,14 +127,22 @@ class AllocatedFlowTests {
     }
 
     @Test
-    void checkThatFlowDecompositionDoesNotExtractIntermediateResultsByDefault() {
-        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
+    void testToStringDecomposedFlowTest() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES_INVERTED.uct";
+        String variantId = "InitialState";
+        String xnecFrBee = Xnec.createId("BLOAD 11 FGEN1 11 1", variantId);
+
         Network network = importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
-        assertTrue(flowDecompositionResults.getGlsks().isEmpty());
-        assertTrue(flowDecompositionResults.getNodalPtdf().isEmpty());
-        assertTrue(flowDecompositionResults.getNodalInjections().isEmpty());
-    }
 
+        String str = "{xnec={xnec id=BLOAD 11 FGEN1 11 1_InitialState, branch=BLOAD 11 FGEN1 11 1, contingency=None, " +
+            "network variant=InitialState, country of terminal 1=BE, country of terminal 2=FR}, " +
+            "decomposed before rescaling={Allocated Flow=100.09348508206307, Loop Flow from BE=-0.0467425410315343, " +
+            "Loop Flow from FR=-0.0467425410315343, PST Flow=0.0, Reference AC Flow=-100.06215218462131, " +
+            "Reference DC Flow=-100.0}, decomposed after rescaling={Allocated Flow=100.09348508206307, " +
+            "Loop Flow from BE=-0.0467425410315343, Loop Flow from FR=-0.0467425410315343, PST Flow=0.0, " +
+            "Reference AC Flow=-100.06215218462131, Reference DC Flow=-100.0}}";
+        assertEquals(str, flowDecompositionResults.get(xnecFrBee).toString());
+    }
 }
