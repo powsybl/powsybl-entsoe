@@ -88,7 +88,8 @@ public class FlowDecompositionComputer {
                                                     FlowDecompositionResults flowDecompositionResults) {
         BranchSelector branchSelector = BranchSelector.factory(parameters, zonalPtdf);
         List<Branch> branchList = branchSelector.run(network);
-        return flowDecompositionResults.saveXnecsWithDecomposition(XnecFactory.run(network, branchList, variantContingenciesMap));
+        XnecFactory xnecFactory = new XnecFactory();
+        return flowDecompositionResults.saveXnecsWithDecomposition(xnecFactory.run(network, branchList, variantContingenciesMap));
     }
 
     private static LoadFlowParameters initLoadFlowParameters() {

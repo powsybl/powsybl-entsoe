@@ -88,30 +88,49 @@ public final class NetworkUtil {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
-    static void fillXnecWithAllocatedAndLoopFlows(NetworkMatrixIndexes networkMatrixIndexes, SparseMatrixWithIndexesCSC allocatedLoopFlowsMatrix) {
+    static void fillXnecWithAllocatedAndLoopFlows(NetworkMatrixIndexes networkMatrixIndexes,
+                                                  SparseMatrixWithIndexesCSC allocatedLoopFlowsMatrix) {
         Map<String, Map<String, Double>> allocatedLoopFlowsMapMap = allocatedLoopFlowsMatrix.toMap();
-        networkMatrixIndexes.getXnecList().forEach(xnec -> {
-            String xnecId = xnec.getId();
-            Map<String, Double> allocatedLoopFlowsMap = allocatedLoopFlowsMapMap.get(xnecId);
-            double allocatedFlow = allocatedLoopFlowsMap
-                .getOrDefault(DecomposedFlow.ALLOCATED_COLUMN_NAME, DecomposedFlow.DEFAULT_FLOW);
-            Map<String, Double> loopFlowsMap = allocatedLoopFlowsMap.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith(NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            DecomposedFlow decomposedFlow = xnec.getDecomposedFlowBeforeRescaling();
-            decomposedFlow.setAllocatedFlow(allocatedFlow);
-            decomposedFlow.setLoopFlow(loopFlowsMap);
-        });
+        networkMatrixIndexes.getXnecList()
+            .forEach(xnec -> updateXnecWithAllocatedAndLoopFlow(allocatedLoopFlowsMapMap, xnec));
+    }
+
+    private static void updateXnecWithAllocatedAndLoopFlow(Map<String, Map<String, Double>> allocatedLoopFlowsMapMap,
+                                                           XnecWithDecomposition xnec) {
+        String xnecId = xnec.getId();
+        Map<String, Double> allocatedLoopFlowsMap = allocatedLoopFlowsMapMap.get(xnecId);
+        double allocatedFlow = getAllocatedLoopFlows(allocatedLoopFlowsMap);
+        Map<String, Double> loopFlowsMap = getLoopFlowsMap(allocatedLoopFlowsMap);
+        DecomposedFlow decomposedFlow = xnec.getDecomposedFlowBeforeRescaling();
+        decomposedFlow.setAllocatedFlow(allocatedFlow);
+        decomposedFlow.setLoopFlow(loopFlowsMap);
+    }
+
+    private static Double getAllocatedLoopFlows(Map<String, Double> allocatedLoopFlowsMap) {
+        return allocatedLoopFlowsMap
+            .getOrDefault(DecomposedFlow.ALLOCATED_COLUMN_NAME, DecomposedFlow.DEFAULT_FLOW);
+    }
+
+    private static Map<String, Double> getLoopFlowsMap(Map<String, Double> allocatedLoopFlowsMap) {
+        return allocatedLoopFlowsMap.entrySet().stream()
+            .filter(entry -> entry.getKey().startsWith(NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     static void fillXnecWithPstFlow(NetworkMatrixIndexes networkMatrixIndexes, SparseMatrixWithIndexesCSC pstFlowMatrix) {
         Map<String, Map<String, Double>> pstFlowsMapMap = pstFlowMatrix.toMap();
-        networkMatrixIndexes.getXnecList().forEach(xnec -> {
-            String xnecId = xnec.getId();
-            Map<String, Double> pstFlowMap = pstFlowsMapMap.getOrDefault(xnecId, Collections.emptyMap());
-            double pstFlow = pstFlowMap.getOrDefault(DecomposedFlow.PST_COLUMN_NAME, DecomposedFlow.DEFAULT_FLOW);
-            DecomposedFlow decomposedFlow = xnec.getDecomposedFlowBeforeRescaling();
-            decomposedFlow.setPstFlow(pstFlow);
-        });
+        networkMatrixIndexes.getXnecList().forEach(xnec -> updateXnecWithPstFlow(pstFlowsMapMap, xnec));
+    }
+
+    private static void updateXnecWithPstFlow(Map<String, Map<String, Double>> pstFlowsMapMap, XnecWithDecomposition xnec) {
+        String xnecId = xnec.getId();
+        Map<String, Double> pstFlowMap = pstFlowsMapMap.getOrDefault(xnecId, Collections.emptyMap());
+        double pstFlow = getPstFlow(pstFlowMap);
+        DecomposedFlow decomposedFlow = xnec.getDecomposedFlowBeforeRescaling();
+        decomposedFlow.setPstFlow(pstFlow);
+    }
+
+    private static Double getPstFlow(Map<String, Double> pstFlowMap) {
+        return pstFlowMap.getOrDefault(DecomposedFlow.PST_COLUMN_NAME, DecomposedFlow.DEFAULT_FLOW);
     }
 }

@@ -35,7 +35,8 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
         if (parameters.getBranchSelectionStrategy() == FlowDecompositionParameters.BranchSelectionStrategy.ONLY_INTERCONNECTIONS) {
             return Collections.emptyMap();
         }
-        List<XnecWithDecomposition> functionList = XnecFactory.run(network, NetworkUtil.getAllValidBranches(network));
+        XnecFactory xnecFactory = new XnecFactory();
+        List<XnecWithDecomposition> functionList = xnecFactory.run(network, NetworkUtil.getAllValidBranches(network));
         List<String> variableList = getVariableList(glsks);
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);
         List<SensitivityFactor> factors = getFactors(variableList, functionList,

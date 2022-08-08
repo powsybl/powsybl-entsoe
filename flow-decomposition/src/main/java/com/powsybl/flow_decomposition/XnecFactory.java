@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
  */
 class XnecFactory {
 
-    static List<XnecWithDecomposition> run(Network network, List<Branch> branchList) {
+    List<XnecWithDecomposition> run(Network network, List<Branch> branchList) {
         return run(network, branchList, Collections.emptyMap());
     }
 
-    static List<XnecWithDecomposition> run(Network network, List<Branch> branchList, Map<String, Contingency> variantContingenciesMap) {
+    List<XnecWithDecomposition> run(Network network, List<Branch> branchList, Map<String, Contingency> variantContingenciesMap) {
         return getXnecList(network, branchList, variantContingenciesMap);
     }
 
