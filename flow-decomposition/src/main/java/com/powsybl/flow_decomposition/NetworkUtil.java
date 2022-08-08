@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -85,5 +86,32 @@ public final class NetworkUtil {
 
     static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
+    }
+
+    static void fillXnecWithAllocatedAndLoopFlows(NetworkMatrixIndexes networkMatrixIndexes, SparseMatrixWithIndexesCSC allocatedLoopFlowsMatrix) {
+        Map<String, Map<String, Double>> allocatedLoopFlowsMapMap = allocatedLoopFlowsMatrix.toMap();
+        networkMatrixIndexes.getXnecList().forEach(xnec -> {
+            String xnecId = xnec.getId();
+            Map<String, Double> allocatedLoopFlowsMap = allocatedLoopFlowsMapMap.get(xnecId);
+            double allocatedFlow = allocatedLoopFlowsMap
+                .getOrDefault(DecomposedFlow.ALLOCATED_COLUMN_NAME, DecomposedFlow.DEFAULT_FLOW);
+            Map<String, Double> loopFlowsMap = allocatedLoopFlowsMap.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            DecomposedFlow decomposedFlow = xnec.getDecomposedFlowBeforeRescaling();
+            decomposedFlow.setAllocatedFlow(allocatedFlow);
+            decomposedFlow.setLoopFlow(loopFlowsMap);
+        });
+    }
+
+    static void fillXnecWithPstFlow(NetworkMatrixIndexes networkMatrixIndexes, SparseMatrixWithIndexesCSC pstFlowMatrix) {
+        Map<String, Map<String, Double>> pstFlowsMapMap = pstFlowMatrix.toMap();
+        networkMatrixIndexes.getXnecList().forEach(xnec -> {
+            String xnecId = xnec.getId();
+            Map<String, Double> pstFlowMap = pstFlowsMapMap.getOrDefault(xnecId, Collections.emptyMap());
+            double pstFlow = pstFlowMap.getOrDefault(DecomposedFlow.PST_COLUMN_NAME, DecomposedFlow.DEFAULT_FLOW);
+            DecomposedFlow decomposedFlow = xnec.getDecomposedFlowBeforeRescaling();
+            decomposedFlow.setPstFlow(pstFlow);
+        });
     }
 }

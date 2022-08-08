@@ -8,37 +8,33 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-interface XnecSelector {
+class XnecFactory {
 
-    List<XnecWithDecomposition> run(Network network, Map<String, Contingency> variantContingenciesMap);
-
-    static List<Branch> getBranches(Network network, Predicate<Branch> filter) {
-        return NetworkUtil.getAllValidBranches(network)
-            .stream()
-            .filter(filter)
-            .collect(Collectors.toList());
+    static List<XnecWithDecomposition> run(Network network, List<Branch> branchList) {
+        return run(network, branchList, Collections.emptyMap());
     }
 
-    static List<XnecWithDecomposition> getXnecList(Network network, List<Branch> branchList, Map<String, Contingency> variantContingenciesMap) {
+    static List<XnecWithDecomposition> run(Network network, List<Branch> branchList, Map<String, Contingency> variantContingenciesMap) {
+        return getXnecList(network, branchList, variantContingenciesMap);
+    }
+
+    private static List<XnecWithDecomposition> getXnecList(Network network, List<Branch> branchList, Map<String, Contingency> variantContingenciesMap) {
         List<XnecWithDecomposition> xnecList = getNStateXnecs(network, branchList);
         xnecList.addAll(mapContingenciesPerBranch(network, branchList, variantContingenciesMap));
         return xnecList;
     }
 
-    static List<XnecWithDecomposition> getNStateXnecs(Network network, List<Branch> branchList) {
+    private static List<XnecWithDecomposition> getNStateXnecs(Network network, List<Branch> branchList) {
         String originVariantId = network.getVariantManager().getWorkingVariantId();
         return branchList.stream()
             .map(branch -> new XnecWithDecomposition(branch, originVariantId)).collect(Collectors.toList());
@@ -60,15 +56,15 @@ interface XnecSelector {
     }
 
     private static XnecWithDecomposition getXnecInWorstSenario(Network network,
-                                              Branch branch,
-                                              Map<String, Contingency> variantContingenciesMap) {
+                                                               Branch branch,
+                                                               Map<String, Contingency> variantContingenciesMap) {
         String variantId = getVariantWithMaximalBranchFlow(network, branch);
         return new XnecWithDecomposition(branch, variantId, variantContingenciesMap.get(variantId));
     }
 
     private static String getVariantWithMaximalBranchFlow(Network network, Branch branch) {
         return network.getVariantManager().getVariantIds().stream()
-            .filter(XnecSelector::variantIsNotInitialVariant)
+            .filter(XnecFactory::variantIsNotInitialVariant)
             .collect(Collectors.toMap(Function.identity(), getFlowOnBranchGivenVariant(network, branch)))
             .entrySet().stream().sorted(Comparator.comparing(Map.Entry::getValue))
             .map(Map.Entry::getKey).collect(Collectors.toList()).iterator().next();
@@ -83,11 +79,5 @@ interface XnecSelector {
             network.getVariantManager().setWorkingVariant(variantId);
             return -(Math.abs(branch.getTerminal1().getP()) + Math.abs(branch.getTerminal2().getP())) / 2;
         };
-    }
-
-    static boolean isAnInterconnection(Branch<?> branch) {
-        Country country1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
-        Country country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
-        return !country1.equals(country2);
     }
 }

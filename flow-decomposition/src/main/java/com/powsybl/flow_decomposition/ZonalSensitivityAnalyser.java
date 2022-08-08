@@ -32,10 +32,10 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     public Map<String, Map<Country, Double>> run(Network network,
                                                  Map<Country, Map<String, Double>> glsks,
                                                  SensitivityVariableType sensitivityVariableType) {
-        if (parameters.getXnecSelectionStrategy() == FlowDecompositionParameters.XnecSelectionStrategy.ONLY_INTERCONNECTIONS) {
+        if (parameters.getBranchSelectionStrategy() == FlowDecompositionParameters.BranchSelectionStrategy.ONLY_INTERCONNECTIONS) {
             return Collections.emptyMap();
         }
-        List<XnecWithDecomposition> functionList = XnecSelector.getNStateXnecs(network, NetworkUtil.getAllValidBranches(network));
+        List<XnecWithDecomposition> functionList = XnecFactory.run(network, NetworkUtil.getAllValidBranches(network));
         List<String> variableList = getVariableList(glsks);
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);
         List<SensitivityFactor> factors = getFactors(variableList, functionList,

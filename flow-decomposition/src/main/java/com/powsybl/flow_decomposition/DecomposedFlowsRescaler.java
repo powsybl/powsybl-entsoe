@@ -14,6 +14,14 @@ import java.util.List;
  */
 interface DecomposedFlowsRescaler {
 
+    static DecomposedFlowsRescaler factory(FlowDecompositionParameters parameters) {
+        if (parameters.isRescaleEnabled()) {
+            return new DecomposedFlowsRescalerACER();
+        } else {
+            return new DecomposedFlowsRescalerIdentity();
+        }
+    }
+
     default double reLU(double value) {
         return value > 0 ? value : 0.;
     }

@@ -15,7 +15,7 @@ import java.util.Objects;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class FlowDecompositionParameters {
-    public enum XnecSelectionStrategy {
+    public enum BranchSelectionStrategy {
         ONLY_INTERCONNECTIONS,
         ZONE_TO_ZONE_PTDF_CRITERIA,
     }
@@ -38,14 +38,14 @@ public class FlowDecompositionParameters {
     public static final double DEFAULT_LOSSES_COMPENSATION_EPSILON = 1e-5;
     public static final double DEFAULT_SENSITIVITY_EPSILON = 1e-5;
     public static final boolean DEFAULT_RESCALE_ENABLED = DISABLE_RESCALED_RESULTS;
-    private static final XnecSelectionStrategy DEFAULT_COMPUTE_ZONAL_PTDF = XnecSelectionStrategy.ONLY_INTERCONNECTIONS;
+    private static final BranchSelectionStrategy DEFAULT_COMPUTE_ZONAL_PTDF = BranchSelectionStrategy.ONLY_INTERCONNECTIONS;
     public static final ContingencyStrategy DEFAULT_CONTINGENCY_STRATEGY = ContingencyStrategy.ONLY_N_STATE;
     private boolean saveIntermediates;
     private boolean enableLossesCompensation;
     private double lossesCompensationEpsilon;
     private double sensitivityEpsilon;
     private boolean rescaleEnabled;
-    private XnecSelectionStrategy xnecSelectionStrategy;
+    private BranchSelectionStrategy branchSelectionStrategy;
     private ContingencyStrategy contingencyStrategy;
 
     public static FlowDecompositionParameters load() {
@@ -67,7 +67,7 @@ public class FlowDecompositionParameters {
             parameters.setLossesCompensationEpsilon(moduleConfig.getDoubleProperty("losses-compensation-epsilon", DEFAULT_LOSSES_COMPENSATION_EPSILON));
             parameters.setSensitivityEpsilon(moduleConfig.getDoubleProperty("sensitivity-epsilon", DEFAULT_SENSITIVITY_EPSILON));
             parameters.setRescaleEnabled(moduleConfig.getBooleanProperty("rescale-enabled", DEFAULT_RESCALE_ENABLED));
-            parameters.setXnecSelectionStrategy(moduleConfig.getEnumProperty("branch-selection-strategy", XnecSelectionStrategy.class, DEFAULT_COMPUTE_ZONAL_PTDF));
+            parameters.setBranchSelectionStrategy(moduleConfig.getEnumProperty("branch-selection-strategy", BranchSelectionStrategy.class, DEFAULT_COMPUTE_ZONAL_PTDF));
             parameters.setContingencyStrategy(moduleConfig.getEnumProperty("contingency-strategy", ContingencyStrategy.class, DEFAULT_CONTINGENCY_STRATEGY));
         });
     }
@@ -78,7 +78,7 @@ public class FlowDecompositionParameters {
         this.lossesCompensationEpsilon = DEFAULT_LOSSES_COMPENSATION_EPSILON;
         this.sensitivityEpsilon = DEFAULT_SENSITIVITY_EPSILON;
         this.rescaleEnabled = DEFAULT_RESCALE_ENABLED;
-        this.xnecSelectionStrategy = DEFAULT_COMPUTE_ZONAL_PTDF;
+        this.branchSelectionStrategy = DEFAULT_COMPUTE_ZONAL_PTDF;
         this.contingencyStrategy = DEFAULT_CONTINGENCY_STRATEGY;
     }
 
@@ -127,12 +127,12 @@ public class FlowDecompositionParameters {
         return this;
     }
 
-    public XnecSelectionStrategy getXnecSelectionStrategy() {
-        return xnecSelectionStrategy;
+    public BranchSelectionStrategy getBranchSelectionStrategy() {
+        return branchSelectionStrategy;
     }
 
-    public FlowDecompositionParameters setXnecSelectionStrategy(XnecSelectionStrategy xnecSelectionStrategy) {
-        this.xnecSelectionStrategy = xnecSelectionStrategy;
+    public FlowDecompositionParameters setBranchSelectionStrategy(BranchSelectionStrategy branchSelectionStrategy) {
+        this.branchSelectionStrategy = branchSelectionStrategy;
         return this;
     }
 

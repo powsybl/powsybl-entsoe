@@ -69,17 +69,17 @@ class ZonalPtdfXnecSelectionTests {
     }
 
     private static FlowDecompositionResults getFlowDecompositionResultsNoZonalPtdf(Network network) {
-        return getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy.ONLY_INTERCONNECTIONS, network);
+        return getFlowDecompositionResults(FlowDecompositionParameters.BranchSelectionStrategy.ONLY_INTERCONNECTIONS, network);
     }
 
     private static FlowDecompositionResults getFlowDecompositionResultsWithZonalPtdf(Network network) {
-        return getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy.ZONE_TO_ZONE_PTDF_CRITERIA, network);
+        return getFlowDecompositionResults(FlowDecompositionParameters.BranchSelectionStrategy.ZONE_TO_ZONE_PTDF_CRITERIA, network);
     }
 
-    private static FlowDecompositionResults getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy xnecSelectionStrategy, Network network) {
+    private static FlowDecompositionResults getFlowDecompositionResults(FlowDecompositionParameters.BranchSelectionStrategy branchSelectionStrategy, Network network) {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
         flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
-        flowDecompositionParameters.setXnecSelectionStrategy(xnecSelectionStrategy);
+        flowDecompositionParameters.setBranchSelectionStrategy(branchSelectionStrategy);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         return flowComputer.run(network);
     }
