@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -26,6 +27,7 @@ class CountryNetPositionComputationTest {
     void testLines() {
         Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
+        LoadFlow.run(network);
         assertEquals(1000.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
         assertEquals(1500.0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
         assertEquals(0.0, netPositions.get(Country.NL), DOUBLE_TOLERANCE);
@@ -35,9 +37,12 @@ class CountryNetPositionComputationTest {
     @Test
     void testDanglingLines() {
         Network network = Importers.loadNetwork("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
+        LoadFlow.run(network);
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
-        assertEquals(0.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
-        //assertEquals(300.0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(1000.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(2000.0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(-500.0, netPositions.get(Country.NL), DOUBLE_TOLERANCE);
+        assertEquals(-2500.0, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
     }
 
     @Test
