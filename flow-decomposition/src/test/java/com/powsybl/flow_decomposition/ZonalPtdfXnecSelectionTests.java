@@ -24,8 +24,8 @@ class ZonalPtdfXnecSelectionTests {
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsNoZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isPresent());
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().get().isEmpty());
+        assertTrue(flowDecompositionResults.getZonalPtdfMap().isEmpty());
+        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 
     @Test
@@ -45,8 +45,7 @@ class ZonalPtdfXnecSelectionTests {
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsNoZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isPresent());
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().get().isEmpty());
+        assertTrue(flowDecompositionResults.getZonalPtdfMap().isEmpty());
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 
