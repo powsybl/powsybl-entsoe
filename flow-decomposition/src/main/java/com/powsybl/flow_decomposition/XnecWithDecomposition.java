@@ -30,6 +30,12 @@ public class XnecWithDecomposition extends Xnec {
         this.decomposedFlowBeforeRescaling = new DecomposedFlow(this);
     }
 
+    public XnecWithDecomposition(XnecWithDecomposition xnecWithDecomposition) {
+        super(xnecWithDecomposition.getBranch(), xnecWithDecomposition.getVariantId(), xnecWithDecomposition.getContingency());
+        this.decomposedFlowBeforeRescaling = xnecWithDecomposition.getDecomposedFlowBeforeRescaling();
+        this.decomposedFlow = xnecWithDecomposition.getDecomposedFlow();
+    }
+
     public DecomposedFlow getDecomposedFlowBeforeRescaling() {
         return decomposedFlowBeforeRescaling;
     }
