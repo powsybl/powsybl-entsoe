@@ -73,7 +73,7 @@ class ZonalPtdfXnecSelectionTests {
     }
 
     private static FlowDecompositionResults getFlowDecompositionResultsWithZonalPtdf(Network network) {
-        return getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy.ZONE_TO_ZONE_PTDF_CRITERIA, network);
+        return getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy.INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC, network);
     }
 
     private static FlowDecompositionResults getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy xnecSelectionStrategy, Network network) {
