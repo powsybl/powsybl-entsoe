@@ -10,9 +10,9 @@ import org.ejml.data.DMatrixSparse;
 import org.ejml.data.DMatrixSparseCSC;
 import org.ejml.sparse.csc.CommonOps_DSCC;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
@@ -41,10 +41,10 @@ class SparseMatrixWithIndexesCSC extends AbstractSparseMatrixWithIndexes {
     Map<String, Map<String, Double>> toMap() {
         Map<Integer, String> colIndexInverse = inverseIndex(colIndex);
         Map<Integer, String> rowIndexInverse = inverseIndex(rowIndex);
-        Map<String, Map<String, Double>> result = new TreeMap<>();
+        Map<String, Map<String, Double>> result = new HashMap<>();
         for (Iterator<DMatrixSparse.CoordinateRealValue> iterator = cscMatrix.createCoordinateIterator(); iterator.hasNext(); ) {
             DMatrixSparse.CoordinateRealValue cell = iterator.next();
-            result.computeIfAbsent(rowIndexInverse.get(cell.row), v -> new TreeMap<>())
+            result.computeIfAbsent(rowIndexInverse.get(cell.row), v -> new HashMap<>())
                     .put(colIndexInverse.get(cell.col), cell.value);
         }
         return result;
