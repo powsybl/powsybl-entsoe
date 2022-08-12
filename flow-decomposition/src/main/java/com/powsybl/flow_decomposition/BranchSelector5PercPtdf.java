@@ -9,6 +9,8 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.sensitivity.SensitivityVariableType;
 
 import java.util.*;
 
@@ -41,4 +43,13 @@ class BranchSelector5PercPtdf implements BranchSelector {
         return (!countryPtdfList.isEmpty())
             && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
     }
+
+    static Map<String, Map<Country, Double>> getZonalPtdf(Network network,
+                                                          Map<Country, Map<String, Double>> glsks,
+                                                          LoadFlowParameters loadFlowParameters) {
+        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters);
+        return zonalSensitivityAnalyser.run(network,
+            glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
+    }
+
 }

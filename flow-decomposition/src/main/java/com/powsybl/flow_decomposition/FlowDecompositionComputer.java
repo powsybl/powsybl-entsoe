@@ -86,7 +86,7 @@ public class FlowDecompositionComputer {
                                                     Map<Country, Map<String, Double>> glsks,
                                                     Map<String, Contingency> variantContingenciesMap,
                                                     FlowDecompositionResults flowDecompositionResults) {
-        BranchSelector branchSelector = BranchSelector.factory(parameters, glsks);
+        BranchSelector branchSelector = BranchSelector.factory(parameters, network, glsks, dcLoadFlowParameters, flowDecompositionResults);
         List<Branch> branchList = branchSelector.run(network);
         XnecFactory xnecFactory = new XnecFactory();
         List<XnecWithDecomposition> xnecList = xnecFactory.run(network, branchList, variantContingenciesMap);
@@ -111,7 +111,9 @@ public class FlowDecompositionComputer {
 
     private Map<String, Contingency> getVariantContingenciesMap(Network network, FlowDecompositionResults flowDecompositionResults) {
         ContingencyComputer contingencyComputer = new ContingencyComputer(parameters);
-        return flowDecompositionResults.saveContingencies(contingencyComputer.run(network));
+        Map<String, Contingency> variantContingenciesMap = contingencyComputer.run(network);
+        flowDecompositionResults.saveContingencies(variantContingenciesMap);
+        return variantContingenciesMap;
     }
 
     private void createVariantsWithContingencies(Network network, Map<String, Contingency> variantcontingencyMap) {
@@ -122,16 +124,6 @@ public class FlowDecompositionComputer {
     private void runAllAcLoadFlows(Network network) {
         LoadFlowRunner loadFlowRunner = new LoadFlowRunner(acLoadFlowParameters);
         loadFlowRunner.runAllVariants(network);
-    }
-
-    private Map<String, Map<Country, Double>> getZonalPtdf(Network network,
-                                                           Map<Country, Map<String, Double>> glsks,
-                                                           FlowDecompositionResults flowDecompositionResults) {
-        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(dcLoadFlowParameters);
-        Map<String, Map<Country, Double>> zonalPtdf = zonalSensitivityAnalyser.run(network,
-            glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
-        flowDecompositionResults.saveZonalPtdf(zonalPtdf);
-        return zonalPtdf;
     }
 
     private Map<String, Map<Country, Double>> getZonesNetPosition(Network network,
