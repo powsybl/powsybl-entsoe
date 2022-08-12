@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * This class selects branches is they are interconnections.
+ *
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class XnecSelectorInterconnection implements XnecSelector {
