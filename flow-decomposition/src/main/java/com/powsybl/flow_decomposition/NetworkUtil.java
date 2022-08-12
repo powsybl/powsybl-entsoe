@@ -98,7 +98,7 @@ public final class NetworkUtil {
     private static void updateXnecWithAllocatedAndLoopFlow(Map<String, Map<String, Double>> allocatedLoopFlowsMapMap,
                                                            XnecWithDecomposition xnec) {
         String xnecId = xnec.getId();
-        Map<String, Double> allocatedLoopFlowsMap = allocatedLoopFlowsMapMap.get(xnecId);
+        Map<String, Double> allocatedLoopFlowsMap = allocatedLoopFlowsMapMap.getOrDefault(xnecId, Collections.emptyMap());
         double allocatedFlow = getAllocatedLoopFlows(allocatedLoopFlowsMap);
         Map<String, Double> loopFlowsMap = getLoopFlowsMap(allocatedLoopFlowsMap);
         DecomposedFlow decomposedFlow = xnec.getDecomposedFlowBeforeRescaling();
