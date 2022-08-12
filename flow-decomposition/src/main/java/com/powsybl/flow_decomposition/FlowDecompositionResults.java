@@ -253,17 +253,15 @@ public class FlowDecompositionResults {
         return Optional.ofNullable(pstFlows);
     }
 
-    List<XnecWithDecomposition> saveXnecsWithDecomposition(List<XnecWithDecomposition> xnecsWithDecomposition) {
+    void saveXnecsWithDecomposition(List<XnecWithDecomposition> xnecsWithDecomposition) {
         this.xnecsWithDecomposition = xnecsWithDecomposition;
         this.xnecsWithDecompositionMap = xnecsWithDecomposition.stream().collect(Collectors.toMap(Xnec::getId, Function.identity()));
-        return xnecsWithDecomposition;
     }
 
-    Map<String, Contingency> saveContingencies(Map<String, Contingency> contingencies) {
+    void saveContingencies(Map<String, Contingency> contingencies) {
         if (saveIntermediates) {
             this.contingencies = contingencies;
         }
-        return contingencies;
     }
 
     void saveAcReferenceFlow(Map<String, Double> acReferenceFlows) {
@@ -278,53 +276,46 @@ public class FlowDecompositionResults {
         }
     }
 
-    Map<String, Map<Country, Double>> saveACNetPosition(Map<String, Map<Country, Double>> acNetPositions) {
+    void saveACNetPosition(Map<String, Map<Country, Double>> acNetPositions) {
         if (saveIntermediates) {
             this.acNetPositions = acNetPositions;
         }
-        return acNetPositions;
     }
 
-    Map<Country, Map<String, Double>> saveGlsks(Map<Country, Map<String, Double>> glsks) {
+    void saveGlsks(Map<Country, Map<String, Double>> glsks) {
         if (saveIntermediates) {
             this.glsks = glsks;
         }
-        return glsks;
     }
 
-    Map<String, Map<Country, Double>> saveZonalPtdf(Map<String, Map<Country, Double>> zonalPtdf) {
+    void saveZonalPtdf(Map<String, Map<Country, Double>> zonalPtdf) {
         if (saveIntermediates) {
             this.zonalPtdf = zonalPtdf;
         }
-        return zonalPtdf;
     }
 
-    SparseMatrixWithIndexesTriplet savePtdf(SparseMatrixWithIndexesTriplet ptdfMatrix) {
+    void savePtdf(SparseMatrixWithIndexesTriplet ptdfMatrix) {
         if (saveIntermediates) {
             this.nodalPtdf.putAll(ptdfMatrix.toMap());
         }
-        return ptdfMatrix;
     }
 
-    SparseMatrixWithIndexesTriplet savePsdf(SparseMatrixWithIndexesTriplet psdfMatrix) {
+    void savePsdf(SparseMatrixWithIndexesTriplet psdfMatrix) {
         if (saveIntermediates) {
             this.psdf.putAll(psdfMatrix.toMap());
         }
-        return psdfMatrix;
     }
 
-    SparseMatrixWithIndexesTriplet saveNodalInjections(SparseMatrixWithIndexesTriplet nodalInjectionsMatrix, String workingVariantId) {
+    void saveNodalInjections(SparseMatrixWithIndexesTriplet nodalInjectionsMatrix, String workingVariantId) {
         if (saveIntermediates) {
             this.nodalInjections.put(workingVariantId, nodalInjectionsMatrix.toMap());
         }
-        return nodalInjectionsMatrix;
     }
 
-    Map<String, Double> saveDcNodalInjections(Map<String, Double> dcNodalInjections, String workingVariantId) {
+    void saveDcNodalInjections(Map<String, Double> dcNodalInjections, String workingVariantId) {
         if (saveIntermediates) {
             this.dcNodalInjections.put(workingVariantId, dcNodalInjections);
         }
-        return dcNodalInjections;
     }
 
     void saveAllocatedAndLoopFlows(SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix) {

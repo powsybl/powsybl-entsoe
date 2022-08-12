@@ -71,7 +71,7 @@ public final class NetworkUtil {
     static List<Branch> getAllValidBranches(Network network) {
         return network.getBranchStream()
             .filter(NetworkUtil::isConnected)
-            .filter(NetworkUtil::isInMainSynchronousComponent) // Is connectedComponent enough ?
+            .filter(NetworkUtil::isInMainSynchronousComponent) // TODO Is connectedComponent enough ?
             .collect(Collectors.toList());
     }
 

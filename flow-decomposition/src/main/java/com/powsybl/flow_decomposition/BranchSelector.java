@@ -16,8 +16,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * This class selects branches is they are interconnections.
+ *
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 interface BranchSelector {
 
