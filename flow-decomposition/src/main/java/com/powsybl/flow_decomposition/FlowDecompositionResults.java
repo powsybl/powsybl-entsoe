@@ -232,53 +232,46 @@ public class FlowDecompositionResults {
         this.decomposedFlowMapAfterRescaling = decomposedFlowMap;
     }
 
-    Map<Country, Double> saveACNetPosition(Map<Country, Double> acNetPosition) {
+    void saveACNetPosition(Map<Country, Double> acNetPosition) {
         if (saveIntermediates) {
             this.acNetPosition = acNetPosition;
         }
-        return acNetPosition;
     }
 
-    Map<Country, Map<String, Double>> saveGlsks(Map<Country, Map<String, Double>> glsks) {
+    void saveGlsks(Map<Country, Map<String, Double>> glsks) {
         if (saveIntermediates) {
             this.glsks = glsks;
         }
-        return glsks;
     }
 
-    SparseMatrixWithIndexesTriplet savePtdfMatrix(SparseMatrixWithIndexesTriplet ptdfMatrix) {
+    void savePtdfMatrix(SparseMatrixWithIndexesTriplet ptdfMatrix) {
         if (saveIntermediates) {
             this.ptdfMatrix = ptdfMatrix;
         }
-        return ptdfMatrix;
     }
 
-    SparseMatrixWithIndexesTriplet savePsdfMatrix(SparseMatrixWithIndexesTriplet psdfMatrix) {
+    void savePsdfMatrix(SparseMatrixWithIndexesTriplet psdfMatrix) {
         if (saveIntermediates) {
             this.psdfMatrix = psdfMatrix;
         }
-        return psdfMatrix;
     }
 
-    SparseMatrixWithIndexesTriplet saveNodalInjectionsMatrix(SparseMatrixWithIndexesTriplet nodalInjectionsMatrix) {
+    void saveNodalInjectionsMatrix(SparseMatrixWithIndexesTriplet nodalInjectionsMatrix) {
         if (saveIntermediates) {
             this.nodalInjectionsMatrix = nodalInjectionsMatrix;
         }
-        return nodalInjectionsMatrix;
     }
 
-    Map<String, Double> saveDcNodalInjections(Map<String, Double> dcNodalInjections) {
+    void saveDcNodalInjections(Map<String, Double> dcNodalInjections) {
         if (saveIntermediates) {
             this.dcNodalInjections = dcNodalInjections;
         }
-        return dcNodalInjections;
     }
 
-    public Map<String, Map<Country, Double>> saveZonalPtdf(Map<String, Map<Country, Double>> zonalPtdf) {
+    void saveZonalPtdf(Map<String, Map<Country, Double>> zonalPtdf) {
         if (saveIntermediates) {
             this.zonalPtdf = zonalPtdf;
         }
-        return zonalPtdf;
     }
 
     public void saveXnecToCountry(Map<String, Pair<Country, Country>> xnecToCountry) {

@@ -17,7 +17,7 @@ import java.util.Objects;
 public class FlowDecompositionParameters {
     public enum XnecSelectionStrategy {
         ONLY_INTERCONNECTIONS,
-        ZONE_TO_ZONE_PTDF_CRITERIA,
+        INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC,
     }
     public static final boolean SAVE_INTERMEDIATES = true;
     public static final boolean DO_NOT_SAVE_INTERMEDIATES = false;

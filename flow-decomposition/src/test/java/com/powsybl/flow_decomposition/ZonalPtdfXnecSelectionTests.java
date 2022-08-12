@@ -24,8 +24,8 @@ class ZonalPtdfXnecSelectionTests {
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsNoZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isPresent());
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().get().isEmpty());
+        assertTrue(flowDecompositionResults.getZonalPtdfMap().isEmpty());
+        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 
     @Test
@@ -45,8 +45,7 @@ class ZonalPtdfXnecSelectionTests {
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsNoZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isPresent());
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().get().isEmpty());
+        assertTrue(flowDecompositionResults.getZonalPtdfMap().isEmpty());
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 
@@ -73,7 +72,7 @@ class ZonalPtdfXnecSelectionTests {
     }
 
     private static FlowDecompositionResults getFlowDecompositionResultsWithZonalPtdf(Network network) {
-        return getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy.ZONE_TO_ZONE_PTDF_CRITERIA, network);
+        return getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy.INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC, network);
     }
 
     private static FlowDecompositionResults getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy xnecSelectionStrategy, Network network) {
