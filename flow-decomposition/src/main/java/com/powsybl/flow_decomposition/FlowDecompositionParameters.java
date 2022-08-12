@@ -17,7 +17,7 @@ import java.util.Objects;
 public class FlowDecompositionParameters {
     public enum BranchSelectionStrategy {
         ONLY_INTERCONNECTIONS,
-        ZONE_TO_ZONE_PTDF_CRITERIA,
+        INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC,
     }
 
     public enum ContingencyStrategy  {

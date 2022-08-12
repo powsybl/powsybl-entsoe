@@ -77,7 +77,7 @@ class InternalFlowTests {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
         flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
         flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION);
-        flowDecompositionParameters.setBranchSelectionStrategy(FlowDecompositionParameters.BranchSelectionStrategy.ZONE_TO_ZONE_PTDF_CRITERIA);
+        flowDecompositionParameters.setBranchSelectionStrategy(FlowDecompositionParameters.BranchSelectionStrategy.INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         return flowComputer.run(network);
     }

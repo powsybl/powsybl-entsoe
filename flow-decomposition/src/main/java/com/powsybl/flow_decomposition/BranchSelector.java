@@ -10,22 +10,31 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * This class selects branches is they are interconnections.
+ *
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 interface BranchSelector {
 
-    static BranchSelector factory(FlowDecompositionParameters parameters, Map<String, Map<Country, Double>> zonalPtdf) {
+    static BranchSelector factory(FlowDecompositionParameters parameters,
+                                  Network network,
+                                  Map<Country, Map<String, Double>> glsks,
+                                  LoadFlowParameters loadFlowParameters,
+                                  FlowDecompositionResults flowDecompositionResults) {
         switch (parameters.getBranchSelectionStrategy()) {
             case ONLY_INTERCONNECTIONS:
                 return new BranchSelectorInterconnection();
-            case ZONE_TO_ZONE_PTDF_CRITERIA:
+            case INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC:
+                Map<String, Map<Country, Double>> zonalPtdf = BranchSelector5PercPtdf.getZonalPtdf(network, glsks, loadFlowParameters);
+                flowDecompositionResults.saveZonalPtdf(zonalPtdf);
                 return new BranchSelector5PercPtdf(zonalPtdf);
             default:
                 throw new PowsyblException(String.format("BranchSelectionStrategy %s is not valid",
