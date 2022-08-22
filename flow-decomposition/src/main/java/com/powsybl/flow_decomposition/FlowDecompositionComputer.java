@@ -115,7 +115,7 @@ public class FlowDecompositionComputer {
         NetPositionComputer netPositionComputer = new NetPositionComputer(loadFlowParameters);
         Map<Country, Double> netPosition = netPositionComputer.run(network);
         flowDecompositionResults.saveACNetPosition(netPosition);
-        return  netPosition;
+        return netPosition;
     }
 
     private Map<String, Double> getXnecReferenceFlows(List<Branch> xnecList) {
