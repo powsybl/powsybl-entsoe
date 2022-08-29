@@ -83,7 +83,7 @@ public class FlowDecompositionComputer {
                     parameters.getXnecSelectionStrategy()));
         }
         List<Branch> xnecList = xnecSelector.run(network);
-        flowDecompositionResults.saveXnecToCountry(NetworkUtil.getXnecToCountry(xnecList));
+        flowDecompositionResults.saveXnec(xnecList);
         return xnecList;
     }
 

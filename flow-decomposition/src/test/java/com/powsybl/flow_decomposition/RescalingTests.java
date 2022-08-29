@@ -8,7 +8,6 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.math3.util.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -53,8 +52,9 @@ class RescalingTests {
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.FR), -300.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
-        Pair<Country, Country> countries = new Pair<>(Country.FR, Country.FR);
-        return new DecomposedFlow(loopFlows, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow, countries);
+        Country country1 = Country.FR;
+        Country country2 = Country.FR;
+        return new DecomposedFlow(loopFlows, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
     }
 
     private DecomposedFlow getRescaledFlow(double acReferenceFlow, double dcReferenceFlow) {

@@ -32,11 +32,11 @@ class InternalFlowTests {
 
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
         assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountries().getFirst());
-        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountries().getSecond());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry2());
         assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountries().getFirst());
-        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountries().getSecond());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry2());
     }
 
     @Test
@@ -47,15 +47,15 @@ class InternalFlowTests {
 
         assertEquals(2 + 10 - 1, flowDecompositionResults.getDecomposedFlowMap().size());
         assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountries().getFirst());
-        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountries().getSecond());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry2());
         assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountries().getFirst());
-        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountries().getSecond());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry2());
         for (int i = 1; i < 10; i++) {
             String lineId = String.format(X_INTERNAL_FR_FORMAT, i);
             assertEquals(10., flowDecompositionResults.getDecomposedFlowMap().get(lineId).getInternalFlow(), EPSILON);
-            assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(lineId).getCountries().getFirst());
+            assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(lineId).getCountry1());
         }
 
     }

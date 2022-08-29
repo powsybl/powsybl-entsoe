@@ -7,7 +7,6 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
-import org.apache.commons.math3.util.Pair;
 
 import java.util.*;
 
@@ -22,19 +21,28 @@ public class DecomposedFlow {
     private final double pstFlow;
     private final double acReferenceFlow;
     private final double dcReferenceFlow;
-    private final Pair<Country, Country> countries;
+    private final Country country1;
+    private final Country country2;
+    private final double internalFlow;
     static final String ALLOCATED_COLUMN_NAME = "Allocated Flow";
     static final String PST_COLUMN_NAME = "PST Flow";
     static final String AC_REFERENCE_FLOW_COLUMN_NAME = "Reference AC Flow";
     static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
 
-    protected DecomposedFlow(Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow, Pair<Country, Country> countries) {
+    protected DecomposedFlow(Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow, Country country1, Country country2) {
         this.loopFlowsMap.putAll(loopFlowsMap);
         this.allocatedFlow = allocatedFlow;
         this.pstFlow = pstFlow;
         this.acReferenceFlow = acReferenceFlow;
         this.dcReferenceFlow = dcReferenceFlow;
-        this.countries = countries;
+        this.country1 = country1;
+        this.country2 = country2;
+        this.internalFlow = (isInternalBranch()) ? getRemove(loopFlowsMap) : DEFAULT_FLOW;
+    }
+
+    private Double getRemove(Map<String, Double> loopFlowsMap) {
+        Double nullableInternalFlow = loopFlowsMap.remove(NetworkUtil.getLoopFlowIdFromCountry(getCountry1()));
+        return nullableInternalFlow == null ? DEFAULT_FLOW : nullableInternalFlow;
     }
 
     public double getAllocatedFlow() {
@@ -65,8 +73,12 @@ public class DecomposedFlow {
         return dcReferenceFlow;
     }
 
-    public Pair<Country, Country> getCountries() {
-        return countries;
+    public Country getCountry1() {
+        return country1;
+    }
+
+    public Country getCountry2() {
+        return country2;
     }
 
     public double getTotalFlow() {
@@ -78,14 +90,11 @@ public class DecomposedFlow {
     }
 
     public double getInternalFlow() {
-        if (!isInternalBranch()) {
-            return 0.0;
-        }
-        return getLoopFlow(getCountries().getFirst());
+        return this.internalFlow;
     }
 
     private boolean isInternalBranch() {
-        return Objects.equals(getCountries().getFirst(), getCountries().getSecond());
+        return Objects.equals(getCountry1(), getCountry2());
     }
 
     /**

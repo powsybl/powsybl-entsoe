@@ -7,7 +7,6 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
-import org.apache.commons.math3.util.Pair;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -39,13 +38,14 @@ class DecomposedFlowsRescaler {
         Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
         double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
         double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
-        Pair<Country, Country> countries = decomposedFlow.getCountries();
+        Country country1 = decomposedFlow.getCountry1();
+        Country country2 = decomposedFlow.getCountry2();
         double deltaToRescale = acReferenceFlow * Math.signum(acReferenceFlow) - decomposedFlow.getTotalFlow();
         double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + loopFlows.values().stream().mapToDouble(this::reLU).sum();
         Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
         double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
         double rescaledPstFlow = rescaleValue(pstFlow, deltaToRescale, sumOfReLUFlows);
-        return new DecomposedFlow(rescaledLoopFlows, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow, countries);
+        return new DecomposedFlow(rescaledLoopFlows, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
     }
 }
