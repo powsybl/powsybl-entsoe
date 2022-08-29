@@ -32,7 +32,7 @@ public class FlowDecompositionParameters {
     public static final double DEFAULT_LOSSES_COMPENSATION_EPSILON = 1e-5;
     public static final double DEFAULT_SENSITIVITY_EPSILON = 1e-5;
     public static final boolean DEFAULT_RESCALE_ENABLED = DISABLE_RESCALED_RESULTS;
-    private static final XnecSelectionStrategy DEFAULT_COMPUTE_ZONAL_PTDF = XnecSelectionStrategy.ONLY_INTERCONNECTIONS;
+    private static final XnecSelectionStrategy DEFAULT_XNEC_SELECTION_STRATEGY = XnecSelectionStrategy.ONLY_INTERCONNECTIONS;
     private boolean saveIntermediates;
     private boolean enableLossesCompensation;
     private double lossesCompensationEpsilon;
@@ -59,7 +59,7 @@ public class FlowDecompositionParameters {
             parameters.setLossesCompensationEpsilon(moduleConfig.getDoubleProperty("losses-compensation-epsilon", DEFAULT_LOSSES_COMPENSATION_EPSILON));
             parameters.setSensitivityEpsilon(moduleConfig.getDoubleProperty("sensitivity-epsilon", DEFAULT_SENSITIVITY_EPSILON));
             parameters.setRescaleEnabled(moduleConfig.getBooleanProperty("rescale-enabled", DEFAULT_RESCALE_ENABLED));
-            parameters.setXnecSelectionStrategy(moduleConfig.getEnumProperty("branch-selection-strategy", XnecSelectionStrategy.class, DEFAULT_COMPUTE_ZONAL_PTDF));
+            parameters.setXnecSelectionStrategy(moduleConfig.getEnumProperty("xnec-selection-strategy", XnecSelectionStrategy.class, DEFAULT_XNEC_SELECTION_STRATEGY));
         });
     }
 
@@ -69,7 +69,7 @@ public class FlowDecompositionParameters {
         this.lossesCompensationEpsilon = DEFAULT_LOSSES_COMPENSATION_EPSILON;
         this.sensitivityEpsilon = DEFAULT_SENSITIVITY_EPSILON;
         this.rescaleEnabled = DEFAULT_RESCALE_ENABLED;
-        this.xnecSelectionStrategy = DEFAULT_COMPUTE_ZONAL_PTDF;
+        this.xnecSelectionStrategy = DEFAULT_XNEC_SELECTION_STRATEGY;
     }
 
     public boolean doesSaveIntermediates() {
@@ -124,5 +124,13 @@ public class FlowDecompositionParameters {
     public FlowDecompositionParameters setXnecSelectionStrategy(XnecSelectionStrategy xnecSelectionStrategy) {
         this.xnecSelectionStrategy = xnecSelectionStrategy;
         return this;
+    }
+
+    public XnecSelectionStrategy getXnecSelectionStrategy() {
+        return xnecSelectionStrategy;
+    }
+
+    public void setXnecSelectionStrategy(XnecSelectionStrategy xnecSelectionStrategy) {
+        this.xnecSelectionStrategy = xnecSelectionStrategy;
     }
 }
