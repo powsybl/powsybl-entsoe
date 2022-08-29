@@ -23,15 +23,15 @@ class RescalingTests {
     private static final double EPSILON = 1e-5;
 
     private void checkRescaleAcReference(double acReferenceFlow, double dcReferenceFlow, DecomposedFlow rescaledFlow, double expectedAllocatedFlow, double expectedPstFlow, double expectedLoopFlowBE, double expectedLoopFlowES) {
-        double expectedLoopFlowFR = -300;
+        double expectedInternalFlow = -300;
         double expectedLoopFlowGE = -100;
         assertEquals(Math.abs(acReferenceFlow), rescaledFlow.getTotalFlow(), EPSILON);
         assertEquals(expectedAllocatedFlow, rescaledFlow.getAllocatedFlow(), EPSILON);
         assertEquals(expectedPstFlow, rescaledFlow.getPstFlow(), EPSILON);
         assertEquals(expectedLoopFlowBE, rescaledFlow.getLoopFlow(Country.BE), EPSILON);
-        assertEquals(expectedLoopFlowFR, rescaledFlow.getLoopFlow(Country.FR), EPSILON);
         assertEquals(expectedLoopFlowGE, rescaledFlow.getLoopFlow(Country.GE), EPSILON);
         assertEquals(expectedLoopFlowES, rescaledFlow.getLoopFlow(Country.ES), EPSILON);
+        assertEquals(expectedInternalFlow, rescaledFlow.getInternalFlow(), EPSILON);
         assertEquals(acReferenceFlow, rescaledFlow.getAcReferenceFlow(), EPSILON);
         assertEquals(dcReferenceFlow, rescaledFlow.getDcReferenceFlow(), EPSILON);
     }
@@ -48,13 +48,13 @@ class RescalingTests {
         Map<String, Double> loopFlows = new TreeMap<>();
         double allocatedFlow = 100;
         double pstFlow = 200.;
+        double internalFlow = -300.;
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.BE), 500.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.FR), -300.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Country country1 = Country.FR;
         Country country2 = Country.FR;
-        return new DecomposedFlow(loopFlows, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
+        return new DecomposedFlow(loopFlows, internalFlow, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
     }
 
     private DecomposedFlow getRescaledFlow(double acReferenceFlow, double dcReferenceFlow) {

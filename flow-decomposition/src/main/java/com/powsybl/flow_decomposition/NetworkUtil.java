@@ -87,9 +87,4 @@ public final class NetworkUtil {
     static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
-
-    static Pair<Country, Country> getCountryPair(Branch branch) {
-        return new Pair<>(NetworkUtil.getTerminalCountry(branch.getTerminal1()),
-            NetworkUtil.getTerminalCountry(branch.getTerminal2()));
-    }
 }

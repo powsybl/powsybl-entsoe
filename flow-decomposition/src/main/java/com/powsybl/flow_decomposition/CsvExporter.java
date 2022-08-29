@@ -28,11 +28,12 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class CsvExporter {
-    public static final Path DEFAULT_EXPORT_DIR = Path.of(System.getProperty("java.io.tmpdir"));
-    public static final Charset CHARSET = StandardCharsets.UTF_8;
-    public static final CSVFormat FORMAT = CSVFormat.RFC4180;
+    private static final Path DEFAULT_EXPORT_DIR = Path.of(System.getProperty("java.io.tmpdir"));
+    private static final Charset CHARSET = StandardCharsets.UTF_8;
+    private static final CSVFormat FORMAT = CSVFormat.RFC4180;
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvExporter.class);
-    public static final String EMPTY_CELL_VALUE = "";
+    private static final String EMPTY_CELL_VALUE = "";
+    private static final double NO_FLOW = 0.;
 
     public void export(FlowDecompositionResults flowDecompositionResults) {
         export(DEFAULT_EXPORT_DIR, flowDecompositionResults);
@@ -96,7 +97,7 @@ public class CsvExporter {
         failSilentlyPrint(printer, xnecId);
         failSilentlyPrint(printer, decomposedFlow.getAllocatedFlow());
         failSilentlyPrint(printer, decomposedFlow.getPstFlow());
-        allLoopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, decomposedFlow.getLoopFlows().getOrDefault(loopFlowKey, DecomposedFlow.DEFAULT_FLOW)));
+        allLoopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, decomposedFlow.getLoopFlows().getOrDefault(loopFlowKey, NO_FLOW)));
         failSilentlyPrint(printer, decomposedFlow.getAcReferenceFlow());
         failSilentlyPrint(printer, decomposedFlow.getDcReferenceFlow());
         failSilentlyPrintLn(printer);

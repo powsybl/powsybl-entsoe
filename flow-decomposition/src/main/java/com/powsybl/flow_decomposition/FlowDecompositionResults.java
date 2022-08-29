@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
  * @see DecomposedFlow
  */
 public class FlowDecompositionResults {
+    private static final double NO_FLOW = 0.;
     static final boolean FILL_ZEROS = true;
     static final boolean NOT_FILL_ZEROS = false;
     private static final boolean DEFAULT_FILL_ZEROS = NOT_FILL_ZEROS;
@@ -206,11 +207,21 @@ public class FlowDecompositionResults {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         double allocatedFlow = allocatedAndLoopFlowMap.get(DecomposedFlow.ALLOCATED_COLUMN_NAME);
         double pstFlow = pstFlowMap.get(xnecId).get(DecomposedFlow.PST_COLUMN_NAME);
-        return new DecomposedFlow(loopFlowsMap, allocatedFlow, pstFlow,
+        Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(xnecId).getTerminal1());
+        Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(xnecId).getTerminal2());
+        double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
+        return new DecomposedFlow(loopFlowsMap, internalFlow, allocatedFlow, pstFlow,
             acReferenceFlow.get(xnecId), dcReferenceFlow.get(xnecId),
-            NetworkUtil.getTerminalCountry(xnecMap.get(xnecId).getTerminal1()),
-            NetworkUtil.getTerminalCountry(xnecMap.get(xnecId).getTerminal2())
+            country1, country2
             );
+    }
+
+    private double extractInternalFlow(Map<String, Double> loopFlowsMap, Country country1, Country country2) {
+        if (Objects.equals(country1, country2)) {
+            return Optional.ofNullable(loopFlowsMap.remove(NetworkUtil.getLoopFlowIdFromCountry(country1)))
+                .orElse(NO_FLOW);
+        }
+        return NO_FLOW;
     }
 
     void saveAllocatedAndLoopFlowsMatrix(SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix) {
