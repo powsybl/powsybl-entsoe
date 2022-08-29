@@ -145,8 +145,8 @@ class LossesCompensationTests {
         //String networkFileName = "locally/20220714_0230_CGM_ESFR_hand_made.zip";
         //networkFileName = "MicroGrid.zip";
         //Network network = importNetwork(networkFileName);
-        Network network = Importers.loadNetwork(new File(LossesCompensationTests.class.getResource("MicroGrid.zip").getFile()).toString());
-        //Network network = Importers.loadNetwork(new File(LossesCompensationTests.class.getResource("locally/20210402_0230_2D5_UX0.zip").getFile()).toString());
+        //Network network = Importers.loadNetwork(new File(LossesCompensationTests.class.getResource("MicroGrid.zip").getFile()).toString());
+        Network network = Importers.loadNetwork(new File(LossesCompensationTests.class.getResource("locally/20210402_0230_2D5_UX0.zip").getFile()).toString());
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
         flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION);
