@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -14,7 +13,6 @@ import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,11 +20,10 @@ import java.util.Map;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class SensitivityAnalyser {
+class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final int SENSITIVITY_VARIABLE_BATCH_SIZE = 15000;
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalyser.class);
     private static final boolean SENSITIVITY_VARIABLE_SET = false;
-    private final SensitivityAnalysisParameters sensitivityAnalysisParameters;
     private final Network network;
     private final List<Branch> functionList;
     private final Map<String, Integer> functionIndex;
@@ -37,7 +34,7 @@ class SensitivityAnalyser {
                         Network network,
                         List<Branch> functionList,
                         Map<String, Integer> functionIndex) {
-        this.sensitivityAnalysisParameters = initSensitivityAnalysisParameters(loadFlowParameters);
+        super(loadFlowParameters);
         this.parameters = parameters;
         this.network = network;
         this.functionList = functionList;
@@ -48,20 +45,13 @@ class SensitivityAnalyser {
         this(loadFlowParameters, parameters, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
     }
 
-    private static SensitivityAnalysisParameters initSensitivityAnalysisParameters(LoadFlowParameters loadFlowParameters) {
-        SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
-        parameters.setLoadFlowParameters(loadFlowParameters);
-        LOGGER.debug("Using following sensitivity analysis parameters: {}", parameters);
-        return parameters;
-    }
-
     SparseMatrixWithIndexesTriplet run(List<String> variableList,
                                        Map<String, Integer> variableIndex,
                                        SensitivityVariableType sensitivityVariableType) {
         SparseMatrixWithIndexesTriplet sensiMatrixTriplet = initSensitivityMatrixTriplet(variableIndex);
         for (int i = 0; i < variableList.size(); i += SENSITIVITY_VARIABLE_BATCH_SIZE) {
-            List<String> localNodeList = variableList.subList(i, Math.min(variableList.size(), i + SENSITIVITY_VARIABLE_BATCH_SIZE));
-            partialFillSensitivityMatrix(sensitivityVariableType, sensiMatrixTriplet, localNodeList);
+            List<String> localVariableList = variableList.subList(i, Math.min(variableList.size(), i + SENSITIVITY_VARIABLE_BATCH_SIZE));
+            partialFillSensitivityMatrix(sensitivityVariableType, sensiMatrixTriplet, localVariableList);
         }
         return sensiMatrixTriplet;
     }
@@ -76,30 +66,15 @@ class SensitivityAnalyser {
 
     private void partialFillSensitivityMatrix(SensitivityVariableType sensitivityVariableType,
                                               SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet,
-                                              List<String> localNodeList) {
-        List<SensitivityFactor> factors = getFactors(localNodeList, sensitivityVariableType);
+                                              List<String> variableList) {
+        List<SensitivityFactor> factors = getFactors(variableList, sensitivityVariableType);
         SensitivityAnalysisResult sensitivityResult = getSensitivityAnalysisResult(factors);
         fillSensibilityMatrixTriplet(sensitivityMatrixTriplet, factors, sensitivityResult);
     }
 
     private List<SensitivityFactor> getFactors(List<String> variableList,
                                                SensitivityVariableType sensitivityVariableType) {
-        List<SensitivityFactor> factors = new ArrayList<>();
-        variableList.forEach(
-            variable -> functionList.forEach(
-                function -> factors.add(getSensitivityFactor(variable, function, sensitivityVariableType))));
-        return factors;
-    }
-
-    private SensitivityFactor getSensitivityFactor(String variable,
-                                                   Branch<?> function,
-                                                   SensitivityVariableType sensitivityVariableType) {
-        return new SensitivityFactor(
-            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, function.getId(),
-            sensitivityVariableType, variable,
-            SENSITIVITY_VARIABLE_SET,
-            ContingencyContext.none()
-        );
+        return getFactors(variableList, functionList, sensitivityVariableType, SENSITIVITY_VARIABLE_SET);
     }
 
     private SensitivityAnalysisResult getSensitivityAnalysisResult(List<SensitivityFactor> factors) {

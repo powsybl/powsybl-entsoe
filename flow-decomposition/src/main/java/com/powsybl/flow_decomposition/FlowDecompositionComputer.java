@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
@@ -37,14 +38,14 @@ public class FlowDecompositionComputer {
         FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network, parameters);
 
         //AC LF
-        List<Branch> xnecList = new XnecSelector().run(network);
+        Map<Country, Map<String, Double>> glsks = getGlsks(network, flowDecompositionResults);
+        List<Branch> xnecList = getXnecList(network, glsks, flowDecompositionResults);
         Map<Country, Double> netPositions = getZonesNetPosition(network, flowDecompositionResults);
         flowDecompositionResults.saveAcReferenceFlow(getXnecReferenceFlows(xnecList));
         compensateLosses(network);
 
         // None
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
-        Map<Country, Map<String, Double>> glsks = getGlsks(network, flowDecompositionResults);
 
         // DC LF
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
@@ -67,11 +68,46 @@ public class FlowDecompositionComputer {
         return flowDecompositionResults;
     }
 
+    private List<Branch> getXnecList(Network network, Map<Country, Map<String, Double>> glsks, FlowDecompositionResults flowDecompositionResults) {
+        XnecSelector xnecSelector;
+        switch (parameters.getXnecSelectionStrategy()) {
+            case ONLY_INTERCONNECTIONS:
+                xnecSelector = new XnecSelectorInterconnection();
+                break;
+            case INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC:
+                Map<String, Map<Country, Double>> zonalPtdf = getZonalPtdf(network, glsks, flowDecompositionResults);
+                xnecSelector = new XnecSelector5percPtdf(zonalPtdf);
+                break;
+            default:
+                throw new PowsyblException(String.format("XnecSelectionStrategy %s is not valid",
+                    parameters.getXnecSelectionStrategy()));
+        }
+        return xnecSelector.run(network);
+    }
+
     private static LoadFlowParameters initLoadFlowParameters() {
         LoadFlowParameters parameters = LoadFlowParameters.load();
         parameters.setDc(DC_LOAD_FLOW);
         LOGGER.debug("Using following load flow parameters: {}", parameters);
         return parameters;
+    }
+
+    private Map<Country, Map<String, Double>> getGlsks(Network network,
+                                                       FlowDecompositionResults flowDecompositionResults) {
+        GlskComputer glskComputer = new GlskComputer();
+        Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
+        flowDecompositionResults.saveGlsks(glsks);
+        return glsks;
+    }
+
+    private Map<String, Map<Country, Double>> getZonalPtdf(Network network,
+                                                           Map<Country, Map<String, Double>> glsks,
+                                                           FlowDecompositionResults flowDecompositionResults) {
+        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters);
+        Map<String, Map<Country, Double>> zonalPtdf = zonalSensitivityAnalyser.run(network,
+            glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
+        flowDecompositionResults.saveZonalPtdf(zonalPtdf);
+        return zonalPtdf;
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network,
@@ -92,14 +128,6 @@ public class FlowDecompositionComputer {
             LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters, parameters);
             lossesCompensator.run(network);
         }
-    }
-
-    private Map<Country, Map<String, Double>> getGlsks(Network network,
-                                                       FlowDecompositionResults flowDecompositionResults) {
-        GlskComputer glskComputer = new GlskComputer();
-        Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
-        flowDecompositionResults.saveGlsks(glsks);
-        return glsks;
     }
 
     private SparseMatrixWithIndexesTriplet getNodalInjectionsMatrix(Network network,
