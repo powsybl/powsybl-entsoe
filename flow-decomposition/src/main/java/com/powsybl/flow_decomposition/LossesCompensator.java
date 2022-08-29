@@ -6,10 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 
@@ -87,12 +84,27 @@ class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
 
     private void createLoadForLossesOnTerminal(Terminal terminal, String lossesId, double losses) {
         if (Math.abs(losses) > epsilon) {
-            terminal.getVoltageLevel().newLoad()
-                .setId(lossesId)
-                .setBus(terminal.getBusBreakerView().getBus().getId())
-                .setP0(losses)
-                .setQ0(0)
-                .add();
+            if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                terminal.getVoltageLevel().newLoad()
+                    .setId(lossesId)
+                    .setBus(terminal.getBusBreakerView().getBus().getId())
+                    .setP0(losses)
+                    .setQ0(0)
+                    .add();
+            } else {
+                int nodeNum = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
+                terminal.getVoltageLevel().getNodeBreakerView().newInternalConnection()
+                        .setNode1(nodeNum)
+                            .setNode2(terminal.getNodeBreakerView().getNode())
+                                .add();
+
+                terminal.getVoltageLevel().newLoad()
+                    .setId(lossesId)
+                    .setNode(nodeNum)
+                    .setP0(losses)
+                    .setQ0(0)
+                    .add();
+            }
         }
     }
 

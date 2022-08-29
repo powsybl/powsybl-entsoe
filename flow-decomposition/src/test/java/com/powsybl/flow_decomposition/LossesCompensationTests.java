@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,6 +27,7 @@ class LossesCompensationTests {
 
     static Network importNetwork(String networkResourcePath) {
         String networkName = Paths.get(networkResourcePath).getFileName().toString();
+        //networkName = networkName.replace(".zip", "");
         return Importers.loadNetwork(networkName, AllocatedFlowTests.class.getResourceAsStream(networkResourcePath));
     }
 
@@ -136,5 +138,20 @@ class LossesCompensationTests {
         assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getAllocatedFlow(), EPSILON);
         assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getLoopFlow(Country.FR), EPSILON);
         assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get("FLOAD 11 BLOAD 11 1").getLoopFlow(Country.BE), EPSILON);
+    }
+
+    @Test
+    void testCgmes() {
+        //String networkFileName = "locally/20220714_0230_CGM_ESFR_hand_made.zip";
+        //networkFileName = "MicroGrid.zip";
+        //Network network = importNetwork(networkFileName);
+        Network network = Importers.loadNetwork(new File(LossesCompensationTests.class.getResource("MicroGrid.zip").getFile()).toString());
+        //Network network = Importers.loadNetwork(new File(LossesCompensationTests.class.getResource("locally/20210402_0230_2D5_UX0.zip").getFile()).toString());
+
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
+        flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION);
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
+
     }
 }

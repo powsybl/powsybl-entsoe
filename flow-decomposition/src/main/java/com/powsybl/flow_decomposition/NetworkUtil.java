@@ -8,7 +8,6 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import org.apache.commons.math3.util.Pair;
 
 import java.util.List;
 import java.util.Map;

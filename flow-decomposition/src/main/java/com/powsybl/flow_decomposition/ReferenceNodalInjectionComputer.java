@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ class ReferenceNodalInjectionComputer {
     }
 
     Map<String, Double> run(Network network, LoadFlowParameters loadFlowParameters) {
-        LoadFlow.run(network, loadFlowParameters);
+        LoadFlowResult result = LoadFlow.run(network, loadFlowParameters);
         return networkMatrixIndexes.getNodeList().stream()
             .collect(Collectors.toMap(
                 Identifiable::getId,
