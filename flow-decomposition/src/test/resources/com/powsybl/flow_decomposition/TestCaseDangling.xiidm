@@ -31,7 +31,7 @@
             </iidm:generator>
             <iidm:load id="BBE2AA1 _load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="BBE2AA1 " connectableBus="BBE2AA1 "/>
             <iidm:load id="BBE3AA1 _load" loadType="UNDEFINED" p0="1500.0" q0="0.0" bus="BBE3AA1 " connectableBus="BBE3AA1 "/>
-            <iidm:danglingLine id="BBE2AA1  X_BEFR1  1" p="300" q="45" p0="0.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationVoltageRegulationOn="false" generationTargetP="-0.0" generationTargetQ="-0.0" ucteXnodeCode="X_BEFR1 " bus="BBE2AA1 " connectableBus="BBE2AA1 ">
+            <iidm:danglingLine id="BBE2AA1  X_BEFR1  1" p="300" q="0.0" p0="300.0" q0="0.0" r="0.0" x="10.0" g="0.0" b="0.0" generationMinP="-1.7976931348623157E308" generationMaxP="1.7976931348623157E308" generationVoltageRegulationOn="false" generationTargetP="300.0" generationTargetQ="-0.0" ucteXnodeCode="X_BEFR1 " bus="BBE2AA1 " connectableBus="BBE2AA1 ">
                 <iidm:property name="isCoupler" value="false"/>
                 <iidm:property name="status_XNode" value="EQUIVALENT"/>
                 <iidm:property name="geographicalName" value=""/>
@@ -103,7 +103,7 @@
             <iidm:generator id="DDE1AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="-0.0" bus="DDE1AA1 " connectableBus="DDE1AA1 ">
                 <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
             </iidm:generator>
-            <iidm:load id="DDE1AA1 _load" loadType="UNDEFINED" p0="3500.0" q0="0.0" bus="DDE1AA1 " connectableBus="DDE1AA1 "/>
+            <iidm:load id="DDE1AA1 _load" loadType="UNDEFINED" p0="3800.0" q0="0.0" bus="DDE1AA1 " connectableBus="DDE1AA1 "/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="DDE2AA" country="DE">

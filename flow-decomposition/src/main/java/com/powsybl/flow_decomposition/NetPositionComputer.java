@@ -38,11 +38,6 @@ class NetPositionComputer extends AbstractAcLoadFlowRunner<Map<Country, Double>>
     static Map<Country, Double> computeNetPositions(Network network) {
         Map<Country, Double> netPositions = new EnumMap<>(Country.class);
 
-        network.getDanglingLineStream().forEach(danglingLine -> {
-            Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
-            addLeavingFlow(netPositions, danglingLine, country);
-        });
-
         network.getLineStream().forEach(line -> {
             Country countrySide1 = NetworkUtil.getTerminalCountry(line.getTerminal1());
             Country countrySide2 = NetworkUtil.getTerminalCountry(line.getTerminal2());
@@ -66,11 +61,6 @@ class NetPositionComputer extends AbstractAcLoadFlowRunner<Map<Country, Double>>
         return netPositions;
     }
 
-    private static void addLeavingFlow(Map<Country, Double> netPositions, DanglingLine danglingLine, Country country) {
-        double previousValue = getPreviousValue(netPositions, country);
-        netPositions.put(country, previousValue + getLeavingFlow(danglingLine));
-    }
-
     private static double getPreviousValue(Map<Country, Double> netPositions, Country country) {
         return netPositions.getOrDefault(country, 0.);
     }
@@ -83,10 +73,6 @@ class NetPositionComputer extends AbstractAcLoadFlowRunner<Map<Country, Double>>
     private static void addLeavingFlow(Map<Country, Double> netPositions, HvdcLine hvdcLine, Country country) {
         double previousValue = getPreviousValue(netPositions, country);
         netPositions.put(country, previousValue + getLeavingFlow(hvdcLine, country));
-    }
-
-    private static double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getTerminal().getP()) ? danglingLine.getTerminal().getP() : 0;
     }
 
     private static double getLeavingFlow(Line line, Country country) {
