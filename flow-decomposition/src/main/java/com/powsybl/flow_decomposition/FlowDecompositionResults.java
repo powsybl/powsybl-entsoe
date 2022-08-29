@@ -50,6 +50,7 @@ public class FlowDecompositionResults {
     private final Set<Country> zoneSet;
     private Map<String, Pair<Country, Country>> xnecToCountryMap;
 
+
     FlowDecompositionResults(Network network, FlowDecompositionParameters parameters) {
         this.saveIntermediates = parameters.doesSaveIntermediates();
         this.networkId = network.getNameOrId();
@@ -283,5 +284,11 @@ public class FlowDecompositionResults {
 
     public void saveXnecToCountry(Map<String, Pair<Country, Country>> xnecToCountry) {
         this.xnecToCountryMap = xnecToCountry;
+    }
+
+    void saveZonalPtdf(Map<String, Map<Country, Double>> zonalPtdf) {
+        if (saveIntermediates) {
+            this.zonalPtdf = zonalPtdf;
+        }
     }
 }

@@ -20,23 +20,20 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
+ * This class performs a Sensitivity Analysis to get zonal PTDFs.
+ *
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final boolean SENSITIVITY_VARIABLE_SET = true;
-    private final FlowDecompositionParameters parameters;
 
-    public ZonalSensitivityAnalyser(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters) {
+    public ZonalSensitivityAnalyser(LoadFlowParameters loadFlowParameters) {
         super(loadFlowParameters);
-        this.parameters = parameters;
     }
 
     public Map<String, Map<Country, Double>> run(Network network,
                                                  Map<Country, Map<String, Double>> glsks,
                                                  SensitivityVariableType sensitivityVariableType) {
-        if (parameters.getXnecSelectionStrategy() == FlowDecompositionParameters.XnecSelectionStrategy.ONLY_INTERCONNECTIONS) {
-            return Collections.emptyMap();
-        }
         List<Branch> functionList = NetworkUtil.getAllValidBranches(network);
         List<String> variableList = getVariableList(glsks);
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);
@@ -48,11 +45,7 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private List<String> getVariableList(Map<Country, Map<String, Double>> glsks) {
-        return glsks.keySet().stream().map(this::getSensitivityVariableSetId).collect(Collectors.toList());
-    }
-
-    private String getSensitivityVariableSetId(Country country) {
-        return country.toString();
+        return glsks.keySet().stream().map(Country::toString).collect(Collectors.toList());
     }
 
     private List<SensitivityVariableSet> getSensitivityVariableSets(Map<Country, Map<String, Double>> glsks) {
@@ -61,7 +54,7 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private SensitivityVariableSet getSensitivityVariableSet(Map.Entry<Country, Map<String, Double>> countryMapEntry) {
-        return new SensitivityVariableSet(getSensitivityVariableSetId(countryMapEntry.getKey()),
+        return new SensitivityVariableSet(countryMapEntry.getKey().toString(),
             getWeighteitedSensitivityVariables(countryMapEntry.getValue()));
     }
 
@@ -88,6 +81,6 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private double getPtdfValue(String branch, String variable, SensitivityAnalysisResult sensitivityResult) {
-        return sensitivityResult.getSensitivityValue(variable, branch, SENSITIVITY_FUNCTION_TYPE); // Should I be careful about reference flow orientation ?
+        return sensitivityResult.getSensitivityValue(variable, branch, SENSITIVITY_FUNCTION_TYPE);
     }
 }
