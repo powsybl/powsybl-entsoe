@@ -15,23 +15,30 @@ import java.util.*;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class DecomposedFlow {
-    public static final double DEFAULT_FLOW = 0.;
+    private static final double NO_FLOW = 0.;
     private final Map<String, Double> loopFlowsMap = new TreeMap<>();
     private final double allocatedFlow;
     private final double pstFlow;
     private final double acReferenceFlow;
     private final double dcReferenceFlow;
+    private final Country country1;
+    private final Country country2;
+    private final double internalFlow;
+    static final String INTERNAL_COLUMN_NAME = "Internal Flow";
     static final String ALLOCATED_COLUMN_NAME = "Allocated Flow";
     static final String PST_COLUMN_NAME = "PST Flow";
     static final String AC_REFERENCE_FLOW_COLUMN_NAME = "Reference AC Flow";
     static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
 
-    protected DecomposedFlow(Map<String, Double> loopFlowsMap, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow) {
+    protected DecomposedFlow(Map<String, Double> loopFlowsMap, double internalFlow, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow, Country country1, Country country2) {
         this.loopFlowsMap.putAll(loopFlowsMap);
+        this.internalFlow = internalFlow;
         this.allocatedFlow = allocatedFlow;
         this.pstFlow = pstFlow;
         this.acReferenceFlow = acReferenceFlow;
         this.dcReferenceFlow = dcReferenceFlow;
+        this.country1 = country1;
+        this.country2 = country2;
     }
 
     public double getAllocatedFlow() {
@@ -43,7 +50,7 @@ public class DecomposedFlow {
     }
 
     public double getLoopFlow(String country) {
-        return loopFlowsMap.getOrDefault(country, DEFAULT_FLOW);
+        return loopFlowsMap.getOrDefault(country, NO_FLOW);
     }
 
     public Map<String, Double> getLoopFlows() {
@@ -62,12 +69,24 @@ public class DecomposedFlow {
         return dcReferenceFlow;
     }
 
+    public Country getCountry1() {
+        return country1;
+    }
+
+    public Country getCountry2() {
+        return country2;
+    }
+
     public double getTotalFlow() {
-        return getAllocatedFlow() + getPstFlow() + getTotalLoopFlow();
+        return getAllocatedFlow() + getPstFlow() + getTotalLoopFlow() + getInternalFlow();
     }
 
     private double getTotalLoopFlow() {
         return loopFlowsMap.values().stream().reduce(0., Double::sum);
+    }
+
+    public double getInternalFlow() {
+        return internalFlow;
     }
 
     /**
@@ -85,6 +104,7 @@ public class DecomposedFlow {
 
     private TreeMap<String, Double> getAllKeyMap() {
         TreeMap<String, Double> localDecomposedFlowMap = new TreeMap<>(loopFlowsMap);
+        localDecomposedFlowMap.put(INTERNAL_COLUMN_NAME, getInternalFlow());
         localDecomposedFlowMap.put(ALLOCATED_COLUMN_NAME, getAllocatedFlow());
         localDecomposedFlowMap.put(PST_COLUMN_NAME, getPstFlow());
         localDecomposedFlowMap.put(AC_REFERENCE_FLOW_COLUMN_NAME, getAcReferenceFlow());

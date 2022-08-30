@@ -82,7 +82,9 @@ public class FlowDecompositionComputer {
                 throw new PowsyblException(String.format("XnecSelectionStrategy %s is not valid",
                     parameters.getXnecSelectionStrategy()));
         }
-        return xnecSelector.run(network);
+        List<Branch> xnecList = xnecSelector.run(network);
+        flowDecompositionResults.saveXnec(xnecList);
+        return xnecList;
     }
 
     private static LoadFlowParameters initLoadFlowParameters() {

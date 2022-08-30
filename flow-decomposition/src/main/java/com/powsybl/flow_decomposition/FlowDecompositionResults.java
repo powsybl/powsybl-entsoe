@@ -6,12 +6,15 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
  * @see DecomposedFlow
  */
 public class FlowDecompositionResults {
+    private static final double NO_FLOW = 0.;
     static final boolean FILL_ZEROS = true;
     static final boolean NOT_FILL_ZEROS = false;
     private static final boolean DEFAULT_FILL_ZEROS = NOT_FILL_ZEROS;
@@ -47,6 +51,7 @@ public class FlowDecompositionResults {
     private Map<String, DecomposedFlow> decomposedFlowsMapBeforeRescaling;
     private Map<String, DecomposedFlow> decomposedFlowMapAfterRescaling;
     private final Set<Country> zoneSet;
+    private Map<String, Branch> xnecMap;
 
     FlowDecompositionResults(Network network, FlowDecompositionParameters parameters) {
         this.saveIntermediates = parameters.doesSaveIntermediates();
@@ -202,8 +207,21 @@ public class FlowDecompositionResults {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         double allocatedFlow = allocatedAndLoopFlowMap.get(DecomposedFlow.ALLOCATED_COLUMN_NAME);
         double pstFlow = pstFlowMap.get(xnecId).get(DecomposedFlow.PST_COLUMN_NAME);
-        return new DecomposedFlow(loopFlowsMap, allocatedFlow, pstFlow,
-            acReferenceFlow.get(xnecId), dcReferenceFlow.get(xnecId));
+        Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(xnecId).getTerminal1());
+        Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(xnecId).getTerminal2());
+        double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
+        return new DecomposedFlow(loopFlowsMap, internalFlow, allocatedFlow, pstFlow,
+            acReferenceFlow.get(xnecId), dcReferenceFlow.get(xnecId),
+            country1, country2
+            );
+    }
+
+    private double extractInternalFlow(Map<String, Double> loopFlowsMap, Country country1, Country country2) {
+        if (Objects.equals(country1, country2)) {
+            return Optional.ofNullable(loopFlowsMap.remove(NetworkUtil.getLoopFlowIdFromCountry(country1)))
+                .orElse(NO_FLOW);
+        }
+        return NO_FLOW;
     }
 
     void saveAllocatedAndLoopFlowsMatrix(SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix) {
@@ -270,5 +288,9 @@ public class FlowDecompositionResults {
         if (saveIntermediates) {
             this.zonalPtdf = zonalPtdf;
         }
+    }
+
+    public void saveXnec(List<Branch> xnecList) {
+        this.xnecMap = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
     }
 }
