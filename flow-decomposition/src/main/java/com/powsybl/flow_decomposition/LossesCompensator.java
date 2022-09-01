@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -84,28 +85,40 @@ class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
 
     private void createLoadForLossesOnTerminal(Terminal terminal, String lossesId, double losses) {
         if (Math.abs(losses) > epsilon) {
-            if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                terminal.getVoltageLevel().newLoad()
-                    .setId(lossesId)
-                    .setBus(terminal.getBusBreakerView().getBus().getId())
-                    .setP0(losses)
-                    .setQ0(0)
-                    .add();
-            } else {
-                int nodeNum = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
-                terminal.getVoltageLevel().getNodeBreakerView().newInternalConnection()
-                        .setNode1(nodeNum)
-                            .setNode2(terminal.getNodeBreakerView().getNode())
-                                .add();
-
-                terminal.getVoltageLevel().newLoad()
-                    .setId(lossesId)
-                    .setNode(nodeNum)
-                    .setP0(losses)
-                    .setQ0(0)
-                    .add();
+            switch (terminal.getVoltageLevel().getTopologyKind()) {
+                case BUS_BREAKER:
+                    addNewLoadForBusBreakerTopology(terminal, lossesId, losses);
+                    return;
+                case NODE_BREAKER:
+                    addNewLoadForNodeBreakerTopology(terminal, lossesId, losses);
+                    return;
+                default:
+                    throw new PowsyblException("This topology is not managed by the loss compensation.");
             }
         }
+    }
+
+    private static void addNewLoadForBusBreakerTopology(Terminal terminal, String lossesId, double losses) {
+        terminal.getVoltageLevel().newLoad()
+            .setId(lossesId)
+            .setBus(terminal.getBusBreakerView().getBus().getId())
+            .setP0(losses)
+            .setQ0(0)
+            .add();
+    }
+
+    private static void addNewLoadForNodeBreakerTopology(Terminal terminal, String lossesId, double losses) {
+        int nodeNum = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
+        terminal.getVoltageLevel().getNodeBreakerView().newInternalConnection()
+            .setNode1(nodeNum)
+            .setNode2(terminal.getNodeBreakerView().getNode())
+            .add();
+        terminal.getVoltageLevel().newLoad()
+            .setId(lossesId)
+            .setNode(nodeNum)
+            .setP0(losses)
+            .setQ0(0)
+            .add();
     }
 
     private Terminal getSendingTerminal(Branch<?> branch) {
