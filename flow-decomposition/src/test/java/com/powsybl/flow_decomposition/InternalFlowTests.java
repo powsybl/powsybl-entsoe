@@ -10,6 +10,9 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -74,5 +77,67 @@ class InternalFlowTests {
         flowDecompositionParameters.setXnecSelectionStrategy(FlowDecompositionParameters.XnecSelectionStrategy.INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         return flowComputer.run(network);
+    }
+
+    @Test
+    void testRescalingPositiveInternalFlow() {
+        double internalFlow = 600.;
+        double acReferenceFlow = 4100.;
+        double dcReferenceFlow = 2000.;
+        DecomposedFlow rescaledFlow = getRescaledFlow(internalFlow, acReferenceFlow, dcReferenceFlow);
+        double expectedAllocatedFlow = 200.;
+        double expectedInternalFlow = 1200.;
+        double expectedPstFlow = 400.;
+        double expectedLoopFlowBE = 1000.;
+        double expectedLoopFlowES = 1400.;
+        checkRescaleAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow, expectedAllocatedFlow, expectedInternalFlow, expectedPstFlow, expectedLoopFlowBE, expectedLoopFlowES);
+    }
+
+    @Test
+    void testRescalingNegativeInternalFlow() {
+        double internalFlow = -600.;
+        double acReferenceFlow = 500.;
+        double dcReferenceFlow = 800.;
+        DecomposedFlow rescaledFlow = getRescaledFlow(internalFlow, acReferenceFlow, dcReferenceFlow);
+        double expectedAllocatedFlow = 80.;
+        double expectedInternalFlow = internalFlow;
+        double expectedPstFlow = 160.;
+        double expectedLoopFlowBE = 400.;
+        double expectedLoopFlowES = 560.;
+        checkRescaleAcReference(acReferenceFlow, dcReferenceFlow, rescaledFlow, expectedAllocatedFlow, expectedInternalFlow, expectedPstFlow, expectedLoopFlowBE, expectedLoopFlowES);
+
+    }
+
+    private DecomposedFlow getDecomposedFlow(double internalFlow, double acReferenceFlow, double dcReferenceFlow) {
+        Map<String, Double> loopFlows = new TreeMap<>();
+        double allocatedFlow = 100;
+        double pstFlow = 200.;
+        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.BE), 500.);
+        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
+        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
+        Country country1 = Country.FR;
+        Country country2 = Country.FR;
+        return new DecomposedFlow(loopFlows, internalFlow, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
+    }
+
+    private DecomposedFlow getRescaledFlow(double internalFlow, double acReferenceFlow, double dcReferenceFlow) {
+        DecomposedFlow decomposedFlow = getDecomposedFlow(internalFlow, acReferenceFlow, dcReferenceFlow);
+        assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
+
+        DecomposedFlowsRescaler rescaler = new DecomposedFlowsRescaler();
+        return rescaler.rescale(decomposedFlow);
+    }
+
+    private void checkRescaleAcReference(double acReferenceFlow, double dcReferenceFlow, DecomposedFlow rescaledFlow, double expectedAllocatedFlow, double expectedInternalFlow, double expectedPstFlow, double expectedLoopFlowBE, double expectedLoopFlowES) {
+        double expectedLoopFlowGE = -100;
+        assertEquals(Math.abs(acReferenceFlow), rescaledFlow.getTotalFlow(), EPSILON);
+        assertEquals(expectedAllocatedFlow, rescaledFlow.getAllocatedFlow(), EPSILON);
+        assertEquals(expectedPstFlow, rescaledFlow.getPstFlow(), EPSILON);
+        assertEquals(expectedLoopFlowBE, rescaledFlow.getLoopFlow(Country.BE), EPSILON);
+        assertEquals(expectedLoopFlowGE, rescaledFlow.getLoopFlow(Country.GE), EPSILON);
+        assertEquals(expectedLoopFlowES, rescaledFlow.getLoopFlow(Country.ES), EPSILON);
+        assertEquals(expectedInternalFlow, rescaledFlow.getInternalFlow(), EPSILON);
+        assertEquals(acReferenceFlow, rescaledFlow.getAcReferenceFlow(), EPSILON);
+        assertEquals(dcReferenceFlow, rescaledFlow.getDcReferenceFlow(), EPSILON);
     }
 }
