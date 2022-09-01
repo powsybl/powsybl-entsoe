@@ -26,7 +26,6 @@ class LossesCompensationTests {
 
     static Network importNetwork(String networkResourcePath) {
         String networkName = Paths.get(networkResourcePath).getFileName().toString();
-        //networkName = networkName.replace(".zip", "");
         return Importers.loadNetwork(networkName, AllocatedFlowTests.class.getResourceAsStream(networkResourcePath));
     }
 
