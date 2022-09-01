@@ -12,9 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */

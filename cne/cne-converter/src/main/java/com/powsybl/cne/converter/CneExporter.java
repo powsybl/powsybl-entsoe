@@ -8,9 +8,9 @@ package com.powsybl.cne.converter;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.parameters.Parameter;
-import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
-import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
+import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.converter.SecurityAnalysisResultExporter;
 import org.slf4j.Logger;
