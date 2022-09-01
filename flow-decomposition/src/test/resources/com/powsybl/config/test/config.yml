@@ -1,5 +1,3 @@
 open-load-flow-parameters:
   slackBusPMaxMismatch: 1e-5
 
-load-flow-default-parameters:
-  shuntCompensatorVoltageControlOn: true
