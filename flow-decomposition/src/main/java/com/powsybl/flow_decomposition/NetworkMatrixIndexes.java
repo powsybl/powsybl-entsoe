@@ -74,7 +74,12 @@ class NetworkMatrixIndexes {
         return getAllNetworkInjections(network)
             .filter(this::isInjectionConnected)
             .filter(this::isInjectionInMainSynchronousComponent)
+            .filter(this::managedInjectionTypes)
             .collect(Collectors.toList());
+    }
+
+    private boolean managedInjectionTypes(Injection<?> injection) {
+        return !(injection instanceof BusbarSection || injection instanceof ShuntCompensator);
     }
 
     private Stream<Injection<?>> getAllNetworkInjections(Network network) {
