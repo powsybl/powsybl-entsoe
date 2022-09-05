@@ -25,11 +25,11 @@ class CgmesIntegrationTests {
 
     @Test
     void checkThatLossCompensationWorksWithNodeBreakerTopology() {
-        Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridType4BE().dataSource(), null);
+        Network network = Importers.importData("CGMES", CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null);
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(false);
         LoadFlow.run(network, loadFlowParameters);
-        String branchId = "ffbabc27-1ccd-4fdc-b037-e341706c8d29";
+        String branchId = network.getBranchStream().iterator().next().getId();
         Branch branch = network.getBranch(branchId);
         double p = branch.getTerminal1().getP() + branch.getTerminal2().getP();
 
@@ -42,13 +42,11 @@ class CgmesIntegrationTests {
         assertEquals(p, load.getP0());
         assertEquals(load.getTerminal().getBusBreakerView().getBus(), branch.getTerminal2().getBusBreakerView().getBus());
         assertNotEquals(load.getTerminal().getBusBreakerView().getBus(), branch.getTerminal1().getBusBreakerView().getBus());
-
-        //TODO terminer le test
     }
 
     @Test
     void checkFlowDecompositionWorksOnCgmesFile() {
-        Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridType4BE().dataSource(), null);
+        Network network = Importers.importData("CGMES", CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null);
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setSaveIntermediates(FlowDecompositionParameters.DO_NOT_SAVE_INTERMEDIATES)
