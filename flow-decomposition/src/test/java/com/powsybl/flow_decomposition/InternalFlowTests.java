@@ -140,5 +140,4 @@ class InternalFlowTests {
         assertEquals(acReferenceFlow, rescaledFlow.getAcReferenceFlow(), EPSILON);
         assertEquals(dcReferenceFlow, rescaledFlow.getDcReferenceFlow(), EPSILON);
     }
-
 }

@@ -74,7 +74,12 @@ class NetworkMatrixIndexes {
         return getAllNetworkInjections(network)
             .filter(this::isInjectionConnected)
             .filter(this::isInjectionInMainSynchronousComponent)
+            .filter(this::managedInjectionTypes)
             .collect(Collectors.toList());
+    }
+
+    private boolean managedInjectionTypes(Injection<?> injection) {
+        return !(injection instanceof BusbarSection || injection instanceof ShuntCompensator || injection instanceof StaticVarCompensator); // TODO Remove this fix once the active power computation after a DC load flow is fixed in OLF
     }
 
     private Stream<Injection<?>> getAllNetworkInjections(Network network) {
