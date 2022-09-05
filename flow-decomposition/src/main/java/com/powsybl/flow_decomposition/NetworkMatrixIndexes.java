@@ -79,7 +79,7 @@ class NetworkMatrixIndexes {
     }
 
     private boolean managedInjectionTypes(Injection<?> injection) {
-        return !(injection instanceof BusbarSection || injection instanceof ShuntCompensator); // TODO Remove this fix once the active power computation after a DC load flow is fixed in OLF
+        return !(injection instanceof BusbarSection || injection instanceof ShuntCompensator || injection instanceof StaticVarCompensator); // TODO Remove this fix once the active power computation after a DC load flow is fixed in OLF
     }
 
     private Stream<Injection<?>> getAllNetworkInjections(Network network) {

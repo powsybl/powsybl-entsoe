@@ -89,14 +89,6 @@ public class DecomposedFlow {
         return internalFlow;
     }
 
-    /**
-     * @deprecated Still used for test purpose, but to be removed soon
-     */
-    @Deprecated
-    double getReferenceOrientedTotalFlow() {
-        return getTotalFlow() * Math.signum(getAcReferenceFlow());
-    }
-
     @Override
     public String toString() {
         return getAllKeyMap().toString();
