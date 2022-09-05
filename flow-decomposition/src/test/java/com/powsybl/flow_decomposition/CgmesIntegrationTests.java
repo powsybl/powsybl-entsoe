@@ -50,7 +50,7 @@ class CgmesIntegrationTests {
 
     @Test
     void checkFlowDecompositionWorksOnCgmesFile() {
-        Network network = Importers.loadNetwork(new File(CgmesIntegrationTests.class.getResource("MicroGrid.zip").getFile()).toString());
+        Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridType4BE().dataSource(), null);
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setSaveIntermediates(FlowDecompositionParameters.DO_NOT_SAVE_INTERMEDIATES)
