@@ -18,13 +18,13 @@ import com.powsybl.loadflow.LoadFlowParameters;
 class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
     private final double epsilon;
 
-    LossesCompensator(LoadFlowParameters initialLoadFlowParameters, double epsilon) {
-        super(initialLoadFlowParameters);
+    LossesCompensator(LoadFlowParameters initialLoadFlowParameters, LoadFlow.Runner runner, double epsilon) {
+        super(initialLoadFlowParameters, runner);
         this.epsilon = epsilon;
     }
 
-    LossesCompensator(LoadFlowParameters initialLoadFlowParameters, FlowDecompositionParameters parameters) {
-        this(initialLoadFlowParameters, parameters.getLossesCompensationEpsilon());
+    LossesCompensator(LoadFlowParameters initialLoadFlowParameters, LoadFlow.Runner runner, FlowDecompositionParameters parameters) {
+        this(initialLoadFlowParameters, runner, parameters.getLossesCompensationEpsilon());
     }
 
     private boolean hasBus(Terminal terminal) {
@@ -44,7 +44,7 @@ class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
     }
 
     Void run(Network network) {
-        LoadFlow.run(network, loadFlowParameters);
+        runner.run(network, loadFlowParameters);
         network.getBranchStream()
             .filter(this::hasBuses)
             .filter(this::hasP0s)

@@ -10,10 +10,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.sensitivity.SensitivityAnalysisParameters;
-import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.SensitivityFunctionType;
-import com.powsybl.sensitivity.SensitivityVariableType;
+import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +26,11 @@ abstract class AbstractSensitivityAnalyser {
     public static final List<Contingency> CONTINGENCIES = Collections.emptyList();
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSensitivityAnalyser.class);
     protected final SensitivityAnalysisParameters sensitivityAnalysisParameters;
+    protected final SensitivityAnalysis.Runner runner;
 
-    AbstractSensitivityAnalyser(LoadFlowParameters loadFlowParameters) {
+    AbstractSensitivityAnalyser(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner runner) {
         this.sensitivityAnalysisParameters = initSensitivityAnalysisParameters(loadFlowParameters);
+        this.runner = runner;
     }
 
     protected static SensitivityAnalysisParameters initSensitivityAnalysisParameters(LoadFlowParameters loadFlowParameters) {

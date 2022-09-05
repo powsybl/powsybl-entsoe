@@ -8,6 +8,7 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
@@ -21,17 +22,35 @@ import java.util.*;
  */
 public class FlowDecompositionComputer {
     static final boolean DC_LOAD_FLOW = true;
+    static final String DEFAULT_LOAD_FLOW_PROVIDER = "OpenLoadFlow";
+    static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = "OpenLoadFlow";
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
+    private final LoadFlow.Runner loadFlowRunner;
+    private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
 
     public FlowDecompositionComputer() {
         this(new FlowDecompositionParameters());
     }
 
-    public FlowDecompositionComputer(FlowDecompositionParameters parameters) {
-        this.parameters = parameters;
-        this.loadFlowParameters = initLoadFlowParameters();
+    public FlowDecompositionComputer(FlowDecompositionParameters flowDecompositionParameters,
+                                     LoadFlowParameters loadFlowParameters,
+                                     String loadFlowProvider, String sensitivityAnalysisProvider) {
+        this.parameters = flowDecompositionParameters;
+        this.loadFlowParameters = initLoadFlowParameters(loadFlowParameters);
+        this.loadFlowRunner = LoadFlow.find(loadFlowProvider);
+        this.sensitivityAnalysisRunner = SensitivityAnalysis.find(sensitivityAnalysisProvider);
+    }
+
+    public FlowDecompositionComputer(FlowDecompositionParameters flowDecompositionParameters,
+                                     LoadFlowParameters loadFlowParameters) {
+        this(flowDecompositionParameters, loadFlowParameters,
+            DEFAULT_LOAD_FLOW_PROVIDER, DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER);
+    }
+
+    public FlowDecompositionComputer(FlowDecompositionParameters flowDecompositionParameters) {
+        this(flowDecompositionParameters, LoadFlowParameters.load());
     }
 
     public FlowDecompositionResults run(Network network) {
@@ -87,8 +106,7 @@ public class FlowDecompositionComputer {
         return xnecList;
     }
 
-    private static LoadFlowParameters initLoadFlowParameters() {
-        LoadFlowParameters parameters = LoadFlowParameters.load();
+    private static LoadFlowParameters initLoadFlowParameters(LoadFlowParameters parameters) {
         parameters.setDc(DC_LOAD_FLOW);
         LOGGER.debug("Using following load flow parameters: {}", parameters);
         return parameters;
@@ -105,7 +123,7 @@ public class FlowDecompositionComputer {
     private Map<String, Map<Country, Double>> getZonalPtdf(Network network,
                                                            Map<Country, Map<String, Double>> glsks,
                                                            FlowDecompositionResults flowDecompositionResults) {
-        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters);
+        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner);
         Map<String, Map<Country, Double>> zonalPtdf = zonalSensitivityAnalyser.run(network,
             glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
         flowDecompositionResults.saveZonalPtdf(zonalPtdf);
@@ -114,7 +132,7 @@ public class FlowDecompositionComputer {
 
     private Map<Country, Double> getZonesNetPosition(Network network,
                                                      FlowDecompositionResults flowDecompositionResults) {
-        NetPositionComputer netPositionComputer = new NetPositionComputer(loadFlowParameters);
+        NetPositionComputer netPositionComputer = new NetPositionComputer(loadFlowParameters, loadFlowRunner);
         Map<Country, Double> netPosition = netPositionComputer.run(network);
         flowDecompositionResults.saveACNetPosition(netPosition);
         return netPosition;
@@ -127,7 +145,7 @@ public class FlowDecompositionComputer {
 
     private void compensateLosses(Network network) {
         if (parameters.isLossesCompensationEnabled()) {
-            LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters, parameters);
+            LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters, loadFlowRunner, parameters);
             lossesCompensator.run(network);
         }
     }
@@ -148,7 +166,7 @@ public class FlowDecompositionComputer {
                                                     FlowDecompositionResults flowDecompositionResults,
                                                     NetworkMatrixIndexes networkMatrixIndexes) {
         ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer(networkMatrixIndexes);
-        Map<String, Double> dcNodalInjection = referenceNodalInjectionComputer.run(network, loadFlowParameters);
+        Map<String, Double> dcNodalInjection = referenceNodalInjectionComputer.run(network, loadFlowParameters, loadFlowRunner);
         flowDecompositionResults.saveDcNodalInjections(dcNodalInjection);
         return dcNodalInjection;
     }
@@ -167,7 +185,7 @@ public class FlowDecompositionComputer {
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
-        return new SensitivityAnalyser(loadFlowParameters, parameters, network, networkMatrixIndexes);
+        return new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
     }
 
     private SparseMatrixWithIndexesTriplet getPtdfMatrix(FlowDecompositionResults flowDecompositionResults,

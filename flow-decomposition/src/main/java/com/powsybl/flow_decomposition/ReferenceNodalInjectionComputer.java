@@ -27,8 +27,8 @@ class ReferenceNodalInjectionComputer {
         this.networkMatrixIndexes = networkMatrixIndexes;
     }
 
-    Map<String, Double> run(Network network, LoadFlowParameters loadFlowParameters) {
-        LoadFlow.run(network, loadFlowParameters);
+    Map<String, Double> run(Network network, LoadFlowParameters loadFlowParameters, LoadFlow.Runner runner) {
+        runner.run(network, loadFlowParameters);
         return networkMatrixIndexes.getNodeList().stream()
             .collect(Collectors.toMap(
                 Identifiable::getId,

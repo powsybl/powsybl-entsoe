@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 /**
@@ -15,13 +16,15 @@ import com.powsybl.loadflow.LoadFlowParameters;
 abstract class AbstractAcLoadFlowRunner<T> {
     private static final boolean AC_LOAD_FLOW = false;
     protected final LoadFlowParameters loadFlowParameters;
+    protected final LoadFlow.Runner runner;
 
-    protected AbstractAcLoadFlowRunner(LoadFlowParameters initialLoadFlowParameters) {
+    protected AbstractAcLoadFlowRunner(LoadFlowParameters initialLoadFlowParameters, LoadFlow.Runner runner) {
         this.loadFlowParameters = enforceAcLoadFlowCalculation(initialLoadFlowParameters);
+        this.runner = runner;
     }
 
     protected LoadFlowParameters enforceAcLoadFlowCalculation(LoadFlowParameters initialLoadFlowParameters) {
-        LoadFlowParameters acEnforcedParameters = LoadFlowParameters.load(); // WARNING we want to copy but there is a bug with Graal VM ! initialLoadFlowParameters.copy();
+        LoadFlowParameters acEnforcedParameters = initialLoadFlowParameters.copy(); // WARNING we want to copy but there is a bug with Graal VM ! initialLoadFlowParameters.copy();
         acEnforcedParameters.setDc(AC_LOAD_FLOW);
         return acEnforcedParameters;
     }
