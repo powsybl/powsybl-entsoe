@@ -23,12 +23,12 @@ import java.util.Map;
 class NetPositionComputer extends AbstractAcLoadFlowRunner<Map<Country, Double>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(NetPositionComputer.class);
 
-    NetPositionComputer(LoadFlowParameters initialLoadFlowParameters) {
-        super(initialLoadFlowParameters);
+    NetPositionComputer(LoadFlowParameters initialLoadFlowParameters, LoadFlow.Runner runner) {
+        super(initialLoadFlowParameters, runner);
     }
 
     Map<Country, Double> run(Network network) {
-        LoadFlowResult loadFlowResult = LoadFlow.run(network, loadFlowParameters);
+        LoadFlowResult loadFlowResult = runner.run(network, loadFlowParameters);
         if (!loadFlowResult.isOk()) {
             LOGGER.error("AC Load Flow diverged !");
         }

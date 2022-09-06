@@ -10,6 +10,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +39,7 @@ class LossesCompensationTests {
 
         Network network = importNetwork(networkFileName);
         LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
+            LoadFlow.find(FlowDecompositionComputer.DEFAULT_LOAD_FLOW_PROVIDER),
             FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
@@ -53,6 +55,7 @@ class LossesCompensationTests {
 
         Network network = importNetwork(networkFileName);
         LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
+            LoadFlow.find(FlowDecompositionComputer.DEFAULT_LOAD_FLOW_PROVIDER),
             FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
@@ -79,6 +82,7 @@ class LossesCompensationTests {
 
         Network network = importNetwork(networkFileName);
         LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
+            LoadFlow.find(FlowDecompositionComputer.DEFAULT_LOAD_FLOW_PROVIDER),
             FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 

@@ -31,18 +31,19 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     SensitivityAnalyser(LoadFlowParameters loadFlowParameters,
                         FlowDecompositionParameters parameters,
+                        SensitivityAnalysis.Runner runner,
                         Network network,
                         List<Branch> functionList,
                         Map<String, Integer> functionIndex) {
-        super(loadFlowParameters);
+        super(loadFlowParameters, runner);
         this.parameters = parameters;
         this.network = network;
         this.functionList = functionList;
         this.functionIndex = functionIndex;
     }
 
-    SensitivityAnalyser(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters, Network network, NetworkMatrixIndexes networkMatrixIndexes) {
-        this(loadFlowParameters, parameters, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
+    SensitivityAnalyser(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters, SensitivityAnalysis.Runner runner, Network network, NetworkMatrixIndexes networkMatrixIndexes) {
+        this(loadFlowParameters, parameters, runner, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
     }
 
     SparseMatrixWithIndexesTriplet run(List<String> variableList,

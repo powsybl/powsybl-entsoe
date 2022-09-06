@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final boolean SENSITIVITY_VARIABLE_SET = true;
 
-    public ZonalSensitivityAnalyser(LoadFlowParameters loadFlowParameters) {
-        super(loadFlowParameters);
+    public ZonalSensitivityAnalyser(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner runner) {
+        super(loadFlowParameters, runner);
     }
 
     public Map<String, Map<Country, Double>> run(Network network,
@@ -66,7 +66,7 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private SensitivityAnalysisResult getSensitivityAnalysisResult(Network network, List<SensitivityFactor> factors, List<SensitivityVariableSet> sensitivityVariableSets) {
-        return SensitivityAnalysis.run(network, factors, CONTINGENCIES, sensitivityVariableSets, sensitivityAnalysisParameters);
+        return runner.run(network, factors, CONTINGENCIES, sensitivityVariableSets, sensitivityAnalysisParameters);
     }
 
     private Map<String, Map<Country, Double>> getZonalPtdfMap(List<String> variableList,

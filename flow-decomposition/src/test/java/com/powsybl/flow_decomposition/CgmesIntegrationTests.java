@@ -34,6 +34,7 @@ class CgmesIntegrationTests {
         double p = branch.getTerminal1().getP() + branch.getTerminal2().getP();
 
         LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
+            LoadFlow.find(FlowDecompositionComputer.DEFAULT_LOAD_FLOW_PROVIDER),
             FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
