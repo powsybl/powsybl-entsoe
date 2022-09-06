@@ -22,8 +22,8 @@ import java.util.*;
  */
 public class FlowDecompositionComputer {
     static final boolean DC_LOAD_FLOW = true;
-    static final String DEFAULT_LOAD_FLOW_PROVIDER = "OpenLoadFlow";
-    static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = "OpenLoadFlow";
+    static final String DEFAULT_LOAD_FLOW_PROVIDER = null;
+    static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = null;
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
