@@ -21,13 +21,12 @@ import java.util.*;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class FlowDecompositionComputer {
-    static final boolean DC_LOAD_FLOW = true;
     static final String DEFAULT_LOAD_FLOW_PROVIDER = null;
     static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = null;
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
-    private final LoadFlow.Runner loadFlowRunner;
+    private final LoadFlowRunningService loadFlowRunningService;
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
 
     public FlowDecompositionComputer() {
@@ -38,8 +37,8 @@ public class FlowDecompositionComputer {
                                      LoadFlowParameters loadFlowParameters,
                                      String loadFlowProvider, String sensitivityAnalysisProvider) {
         this.parameters = flowDecompositionParameters;
-        this.loadFlowParameters = initLoadFlowParameters(loadFlowParameters);
-        this.loadFlowRunner = LoadFlow.find(loadFlowProvider);
+        this.loadFlowParameters = loadFlowParameters;
+        this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
         this.sensitivityAnalysisRunner = SensitivityAnalysis.find(sensitivityAnalysisProvider);
     }
 
@@ -56,7 +55,8 @@ public class FlowDecompositionComputer {
     public FlowDecompositionResults run(Network network) {
         FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network, parameters);
 
-        //AC LF
+        loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
+
         Map<Country, Map<String, Double>> glsks = getGlsks(network, flowDecompositionResults);
         List<Branch> xnecList = getXnecList(network, glsks, flowDecompositionResults);
         Map<Country, Double> netPositions = getZonesNetPosition(network, flowDecompositionResults);
@@ -66,7 +66,8 @@ public class FlowDecompositionComputer {
         // None
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
 
-        // DC LF
+        loadFlowRunningService.runDcLoadflow(network, loadFlowParameters);
+
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
             flowDecompositionResults, netPositions, networkMatrixIndexes, glsks);
         flowDecompositionResults.saveDcReferenceFlow(getXnecReferenceFlows(xnecList));
@@ -106,12 +107,6 @@ public class FlowDecompositionComputer {
         return xnecList;
     }
 
-    private static LoadFlowParameters initLoadFlowParameters(LoadFlowParameters parameters) {
-        parameters.setDc(DC_LOAD_FLOW);
-        LOGGER.debug("Using following load flow parameters: {}", parameters);
-        return parameters;
-    }
-
     private Map<Country, Map<String, Double>> getGlsks(Network network,
                                                        FlowDecompositionResults flowDecompositionResults) {
         GlskComputer glskComputer = new GlskComputer();
@@ -132,7 +127,7 @@ public class FlowDecompositionComputer {
 
     private Map<Country, Double> getZonesNetPosition(Network network,
                                                      FlowDecompositionResults flowDecompositionResults) {
-        NetPositionComputer netPositionComputer = new NetPositionComputer(loadFlowParameters, loadFlowRunner);
+        NetPositionComputer netPositionComputer = new NetPositionComputer();
         Map<Country, Double> netPosition = netPositionComputer.run(network);
         flowDecompositionResults.saveACNetPosition(netPosition);
         return netPosition;
@@ -145,7 +140,7 @@ public class FlowDecompositionComputer {
 
     private void compensateLosses(Network network) {
         if (parameters.isLossesCompensationEnabled()) {
-            LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters, loadFlowRunner, parameters);
+            LossesCompensator lossesCompensator = new LossesCompensator(parameters);
             lossesCompensator.run(network);
         }
     }
@@ -156,17 +151,16 @@ public class FlowDecompositionComputer {
                                                                     NetworkMatrixIndexes networkMatrixIndexes,
                                                                     Map<Country, Map<String, Double>> glsks) {
         NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes);
-        Map<String, Double> dcNodalInjection = getDcNodalInjection(network, flowDecompositionResults, networkMatrixIndexes);
+        Map<String, Double> dcNodalInjection = getDcNodalInjection(flowDecompositionResults, networkMatrixIndexes);
 
         return getNodalInjectionsMatrix(network, flowDecompositionResults, netPositions, glsks,
             nodalInjectionComputer, dcNodalInjection);
     }
 
-    private Map<String, Double> getDcNodalInjection(Network network,
-                                                    FlowDecompositionResults flowDecompositionResults,
+    private Map<String, Double> getDcNodalInjection(FlowDecompositionResults flowDecompositionResults,
                                                     NetworkMatrixIndexes networkMatrixIndexes) {
         ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer(networkMatrixIndexes);
-        Map<String, Double> dcNodalInjection = referenceNodalInjectionComputer.run(network, loadFlowParameters, loadFlowRunner);
+        Map<String, Double> dcNodalInjection = referenceNodalInjectionComputer.run();
         flowDecompositionResults.saveDcNodalInjections(dcNodalInjection);
         return dcNodalInjection;
     }

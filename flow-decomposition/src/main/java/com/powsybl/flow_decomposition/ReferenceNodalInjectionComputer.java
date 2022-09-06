@@ -9,9 +9,6 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,8 +24,7 @@ class ReferenceNodalInjectionComputer {
         this.networkMatrixIndexes = networkMatrixIndexes;
     }
 
-    Map<String, Double> run(Network network, LoadFlowParameters loadFlowParameters, LoadFlow.Runner runner) {
-        runner.run(network, loadFlowParameters);
+    Map<String, Double> run() {
         return networkMatrixIndexes.getNodeList().stream()
             .collect(Collectors.toMap(
                 Identifiable::getId,

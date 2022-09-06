@@ -21,21 +21,19 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class CgmesIntegrationTests {
-    private static final double EPSILON = 1e-3;
+    private static final boolean AC_LOAD_FLOW = false;
 
     @Test
     void checkThatLossCompensationWorksWithNodeBreakerTopology() {
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null);
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
-        loadFlowParameters.setDc(false);
+        loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);
         String branchId = network.getBranchStream().iterator().next().getId();
         Branch branch = network.getBranch(branchId);
         double p = branch.getTerminal1().getP() + branch.getTerminal2().getP();
 
-        LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
-            LoadFlow.find(FlowDecompositionComputer.DEFAULT_LOAD_FLOW_PROVIDER),
-            FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+        LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
         Load load = network.getLoad(String.format("LOSSES %s", branchId));
