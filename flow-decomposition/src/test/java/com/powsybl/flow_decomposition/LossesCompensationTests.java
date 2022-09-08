@@ -34,13 +34,11 @@ class LossesCompensationTests {
     void checkThatLossesCompensationIsDoneCorrectly() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
 
+        Network network = importNetwork(networkFileName);
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
-
-        Network network = importNetwork(networkFileName);
-        LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
-            LoadFlow.find(FlowDecompositionComputer.DEFAULT_LOAD_FLOW_PROVIDER),
-            FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+        LoadFlow.run(network, loadFlowParameters);
+        LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
         assessSingleLoadTwoGeneratorsNetworkLossesCompensation(network);
@@ -49,14 +47,11 @@ class LossesCompensationTests {
     @Test
     void checkThatLossesCompensationDoesEnforceAcLoadflow() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
-
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
-        loadFlowParameters.setDc(FlowDecompositionComputer.DC_LOAD_FLOW);
-
         Network network = importNetwork(networkFileName);
-        LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
-            LoadFlow.find(FlowDecompositionComputer.DEFAULT_LOAD_FLOW_PROVIDER),
-            FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        loadFlowParameters.setDc(AC_LOAD_FLOW);
+        LoadFlow.run(network, loadFlowParameters);
+        LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
         assessSingleLoadTwoGeneratorsNetworkLossesCompensation(network);
@@ -77,13 +72,11 @@ class LossesCompensationTests {
     void checkThatLossesCompensationOnTieLineDoesDispatchLossesProportionallyToEachSideResistance() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
 
+        Network network = importNetwork(networkFileName);
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
-
-        Network network = importNetwork(networkFileName);
-        LossesCompensator lossesCompensator = new LossesCompensator(loadFlowParameters,
-            LoadFlow.find(FlowDecompositionComputer.DEFAULT_LOAD_FLOW_PROVIDER),
-            FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+        LoadFlow.run(network, loadFlowParameters);
+        LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
         Load lossesFgenBload = network.getLoad("LOSSES FGEN1 11 X     11 1 + X     11 BLOAD 11 1");

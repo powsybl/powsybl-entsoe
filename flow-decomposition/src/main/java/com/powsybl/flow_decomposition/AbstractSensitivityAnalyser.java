@@ -25,6 +25,7 @@ abstract class AbstractSensitivityAnalyser {
     public static final SensitivityFunctionType SENSITIVITY_FUNCTION_TYPE = SensitivityFunctionType.BRANCH_ACTIVE_POWER_1;
     public static final List<Contingency> CONTINGENCIES = Collections.emptyList();
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSensitivityAnalyser.class);
+    private static final boolean DC_LOAD_FLOW = true;
     protected final SensitivityAnalysisParameters sensitivityAnalysisParameters;
     protected final SensitivityAnalysis.Runner runner;
 
@@ -33,9 +34,15 @@ abstract class AbstractSensitivityAnalyser {
         this.runner = runner;
     }
 
+    private static LoadFlowParameters enforceDcLoadFlowCalculation(LoadFlowParameters initialLoadFlowParameters) {
+        LoadFlowParameters dcEnforcedParameters = initialLoadFlowParameters.copy();
+        dcEnforcedParameters.setDc(DC_LOAD_FLOW);
+        return dcEnforcedParameters;
+    }
+
     protected static SensitivityAnalysisParameters initSensitivityAnalysisParameters(LoadFlowParameters loadFlowParameters) {
         SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
-        parameters.setLoadFlowParameters(loadFlowParameters);
+        parameters.setLoadFlowParameters(enforceDcLoadFlowCalculation(loadFlowParameters));
         LOGGER.debug("Using following sensitivity analysis parameters: {}", parameters);
         return parameters;
     }

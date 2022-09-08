@@ -12,8 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -99,5 +98,15 @@ class LoopFlowTests {
         assertEquals(0, decomposedFlowMap.get(x5).getLoopFlow(Country.BE), EPSILON);
         assertEquals(100, decomposedFlowMap.get(x5).getLoopFlow(Country.ES), EPSILON);
         assertEquals(0, decomposedFlowMap.get(x5).getLoopFlow(Country.FR), EPSILON);
+
+        assertTrue(Double.isNaN(decomposedFlowMap.get(x1).getAcReferenceFlow()));
+        assertTrue(Double.isNaN(decomposedFlowMap.get(x2).getAcReferenceFlow()));
+        assertTrue(Double.isNaN(decomposedFlowMap.get(x4).getAcReferenceFlow()));
+        assertTrue(Double.isNaN(decomposedFlowMap.get(x5).getAcReferenceFlow()));
+
+        assertEquals(100, decomposedFlowMap.get(x1).getDcReferenceFlow(), EPSILON);
+        assertEquals(200, decomposedFlowMap.get(x2).getDcReferenceFlow(), EPSILON);
+        assertEquals(200, decomposedFlowMap.get(x4).getDcReferenceFlow(), EPSILON);
+        assertEquals(100, decomposedFlowMap.get(x5).getDcReferenceFlow(), EPSILON);
     }
 }

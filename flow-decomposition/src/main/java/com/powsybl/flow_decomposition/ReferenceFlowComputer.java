@@ -22,7 +22,11 @@ class ReferenceFlowComputer {
         return xnecList.stream()
             .collect(Collectors.toMap(
                 Identifiable::getId,
-                branch -> branch.getTerminal1().getP()
+                this::getP
             ));
+    }
+
+    private double getP(Branch branch) {
+        return branch.getTerminal1().getP();
     }
 }

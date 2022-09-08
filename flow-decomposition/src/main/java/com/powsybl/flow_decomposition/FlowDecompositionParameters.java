@@ -32,6 +32,9 @@ public class FlowDecompositionParameters {
     public static final double DEFAULT_LOSSES_COMPENSATION_EPSILON = 1e-5;
     public static final double DEFAULT_SENSITIVITY_EPSILON = 1e-5;
     public static final boolean DEFAULT_RESCALE_ENABLED = DISABLE_RESCALED_RESULTS;
+    public static final boolean DISABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE = false;
+    public static final boolean ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE = true;
+    public static final boolean DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE = ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE;
     private static final XnecSelectionStrategy DEFAULT_XNEC_SELECTION_STRATEGY = XnecSelectionStrategy.ONLY_INTERCONNECTIONS;
     private boolean saveIntermediates;
     private boolean enableLossesCompensation;
@@ -39,6 +42,7 @@ public class FlowDecompositionParameters {
     private double sensitivityEpsilon;
     private boolean rescaleEnabled;
     private XnecSelectionStrategy xnecSelectionStrategy;
+    private boolean dcFallbackEnabledAfterAcDivergence;
 
     public static FlowDecompositionParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -60,6 +64,7 @@ public class FlowDecompositionParameters {
             parameters.setSensitivityEpsilon(moduleConfig.getDoubleProperty("sensitivity-epsilon", DEFAULT_SENSITIVITY_EPSILON));
             parameters.setRescaleEnabled(moduleConfig.getBooleanProperty("rescale-enabled", DEFAULT_RESCALE_ENABLED));
             parameters.setXnecSelectionStrategy(moduleConfig.getEnumProperty("xnec-selection-strategy", XnecSelectionStrategy.class, DEFAULT_XNEC_SELECTION_STRATEGY));
+            parameters.setDcFallbackEnabledAfterAcDivergence(moduleConfig.getBooleanProperty("dc-fallback-enabled-after-ac-divergence", DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE));
         });
     }
 
@@ -70,6 +75,7 @@ public class FlowDecompositionParameters {
         this.sensitivityEpsilon = DEFAULT_SENSITIVITY_EPSILON;
         this.rescaleEnabled = DEFAULT_RESCALE_ENABLED;
         this.xnecSelectionStrategy = DEFAULT_XNEC_SELECTION_STRATEGY;
+        this.dcFallbackEnabledAfterAcDivergence = DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE;
     }
 
     public boolean doesSaveIntermediates() {
@@ -123,6 +129,15 @@ public class FlowDecompositionParameters {
 
     public FlowDecompositionParameters setXnecSelectionStrategy(XnecSelectionStrategy xnecSelectionStrategy) {
         this.xnecSelectionStrategy = xnecSelectionStrategy;
+        return this;
+    }
+
+    public boolean isDcFallbackEnabledAfterAcDivergence() {
+        return this.dcFallbackEnabledAfterAcDivergence;
+    }
+
+    public FlowDecompositionParameters setDcFallbackEnabledAfterAcDivergence(boolean dcFallbackEnabledAfterAcDivergence) {
+        this.dcFallbackEnabledAfterAcDivergence = dcFallbackEnabledAfterAcDivergence;
         return this;
     }
 }

@@ -8,23 +8,20 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowParameters;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
+class LossesCompensator {
     private final double epsilon;
 
-    LossesCompensator(LoadFlowParameters initialLoadFlowParameters, LoadFlow.Runner runner, double epsilon) {
-        super(initialLoadFlowParameters, runner);
+    LossesCompensator(double epsilon) {
         this.epsilon = epsilon;
     }
 
-    LossesCompensator(LoadFlowParameters initialLoadFlowParameters, LoadFlow.Runner runner, FlowDecompositionParameters parameters) {
-        this(initialLoadFlowParameters, runner, parameters.getLossesCompensationEpsilon());
+    LossesCompensator(FlowDecompositionParameters parameters) {
+        this(parameters.getLossesCompensationEpsilon());
     }
 
     private boolean hasBus(Terminal terminal) {
@@ -43,13 +40,11 @@ class LossesCompensator extends AbstractAcLoadFlowRunner<Void> {
         return hasP0(branch.getTerminal1()) && hasP0(branch.getTerminal2());
     }
 
-    Void run(Network network) {
-        runner.run(network, loadFlowParameters);
+    void run(Network network) {
         network.getBranchStream()
             .filter(this::hasBuses)
             .filter(this::hasP0s)
             .forEach(this::compensateLossesOnBranch);
-        return null;
     }
 
     private String getLossesId(String id) {
