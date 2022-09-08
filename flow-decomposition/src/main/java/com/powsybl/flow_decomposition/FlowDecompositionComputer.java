@@ -13,6 +13,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -63,11 +64,11 @@ public class FlowDecompositionComputer {
         // None
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
 
-        LoadFlowRunningService.Result loadFlowServiceDcResult = runDcLoadFlow(network);
+        runDcLoadFlow(network);
 
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
             flowDecompositionResults, netPositions, networkMatrixIndexes, glsks);
-        saveDcReferenceFlow(flowDecompositionResults, xnecList, loadFlowServiceDcResult);
+        saveDcReferenceFlow(flowDecompositionResults, xnecList);
 
         // DC Sensi
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
@@ -109,7 +110,13 @@ public class FlowDecompositionComputer {
     }
 
     private void saveAcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        flowDecompositionResults.saveAcReferenceFlow(getXnecReferenceFlows(xnecList, loadFlowServiceAcResult.isFallbackHasBeenActivated()));
+        Map<String, Double> acReferenceFlows;
+        if (loadFlowServiceAcResult.isFallbackHasBeenActivated()) {
+            acReferenceFlows = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
+        } else {
+            acReferenceFlows = getXnecReferenceFlows(xnecList);
+        }
+        flowDecompositionResults.saveAcReferenceFlow(acReferenceFlows);
     }
 
     private Map<Country, Map<String, Double>> getGlsks(Network network,
@@ -138,8 +145,8 @@ public class FlowDecompositionComputer {
         return netPosition;
     }
 
-    private Map<String, Double> getXnecReferenceFlows(List<Branch> xnecList, boolean fallbackHasBeenActivated) {
-        ReferenceFlowComputer referenceFlowComputer = new ReferenceFlowComputer(fallbackHasBeenActivated);
+    private Map<String, Double> getXnecReferenceFlows(List<Branch> xnecList) {
+        ReferenceFlowComputer referenceFlowComputer = new ReferenceFlowComputer();
         return referenceFlowComputer.run(xnecList);
     }
 
@@ -187,8 +194,8 @@ public class FlowDecompositionComputer {
         return nodalInjectionsMatrix;
     }
 
-    private void saveDcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceDcResult) {
-        flowDecompositionResults.saveDcReferenceFlow(getXnecReferenceFlows(xnecList, loadFlowServiceDcResult.isFallbackHasBeenActivated()));
+    private void saveDcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<Branch> xnecList) {
+        flowDecompositionResults.saveDcReferenceFlow(getXnecReferenceFlows(xnecList));
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {

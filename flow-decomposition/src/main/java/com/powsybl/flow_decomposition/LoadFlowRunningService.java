@@ -54,7 +54,7 @@ class LoadFlowRunningService {
     }
 
     static class Result extends LoadFlowResultImpl {
-        boolean fallbackHasBeenActivated;
+        private boolean fallbackHasBeenActivated;
 
         public Result(LoadFlowResult loadFlowResult, boolean fallbackHasBeenActivated) {
             super(loadFlowResult.isOk(), loadFlowResult.getMetrics(),

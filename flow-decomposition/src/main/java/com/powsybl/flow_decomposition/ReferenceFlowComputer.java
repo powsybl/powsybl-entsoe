@@ -18,12 +18,6 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class ReferenceFlowComputer {
-    private final boolean fallbackHasBeenActivated;
-
-    public ReferenceFlowComputer(boolean fallbackHasBeenActivated) {
-        this.fallbackHasBeenActivated = fallbackHasBeenActivated;
-    }
-
     Map<String, Double> run(List<Branch> xnecList) {
         return xnecList.stream()
             .collect(Collectors.toMap(
@@ -33,9 +27,6 @@ class ReferenceFlowComputer {
     }
 
     private double getP(Branch branch) {
-        if (this.fallbackHasBeenActivated) {
-            return Double.NaN;
-        }
         return branch.getTerminal1().getP();
     }
 }
