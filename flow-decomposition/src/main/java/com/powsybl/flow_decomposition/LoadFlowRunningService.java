@@ -53,16 +53,16 @@ class LoadFlowRunningService {
         return new Result(dcLoadFlowResult, FALLBACK_HAS_NOT_BEEN_ACTIVATED);
     }
 
-    static class Result extends LoadFlowResultImpl {
+    static class Result {
+        private final LoadFlowResult loadFlowResult;
         private boolean fallbackHasBeenActivated;
 
         public Result(LoadFlowResult loadFlowResult, boolean fallbackHasBeenActivated) {
-            super(loadFlowResult.isOk(), loadFlowResult.getMetrics(),
-                loadFlowResult.getLogs(), loadFlowResult.getComponentResults());
+            this.loadFlowResult = loadFlowResult;
             this.fallbackHasBeenActivated = fallbackHasBeenActivated;
         }
 
-        public boolean isFallbackHasBeenActivated() {
+        public boolean fallbackHasBeenActivated() {
             return fallbackHasBeenActivated;
         }
 
