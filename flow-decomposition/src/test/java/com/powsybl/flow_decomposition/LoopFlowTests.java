@@ -9,6 +9,8 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -110,17 +112,5 @@ class LoopFlowTests {
         assertEquals(200, decomposedFlowMap.get(x2).getDcReferenceFlow(), EPSILON);
         assertEquals(200, decomposedFlowMap.get(x4).getDcReferenceFlow(), EPSILON);
         assertEquals(100, decomposedFlowMap.get(x5).getDcReferenceFlow(), EPSILON);
-    }
-
-    @Test
-    void testFallbackDisabledOnNetworkThatDoesNotConvergeInAC() {
-        String networkFileName = "NETWORK_LOOP_FLOW_WITH_COUNTRIES.uct";
-
-        Network network = AllocatedFlowTests.importNetwork(networkFileName);
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
-            .setDcFallbackEnabledAfterAcDivergence(FlowDecompositionParameters.DISABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE);
-        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        Executable flowComputerExecutable = () -> flowComputer.run(network);
-        assertThrows(PowsyblException.class, flowComputerExecutable, "AC loadfow divergence without fallback procedure enabled");
     }
 }

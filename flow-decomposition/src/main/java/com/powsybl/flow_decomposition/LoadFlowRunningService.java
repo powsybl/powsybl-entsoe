@@ -61,6 +61,10 @@ class LoadFlowRunningService {
             this.fallbackHasBeenActivated = fallbackHasBeenActivated;
         }
 
+        public LoadFlowResult getLoadFlowResult() {
+            return loadFlowResult;
+        }
+
         public boolean fallbackHasBeenActivated() {
             return fallbackHasBeenActivated;
         }
