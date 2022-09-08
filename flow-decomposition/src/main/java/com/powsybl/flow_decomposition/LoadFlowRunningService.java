@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,41 +22,63 @@ class LoadFlowRunningService {
     private static final boolean AC_LOAD_FLOW = false;
     private static final boolean DC_LOAD_FLOW = true;
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowRunningService.class);
+    public static final boolean FALLBACK_HAS_BEEN_ACTIVATED = true;
+    public static final boolean FALLBACK_HAS_NOT_BEEN_ACTIVATED = false;
     protected final LoadFlow.Runner runner;
 
     LoadFlowRunningService(LoadFlow.Runner runner) {
         this.runner = runner;
     }
 
-    LoadFlowResult runAcLoadflow(Network network, LoadFlowParameters loadFlowParameters, boolean isDcFallbackEnabledAfterAcDivergence) {
+    Result runAcLoadflow(Network network, LoadFlowParameters loadFlowParameters, boolean isDcFallbackEnabledAfterAcDivergence) {
         LoadFlowParameters acEnforcedParameters = enforceAcLoadFlowCalculation(loadFlowParameters);
         LoadFlowResult acLoadFlowResult = runner.run(network, acEnforcedParameters);
         if (!acLoadFlowResult.isOk() && isDcFallbackEnabledAfterAcDivergence) {
             LOGGER.warn("AC loadflow divergence. Running DC loadflow as fallback procedure.");
-            return runDcLoadflow(network, loadFlowParameters);
+            return runDcLoadflow(network, loadFlowParameters)
+                .setFallbackHasBeenActivated(FALLBACK_HAS_BEEN_ACTIVATED);
         }
         if (!acLoadFlowResult.isOk()) {
             throw new PowsyblException("AC loadfow divergence without fallback procedure enabled.");
         }
-        return acLoadFlowResult;
+        return new Result(acLoadFlowResult, FALLBACK_HAS_NOT_BEEN_ACTIVATED);
     }
 
-    public LoadFlowResult runDcLoadflow(Network network, LoadFlowParameters loadFlowParameters) {
+    Result runDcLoadflow(Network network, LoadFlowParameters loadFlowParameters) {
         LoadFlowParameters dcEnforcedParameters = enforceDcLoadFlowCalculation(loadFlowParameters);
         LoadFlowResult dcLoadFlowResult = runner.run(network, dcEnforcedParameters);
         if (!dcLoadFlowResult.isOk()) {
             throw new PowsyblException("DC loadfow divergence.");
         }
-        return dcLoadFlowResult;
+        return new Result(dcLoadFlowResult, FALLBACK_HAS_NOT_BEEN_ACTIVATED);
     }
 
-    protected LoadFlowParameters enforceAcLoadFlowCalculation(LoadFlowParameters initialLoadFlowParameters) {
+    static class Result extends LoadFlowResultImpl {
+        boolean fallbackHasBeenActivated;
+
+        public Result(LoadFlowResult loadFlowResult, boolean fallbackHasBeenActivated) {
+            super(loadFlowResult.isOk(), loadFlowResult.getMetrics(),
+                loadFlowResult.getLogs(), loadFlowResult.getComponentResults());
+            this.fallbackHasBeenActivated = fallbackHasBeenActivated;
+        }
+
+        public boolean isFallbackHasBeenActivated() {
+            return fallbackHasBeenActivated;
+        }
+
+        public Result setFallbackHasBeenActivated(boolean fallbackHasBeenActivated) {
+            this.fallbackHasBeenActivated = fallbackHasBeenActivated;
+            return this;
+        }
+    }
+
+    private LoadFlowParameters enforceAcLoadFlowCalculation(LoadFlowParameters initialLoadFlowParameters) {
         LoadFlowParameters acEnforcedParameters = initialLoadFlowParameters.copy();
         acEnforcedParameters.setDc(AC_LOAD_FLOW);
         return acEnforcedParameters;
     }
 
-    protected LoadFlowParameters enforceDcLoadFlowCalculation(LoadFlowParameters initialLoadFlowParameters) {
+    private LoadFlowParameters enforceDcLoadFlowCalculation(LoadFlowParameters initialLoadFlowParameters) {
         LoadFlowParameters dcEnforcedParameters = initialLoadFlowParameters.copy();
         dcEnforcedParameters.setDc(DC_LOAD_FLOW);
         return dcEnforcedParameters;

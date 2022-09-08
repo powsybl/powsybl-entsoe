@@ -7,8 +7,6 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -18,8 +16,6 @@ import java.util.Map;
  * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
  */
 class NetPositionComputer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NetPositionComputer.class);
-
     Map<Country, Double> run(Network network) {
         return computeNetPositions(network);
     }

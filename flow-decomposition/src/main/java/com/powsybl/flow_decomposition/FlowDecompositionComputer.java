@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -23,7 +21,6 @@ import java.util.*;
 public class FlowDecompositionComputer {
     static final String DEFAULT_LOAD_FLOW_PROVIDER = null;
     static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = null;
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
     private final LoadFlowRunningService loadFlowRunningService;
@@ -55,22 +52,22 @@ public class FlowDecompositionComputer {
     public FlowDecompositionResults run(Network network) {
         FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network, parameters);
 
-        loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
+        LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
 
         Map<Country, Map<String, Double>> glsks = getGlsks(network, flowDecompositionResults);
         List<Branch> xnecList = getXnecList(network, glsks, flowDecompositionResults);
         Map<Country, Double> netPositions = getZonesNetPosition(network, flowDecompositionResults);
-        flowDecompositionResults.saveAcReferenceFlow(getXnecReferenceFlows(xnecList));
+        saveAcReferenceFlow(flowDecompositionResults, xnecList, loadFlowServiceAcResult);
         compensateLosses(network);
 
         // None
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
 
-        loadFlowRunningService.runDcLoadflow(network, loadFlowParameters);
+        LoadFlowRunningService.Result loadFlowServiceDcResult = runDcLoadFlow(network);
 
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
             flowDecompositionResults, netPositions, networkMatrixIndexes, glsks);
-        flowDecompositionResults.saveDcReferenceFlow(getXnecReferenceFlows(xnecList));
+        saveDcReferenceFlow(flowDecompositionResults, xnecList, loadFlowServiceDcResult);
 
         // DC Sensi
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
@@ -86,6 +83,10 @@ public class FlowDecompositionComputer {
         rescale(flowDecompositionResults);
 
         return flowDecompositionResults;
+    }
+
+    private LoadFlowRunningService.Result runAcLoadFlow(Network network) {
+        return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
     private List<Branch> getXnecList(Network network, Map<Country, Map<String, Double>> glsks, FlowDecompositionResults flowDecompositionResults) {
@@ -105,6 +106,10 @@ public class FlowDecompositionComputer {
         List<Branch> xnecList = xnecSelector.run(network);
         flowDecompositionResults.saveXnec(xnecList);
         return xnecList;
+    }
+
+    private void saveAcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+        flowDecompositionResults.saveAcReferenceFlow(getXnecReferenceFlows(xnecList, loadFlowServiceAcResult.isFallbackHasBeenActivated()));
     }
 
     private Map<Country, Map<String, Double>> getGlsks(Network network,
@@ -133,8 +138,8 @@ public class FlowDecompositionComputer {
         return netPosition;
     }
 
-    private Map<String, Double> getXnecReferenceFlows(List<Branch> xnecList) {
-        ReferenceFlowComputer referenceFlowComputer = new ReferenceFlowComputer();
+    private Map<String, Double> getXnecReferenceFlows(List<Branch> xnecList, boolean fallbackHasBeenActivated) {
+        ReferenceFlowComputer referenceFlowComputer = new ReferenceFlowComputer(fallbackHasBeenActivated);
         return referenceFlowComputer.run(xnecList);
     }
 
@@ -143,6 +148,10 @@ public class FlowDecompositionComputer {
             LossesCompensator lossesCompensator = new LossesCompensator(parameters);
             lossesCompensator.run(network);
         }
+    }
+
+    private LoadFlowRunningService.Result runDcLoadFlow(Network network) {
+        return loadFlowRunningService.runDcLoadflow(network, loadFlowParameters);
     }
 
     private SparseMatrixWithIndexesTriplet getNodalInjectionsMatrix(Network network,
@@ -176,6 +185,10 @@ public class FlowDecompositionComputer {
                 glsks, netPositions, dcNodalInjection);
         flowDecompositionResults.saveNodalInjectionsMatrix(nodalInjectionsMatrix);
         return nodalInjectionsMatrix;
+    }
+
+    private void saveDcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceDcResult) {
+        flowDecompositionResults.saveDcReferenceFlow(getXnecReferenceFlows(xnecList, loadFlowServiceDcResult.isFallbackHasBeenActivated()));
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
