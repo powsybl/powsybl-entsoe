@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -144,11 +144,11 @@ class RescalingTests {
     static void testNormalizationWithFlowDecompositionResults(String networkFileName, boolean enableRescaledResults) {
         Network network = AllocatedFlowTests.importNetwork(networkFileName);
 
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION);
-        flowDecompositionParameters.setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
-        flowDecompositionParameters.setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON);
-        flowDecompositionParameters.setRescaleEnabled(enableRescaledResults);
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
+            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+            .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
+            .setRescaleEnabled(enableRescaledResults);
 
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
@@ -161,5 +161,27 @@ class RescalingTests {
                 assertEquals(Math.abs(rescaledDecomposedFlow.getAcReferenceFlow()), rescaledDecomposedFlow.getTotalFlow(), EPSILON);
             }
         }
+    }
+
+    @Test
+    void testRescalingDoesNotOccurWhenAcDiverge() {
+        String networkFileName = "NETWORK_LOOP_FLOW_WITH_COUNTRIES.uct";
+        Network network = AllocatedFlowTests.importNetwork(networkFileName);
+
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
+            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+            .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
+            .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
+
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
+
+        String xnecId = "BLOAD 11 FLOAD 11 1";
+        assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMapBeforeRescaling().get(xnecId).getAcReferenceFlow()));
+        assertFalse(Double.isNaN(flowDecompositionResults.getDecomposedFlowMapBeforeRescaling().get(xnecId).getAllocatedFlow()));
+        assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAcReferenceFlow()));
+        assertFalse(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow()));
+
     }
 }

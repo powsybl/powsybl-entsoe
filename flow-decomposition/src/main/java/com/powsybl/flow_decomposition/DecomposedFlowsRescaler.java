@@ -41,6 +41,9 @@ class DecomposedFlowsRescaler {
         Country country1 = decomposedFlow.getCountry1();
         Country country2 = decomposedFlow.getCountry2();
         double internalFlow = decomposedFlow.getInternalFlow();
+        if (Double.isNaN(acReferenceFlow)) {
+            return decomposedFlow;
+        }
         double deltaToRescale = acReferenceFlow * Math.signum(acReferenceFlow) - decomposedFlow.getTotalFlow();
         double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + loopFlows.values().stream().mapToDouble(this::reLU).sum() + reLU(internalFlow);
         Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
