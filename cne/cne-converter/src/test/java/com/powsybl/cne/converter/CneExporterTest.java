@@ -9,6 +9,7 @@ package com.powsybl.cne.converter;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
@@ -63,7 +64,7 @@ public class CneExporterTest extends AbstractConverterTest {
         SecurityAnalysisResultExporters.export(resultToExport, parameters, actualPath, "CNE-XML");
         // check the exported file and compare it to iidm reference file
         try (InputStream is = Files.newInputStream(actualPath)) {
-            compareXml(getClass().getResourceAsStream("/cne.xml"), is);
+            ComparisonUtils.compareXml(getClass().getResourceAsStream("/cne.xml"), is);
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }
