@@ -119,4 +119,9 @@ public abstract class AbstractGlskShiftKey implements GlskShiftKey {
     public double getMaximumShift() {
         return maximumShift;
     }
+
+    @Override
+    public void setGlskShiftKeyInterval(Interval interval) {
+        this.glskShiftKeyInterval = interval;
+    }
 }

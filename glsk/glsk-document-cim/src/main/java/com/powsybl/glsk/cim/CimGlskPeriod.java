@@ -74,6 +74,7 @@ public class CimGlskPeriod {
                 GlskPoint point = glskPoints.get(i);
                 Interval newInterval = point.getPointInterval().withEnd(nextPointStart);
                 point.setPointInterval(newInterval);
+                point.getGlskShiftKeys().forEach(glskShiftKey -> glskShiftKey.setGlskShiftKeyInterval(newInterval));
                 nextPointStart = point.getPointInterval().getStart();
             }
         }
