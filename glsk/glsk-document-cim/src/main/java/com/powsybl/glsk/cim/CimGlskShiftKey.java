@@ -51,7 +51,7 @@ public class CimGlskShiftKey extends AbstractGlskShiftKey {
         if (flowDirection.equals("A01")) {
             this.meritOrderPosition = absolutePosition;
         } else if (flowDirection.equals("A02")) {
-            this.meritOrderPosition = - absolutePosition;
+            this.meritOrderPosition = -absolutePosition;
         } else {
             this.meritOrderPosition = 0;
         }

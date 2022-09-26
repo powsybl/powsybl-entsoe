@@ -34,6 +34,7 @@ public class CimGlskDocumentImporterTest {
     private static final String GLSKB42COUNTRY = "/GlskB42CountryIIDM.xml";
     private static final String GLSKMULTIPOINTSTEST = "/GlskMultiPoints.xml";
     private static final String GLSKB45TEST = "/GlskB45test.xml";
+    private static final String GLSKB45A03TEST = "/GlskB45CurveTypeA03test.xml";
 
     private InputStream getResourceAsInputStream(String resource) {
         return getClass().getResourceAsStream(resource);
@@ -60,6 +61,15 @@ public class CimGlskDocumentImporterTest {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB45TEST));
         List<GlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
         assertFalse(glskShiftKeys.isEmpty());
+        assertEquals(4, glskShiftKeys.size());
+    }
+
+    @Test
+    public void testGlskDocumentImportB45A03() {
+        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB45A03TEST));
+        assertEquals(2, cimGlskDocument.getGlskPoints().size());
+        assertEquals("2017-04-12T22:00:00Z/2017-04-13T07:00:00Z", cimGlskDocument.getGlskPoints().get(0).getPointInterval().toString());
+        assertEquals("2017-04-13T07:00:00Z/2017-04-13T22:00:00Z", cimGlskDocument.getGlskPoints().get(1).getPointInterval().toString());
     }
 
     @Test
