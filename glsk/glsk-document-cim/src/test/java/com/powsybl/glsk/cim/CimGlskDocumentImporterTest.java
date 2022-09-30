@@ -60,7 +60,6 @@ public class CimGlskDocumentImporterTest {
     public void testGlskDocumentImportB45() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB45TEST));
         List<GlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
-        assertFalse(glskShiftKeys.isEmpty());
         assertEquals(4, glskShiftKeys.size());
     }
 

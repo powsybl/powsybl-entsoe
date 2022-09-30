@@ -6,8 +6,6 @@
  */
 package com.powsybl.glsk.api;
 
-import org.threeten.extra.Interval;
-
 import java.util.List;
 
 /**
@@ -73,8 +71,4 @@ public interface GlskShiftKey {
 
     double getMaximumShift();
 
-    /**
-     *  setter time interval of shift key
-     */
-    void setGlskShiftKeyInterval(Interval interval);
 }
