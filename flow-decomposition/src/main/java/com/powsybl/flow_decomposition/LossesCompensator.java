@@ -41,28 +41,79 @@ class LossesCompensator {
     }
 
     void run(Network network) {
+        addNullLoadsOnBuses(network);
         network.getBranchStream()
             .filter(this::hasBuses)
             .filter(this::hasP0s)
-            .forEach(this::compensateLossesOnBranch);
+            .forEach(branch -> compensateLossesOnBranch(network, branch));
     }
 
-    private String getLossesId(String id) {
+    private void addNullLoadsOnBuses(Network network) {
+        network.getBusBreakerView().getBusStream()
+            //.filter(Bus::isInMainSynchronousComponent)
+            .forEach(this::addNullLoad);
+    }
+
+    private void addNullLoad(Bus bus) {
+        switch (bus.getVoltageLevel().getTopologyKind()) {
+            case BUS_BREAKER:
+                addNullLoadForBusBreakerTopology(bus);
+                return;
+            case NODE_BREAKER:
+                addNullLoadForNodeBreakerTopology(bus);
+                return;
+            default:
+                throw new PowsyblException("This topology is not managed by the loss compensation.");
+        }
+    }
+
+    private static void addNullLoadForBusBreakerTopology(Bus bus) {
+        String busId = bus.getId();
+        bus.getVoltageLevel().newLoad()
+            .setId(getLossesId(busId))
+            .setBus(busId)
+            .setP0(0)
+            .setQ0(0)
+            .add();
+    }
+
+    private static void addNullLoadForNodeBreakerTopology(Bus bus) {
+        return;
+       // String busId = bus.getId();
+       // Optional<? extends Terminal> optionalTerminal = bus.getConnectedTerminalStream().findFirst();
+       // if (optionalTerminal.isEmpty()) {
+       //     throw new PowsyblException(String.format("Bus %s should have at least one terminal", busId));
+       // }
+       // Terminal terminal = optionalTerminal.get();
+       // int nodeNum = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
+       // terminal.getVoltageLevel().getNodeBreakerView().newInternalConnection()
+       //     .setNode1(nodeNum)
+       //     .setNode2(terminal.getNodeBreakerView().getNode())
+       //     .add();
+       // terminal.getVoltageLevel().newLoad()
+       //     .setId(busId)
+       //     .setNode(nodeNum)
+       //     .setP0(0)
+       //     .setQ0(0)
+       //     .add();
+    }
+
+    private static String getLossesId(String id) {
         return String.format("LOSSES %s", id);
     }
 
-    private void compensateLossesOnBranch(Branch<?> branch) {
+    private void compensateLossesOnBranch(Network network, Branch<?> branch) {
         if (branch instanceof TieLine) {
-            compensateLossesOnTieLine((TieLine) branch);
+            compensateLossesOnTieLine(network, (TieLine) branch);
         } else {
             Terminal sendingTerminal = getSendingTerminal(branch);
             String lossesId = getLossesId(branch.getId());
             double losses = branch.getTerminal1().getP() + branch.getTerminal2().getP();
-            createLoadForLossesOnTerminal(sendingTerminal, lossesId, losses);
+            updateLoadForLossesOnTerminal(network, sendingTerminal, lossesId, losses);
         }
     }
 
-    private void compensateLossesOnTieLine(TieLine tieLine) {
+    private void compensateLossesOnTieLine(Network network, TieLine tieLine) {
         double r1 = tieLine.getHalf1().getR();
         double r2 = tieLine.getHalf2().getR();
         double r = r1 + r2;
@@ -74,18 +125,18 @@ class LossesCompensator {
         String lossesIdSide1 = getLossesId(tieLine.getHalf1().getId());
         String lossesIdSide2 = getLossesId(tieLine.getHalf2().getId());
 
-        createLoadForLossesOnTerminal(terminal1, lossesIdSide1, lossesSide1);
-        createLoadForLossesOnTerminal(terminal2, lossesIdSide2, lossesSide2);
+        updateLoadForLossesOnTerminal(network, terminal1, lossesIdSide1, lossesSide1);
+        updateLoadForLossesOnTerminal(network, terminal2, lossesIdSide2, lossesSide2);
     }
 
-    private void createLoadForLossesOnTerminal(Terminal terminal, String lossesId, double losses) {
+    private void updateLoadForLossesOnTerminal(Network network, Terminal terminal, String lossesId, double losses) {
         if (Math.abs(losses) > epsilon) {
             switch (terminal.getVoltageLevel().getTopologyKind()) {
                 case BUS_BREAKER:
-                    addNewLoadForBusBreakerTopology(terminal, lossesId, losses);
+                    updateLoadForBusBreakerTopology(network, terminal, losses);
                     return;
                 case NODE_BREAKER:
-                    addNewLoadForNodeBreakerTopology(terminal, lossesId, losses);
+                    updateLoadForNodeBreakerTopology(terminal, lossesId, losses);
                     return;
                 default:
                     throw new PowsyblException("This topology is not managed by the loss compensation.");
@@ -93,16 +144,12 @@ class LossesCompensator {
         }
     }
 
-    private static void addNewLoadForBusBreakerTopology(Terminal terminal, String lossesId, double losses) {
-        terminal.getVoltageLevel().newLoad()
-            .setId(lossesId)
-            .setBus(terminal.getBusBreakerView().getBus().getId())
-            .setP0(losses)
-            .setQ0(0)
-            .add();
+    private static void updateLoadForBusBreakerTopology(Network network, Terminal terminal, double losses) {
+        Load load = network.getLoad(getLossesId(terminal.getBusBreakerView().getBus().getId()));
+        load.setP0(load.getP0() + losses);
     }
 
-    private static void addNewLoadForNodeBreakerTopology(Terminal terminal, String lossesId, double losses) {
+    private static void updateLoadForNodeBreakerTopology(Terminal terminal, String lossesId, double losses) {
         int nodeNum = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
         terminal.getVoltageLevel().getNodeBreakerView().newInternalConnection()
             .setNode1(nodeNum)
