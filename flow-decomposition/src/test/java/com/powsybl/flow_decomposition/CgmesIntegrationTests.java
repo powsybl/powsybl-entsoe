@@ -8,12 +8,14 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,18 +31,29 @@ class CgmesIntegrationTests {
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);
-        String branchId = network.getBranchStream().iterator().next().getId();
-        Branch branch = network.getBranch(branchId);
-        double p = branch.getTerminal1().getP() + branch.getTerminal2().getP();
+        Map<VoltageLevel, Double> voltageLevelToLossMap = network.getVoltageLevelStream()
+            .collect(Collectors.toMap(Function.identity(), voltageLevel -> getLossOnVoltageLevel(network, voltageLevel)
+            ));
 
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
-        Load load = network.getLoad(String.format("LOSSES %s", branchId));
-        assertNotNull(load);
-        assertEquals(p, load.getP0());
-        assertEquals(load.getTerminal().getBusBreakerView().getBus(), branch.getTerminal2().getBusBreakerView().getBus());
-        assertNotEquals(load.getTerminal().getBusBreakerView().getBus(), branch.getTerminal1().getBusBreakerView().getBus());
+        voltageLevelToLossMap.forEach((voltageLevel, losses) -> {
+            Load load = network.getLoad(String.format("LOSSES %s", voltageLevel.getId()));
+            assertNotNull(load);
+            assertEquals(losses, load.getP0());
+        });
+    }
+
+    private static double getLossOnVoltageLevel(Network network, VoltageLevel voltageLevel) {
+        return network.getBranchStream()
+            .filter(branch -> terminalIsSendingPowerToVoltageLevel(branch.getTerminal1(), voltageLevel) || terminalIsSendingPowerToVoltageLevel(branch.getTerminal2(), voltageLevel))
+            .mapToDouble(branch -> branch.getTerminal1().getP() + branch.getTerminal2().getP())
+            .sum();
+    }
+
+    private static boolean terminalIsSendingPowerToVoltageLevel(Terminal terminal, VoltageLevel voltageLevel) {
+        return terminal.getVoltageLevel() == voltageLevel && terminal.getP() > 0;
     }
 
     @Test
