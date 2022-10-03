@@ -67,10 +67,13 @@ public class GlskPointScalableConverterTest {
         double done = scalable.scale(testNetwork, 100.0);
         Assert.assertTrue(DoubleMath.fuzzyEquals(6, done, 0.0001));
         Generator generator1 = testNetwork.getGenerator("FFR1AA1 _generator");
+        Generator generator2 = testNetwork.getGenerator("FFR2AA1 _generator");
         Assert.assertTrue(DoubleMath.fuzzyEquals(2001., generator1.getTargetP(), 0.0001));
-        done = scalable.scale(testNetwork, -100.0);
-        Assert.assertTrue(DoubleMath.fuzzyEquals(-100, done, 0.0001));
-        Assert.assertTrue(DoubleMath.fuzzyEquals(1901., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), 0.0001));
+        Assert.assertTrue(DoubleMath.fuzzyEquals(2002., generator2.getTargetP(), 0.0001));
+        done = scalable.scale(testNetwork, -3000.0);
+        Assert.assertTrue(DoubleMath.fuzzyEquals(-3000., done, 0.0001));
+        Assert.assertTrue(DoubleMath.fuzzyEquals(0., generator1.getTargetP(), 0.0001));
+        Assert.assertTrue(DoubleMath.fuzzyEquals(1003., generator2.getTargetP(), 0.0001));
 
     }
 

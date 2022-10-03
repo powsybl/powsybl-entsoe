@@ -75,7 +75,20 @@
 						<mRID codingScheme="A02">FFR1AA1 _generator</mRID>
 						<name>FFR1AA1 _generator</name>
 						<resourceCapacity.maximumCapacity>2001</resourceCapacity.maximumCapacity>
-						<resourceCapacity.minimumCapacity>-401</resourceCapacity.minimumCapacity>
+						<resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
+					</RegisteredResource>
+				</SKBlock_TimeSeries>
+				<SKBlock_TimeSeries>
+					<businessType>B45</businessType>
+					<mktPSRType.psrType>A01</mktPSRType.psrType>
+					<flowDirection.direction>A02</flowDirection.direction>
+					<measurement_Unit.name>MAW</measurement_Unit.name>
+					<attributeInstanceComponent.position>1</attributeInstanceComponent.position>
+					<RegisteredResource>
+						<mRID codingScheme="A02">FFR2AA1 _generator</mRID>
+						<name>FFR2AA1 _generator</name>
+						<resourceCapacity.maximumCapacity>2002</resourceCapacity.maximumCapacity>
+						<resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
 					</RegisteredResource>
 				</SKBlock_TimeSeries>
 			</Point>

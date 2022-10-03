@@ -70,5 +70,4 @@ public interface GlskShiftKey {
     String getFlowDirection();
 
     double getMaximumShift();
-
 }

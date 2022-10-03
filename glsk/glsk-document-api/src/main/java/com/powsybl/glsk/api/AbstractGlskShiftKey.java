@@ -119,5 +119,4 @@ public abstract class AbstractGlskShiftKey implements GlskShiftKey {
     public double getMaximumShift() {
         return maximumShift;
     }
-
 }
