@@ -10,18 +10,18 @@
 	<receiver_MarketParticipant.marketRole.type>A36</receiver_MarketParticipant.marketRole.type>
 	<createdDateTime>2017-07-18T06:31:36Z</createdDateTime>
 	<time_Period.timeInterval>
-		<start>2017-04-12T02:00Z</start>
-		<end>2017-04-12T03:00Z</end> 
+		<start>2017-04-12T22:00Z</start>
+		<end>2017-04-13T22:00Z</end>
 	</time_Period.timeInterval> 
 	<domain.mRID codingScheme="A01">10YCB-FR-ES-PT-S</domain.mRID> 
 	<TimeSeries> 
 		<mRID>B45TestFR</mRID>
 		<subject_Domain.mRID codingScheme="A01">10YFR-RTE------C</subject_Domain.mRID> 
-		<curveType>A01</curveType> 
+		<curveType>A03</curveType>
 		<Period>
 			<timeInterval>
-				<start>2017-04-12T02:00Z</start>
-				<end>2017-04-12T03:00Z</end>
+				<start>2017-04-12T22:00Z</start>
+				<end>2017-04-13T22:00Z</end>
 			</timeInterval>
 			<resolution>PT60M</resolution>
 			<Point>
@@ -75,20 +75,23 @@
 						<mRID codingScheme="A02">FFR1AA1 _generator</mRID>
 						<name>FFR1AA1 _generator</name>
 						<resourceCapacity.maximumCapacity>2001</resourceCapacity.maximumCapacity>
-						<resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
+						<resourceCapacity.minimumCapacity>-401</resourceCapacity.minimumCapacity>
 					</RegisteredResource>
 				</SKBlock_TimeSeries>
+			</Point>
+			<Point>
+				<position>10</position>
 				<SKBlock_TimeSeries>
 					<businessType>B45</businessType>
 					<mktPSRType.psrType>A01</mktPSRType.psrType>
-					<flowDirection.direction>A02</flowDirection.direction>
+					<flowDirection.direction>A01</flowDirection.direction>
 					<measurement_Unit.name>MAW</measurement_Unit.name>
 					<attributeInstanceComponent.position>1</attributeInstanceComponent.position>
 					<RegisteredResource>
-						<mRID codingScheme="A02">FFR2AA1 _generator</mRID>
-						<name>FFR2AA1 _generator</name>
-						<resourceCapacity.maximumCapacity>2002</resourceCapacity.maximumCapacity>
-						<resourceCapacity.minimumCapacity>0</resourceCapacity.minimumCapacity>
+						<mRID codingScheme="A02">FFR3AA1 _generator</mRID>
+						<name>FFR3AA1 _generator</name>
+						<resourceCapacity.maximumCapacity>3003</resourceCapacity.maximumCapacity>
+						<resourceCapacity.minimumCapacity>-401</resourceCapacity.minimumCapacity>
 					</RegisteredResource>
 				</SKBlock_TimeSeries>
 			</Point>

@@ -11,6 +11,7 @@ import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.scalable.Scalable;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import org.junit.Assert;
 import org.junit.Before;
@@ -65,6 +66,15 @@ public class GlskPointScalableConverterTest {
         Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskMeritOrder);
         double done = scalable.scale(testNetwork, 100.0);
         Assert.assertTrue(DoubleMath.fuzzyEquals(6, done, 0.0001));
+        Generator generator1 = testNetwork.getGenerator("FFR1AA1 _generator");
+        Generator generator2 = testNetwork.getGenerator("FFR2AA1 _generator");
+        Assert.assertTrue(DoubleMath.fuzzyEquals(2001., generator1.getTargetP(), 0.0001));
+        Assert.assertTrue(DoubleMath.fuzzyEquals(2002., generator2.getTargetP(), 0.0001));
+        done = scalable.scale(testNetwork, -3000.0);
+        Assert.assertTrue(DoubleMath.fuzzyEquals(-3000., done, 0.0001));
+        Assert.assertTrue(DoubleMath.fuzzyEquals(0., generator1.getTargetP(), 0.0001));
+        Assert.assertTrue(DoubleMath.fuzzyEquals(1003., generator2.getTargetP(), 0.0001));
+
     }
 
     @Test
