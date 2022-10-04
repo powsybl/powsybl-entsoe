@@ -8,6 +8,7 @@ package com.powsybl.glsk.cim;
 
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.Assert;
@@ -16,6 +17,8 @@ import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * FlowBased Glsk Values Provider Test
@@ -49,5 +52,17 @@ public class CimGlskTest {
         ZonalData<SensitivityVariableSet> zonalGlsks = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
             .getZonalGlsks(testNetwork, instant);
         Assert.assertNull(zonalGlsks.getData("fake-area"));
+    }
+
+    @Test
+    public void zonalScalableTest() {
+        CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskB45CurveTypeA03test.xml"));
+        assertEquals(1, cimGlskDocument.getZones().size());
+        Instant instant1 = Instant.parse("2017-04-13T07:00:00Z");
+        ZonalData<Scalable> zonalScalables = cimGlskDocument.getZonalScalable(testNetwork, instant1);
+        assertEquals(1, zonalScalables.getDataPerZone().size());
+        Scalable scalableFR = zonalScalables.getData("10YFR-RTE------C");
+        assertEquals(1, scalableFR.filterInjections(testNetwork).size());
+        assertEquals("FFR3AA1 _generator", scalableFR.filterInjections(testNetwork).get(0).getId());
     }
 }
