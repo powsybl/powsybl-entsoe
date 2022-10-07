@@ -79,7 +79,7 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private SensitivityAnalysisResult getSensitivityAnalysisResult(List<SensitivityFactor> factors) {
-        return SensitivityAnalysis.run(network, factors, sensitivityAnalysisParameters);
+        return runner.run(network, factors, sensitivityAnalysisParameters);
     }
 
     private void fillSensibilityMatrixTriplet(
