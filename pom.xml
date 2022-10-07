@@ -69,7 +69,6 @@
         <ejml.version>0.41</ejml.version>
         <commonscsv.version>1.9.0</commonscsv.version>
         <junit-jupiter.version>5.5.2</junit-jupiter.version>
-        <mockito-core.version>4.8.0</mockito-core.version>
     </properties>
 
     <modules>

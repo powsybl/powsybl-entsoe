@@ -87,7 +87,7 @@ public class FlowDecompositionComputer {
     }
 
     private LoadFlowRunningService.Result runAcLoadFlow(Network network) {
-        return getLoadFlowRunningService().runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
+        return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
     private List<Branch> getXnecList(Network network, Map<Country, Map<String, Double>> glsks, FlowDecompositionResults flowDecompositionResults) {
@@ -130,7 +130,7 @@ public class FlowDecompositionComputer {
     private Map<String, Map<Country, Double>> getZonalPtdf(Network network,
                                                            Map<Country, Map<String, Double>> glsks,
                                                            FlowDecompositionResults flowDecompositionResults) {
-        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters, getSensitivityAnalysisRunner());
+        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner);
         Map<String, Map<Country, Double>> zonalPtdf = zonalSensitivityAnalyser.run(network,
             glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
         flowDecompositionResults.saveZonalPtdf(zonalPtdf);
@@ -158,7 +158,7 @@ public class FlowDecompositionComputer {
     }
 
     private LoadFlowRunningService.Result runDcLoadFlow(Network network) {
-        return getLoadFlowRunningService().runDcLoadflow(network, loadFlowParameters);
+        return loadFlowRunningService.runDcLoadflow(network, loadFlowParameters);
     }
 
     private SparseMatrixWithIndexesTriplet getNodalInjectionsMatrix(Network network,
@@ -198,8 +198,8 @@ public class FlowDecompositionComputer {
         flowDecompositionResults.saveDcReferenceFlow(getXnecReferenceFlows(xnecList));
     }
 
-    SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
-        return new SensitivityAnalyser(loadFlowParameters, parameters, getSensitivityAnalysisRunner(), network, networkMatrixIndexes);
+    private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
+        return new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
     }
 
     private SparseMatrixWithIndexesTriplet getPtdfMatrix(FlowDecompositionResults flowDecompositionResults,
@@ -251,13 +251,5 @@ public class FlowDecompositionComputer {
             return decomposedFlowsRescaler.rescale(decomposedFlowMap);
         }
         return decomposedFlowMap;
-    }
-
-    LoadFlowRunningService getLoadFlowRunningService() {
-        return loadFlowRunningService;
-    }
-
-    SensitivityAnalysis.Runner getSensitivityAnalysisRunner() {
-        return sensitivityAnalysisRunner;
     }
 }
