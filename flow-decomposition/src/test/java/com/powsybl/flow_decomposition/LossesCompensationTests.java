@@ -58,15 +58,15 @@ class LossesCompensationTests {
     }
 
     private void assessSingleLoadTwoGeneratorsNetworkLossesCompensation(Network network) {
-        Load lossesFgen = network.getLoad("LOSSES FGEN1 1");
+        Load lossesFgen = network.getLoad("LOSSES FGEN1 11");
         assertNotNull(lossesFgen);
         assertEquals("FGEN1 1", lossesFgen.getTerminal().getVoltageLevel().getId());
         assertEquals(0.0625, lossesFgen.getP0(), EPSILON);
-        Load lossesBgen = network.getLoad("LOSSES BGEN2 1");
+        Load lossesBgen = network.getLoad("LOSSES BGEN2 11");
         assertNotNull(lossesBgen);
         assertEquals("BGEN2 1", lossesBgen.getTerminal().getVoltageLevel().getId());
         assertEquals(0.0625, lossesBgen.getP0(), EPSILON);
-        Load lossesBload = network.getLoad("LOSSES BLOAD 1");
+        Load lossesBload = network.getLoad("LOSSES BLOAD 11");
         assertNotNull(lossesBload);
         assertEquals("BLOAD 1", lossesBload.getTerminal().getVoltageLevel().getId());
         assertEquals(0.0, lossesBload.getP0(), EPSILON);
@@ -86,11 +86,11 @@ class LossesCompensationTests {
         Load lossesFgenBload = network.getLoad("LOSSES FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
         assertNull(lossesFgenBload);
 
-        Load lossesFgenX = network.getLoad("LOSSES FGEN1 1");
+        Load lossesFgenX = network.getLoad("LOSSES FGEN1 11");
         assertNotNull(lossesFgenX);
         assertEquals("FGEN1 1", lossesFgenX.getTerminal().getVoltageLevel().getId());
         assertEquals(0.015625, lossesFgenX.getP0(), EPSILON);
-        Load lossesBloadX = network.getLoad("LOSSES BLOAD 1");
+        Load lossesBloadX = network.getLoad("LOSSES BLOAD 11");
         assertNotNull(lossesBloadX);
         assertEquals("BLOAD 1", lossesBloadX.getTerminal().getVoltageLevel().getId());
         assertEquals(0.046875, lossesBloadX.getP0(), EPSILON);

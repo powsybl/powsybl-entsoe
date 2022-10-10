@@ -9,7 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -51,51 +51,51 @@ class LossesCompensator {
     private void addNullLoadsOnBuses(Network network) {
         network.getBranchStream()
             .flatMap(branch -> Stream.of(branch.getTerminal1(), branch.getTerminal2()))
-            .map(Terminal::getVoltageLevel)
+            .map(terminal -> terminal.getBusBreakerView().getBus())
+            .filter(Objects::nonNull)
             .distinct()
             .forEach(this::addNullLoad);
     }
 
-    private void addNullLoad(VoltageLevel voltageLevel) {
-        String lossesId = getLossesId(voltageLevel.getId());
-        switch (voltageLevel.getTopologyKind()) {
+    private void addNullLoad(Bus bus) {
+        String lossesId = getLossesId(bus.getId());
+        switch (bus.getVoltageLevel().getTopologyKind()) {
             case BUS_BREAKER:
-                addNullLoadForBusBreakerTopology(voltageLevel, lossesId);
+                addNullLoadForBusBreakerTopology(bus, lossesId);
                 return;
             case NODE_BREAKER:
-                addNullLoadForNodeTopology(voltageLevel, lossesId);
+                addNullLoadForNodeTopology(bus, lossesId);
                 return;
             default:
                 throw new PowsyblException("This topology is not managed by the loss compensation.");
         }
     }
 
-    private static void addNullLoadForBusBreakerTopology(VoltageLevel voltageLevel, String lossesId) {
-        Optional<Bus> optionalBus = voltageLevel.getBusBreakerView().getBusStream().findFirst();
-        if (optionalBus.isEmpty()) {
-            throw new PowsyblException("Voltage level has no bus");
-        }
-        voltageLevel.newLoad()
+    private static void addNullLoadForBusBreakerTopology(Bus bus, String lossesId) {
+        bus.getVoltageLevel().newLoad()
             .setId(lossesId)
-            .setBus(optionalBus.get().getId())
+            .setBus(bus.getId())
             .setP0(0)
             .setQ0(0)
             .add();
     }
 
-    private static void addNullLoadForNodeTopology(VoltageLevel voltageLevel, String lossesId) {
-        VoltageLevel.NodeBreakerView nodeBreakerView = voltageLevel.getNodeBreakerView();
-        int nodeNum = nodeBreakerView.getMaximumNodeIndex() + 1;
-        nodeBreakerView.newInternalConnection()
-            .setNode1(nodeNum)
-            .setNode2(nodeBreakerView.getNodes()[0])
-            .add();
-        voltageLevel.newLoad()
-            .setId(lossesId)
-            .setNode(nodeNum)
-            .setP0(0)
-            .setQ0(0)
-            .add();
+    private static void addNullLoadForNodeTopology(Bus bus, String lossesId) {
+        if (Objects.isNull(bus.getNetwork().getLoad(lossesId))) {
+            VoltageLevel voltageLevel = bus.getVoltageLevel();
+            VoltageLevel.NodeBreakerView nodeBreakerView = voltageLevel.getNodeBreakerView();
+            int nodeNum = nodeBreakerView.getMaximumNodeIndex() + 1;
+            nodeBreakerView.newInternalConnection()
+                .setNode1(nodeNum)
+                .setNode2(nodeBreakerView.getNodes()[0])
+                .add();
+            voltageLevel.newLoad()
+                .setId(lossesId)
+                .setNode(nodeNum)
+                .setP0(0)
+                .setQ0(0)
+                .add();
+        }
     }
 
     private static String getLossesId(String id) {
@@ -135,7 +135,7 @@ class LossesCompensator {
 
     private void updateLoadForLossesOnTerminal(Network network, Terminal terminal, double losses) {
         if (Math.abs(losses) > epsilon) {
-            Load load = network.getLoad(getLossesId(terminal.getVoltageLevel().getId()));
+            Load load = network.getLoad(getLossesId(terminal.getBusBreakerView().getBus().getId()));
             load.setP0(load.getP0() + losses);
         }
     }

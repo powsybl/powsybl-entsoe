@@ -31,29 +31,29 @@ class CgmesIntegrationTests {
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);
-        Map<VoltageLevel, Double> voltageLevelToLossMap = network.getVoltageLevelStream()
-            .collect(Collectors.toMap(Function.identity(), voltageLevel -> getLossOnVoltageLevel(network, voltageLevel)
+        Map<Bus, Double> busToLossMap = network.getBusBreakerView().getBusStream()
+            .collect(Collectors.toMap(Function.identity(), bus -> getLossOnBus(network, bus)
             ));
 
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
-        voltageLevelToLossMap.forEach((voltageLevel, losses) -> {
-            Load load = network.getLoad(String.format("LOSSES %s", voltageLevel.getId()));
+        busToLossMap.forEach((bus, losses) -> {
+            Load load = network.getLoad(String.format("LOSSES %s", bus.getId()));
             assertNotNull(load);
             assertEquals(losses, load.getP0());
         });
     }
 
-    private static double getLossOnVoltageLevel(Network network, VoltageLevel voltageLevel) {
+    private static double getLossOnBus(Network network, Bus bus) {
         return network.getBranchStream()
-            .filter(branch -> terminalIsSendingPowerToVoltageLevel(branch.getTerminal1(), voltageLevel) || terminalIsSendingPowerToVoltageLevel(branch.getTerminal2(), voltageLevel))
+            .filter(branch -> terminalIsSendingPowerToBus(branch.getTerminal1(), bus) || terminalIsSendingPowerToBus(branch.getTerminal2(), bus))
             .mapToDouble(branch -> branch.getTerminal1().getP() + branch.getTerminal2().getP())
             .sum();
     }
 
-    private static boolean terminalIsSendingPowerToVoltageLevel(Terminal terminal, VoltageLevel voltageLevel) {
-        return terminal.getVoltageLevel() == voltageLevel && terminal.getP() > 0;
+    private static boolean terminalIsSendingPowerToBus(Terminal terminal, Bus bus) {
+        return terminal.getBusBreakerView().getBus() == bus && terminal.getP() > 0;
     }
 
     @Test
