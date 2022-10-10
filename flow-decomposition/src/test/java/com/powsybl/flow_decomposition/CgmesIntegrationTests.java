@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.flow_decomposition.computers.network_modificators.LossesCompensator;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;

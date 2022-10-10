@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
  * @author Sebastien Murgey{@literal <sebastien.murgey at rte-france.com>}
  */
 public final class NetworkUtil {
-    static final String LOOP_FLOWS_COLUMN_PREFIX = "Loop Flow from";
+    public static final String LOOP_FLOWS_COLUMN_PREFIX = "Loop Flow from";
 
     private NetworkUtil() {
         throw new AssertionError("Utility class should not be instantiated");
@@ -31,7 +31,7 @@ public final class NetworkUtil {
         return String.format("%s %s", LOOP_FLOWS_COLUMN_PREFIX, country.toString());
     }
 
-    static Country getTerminalCountry(Terminal terminal) {
+    public static Country getTerminalCountry(Terminal terminal) {
         Optional<Substation> optionalSubstation = terminal.getVoltageLevel().getSubstation();
         if (optionalSubstation.isEmpty()) {
             throw new PowsyblException(String.format("Voltage level %s does not belong to any substation. " +
@@ -46,11 +46,11 @@ public final class NetworkUtil {
         return optionalCountry.get();
     }
 
-    static Country getInjectionCountry(Injection<?> injection) {
+    public static Country getInjectionCountry(Injection<?> injection) {
         return getTerminalCountry(injection.getTerminal());
     }
 
-    static String getLoopFlowIdFromCountry(Network network, String identifiableId) {
+    public static String getLoopFlowIdFromCountry(Network network, String identifiableId) {
         Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
         if (identifiable instanceof Injection) {
             return getLoopFlowIdFromCountry(getInjectionCountry((Injection<?>) identifiable));
@@ -58,7 +58,7 @@ public final class NetworkUtil {
         throw new PowsyblException(String.format("Identifiable %s must be an Injection", identifiableId));
     }
 
-    static Map<String, Integer> getIndex(List<String> idList) {
+    public static Map<String, Integer> getIndex(List<String> idList) {
         return IntStream.range(0, idList.size())
             .boxed()
             .collect(Collectors.toMap(
@@ -67,7 +67,7 @@ public final class NetworkUtil {
             ));
     }
 
-    static List<Branch> getAllValidBranches(Network network) {
+    public static List<Branch> getAllValidBranches(Network network) {
         return network.getBranchStream()
             .filter(NetworkUtil::isConnected)
             .filter(NetworkUtil::isInMainSynchronousComponent) // TODO Is connectedCompenent enough ?
@@ -83,7 +83,7 @@ public final class NetworkUtil {
             && isTerminalInMainSynchronousComponent(branch.getTerminal2());
     }
 
-    static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
+    public static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 }

@@ -4,23 +4,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.flow_decomposition;
+package com.powsybl.flow_decomposition.flow_decomposition_algorithm;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.flow_decomposition.computers.DecomposedFlowsRescaler;
-import com.powsybl.flow_decomposition.computers.GlskComputer;
-import com.powsybl.flow_decomposition.computers.NetPositionComputer;
-import com.powsybl.flow_decomposition.computers.PstFlowComputer;
-import com.powsybl.flow_decomposition.computers.ReferenceFlowComputer;
-import com.powsybl.flow_decomposition.computers.matrix_computer.NetworkMatrixIndexes;
-import com.powsybl.flow_decomposition.computers.matrix_computer.SparseMatrixWithIndexesCSC;
-import com.powsybl.flow_decomposition.computers.matrix_computer.SparseMatrixWithIndexesTriplet;
-import com.powsybl.flow_decomposition.computers.network_modificators.LoadFlowRunningService;
-import com.powsybl.flow_decomposition.computers.network_modificators.LossesCompensator;
-import com.powsybl.flow_decomposition.computers.NodalInjectionComputer;
-import com.powsybl.flow_decomposition.computers.ReferenceNodalInjectionComputer;
-import com.powsybl.flow_decomposition.computers.sensitivity_analyser.SensitivityAnalyser;
-import com.powsybl.flow_decomposition.computers.sensitivity_analyser.ZonalSensitivityAnalyser;
+import com.powsybl.flow_decomposition.decomposed_flow.DecomposedFlow;
+import com.powsybl.flow_decomposition.decomposed_flow.DecomposedFlowsRescaler;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.computers.GlskComputer;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.computers.NetPositionComputer;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.computers.PstFlowComputer;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.computers.ReferenceFlowComputer;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.matrix_interface.NetworkMatrixIndexes;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.matrix_interface.SparseMatrixWithIndexesCSC;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.matrix_interface.SparseMatrixWithIndexesTriplet;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.network_modificators.LoadFlowRunningService;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.network_modificators.LossesCompensator;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.computers.NodalInjectionComputer;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.computers.ReferenceNodalInjectionComputer;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.computers.sensitivity_analyser.SensitivityAnalyser;
+import com.powsybl.flow_decomposition.flow_decomposition_algorithm.computers.sensitivity_analyser.ZonalSensitivityAnalyser;
 import com.powsybl.flow_decomposition.xnec_selector.XnecSelector;
 import com.powsybl.flow_decomposition.xnec_selector.XnecSelector5percPtdf;
 import com.powsybl.flow_decomposition.xnec_selector.XnecSelectorInterconnection;
