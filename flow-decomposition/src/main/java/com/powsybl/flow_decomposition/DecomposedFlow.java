@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.Country;
 
 import java.util.*;
