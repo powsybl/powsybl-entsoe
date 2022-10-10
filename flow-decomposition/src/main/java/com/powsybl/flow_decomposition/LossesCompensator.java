@@ -9,7 +9,6 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
-import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -49,16 +48,20 @@ class LossesCompensator {
     }
 
     private void addNullLoadsOnBuses(Network network) {
+        // We want to add a single null load per bus
+        // Mapping by bus Id is important as bus are generated on-fly
+        // This matters for node breaker topology
         network.getBranchStream()
             .flatMap(branch -> Stream.of(branch.getTerminal1(), branch.getTerminal2()))
-            .map(terminal -> terminal.getBusBreakerView().getBus())
-            .filter(Objects::nonNull)
+            .map(terminal -> terminal.getBusBreakerView().getConnectableBus())
+            .map(Identifiable::getId)
             .distinct()
-            .forEach(this::addNullLoad);
+            .forEach(busId -> addNullLoad(network, busId));
     }
 
-    private void addNullLoad(Bus bus) {
-        String lossesId = getLossesId(bus.getId());
+    private void addNullLoad(Network network, String busId) {
+        String lossesId = getLossesId(busId);
+        Bus bus = network.getBusBreakerView().getBus(busId);
         switch (bus.getVoltageLevel().getTopologyKind()) {
             case BUS_BREAKER:
                 addNullLoadForBusBreakerTopology(bus, lossesId);
@@ -81,21 +84,19 @@ class LossesCompensator {
     }
 
     private static void addNullLoadForNodeTopology(Bus bus, String lossesId) {
-        if (Objects.isNull(bus.getNetwork().getLoad(lossesId))) {
-            VoltageLevel voltageLevel = bus.getVoltageLevel();
-            VoltageLevel.NodeBreakerView nodeBreakerView = voltageLevel.getNodeBreakerView();
-            int nodeNum = nodeBreakerView.getMaximumNodeIndex() + 1;
-            nodeBreakerView.newInternalConnection()
-                .setNode1(nodeNum)
-                .setNode2(nodeBreakerView.getNodes()[0])
-                .add();
-            voltageLevel.newLoad()
-                .setId(lossesId)
-                .setNode(nodeNum)
-                .setP0(0)
-                .setQ0(0)
-                .add();
-        }
+        VoltageLevel voltageLevel = bus.getVoltageLevel();
+        VoltageLevel.NodeBreakerView nodeBreakerView = voltageLevel.getNodeBreakerView();
+        int nodeNum = nodeBreakerView.getMaximumNodeIndex() + 1;
+        nodeBreakerView.newInternalConnection()
+            .setNode1(nodeNum)
+            .setNode2(nodeBreakerView.getNodes()[0])
+            .add();
+        voltageLevel.newLoad()
+            .setId(lossesId)
+            .setNode(nodeNum)
+            .setP0(0)
+            .setQ0(0)
+            .add();
     }
 
     private static String getLossesId(String id) {
