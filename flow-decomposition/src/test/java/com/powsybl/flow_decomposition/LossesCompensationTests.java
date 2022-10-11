@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 
+import static com.powsybl.flow_decomposition.TestUtil.importNetwork;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -24,11 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class LossesCompensationTests {
     private static final double EPSILON = 1e-3;
     private static final boolean AC_LOAD_FLOW = false;
-
-    static Network importNetwork(String networkResourcePath) {
-        String networkName = Paths.get(networkResourcePath).getFileName().toString();
-        return Importers.loadNetwork(networkName, AllocatedFlowTests.class.getResourceAsStream(networkResourcePath));
-    }
 
     @Test
     void checkThatLossesCompensationIsDoneCorrectly() {

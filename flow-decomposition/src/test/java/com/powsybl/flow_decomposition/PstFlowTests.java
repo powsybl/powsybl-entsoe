@@ -30,7 +30,7 @@ class PstFlowTests {
         String x1 = "FGEN  11 BLOAD 11 1";
         String x2 = "FGEN  11 BLOAD 12 1";
 
-        Network network = AllocatedFlowTests.importNetwork(networkFileName);
+        Network network = TestUtil.importNetwork(networkFileName);
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
         flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
@@ -56,7 +56,7 @@ class PstFlowTests {
         String x1 = "FGEN  11 BLOAD 11 1";
         String x2 = "FGEN  11 BLOAD 12 1";
 
-        Network network = AllocatedFlowTests.importNetwork(networkFileName);
+        Network network = TestUtil.importNetwork(networkFileName);
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
         flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);

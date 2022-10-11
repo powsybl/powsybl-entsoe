@@ -39,18 +39,11 @@ class LoopFlowTests {
 
         String allocated = "Allocated Flow";
 
-        Network network = AllocatedFlowTests.importNetwork(networkFileName);
+        Network network = TestUtil.importNetwork(networkFileName);
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
         flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
-
-        var optionalGlsks = flowDecompositionResults.getGlsks();
-        assertTrue(optionalGlsks.isPresent());
-        var glsks = optionalGlsks.get();
-        assertEquals(1.0, glsks.get(Country.BE).get(gBe), EPSILON);
-        assertEquals(1.0, glsks.get(Country.ES).get(gEs), EPSILON);
-        assertEquals(1.0, glsks.get(Country.FR).get(gFr), EPSILON);
 
         var optionalPtdfs = flowDecompositionResults.getPtdfMap();
         assertTrue(optionalPtdfs.isPresent());

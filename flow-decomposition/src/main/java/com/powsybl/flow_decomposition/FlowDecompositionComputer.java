@@ -55,9 +55,9 @@ public class FlowDecompositionComputer {
 
         LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
 
-        Map<Country, Map<String, Double>> glsks = getGlsks(network, flowDecompositionResults);
+        Map<Country, Map<String, Double>> glsks = getGlsks(network);
         List<Branch> xnecList = getXnecList(network, glsks, flowDecompositionResults);
-        Map<Country, Double> netPositions = getZonesNetPosition(network, flowDecompositionResults);
+        Map<Country, Double> netPositions = getZonesNetPosition(network);
         saveAcReferenceFlow(flowDecompositionResults, xnecList, loadFlowServiceAcResult);
         compensateLosses(network);
 
@@ -119,12 +119,9 @@ public class FlowDecompositionComputer {
         flowDecompositionResults.saveAcReferenceFlow(acReferenceFlows);
     }
 
-    private Map<Country, Map<String, Double>> getGlsks(Network network,
-                                                       FlowDecompositionResults flowDecompositionResults) {
+    private Map<Country, Map<String, Double>> getGlsks(Network network) {
         GlskComputer glskComputer = new GlskComputer();
-        Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
-        flowDecompositionResults.saveGlsks(glsks);
-        return glsks;
+        return glskComputer.run(network);
     }
 
     private Map<String, Map<Country, Double>> getZonalPtdf(Network network,
@@ -137,12 +134,9 @@ public class FlowDecompositionComputer {
         return zonalPtdf;
     }
 
-    private Map<Country, Double> getZonesNetPosition(Network network,
-                                                     FlowDecompositionResults flowDecompositionResults) {
+    private Map<Country, Double> getZonesNetPosition(Network network) {
         NetPositionComputer netPositionComputer = new NetPositionComputer();
-        Map<Country, Double> netPosition = netPositionComputer.run(network);
-        flowDecompositionResults.saveACNetPosition(netPosition);
-        return netPosition;
+        return netPositionComputer.run(network);
     }
 
     private Map<String, Double> getXnecReferenceFlows(List<Branch> xnecList) {

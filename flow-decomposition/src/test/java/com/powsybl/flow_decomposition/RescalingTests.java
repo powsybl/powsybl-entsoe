@@ -142,7 +142,7 @@ class RescalingTests {
     }
 
     static void testNormalizationWithFlowDecompositionResults(String networkFileName, boolean enableRescaledResults) {
-        Network network = AllocatedFlowTests.importNetwork(networkFileName);
+        Network network = TestUtil.importNetwork(networkFileName);
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
@@ -166,7 +166,7 @@ class RescalingTests {
     @Test
     void testRescalingDoesNotOccurWhenAcDiverge() {
         String networkFileName = "NETWORK_LOOP_FLOW_WITH_COUNTRIES.uct";
-        Network network = AllocatedFlowTests.importNetwork(networkFileName);
+        Network network = TestUtil.importNetwork(networkFileName);
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)

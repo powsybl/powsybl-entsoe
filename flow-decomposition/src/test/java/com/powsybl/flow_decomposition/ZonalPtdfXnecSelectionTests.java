@@ -20,7 +20,7 @@ class ZonalPtdfXnecSelectionTests {
 
     @Test
     void testDisableZonalPtdfComputationWithNoHighPtdfLine() {
-        Network network = AllocatedFlowTests.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtil.importNetwork(NETWORK_FILE_NAME);
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsNoZonalPtdf(network);
 
@@ -30,7 +30,7 @@ class ZonalPtdfXnecSelectionTests {
 
     @Test
     void testEnableZonalPtdfComputationWithNoHighPtdfLine() {
-        Network network = AllocatedFlowTests.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtil.importNetwork(NETWORK_FILE_NAME);
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsWithZonalPtdf(network);
 
@@ -62,7 +62,7 @@ class ZonalPtdfXnecSelectionTests {
 
     private static Network getHighPtdfNetwork() {
         String line = "FGEN  11 FLOAD 11 A";
-        Network network = AllocatedFlowTests.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtil.importNetwork(NETWORK_FILE_NAME);
         network.getLine(line).getTerminal1().disconnect();
         return network;
     }

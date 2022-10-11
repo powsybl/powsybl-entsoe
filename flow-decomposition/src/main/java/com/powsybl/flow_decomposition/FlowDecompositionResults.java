@@ -41,8 +41,6 @@ public class FlowDecompositionResults {
     private Map<String, Map<String, Double>> pstFlowMap;
     private Map<String, Double> acReferenceFlow;
     private Map<String, Double> dcReferenceFlow;
-    private Map<Country, Double> acNetPosition;
-    private Map<Country, Map<String, Double>> glsks;
     private Map<String, Map<Country, Double>> zonalPtdf;
     private SparseMatrixWithIndexesTriplet ptdfMatrix;
     private SparseMatrixWithIndexesTriplet psdfMatrix;
@@ -97,29 +95,6 @@ public class FlowDecompositionResults {
      */
     public Map<String, DecomposedFlow> getDecomposedFlowMap() {
         return decomposedFlowMapAfterRescaling;
-    }
-
-    /**
-     * GLSKs are an intermediate results.
-     * They are represented as a sparse map of map.
-     * The first key is a zone, the second key is a node id and the value is the GLSK of the node in the country.
-     * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
-     *
-     * @return An optional containing GLSKs.
-     */
-    public Optional<Map<Country, Double>> getAcNetPositions() {
-        return Optional.ofNullable(acNetPosition);
-    }
-
-    /**
-     * GLSKs are an intermediate results.
-     * They are represented as a sparse map of map.
-     * The first key is a zone, the second key is a node id and the value is the GLSK of the node in the country.
-     * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
-     * @return An optional containing GLSKs.
-     */
-    public Optional<Map<Country, Map<String, Double>>> getGlsks() {
-        return Optional.ofNullable(glsks);
     }
 
     /**
@@ -246,18 +221,6 @@ public class FlowDecompositionResults {
 
     void saveRescaledDecomposedFlowMap(Map<String, DecomposedFlow> decomposedFlowMap) {
         this.decomposedFlowMapAfterRescaling = decomposedFlowMap;
-    }
-
-    void saveACNetPosition(Map<Country, Double> acNetPosition) {
-        if (saveIntermediates) {
-            this.acNetPosition = acNetPosition;
-        }
-    }
-
-    void saveGlsks(Map<Country, Map<String, Double>> glsks) {
-        if (saveIntermediates) {
-            this.glsks = glsks;
-        }
     }
 
     void savePtdfMatrix(SparseMatrixWithIndexesTriplet ptdfMatrix) {

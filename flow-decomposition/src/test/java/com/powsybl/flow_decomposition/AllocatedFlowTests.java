@@ -6,11 +6,9 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,11 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class AllocatedFlowTests {
     private static final double EPSILON = 1e-3;
 
-    static Network importNetwork(String networkResourcePath) {
-        String networkName = Paths.get(networkResourcePath).getFileName().toString();
-        return Importers.loadNetwork(networkName, AllocatedFlowTests.class.getResourceAsStream(networkResourcePath));
-    }
-
     @Test
     void checkThatAllocatedFlowAreExtractedForEachXnecGivenABasicNetwork() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
@@ -37,7 +30,7 @@ class AllocatedFlowTests {
         String xnecFrBee = "FGEN1 11 BLOAD 11 1";
         String allocated = "Allocated Flow";
 
-        Network network = importNetwork(networkFileName);
+        Network network = TestUtil.importNetwork(networkFileName);
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
         flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
@@ -56,18 +49,6 @@ class AllocatedFlowTests {
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
-
-        var optionalGlsks = flowDecompositionResults.getGlsks();
-        assertTrue(optionalGlsks.isPresent());
-        var glsks = optionalGlsks.get();
-        assertEquals(1.0, glsks.get(Country.FR).get(genFr), EPSILON);
-        assertEquals(1.0, glsks.get(Country.BE).get(genBe), EPSILON);
-
-        var optionalNetPositions = flowDecompositionResults.getAcNetPositions();
-        assertTrue(optionalNetPositions.isPresent());
-        var netPositions = optionalNetPositions.get();
-        assertEquals(100.0935, netPositions.get(Country.FR), EPSILON);
-        assertEquals(-100.0935, netPositions.get(Country.BE), EPSILON);
 
         var optionalPtdfs = flowDecompositionResults.getPtdfMap();
         assertTrue(optionalPtdfs.isPresent());
@@ -92,7 +73,7 @@ class AllocatedFlowTests {
         String xnecFrBee = "BLOAD 11 FGEN1 11 1";
         String allocated = "Allocated Flow";
 
-        Network network = importNetwork(networkFileName);
+        Network network = TestUtil.importNetwork(networkFileName);
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
         flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
@@ -100,18 +81,6 @@ class AllocatedFlowTests {
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
-
-        var optionalGlsks = flowDecompositionResults.getGlsks();
-        assertTrue(optionalGlsks.isPresent());
-        var glsks = optionalGlsks.get();
-        assertEquals(1.0, glsks.get(Country.FR).get(genFr), EPSILON);
-        assertEquals(1.0, glsks.get(Country.BE).get(genBe), EPSILON);
-
-        var optionalNetPositions = flowDecompositionResults.getAcNetPositions();
-        assertTrue(optionalNetPositions.isPresent());
-        var netPositions = optionalNetPositions.get();
-        assertEquals(100.0935, netPositions.get(Country.FR), EPSILON);
-        assertEquals(-100.0935, netPositions.get(Country.BE), EPSILON);
 
         var optionalPtdfs = flowDecompositionResults.getPtdfMap();
         assertTrue(optionalPtdfs.isPresent());
@@ -128,12 +97,12 @@ class AllocatedFlowTests {
     }
 
     @Test
+    @Deprecated
     void checkThatFlowDecompositionDoesNotExtractIntermediateResultsByDefault() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
-        Network network = importNetwork(networkFileName);
+        Network network = TestUtil.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
-        assertTrue(flowDecompositionResults.getGlsks().isEmpty());
         assertTrue(flowDecompositionResults.getPtdfMap().isEmpty());
         assertTrue(flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap().isEmpty());
     }

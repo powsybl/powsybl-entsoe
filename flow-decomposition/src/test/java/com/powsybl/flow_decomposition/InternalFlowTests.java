@@ -29,7 +29,7 @@ class InternalFlowTests {
 
     @Test
     void testNetworkWithoutInternalFlow() {
-        Network network = AllocatedFlowTests.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtil.importNetwork(NETWORK_FILE_NAME);
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResults(network);
 
@@ -65,7 +65,7 @@ class InternalFlowTests {
 
     private static Network getHighPtdfNetwork() {
         String line = "FGEN  11 FLOAD 11 A";
-        Network network = AllocatedFlowTests.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtil.importNetwork(NETWORK_FILE_NAME);
         network.getLine(line).getTerminal1().disconnect();
         return network;
     }
