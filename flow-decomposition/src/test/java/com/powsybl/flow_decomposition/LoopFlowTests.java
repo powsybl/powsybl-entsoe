@@ -45,9 +45,6 @@ class LoopFlowTests {
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
 
-        var optionalPtdfs = flowDecompositionResults.getPtdfMap();
-        assertTrue(optionalPtdfs.isPresent());
-
         var optionalReferenceNodalInjections = flowDecompositionResults.getDcNodalInjectionsMap();
         assertTrue(optionalReferenceNodalInjections.isPresent());
         var referenceNodalInjections = optionalReferenceNodalInjections.get();

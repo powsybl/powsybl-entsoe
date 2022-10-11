@@ -36,12 +36,6 @@ class PstFlowTests {
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
 
-        var optionalPsdfs = flowDecompositionResults.getPsdfMap();
-        assertTrue(optionalPsdfs.isPresent());
-        var psdf = optionalPsdfs.get();
-        assertEquals(-420.042573, psdf.get(x1).get(pst), EPSILON);
-        assertEquals(420.042573, psdf.get(x2).get(pst), EPSILON);
-
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(0, decomposedFlowMap.get(x1).getPstFlow(), EPSILON);
         assertEquals(0, decomposedFlowMap.get(x2).getPstFlow(), EPSILON);
@@ -61,12 +55,6 @@ class PstFlowTests {
         flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
-
-        var optionalPsdfs = flowDecompositionResults.getPsdfMap();
-        assertTrue(optionalPsdfs.isPresent());
-        var psdf = optionalPsdfs.get();
-        assertEquals(-420.042573, psdf.get(x1).get(pst), EPSILON);
-        assertEquals(-420.042573, psdf.get(x2).get(pst), EPSILON);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(163.652702605, decomposedFlowMap.get(x1).getPstFlow(), EPSILON);

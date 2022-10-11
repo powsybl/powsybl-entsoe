@@ -41,9 +41,6 @@ public class FlowDecompositionResults {
     private Map<String, Map<String, Double>> pstFlowMap;
     private Map<String, Double> acReferenceFlow;
     private Map<String, Double> dcReferenceFlow;
-    private Map<String, Map<Country, Double>> zonalPtdf;
-    private SparseMatrixWithIndexesTriplet ptdfMatrix;
-    private SparseMatrixWithIndexesTriplet psdfMatrix;
     private SparseMatrixWithIndexesTriplet nodalInjectionsMatrix;
     private Map<String, Double> dcNodalInjections;
     private Map<String, DecomposedFlow> decomposedFlowsMapBeforeRescaling;
@@ -95,39 +92,6 @@ public class FlowDecompositionResults {
      */
     public Map<String, DecomposedFlow> getDecomposedFlowMap() {
         return decomposedFlowMapAfterRescaling;
-    }
-
-    /**
-     * Zonal PTDFs are an intermediate results.
-     * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
-     * They are represented as a map of map.
-     * The first key is a XNEC id, the second key is the country and the value is the PTDF.
-     * @return An optional containing PTDFs
-     */
-    public Optional<Map<String, Map<Country, Double>>> getZonalPtdfMap() {
-        return Optional.ofNullable(zonalPtdf);
-    }
-
-    /**
-     * PTDFs are an intermediate results.
-     * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
-     * They are represented as a sparse map of map.
-     * The first key is a XNEC id, the second key is a node id and the value is the PTDF.
-     * @return An optional containing PTDFs
-     */
-    public Optional<Map<String, Map<String, Double>>> getPtdfMap() {
-        return Optional.ofNullable(ptdfMatrix).map(SparseMatrixWithIndexesTriplet::toMap);
-    }
-
-    /**
-     * PSDFs are an intermediate results.
-     * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
-     * They are represented as a sparse map of map.
-     * The first key is a XNEC id, the second key is a node id and the value is the PSDF.
-     * @return An optional containing PSDFs
-     */
-    public Optional<Map<String, Map<String, Double>>> getPsdfMap() {
-        return Optional.ofNullable(psdfMatrix).map(SparseMatrixWithIndexesTriplet::toMap);
     }
 
     /**
@@ -223,18 +187,6 @@ public class FlowDecompositionResults {
         this.decomposedFlowMapAfterRescaling = decomposedFlowMap;
     }
 
-    void savePtdfMatrix(SparseMatrixWithIndexesTriplet ptdfMatrix) {
-        if (saveIntermediates) {
-            this.ptdfMatrix = ptdfMatrix;
-        }
-    }
-
-    void savePsdfMatrix(SparseMatrixWithIndexesTriplet psdfMatrix) {
-        if (saveIntermediates) {
-            this.psdfMatrix = psdfMatrix;
-        }
-    }
-
     void saveNodalInjectionsMatrix(SparseMatrixWithIndexesTriplet nodalInjectionsMatrix) {
         if (saveIntermediates) {
             this.nodalInjectionsMatrix = nodalInjectionsMatrix;
@@ -244,12 +196,6 @@ public class FlowDecompositionResults {
     void saveDcNodalInjections(Map<String, Double> dcNodalInjections) {
         if (saveIntermediates) {
             this.dcNodalInjections = dcNodalInjections;
-        }
-    }
-
-    void saveZonalPtdf(Map<String, Map<Country, Double>> zonalPtdf) {
-        if (saveIntermediates) {
-            this.zonalPtdf = zonalPtdf;
         }
     }
 

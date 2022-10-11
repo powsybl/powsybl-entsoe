@@ -50,13 +50,6 @@ class AllocatedFlowTests {
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
 
-        var optionalPtdfs = flowDecompositionResults.getPtdfMap();
-        assertTrue(optionalPtdfs.isPresent());
-        var ptdfs = optionalPtdfs.get();
-        assertEquals(-0.5, ptdfs.get(xnecFrBee).get(loadBe), EPSILON);
-        assertEquals(-0.5, ptdfs.get(xnecFrBee).get(genBe), EPSILON);
-        assertEquals(+0.5, ptdfs.get(xnecFrBee).get(genFr), EPSILON);
-
         var optionalNodalInjections = flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap();
         assertTrue(optionalNodalInjections.isPresent());
         var nodalInjections = optionalNodalInjections.get();
@@ -82,13 +75,6 @@ class AllocatedFlowTests {
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
 
-        var optionalPtdfs = flowDecompositionResults.getPtdfMap();
-        assertTrue(optionalPtdfs.isPresent());
-        var ptdfs = optionalPtdfs.get();
-        assertEquals(-0.5, ptdfs.get(xnecFrBee).get(loadBe), EPSILON);
-        assertEquals(-0.5, ptdfs.get(xnecFrBee).get(genBe), EPSILON);
-        assertEquals(+0.5, ptdfs.get(xnecFrBee).get(genFr), EPSILON);
-
         var optionalNodalInjections = flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap();
         assertTrue(optionalNodalInjections.isPresent());
         var nodalInjections = optionalNodalInjections.get();
@@ -103,7 +89,6 @@ class AllocatedFlowTests {
         Network network = TestUtil.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
-        assertTrue(flowDecompositionResults.getPtdfMap().isEmpty());
         assertTrue(flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap().isEmpty());
     }
 
