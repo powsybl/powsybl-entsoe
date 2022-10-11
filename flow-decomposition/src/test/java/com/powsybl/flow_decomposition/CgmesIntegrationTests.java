@@ -8,12 +8,14 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,18 +31,29 @@ class CgmesIntegrationTests {
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);
-        String branchId = network.getBranchStream().iterator().next().getId();
-        Branch branch = network.getBranch(branchId);
-        double p = branch.getTerminal1().getP() + branch.getTerminal2().getP();
+        Map<Bus, Double> busToLossMap = network.getBusBreakerView().getBusStream()
+            .collect(Collectors.toMap(Function.identity(), bus -> getLossOnBus(network, bus)
+            ));
 
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
-        Load load = network.getLoad(String.format("LOSSES %s", branchId));
-        assertNotNull(load);
-        assertEquals(p, load.getP0());
-        assertEquals(load.getTerminal().getBusBreakerView().getBus(), branch.getTerminal2().getBusBreakerView().getBus());
-        assertNotEquals(load.getTerminal().getBusBreakerView().getBus(), branch.getTerminal1().getBusBreakerView().getBus());
+        busToLossMap.forEach((bus, losses) -> {
+            Load load = network.getLoad(String.format("LOSSES %s", bus.getId()));
+            assertNotNull(load);
+            assertEquals(losses, load.getP0());
+        });
+    }
+
+    private static double getLossOnBus(Network network, Bus bus) {
+        return network.getBranchStream()
+            .filter(branch -> terminalIsSendingPowerToBus(branch.getTerminal1(), bus) || terminalIsSendingPowerToBus(branch.getTerminal2(), bus))
+            .mapToDouble(branch -> branch.getTerminal1().getP() + branch.getTerminal2().getP())
+            .sum();
+    }
+
+    private static boolean terminalIsSendingPowerToBus(Terminal terminal, Bus bus) {
+        return terminal.getBusBreakerView().getBus() == bus && terminal.getP() > 0;
     }
 
     @Test
