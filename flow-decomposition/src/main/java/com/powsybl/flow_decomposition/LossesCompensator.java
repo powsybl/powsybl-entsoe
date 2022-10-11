@@ -43,11 +43,11 @@ class LossesCompensator {
     }
 
     void run(Network network) {
-        addNullLoadsOnBuses(network);
+        addZeroMWLossesLoadsOnBuses(network);
         compensateLossesOnBranches(network);
     }
 
-    private void addNullLoadsOnBuses(Network network) {
+    private void addZeroMWLossesLoadsOnBuses(Network network) {
         // We want to add a single null load per bus
         // Mapping by bus Id is important as bus are generated on-fly
         // This matters for node breaker topology
@@ -56,25 +56,25 @@ class LossesCompensator {
             .map(terminal -> terminal.getBusBreakerView().getConnectableBus())
             .map(Identifiable::getId)
             .distinct()
-            .forEach(busId -> addNullLoad(network, busId));
+            .forEach(busId -> addZeroMWLossesLoad(network, busId));
     }
 
-    private void addNullLoad(Network network, String busId) {
+    private void addZeroMWLossesLoad(Network network, String busId) {
         String lossesId = getLossesId(busId);
         Bus bus = network.getBusBreakerView().getBus(busId);
         switch (bus.getVoltageLevel().getTopologyKind()) {
             case BUS_BREAKER:
-                addNullLoadForBusBreakerTopology(bus, lossesId);
+                addZeroMWLossesLoadForBusBreakerTopology(bus, lossesId);
                 return;
             case NODE_BREAKER:
-                addNullLoadForNodeTopology(bus, lossesId);
+                addZeroMWLossesLoadForNodeTopology(bus, lossesId);
                 return;
             default:
                 throw new PowsyblException("This topology is not managed by the loss compensation.");
         }
     }
 
-    private static void addNullLoadForBusBreakerTopology(Bus bus, String lossesId) {
+    private static void addZeroMWLossesLoadForBusBreakerTopology(Bus bus, String lossesId) {
         bus.getVoltageLevel().newLoad()
             .setId(lossesId)
             .setBus(bus.getId())
@@ -83,7 +83,7 @@ class LossesCompensator {
             .add();
     }
 
-    private static void addNullLoadForNodeTopology(Bus bus, String lossesId) {
+    private static void addZeroMWLossesLoadForNodeTopology(Bus bus, String lossesId) {
         VoltageLevel voltageLevel = bus.getVoltageLevel();
         VoltageLevel.NodeBreakerView nodeBreakerView = voltageLevel.getNodeBreakerView();
         int nodeNum = nodeBreakerView.getMaximumNodeIndex() + 1;
