@@ -74,6 +74,27 @@ class LossesCompensationTests {
     }
 
     @Test
+    void checkThatLossesCompensationOnCentralGeneratorDoesAggregateLosses() {
+        String networkFileName = "NETWORK_TWO_LOADS_SINGLE_GENERATOR_WITH_COUNTRIES.uct";
+
+        Network network = importNetwork(networkFileName);
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        loadFlowParameters.setDc(AC_LOAD_FLOW);
+        LoadFlow.run(network, loadFlowParameters);
+        LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+        lossesCompensator.run(network);
+
+        Load lossesFgenX = network.getLoad("LOSSES FGEN1 11");
+        assertNotNull(lossesFgenX);
+        assertEquals("FGEN1 1", lossesFgenX.getTerminal().getVoltageLevel().getId());
+        assertEquals(0.0625 * 4, lossesFgenX.getP0(), EPSILON);
+        Load lossesBloadX = network.getLoad("LOSSES BLOAD111");
+        assertNotNull(lossesBloadX);
+        assertEquals("BLOAD11", lossesBloadX.getTerminal().getVoltageLevel().getId());
+        assertEquals(0.0, lossesBloadX.getP0(), EPSILON);
+    }
+
+    @Test
     void checkThatLossesCompensationOnTieLineDoesDispatchLossesProportionallyToEachSideResistance() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
 

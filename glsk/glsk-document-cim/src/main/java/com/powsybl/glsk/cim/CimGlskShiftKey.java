@@ -43,12 +43,18 @@ public class CimGlskShiftKey extends AbstractGlskShiftKey {
             this.quantity = 1.0;
         }
         this.subjectDomainmRID = subjectDomainmRID;
-        NodeList positions = element.getElementsByTagName("attributeInstanceComponent.position");
-        this.meritOrderPosition = positions.getLength() == 0 ? 0 :
-            Integer.valueOf(positions.item(0).getTextContent());
-        NodeList directions = element.getElementsByTagName("flowDirection.direction\"");
+        NodeList directions = element.getElementsByTagName("flowDirection.direction");
         this.flowDirection = directions.getLength() == 0 ? "" :
                 directions.item(0).getTextContent();
+        NodeList positions = element.getElementsByTagName("attributeInstanceComponent.position");
+        int absolutePosition = positions.getLength() == 0 ? 0 : Integer.parseInt(positions.item(0).getTextContent());
+        if (flowDirection.equals("A01")) {
+            this.meritOrderPosition = absolutePosition;
+        } else if (flowDirection.equals("A02")) {
+            this.meritOrderPosition = -absolutePosition;
+        } else {
+            this.meritOrderPosition = 0;
+        }
         //registeredResources
         this.registeredResourceArrayList = new ArrayList<>();
         NodeList glskRegisteredResourcesElements = element.getElementsByTagName("RegisteredResource");
