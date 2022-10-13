@@ -24,25 +24,13 @@ class LoopFlowTests {
     @Test
     void checkThatLoopFlowsAreExtractedForEachXnecAndForEachCountryGivenABasicNetwork() {
         String networkFileName = "NETWORK_LOOP_FLOW_WITH_COUNTRIES.uct";
-
-        String gBe = "BGEN  11_generator";
-        String lBe = "BLOAD 11_load";
-        String gFr = "FGEN  11_generator";
-        String lFr = "FLOAD 11_load";
-        String gEs = "EGEN  11_generator";
-        String lEs = "ELOAD 11_load";
-
         String x1 = "EGEN  11 FGEN  11 1";
         String x2 = "FGEN  11 BGEN  11 1";
         String x4 = "BLOAD 11 FLOAD 11 1";
         String x5 = "FLOAD 11 ELOAD 11 1";
 
-        String allocated = "Allocated Flow";
-
-        Network network = TestUtil.importNetwork(networkFileName);
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
-        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        Network network = TestUtils.importNetwork(networkFileName);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();

@@ -25,7 +25,7 @@ class LoadFlowFallbackTests {
     @Test
     void testIntegrationOfDisabledFallbackOnNetworkThatDoesNotConvergeInAc() {
         String networkFileName = "NETWORK_LOOP_FLOW_WITH_COUNTRIES.uct";
-        Network network = TestUtil.importNetwork(networkFileName);
+        Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setDcFallbackEnabledAfterAcDivergence(FlowDecompositionParameters.DISABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
@@ -36,7 +36,7 @@ class LoadFlowFallbackTests {
     @Test
     void testLoadFlowServiceWhenLoadFlowConvergeInACWithFallbackActivated() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
-        Network network = TestUtil.importNetwork(networkFileName);
+        Network network = TestUtils.importNetwork(networkFileName);
         LoadFlowRunningService loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find());
         LoadFlowRunningService.Result loadFlowResult = loadFlowRunningService.runAcLoadflow(
             network, new LoadFlowParameters(), LoadFlowRunningService.FALLBACK_HAS_BEEN_ACTIVATED);
@@ -47,7 +47,7 @@ class LoadFlowFallbackTests {
     @Test
     void testLoadFlowServiceWhenLoadFlowConvergeInACWithoutFallbackActivated() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
-        Network network = TestUtil.importNetwork(networkFileName);
+        Network network = TestUtils.importNetwork(networkFileName);
         LoadFlowRunningService loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find());
         LoadFlowRunningService.Result loadFlowResult = loadFlowRunningService.runAcLoadflow(
             network, new LoadFlowParameters(), LoadFlowRunningService.FALLBACK_HAS_NOT_BEEN_ACTIVATED);
@@ -58,7 +58,7 @@ class LoadFlowFallbackTests {
     @Test
     void testLoadFlowServiceWhenLoadFlowDoesNotConvergeInACWithFallbackActivated() {
         String networkFileName = "NETWORK_LOOP_FLOW_WITH_COUNTRIES.uct";
-        Network network = TestUtil.importNetwork(networkFileName);
+        Network network = TestUtils.importNetwork(networkFileName);
         LoadFlowRunningService loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find());
         LoadFlowRunningService.Result loadFlowResult = loadFlowRunningService.runAcLoadflow(
             network, new LoadFlowParameters(), LoadFlowRunningService.FALLBACK_HAS_BEEN_ACTIVATED);
@@ -69,7 +69,7 @@ class LoadFlowFallbackTests {
     @Test
     void testLoadFlowServiceWhenLoadFlowDoesNotConvergeInACWithoutFallback() {
         String networkFileName = "NETWORK_LOOP_FLOW_WITH_COUNTRIES.uct";
-        Network network = TestUtil.importNetwork(networkFileName);
+        Network network = TestUtils.importNetwork(networkFileName);
         LoadFlowRunningService loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find());
         Executable loadFlowRunningServiceExecutable = () -> loadFlowRunningService.runAcLoadflow(
             network, new LoadFlowParameters(), LoadFlowRunningService.FALLBACK_HAS_NOT_BEEN_ACTIVATED);

@@ -61,7 +61,6 @@ class CgmesIntegrationTests {
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null);
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
-            .setSaveIntermediates(FlowDecompositionParameters.DO_NOT_SAVE_INTERMEDIATES)
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)

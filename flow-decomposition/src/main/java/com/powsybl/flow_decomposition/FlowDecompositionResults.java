@@ -31,8 +31,6 @@ import java.util.stream.Collectors;
  */
 public class FlowDecompositionResults {
     private static final double NO_FLOW = 0.;
-    static final boolean FILL_ZEROS = true;
-    private final boolean saveIntermediates;
     private final String id;
     private final String networkId;
     private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
@@ -44,8 +42,7 @@ public class FlowDecompositionResults {
     private final Set<Country> zoneSet;
     private Map<String, Branch> xnecMap;
 
-    FlowDecompositionResults(Network network, FlowDecompositionParameters parameters) {
-        this.saveIntermediates = parameters.doesSaveIntermediates();
+    FlowDecompositionResults(Network network) {
         this.networkId = network.getNameOrId();
         String date = new SimpleDateFormat("yyyyMMdd-HHmmss").format(Date.from(Instant.now()));
         this.id = "Flow_Decomposition_Results_of_" + date + "_on_network_" + networkId;
@@ -110,7 +107,7 @@ public class FlowDecompositionResults {
                 .filter(entry -> entry.getKey().startsWith(NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         double allocatedFlow = allocatedAndLoopFlowMap.get(DecomposedFlow.ALLOCATED_COLUMN_NAME);
-        double pstFlow = pstFlowMap.get(xnecId).get(DecomposedFlow.PST_COLUMN_NAME);
+        double pstFlow = pstFlowMap.getOrDefault(xnecId, Collections.emptyMap()).getOrDefault(DecomposedFlow.PST_COLUMN_NAME, NO_FLOW);
         Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(xnecId).getTerminal1());
         Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(xnecId).getTerminal2());
         double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
@@ -134,7 +131,7 @@ public class FlowDecompositionResults {
     }
 
     void savePstFlowMatrix(SparseMatrixWithIndexesCSC pstFlowMatrix) {
-        this.pstFlowMap = pstFlowMatrix.toMap(FILL_ZEROS);
+        this.pstFlowMap = pstFlowMatrix.toMap();
         invalidateDecomposedFlowMapCache();
     }
 

@@ -6,19 +6,15 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.*;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static com.powsybl.flow_decomposition.TestUtil.importNetwork;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.flow_decomposition.TestUtils.importNetwork;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}

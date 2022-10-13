@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -14,9 +13,7 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Paths;
-
-import static com.powsybl.flow_decomposition.TestUtil.importNetwork;
+import static com.powsybl.flow_decomposition.TestUtils.importNetwork;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**

@@ -18,9 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.powsybl.flow_decomposition.TestUtil.importNetwork;
+import static com.powsybl.flow_decomposition.TestUtils.importNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}

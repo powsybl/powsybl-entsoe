@@ -24,16 +24,10 @@ class AllocatedFlowTests {
     @Test
     void checkThatAllocatedFlowAreExtractedForEachXnecGivenABasicNetwork() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
-        String genBe = "BGEN2 11_generator";
-        String loadBe = "BLOAD 11_load";
-        String genFr = "FGEN1 11_generator";
         String xnecFrBee = "FGEN1 11 BLOAD 11 1";
-        String allocated = "Allocated Flow";
 
-        Network network = TestUtil.importNetwork(networkFileName);
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
-        FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        Network network = TestUtils.importNetwork(networkFileName);
+        FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
 
         String networkId = flowDecompositionResults.getNetworkId();
@@ -54,29 +48,13 @@ class AllocatedFlowTests {
     @Test
     void checkThatAllocatedFlowAreExtractedForEachXnecGivenABasicNetworkWithInvertedConvention() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES_INVERTED.uct";
-        String genBe = "BGEN2 11_generator";
-        String loadBe = "BLOAD 11_load";
-        String genFr = "FGEN1 11_generator";
         String xnecFrBee = "BLOAD 11 FGEN1 11 1";
-        String allocated = "Allocated Flow";
 
-        Network network = TestUtil.importNetwork(networkFileName);
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
-        FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        Network network = TestUtils.importNetwork(networkFileName);
+        FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
     }
-
-    @Test
-    @Deprecated
-    void checkThatFlowDecompositionDoesNotExtractIntermediateResultsByDefault() {
-        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
-        Network network = TestUtil.importNetwork(networkFileName);
-        FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
-        FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
-    }
-
 }

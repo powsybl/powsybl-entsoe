@@ -20,7 +20,7 @@ class ZonalPtdfXnecSelectionTests {
 
     @Test
     void testDisableZonalPtdfComputationWithNoHighPtdfLine() {
-        Network network = TestUtil.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsNoZonalPtdf(network);
 
@@ -29,7 +29,7 @@ class ZonalPtdfXnecSelectionTests {
 
     @Test
     void testEnableZonalPtdfComputationWithNoHighPtdfLine() {
-        Network network = TestUtil.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsWithZonalPtdf(network);
 
@@ -56,7 +56,7 @@ class ZonalPtdfXnecSelectionTests {
 
     private static Network getHighPtdfNetwork() {
         String line = "FGEN  11 FLOAD 11 A";
-        Network network = TestUtil.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
         network.getLine(line).getTerminal1().disconnect();
         return network;
     }
@@ -70,9 +70,8 @@ class ZonalPtdfXnecSelectionTests {
     }
 
     private static FlowDecompositionResults getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy xnecSelectionStrategy, Network network) {
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
-        flowDecompositionParameters.setXnecSelectionStrategy(xnecSelectionStrategy);
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
+            .setXnecSelectionStrategy(xnecSelectionStrategy);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         return flowComputer.run(network);
     }

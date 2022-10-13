@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -24,16 +23,11 @@ class PstFlowTests {
     @Test
     void checkThatPSTFlowsAreExtractedForEachXnecAndForEachPSTGivenABasicNetworkWithNeutralTap() {
         String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
-
-        String pst = "BLOAD 11 BLOAD 12 2";
-
         String x1 = "FGEN  11 BLOAD 11 1";
         String x2 = "FGEN  11 BLOAD 12 1";
 
-        Network network = TestUtil.importNetwork(networkFileName);
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
-        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        Network network = TestUtils.importNetwork(networkFileName);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
@@ -44,16 +38,11 @@ class PstFlowTests {
     @Test
     void checkThatPSTFlowsAreExtractedForEachXnecAndForEachPSTGivenABasicNetworkWithNonNeutralTap() {
         String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES_NON_NEUTRAL.uct";
-
-        String pst = "BLOAD 11 BLOAD 12 2";
-
         String x1 = "FGEN  11 BLOAD 11 1";
         String x2 = "FGEN  11 BLOAD 12 1";
 
-        Network network = TestUtil.importNetwork(networkFileName);
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
-        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        Network network = TestUtils.importNetwork(networkFileName);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();

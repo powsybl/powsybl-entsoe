@@ -7,21 +7,21 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
-import java.util.Map;
 
 /**
  * This class contains helper functions for tests.
  *
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-class TestUtil {
+final class TestUtils {
+    private TestUtils() {
+    }
+
     static Network importNetwork(String networkResourcePath) {
         String networkName = Paths.get(networkResourcePath).getFileName().toString();
-        return Importers.loadNetwork(networkName, AllocatedFlowTests.class.getResourceAsStream(networkResourcePath));
+        return Importers.loadNetwork(networkName, TestUtils.class.getResourceAsStream(networkResourcePath));
     }
 }

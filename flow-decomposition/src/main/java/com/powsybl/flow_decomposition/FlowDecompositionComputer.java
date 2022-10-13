@@ -51,7 +51,7 @@ public class FlowDecompositionComputer {
     }
 
     public FlowDecompositionResults run(Network network) {
-        FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network, parameters);
+        FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
 
         LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
 
