@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -37,7 +36,7 @@ class SensitivityComputerTests {
         String xnecBeBe = "BLOAD 11 BGEN2 11 1";
         Network network = importNetwork(networkFileName);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer();
-        List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
+        List<Xnec> xnecList = TestUtils.getXnecList(network);
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         SensitivityAnalyser sensitivityAnalyser = flowDecompositionComputer.getSensitivityAnalyser(network, networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet ptdfMatrix =
@@ -109,7 +108,7 @@ class SensitivityComputerTests {
         String x1 = "FGEN  11 BLOAD 11 1";
         String x2 = "FGEN  11 BLOAD 12 1";
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer();
-        List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
+        List<Xnec> xnecList = TestUtils.getXnecList(network);
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         SensitivityAnalyser sensitivityAnalyser = flowDecompositionComputer.getSensitivityAnalyser(network, networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.run(networkMatrixIndexes.getPstList(),

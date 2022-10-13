@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -17,5 +16,5 @@ import java.util.*;
  */
 interface XnecSelector {
 
-    List<Branch> run(Network network);
+    List<Xnec> run(Network network);
 }

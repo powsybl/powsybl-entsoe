@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  * @author Sebastien Murgey{@literal <sebastien.murgey at rte-france.com>}
  */
 class NetworkMatrixIndexes {
-    private final List<Branch> xnecList;
+    private final List<Xnec> xnecList;
     private final List<Injection<?>> nodeList;
     private final List<String> nodeIdList;
     private final List<String> pstList;
@@ -28,7 +28,7 @@ class NetworkMatrixIndexes {
     private final Map<String, Integer> nodeIndex;
     private final Map<String, Integer> pstIndex;
 
-    NetworkMatrixIndexes(Network network, List<Branch> xnecList) {
+    NetworkMatrixIndexes(Network network, List<Xnec> xnecList) {
         this.xnecList = xnecList;
         nodeList = getNodeList(network);
         nodeIdList = getNodeIdList(nodeList);
@@ -38,7 +38,7 @@ class NetworkMatrixIndexes {
         pstIndex = NetworkUtil.getIndex(pstList);
     }
 
-    List<Branch> getXnecList() {
+    List<Xnec> getXnecList() {
         return xnecList;
     }
 
@@ -118,7 +118,7 @@ class NetworkMatrixIndexes {
         return pst.getPhaseTapChanger().getNeutralStep().isPresent();
     }
 
-    private Map<String, Integer> getXnecIndex(List<Branch> xnecList) {
+    private Map<String, Integer> getXnecIndex(List<Xnec> xnecList) {
         return IntStream.range(0, xnecList.size())
             .boxed()
             .collect(Collectors.toMap(

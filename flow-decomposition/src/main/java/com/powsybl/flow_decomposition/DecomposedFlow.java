@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 
 import java.util.*;
@@ -15,30 +16,32 @@ import java.util.*;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class DecomposedFlow {
-    private static final double NO_FLOW = 0.;
-    private final Map<String, Double> loopFlowsMap = new TreeMap<>();
-    private final double allocatedFlow;
-    private final double pstFlow;
-    private final double acReferenceFlow;
-    private final double dcReferenceFlow;
-    private final Country country1;
-    private final Country country2;
-    private final double internalFlow;
     static final String INTERNAL_COLUMN_NAME = "Internal Flow";
     static final String ALLOCATED_COLUMN_NAME = "Allocated Flow";
     static final String PST_COLUMN_NAME = "PST Flow";
     static final String AC_REFERENCE_FLOW_COLUMN_NAME = "Reference AC Flow";
     static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
+    private static final double NO_FLOW = 0.;
+    private final Xnec xnec;
+    private final Map<String, Double> loopFlowsMap = new TreeMap<>();
+    private double allocatedFlow;
+    private double pstFlow;
+    private double acReferenceFlow;
+    private double dcReferenceFlow;
+    private double internalFlow;
 
-    protected DecomposedFlow(Map<String, Double> loopFlowsMap, double internalFlow, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow, Country country1, Country country2) {
+    protected DecomposedFlow(Xnec xnec, Map<String, Double> loopFlowsMap, double internalFlow, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow) {
+        this.xnec = xnec;
         this.loopFlowsMap.putAll(loopFlowsMap);
         this.internalFlow = internalFlow;
         this.allocatedFlow = allocatedFlow;
         this.pstFlow = pstFlow;
         this.acReferenceFlow = acReferenceFlow;
         this.dcReferenceFlow = dcReferenceFlow;
-        this.country1 = country1;
-        this.country2 = country2;
+    }
+
+    public Xnec getXnec() {
+        return xnec;
     }
 
     public double getAllocatedFlow() {
@@ -67,14 +70,6 @@ public class DecomposedFlow {
 
     public double getDcReferenceFlow() {
         return dcReferenceFlow;
-    }
-
-    public Country getCountry1() {
-        return country1;
-    }
-
-    public Country getCountry2() {
-        return country2;
     }
 
     public double getTotalFlow() {

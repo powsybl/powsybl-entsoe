@@ -33,13 +33,12 @@ class DecomposedFlowsRescaler {
     }
 
     DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
+        Xnec xnec = decomposedFlow.getXnec();
         double allocatedFlow = decomposedFlow.getAllocatedFlow();
         double pstFlow = decomposedFlow.getPstFlow();
         Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
         double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
         double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
-        Country country1 = decomposedFlow.getCountry1();
-        Country country2 = decomposedFlow.getCountry2();
         double internalFlow = decomposedFlow.getInternalFlow();
         if (Double.isNaN(acReferenceFlow)) {
             return decomposedFlow;
@@ -51,6 +50,6 @@ class DecomposedFlowsRescaler {
         double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
         double rescaledPstFlow = rescaleValue(pstFlow, deltaToRescale, sumOfReLUFlows);
         double rescaleInternalFlow = rescaleValue(internalFlow, deltaToRescale, sumOfReLUFlows);
-        return new DecomposedFlow(rescaledLoopFlows, rescaleInternalFlow, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
+        return new DecomposedFlow(xnec, rescaledLoopFlows, rescaleInternalFlow, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow);
     }
 }

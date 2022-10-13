@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -19,17 +20,15 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class XnecSelectorInterconnection implements XnecSelector {
-    public List<Branch> run(Network network) {
+    public List<Xnec> run(Network network) {
         return NetworkUtil.getAllValidBranches(network)
             .stream()
             .filter(XnecSelectorInterconnection::isAnInterconnection)
             .collect(Collectors.toList());
     }
 
-    static boolean isAnInterconnection(Branch<?> branch) {
-        Country country1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
-        Country country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
-        return !country1.equals(country2);
+    static boolean isAnInterconnection(Xnec xnec) {
+        return !xnec.isInternalBranch();
     }
 
 }

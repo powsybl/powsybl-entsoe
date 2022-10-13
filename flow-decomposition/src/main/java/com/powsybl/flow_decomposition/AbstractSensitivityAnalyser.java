@@ -48,13 +48,13 @@ abstract class AbstractSensitivityAnalyser {
     }
 
     protected List<SensitivityFactor> getFactors(List<String> variableList,
-                                       List<Branch> functionList,
-                                       SensitivityVariableType sensitivityVariableType,
-                                       boolean sensitivityVariableSet) {
+                                                 List<Xnec> functionList,
+                                                 SensitivityVariableType sensitivityVariableType,
+                                                 boolean sensitivityVariableSet) {
         List<SensitivityFactor> factors = new ArrayList<>();
         variableList.forEach(
             variable -> functionList.forEach(
-                function -> factors.add(getSensitivityFactor(function, variable,
+                function -> factors.add(getSensitivityFactor(function.getBranch(), variable,
                     sensitivityVariableType, sensitivityVariableSet))));
         return factors;
     }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.powsybl.flow_decomposition.TestUtils.importNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -99,7 +97,7 @@ class NodalInjectionTests {
         GlskComputer glskComputer = new GlskComputer();
         Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
-        List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
+        List<Xnec> xnecList = TestUtils.getXnecList(network);
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer(networkMatrixIndexes);
         Map<String, Double> dcNodalInjection = referenceNodalInjectionComputer.run();
@@ -115,7 +113,7 @@ class NodalInjectionTests {
         if (!loadFlowResult.isOk()) {
             LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         }
-        List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
+        List<Xnec> xnecList = TestUtils.getXnecList(network);
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer(networkMatrixIndexes);
         return referenceNodalInjectionComputer.run();

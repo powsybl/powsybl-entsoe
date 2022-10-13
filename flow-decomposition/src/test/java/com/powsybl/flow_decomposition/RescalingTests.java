@@ -54,7 +54,7 @@ class RescalingTests {
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Country country1 = Country.FR;
         Country country2 = Country.FR;
-        return new DecomposedFlow(loopFlows, internalFlow, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
+        return new DecomposedFlow(null, loopFlows, internalFlow, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow);
     }
 
     private DecomposedFlow getRescaledFlow(double acReferenceFlow, double dcReferenceFlow) {

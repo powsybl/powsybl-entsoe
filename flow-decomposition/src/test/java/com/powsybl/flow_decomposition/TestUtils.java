@@ -10,6 +10,8 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class contains helper functions for tests.
@@ -23,5 +25,9 @@ final class TestUtils {
     static Network importNetwork(String networkResourcePath) {
         String networkName = Paths.get(networkResourcePath).getFileName().toString();
         return Importers.loadNetwork(networkName, TestUtils.class.getResourceAsStream(networkResourcePath));
+    }
+
+    static List<Xnec> getXnecList(Network network) {
+        return network.getBranchStream().map(Xnec::new).collect(Collectors.toList());
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
@@ -25,7 +24,7 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalyser.class);
     private static final boolean SENSITIVITY_VARIABLE_SET = false;
     private final Network network;
-    private final List<Branch> functionList;
+    private final List<Xnec> functionList;
     private final Map<String, Integer> functionIndex;
     private final FlowDecompositionParameters parameters;
 
@@ -33,7 +32,7 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
                         FlowDecompositionParameters parameters,
                         SensitivityAnalysis.Runner runner,
                         Network network,
-                        List<Branch> functionList,
+                        List<Xnec> functionList,
                         Map<String, Integer> functionIndex) {
         super(loadFlowParameters, runner);
         this.parameters = parameters;
