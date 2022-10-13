@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 
 import java.util.Map;
@@ -33,13 +34,15 @@ class DecomposedFlowsRescaler {
     }
 
     DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
-        Xnec xnec = decomposedFlow.getXnec();
+        Branch branch = decomposedFlow.getBranch();
         double allocatedFlow = decomposedFlow.getAllocatedFlow();
         double pstFlow = decomposedFlow.getPstFlow();
         Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
         double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
         double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
         double internalFlow = decomposedFlow.getInternalFlow();
+        Country country1 = decomposedFlow.getCountry1();
+        Country country2 = decomposedFlow.getCountry2();
         if (Double.isNaN(acReferenceFlow)) {
             return decomposedFlow;
         }
@@ -50,6 +53,6 @@ class DecomposedFlowsRescaler {
         double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
         double rescaledPstFlow = rescaleValue(pstFlow, deltaToRescale, sumOfReLUFlows);
         double rescaleInternalFlow = rescaleValue(internalFlow, deltaToRescale, sumOfReLUFlows);
-        return new DecomposedFlow(xnec, rescaledLoopFlows, rescaleInternalFlow, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow);
+        return new DecomposedFlow(branch, rescaledLoopFlows, rescaleInternalFlow, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
     }
 }

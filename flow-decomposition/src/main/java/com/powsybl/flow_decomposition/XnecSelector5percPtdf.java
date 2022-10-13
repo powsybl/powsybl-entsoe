@@ -28,19 +28,19 @@ class XnecSelector5percPtdf implements XnecSelector {
         this.zonalPtdf = zonalPtdf;
     }
 
-    public List<Xnec> run(Network network) {
+    public List<DecomposedFlow> run(Network network) {
         return NetworkUtil.getAllValidBranches(network)
             .stream()
             .filter(this::isAXnec)
             .collect(Collectors.toList());
     }
 
-    private boolean isAXnec(Xnec xnec) {
-        return !xnec.isInternalBranch() || hasMoreThan5PercentPtdf(getZonalPtdf(xnec));
+    private boolean isAXnec(DecomposedFlow decomposedFlow) {
+        return !decomposedFlow.isInternalBranch() || hasMoreThan5PercentPtdf(getZonalPtdf(decomposedFlow));
     }
 
-    private Collection<Double> getZonalPtdf(Xnec xnec) {
-        return zonalPtdf.getOrDefault(xnec.getId(), Collections.emptyMap()).values();
+    private Collection<Double> getZonalPtdf(DecomposedFlow decomposedFlow) {
+        return zonalPtdf.getOrDefault(decomposedFlow.getId(), Collections.emptyMap()).values();
     }
 
     private static boolean hasMoreThan5PercentPtdf(Collection<Double> countryPtdfList) {

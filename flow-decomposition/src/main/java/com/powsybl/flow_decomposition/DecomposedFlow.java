@@ -22,16 +22,20 @@ public class DecomposedFlow {
     static final String AC_REFERENCE_FLOW_COLUMN_NAME = "Reference AC Flow";
     static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
     private static final double NO_FLOW = 0.;
-    private final Xnec xnec;
+    private final Branch branch;
+    private final Country country1;
+    private final Country country2;
     private final Map<String, Double> loopFlowsMap = new TreeMap<>();
+    private double internalFlow;
     private double allocatedFlow;
     private double pstFlow;
     private double acReferenceFlow;
     private double dcReferenceFlow;
-    private double internalFlow;
 
-    protected DecomposedFlow(Xnec xnec, Map<String, Double> loopFlowsMap, double internalFlow, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow) {
-        this.xnec = xnec;
+    protected DecomposedFlow(Branch branch, Map<String, Double> loopFlowsMap, double internalFlow, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow, Country country1, Country country2) {
+        this.branch = branch;
+        this.country1 = country1;
+        this.country2 = country2;
         this.loopFlowsMap.putAll(loopFlowsMap);
         this.internalFlow = internalFlow;
         this.allocatedFlow = allocatedFlow;
@@ -40,8 +44,30 @@ public class DecomposedFlow {
         this.dcReferenceFlow = dcReferenceFlow;
     }
 
-    public Xnec getXnec() {
-        return xnec;
+    DecomposedFlow(Branch branch) {
+        this(branch, Collections.emptyMap(), NO_FLOW, NO_FLOW, NO_FLOW, NO_FLOW, NO_FLOW,
+            NetworkUtil.getTerminalCountry(branch.getTerminal1()),
+            NetworkUtil.getTerminalCountry(branch.getTerminal2()));
+    }
+
+    public Branch getBranch() {
+        return branch;
+    }
+
+    public Country getCountry1() {
+        return country1;
+    }
+
+    public Country getCountry2() {
+        return country2;
+    }
+
+    public String getId() {
+        return branch.getId();
+    }
+
+    public boolean isInternalBranch() {
+        return Objects.equals(country1, country2);
     }
 
     public double getAllocatedFlow() {
@@ -58,6 +84,10 @@ public class DecomposedFlow {
 
     public Map<String, Double> getLoopFlows() {
         return Collections.unmodifiableMap(loopFlowsMap);
+    }
+
+    public double getInternalFlow() {
+        return internalFlow;
     }
 
     public double getPstFlow() {
@@ -80,8 +110,28 @@ public class DecomposedFlow {
         return loopFlowsMap.values().stream().reduce(0., Double::sum);
     }
 
-    public double getInternalFlow() {
-        return internalFlow;
+    void setLoopFlow(Map<String, Double> loopFlowsMap) {
+        this.loopFlowsMap.putAll(loopFlowsMap);
+    }
+
+    public void setInternalFlow(double internalFlow) {
+        this.internalFlow = internalFlow;
+    }
+
+    public void setAllocatedFlow(double allocatedFlow) {
+        this.allocatedFlow = allocatedFlow;
+    }
+
+    public void setPstFlow(double pstFlow) {
+        this.pstFlow = pstFlow;
+    }
+
+    public void setAcReferenceFlow(double acReferenceFlow) {
+        this.acReferenceFlow = acReferenceFlow;
+    }
+
+    public void setDcReferenceFlow(double dcReferenceFlow) {
+        this.dcReferenceFlow = dcReferenceFlow;
     }
 
     @Override

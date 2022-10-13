@@ -55,7 +55,7 @@ public class FlowDecompositionComputer {
         LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
 
         Map<Country, Map<String, Double>> glsks = getGlsks(network);
-        List<Xnec> xnecList = getXnecList(network, glsks);
+        List<DecomposedFlow> xnecList = getXnecList(network, glsks);
         FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network, xnecList);
         Map<Country, Double> netPositions = getZonesNetPosition(network);
         saveAcReferenceFlow(flowDecompositionResults, xnecList, loadFlowServiceAcResult);
@@ -88,7 +88,7 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
-    private List<Xnec> getXnecList(Network network, Map<Country, Map<String, Double>> glsks) {
+    private List<DecomposedFlow> getXnecList(Network network, Map<Country, Map<String, Double>> glsks) {
         XnecSelector xnecSelector;
         switch (parameters.getXnecSelectionStrategy()) {
             case ONLY_INTERCONNECTIONS:
@@ -105,10 +105,10 @@ public class FlowDecompositionComputer {
         return xnecSelector.run(network);
     }
 
-    private void saveAcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<Xnec> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+    private void saveAcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<DecomposedFlow> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         Map<String, Double> acReferenceFlows;
         if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
-            acReferenceFlows = xnecList.stream().collect(Collectors.toMap(Xnec::getId, branch -> Double.NaN));
+            acReferenceFlows = xnecList.stream().collect(Collectors.toMap(DecomposedFlow::getId, branch -> Double.NaN));
         } else {
             acReferenceFlows = getXnecReferenceFlows(xnecList);
         }
@@ -132,7 +132,7 @@ public class FlowDecompositionComputer {
         return netPositionComputer.run(network);
     }
 
-    private Map<String, Double> getXnecReferenceFlows(List<Xnec> xnecList) {
+    private Map<String, Double> getXnecReferenceFlows(List<DecomposedFlow> xnecList) {
         ReferenceFlowComputer referenceFlowComputer = new ReferenceFlowComputer();
         return referenceFlowComputer.run(xnecList);
     }
@@ -172,7 +172,7 @@ public class FlowDecompositionComputer {
         return nodalInjectionComputer.run(network, glsks, netPositions, dcNodalInjection);
     }
 
-    private void saveDcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<Xnec> xnecList) {
+    private void saveDcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<DecomposedFlow> xnecList) {
         flowDecompositionResults.saveDcReferenceFlow(getXnecReferenceFlows(xnecList));
     }
 

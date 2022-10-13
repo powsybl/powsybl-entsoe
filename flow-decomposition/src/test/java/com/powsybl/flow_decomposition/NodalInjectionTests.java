@@ -97,7 +97,7 @@ class NodalInjectionTests {
         GlskComputer glskComputer = new GlskComputer();
         Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
-        List<Xnec> xnecList = TestUtils.getXnecList(network);
+        List<DecomposedFlow> xnecList = TestUtils.getXnecList(network);
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer(networkMatrixIndexes);
         Map<String, Double> dcNodalInjection = referenceNodalInjectionComputer.run();
@@ -113,7 +113,7 @@ class NodalInjectionTests {
         if (!loadFlowResult.isOk()) {
             LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         }
-        List<Xnec> xnecList = TestUtils.getXnecList(network);
+        List<DecomposedFlow> xnecList = TestUtils.getXnecList(network);
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer(networkMatrixIndexes);
         return referenceNodalInjectionComputer.run();

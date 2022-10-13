@@ -6,12 +6,9 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -20,15 +17,15 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class XnecSelectorInterconnection implements XnecSelector {
-    public List<Xnec> run(Network network) {
+    public List<DecomposedFlow> run(Network network) {
         return NetworkUtil.getAllValidBranches(network)
             .stream()
             .filter(XnecSelectorInterconnection::isAnInterconnection)
             .collect(Collectors.toList());
     }
 
-    static boolean isAnInterconnection(Xnec xnec) {
-        return !xnec.isInternalBranch();
+    static boolean isAnInterconnection(DecomposedFlow decomposedFlow) {
+        return !decomposedFlow.isInternalBranch();
     }
 
 }

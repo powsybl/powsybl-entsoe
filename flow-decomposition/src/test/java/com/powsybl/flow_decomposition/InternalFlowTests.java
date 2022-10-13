@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -35,11 +36,11 @@ class InternalFlowTests {
 
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
         assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getXnec().getCountry1());
-        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getXnec().getCountry2());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry2());
         assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getXnec().getCountry1());
-        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getXnec().getCountry2());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry2());
     }
 
     @Test
@@ -50,15 +51,15 @@ class InternalFlowTests {
 
         assertEquals(2 + 10 - 1, flowDecompositionResults.getDecomposedFlowMap().size());
         assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getXnec().getCountry1());
-        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getXnec().getCountry2());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry2());
         assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getXnec().getCountry1());
-        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getXnec().getCountry2());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry2());
         for (int i = 1; i < 10; i++) {
             String lineId = String.format(X_INTERNAL_FR_FORMAT, i);
             assertEquals(10., flowDecompositionResults.getDecomposedFlowMap().get(lineId).getInternalFlow(), EPSILON);
-            assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(lineId).getXnec().getCountry1());
+            assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(lineId).getCountry1());
         }
 
     }
@@ -108,7 +109,7 @@ class InternalFlowTests {
     }
 
     private DecomposedFlow getDecomposedFlow(double internalFlow, double acReferenceFlow, double dcReferenceFlow) {
-        Xnec xnec = null;
+        Branch branch = null;
         Map<String, Double> loopFlows = new TreeMap<>();
         double allocatedFlow = 100;
         double pstFlow = 200.;
@@ -117,7 +118,7 @@ class InternalFlowTests {
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Country country1 = Country.FR;
         Country country2 = Country.FR;
-        return new DecomposedFlow(xnec, loopFlows, internalFlow, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow);
+        return new DecomposedFlow(branch, loopFlows, internalFlow, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
     }
 
     private DecomposedFlow getRescaledFlow(double internalFlow, double acReferenceFlow, double dcReferenceFlow) {

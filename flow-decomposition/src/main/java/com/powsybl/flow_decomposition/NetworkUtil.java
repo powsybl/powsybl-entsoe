@@ -67,11 +67,11 @@ public final class NetworkUtil {
             ));
     }
 
-    static List<Xnec> getAllValidBranches(Network network) {
+    static List<DecomposedFlow> getAllValidBranches(Network network) {
         return network.getBranchStream()
             .filter(NetworkUtil::isConnected)
             .filter(NetworkUtil::isInMainSynchronousComponent) // TODO Is connectedCompenent enough ?
-            .map(Xnec::new)
+            .map(DecomposedFlow::new)
             .collect(Collectors.toList());
     }
 

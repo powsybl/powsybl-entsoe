@@ -16,5 +16,5 @@ import java.util.*;
  */
 interface XnecSelector {
 
-    List<Xnec> run(Network network);
+    List<DecomposedFlow> run(Network network);
 }

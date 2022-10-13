@@ -7,7 +7,6 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
@@ -32,7 +31,7 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     public Map<String, Map<Country, Double>> run(Network network,
                                                  Map<Country, Map<String, Double>> glsks,
                                                  SensitivityVariableType sensitivityVariableType) {
-        List<Xnec> functionList = NetworkUtil.getAllValidBranches(network);
+        List<DecomposedFlow> functionList = NetworkUtil.getAllValidBranches(network);
         List<String> variableList = getVariableList(glsks);
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);
         List<SensitivityFactor> factors = getFactors(variableList, functionList,
@@ -69,9 +68,9 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private Map<String, Map<Country, Double>> getZonalPtdfMap(List<String> variableList,
-                                                              List<Xnec> functionList,
+                                                              List<DecomposedFlow> functionList,
                                                               SensitivityAnalysisResult sensitivityResult) {
-        return functionList.stream().map(Xnec::getId).collect(Collectors.toMap(
+        return functionList.stream().map(DecomposedFlow::getId).collect(Collectors.toMap(
             Function.identity(),
             branch -> variableList.stream().collect(Collectors.toMap(
                 Country::valueOf,

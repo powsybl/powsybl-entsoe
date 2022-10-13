@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class ReferenceFlowComputer {
-    Map<String, Double> run(List<Xnec> xnecList) {
+    Map<String, Double> run(List<DecomposedFlow> xnecList) {
         return xnecList.stream()
-            .map(Xnec::getBranch)
+            .map(DecomposedFlow::getBranch)
             .collect(Collectors.toMap(
                 Identifiable::getId,
                 this::getP

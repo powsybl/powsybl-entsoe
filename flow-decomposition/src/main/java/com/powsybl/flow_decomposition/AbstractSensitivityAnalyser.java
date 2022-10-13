@@ -48,7 +48,7 @@ abstract class AbstractSensitivityAnalyser {
     }
 
     protected List<SensitivityFactor> getFactors(List<String> variableList,
-                                                 List<Xnec> functionList,
+                                                 List<DecomposedFlow> functionList,
                                                  SensitivityVariableType sensitivityVariableType,
                                                  boolean sensitivityVariableSet) {
         List<SensitivityFactor> factors = new ArrayList<>();

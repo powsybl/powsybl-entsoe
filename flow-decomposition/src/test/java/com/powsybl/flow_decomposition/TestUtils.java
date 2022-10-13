@@ -27,7 +27,7 @@ final class TestUtils {
         return Importers.loadNetwork(networkName, TestUtils.class.getResourceAsStream(networkResourcePath));
     }
 
-    static List<Xnec> getXnecList(Network network) {
-        return network.getBranchStream().map(Xnec::new).collect(Collectors.toList());
+    static List<DecomposedFlow> getXnecList(Network network) {
+        return network.getBranchStream().map(DecomposedFlow::new).collect(Collectors.toList());
     }
 }
