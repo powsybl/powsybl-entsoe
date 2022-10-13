@@ -13,6 +13,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
+import java.util.function.ObjDoubleConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -110,7 +111,7 @@ public class FlowDecompositionComputer {
         if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
             acReferenceFlows = xnecList.stream().collect(Collectors.toMap(DecomposedFlow::getId, branch -> Double.NaN));
         } else {
-            acReferenceFlows = getXnecReferenceFlows(xnecList);
+            acReferenceFlows = getXnecReferenceFlows(xnecList, DecomposedFlow::setAcReferenceFlow);
         }
         flowDecompositionResults.saveAcReferenceFlow(acReferenceFlows);
     }
@@ -132,9 +133,9 @@ public class FlowDecompositionComputer {
         return netPositionComputer.run(network);
     }
 
-    private Map<String, Double> getXnecReferenceFlows(List<DecomposedFlow> xnecList) {
+    private Map<String, Double> getXnecReferenceFlows(List<DecomposedFlow> xnecList, ObjDoubleConsumer<DecomposedFlow> consumer) {
         ReferenceFlowComputer referenceFlowComputer = new ReferenceFlowComputer();
-        return referenceFlowComputer.run(xnecList);
+        return referenceFlowComputer.run(xnecList, consumer);
     }
 
     private void compensateLosses(Network network) {
@@ -173,7 +174,7 @@ public class FlowDecompositionComputer {
     }
 
     private void saveDcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<DecomposedFlow> xnecList) {
-        flowDecompositionResults.saveDcReferenceFlow(getXnecReferenceFlows(xnecList));
+        flowDecompositionResults.saveDcReferenceFlow(getXnecReferenceFlows(xnecList, DecomposedFlow::setDcReferenceFlow));
     }
 
     SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {

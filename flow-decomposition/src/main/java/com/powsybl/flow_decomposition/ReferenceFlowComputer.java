@@ -6,11 +6,9 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
-
 import java.util.List;
 import java.util.Map;
+import java.util.function.ObjDoubleConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -18,16 +16,15 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class ReferenceFlowComputer {
-    Map<String, Double> run(List<DecomposedFlow> xnecList) {
+    Map<String, Double> run(List<DecomposedFlow> xnecList, ObjDoubleConsumer<DecomposedFlow> consumer) {
         return xnecList.stream()
-            .map(DecomposedFlow::getBranch)
             .collect(Collectors.toMap(
-                Identifiable::getId,
-                this::getP
+                DecomposedFlow::getId,
+                xnec -> {
+                    double p = xnec.getBranch().getTerminal1().getP();
+                    consumer.accept(xnec, p);
+                    return p;
+                }
             ));
-    }
-
-    private double getP(Branch branch) {
-        return branch.getTerminal1().getP();
     }
 }
