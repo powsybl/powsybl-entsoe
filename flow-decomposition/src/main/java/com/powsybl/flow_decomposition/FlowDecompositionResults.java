@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 public class FlowDecompositionResults {
     private static final double NO_FLOW = 0.;
     static final boolean FILL_ZEROS = true;
-    static final boolean NOT_FILL_ZEROS = false;
-    private static final boolean DEFAULT_FILL_ZEROS = NOT_FILL_ZEROS;
     private final boolean saveIntermediates;
     private final String id;
     private final String networkId;
@@ -41,8 +39,6 @@ public class FlowDecompositionResults {
     private Map<String, Map<String, Double>> pstFlowMap;
     private Map<String, Double> acReferenceFlow;
     private Map<String, Double> dcReferenceFlow;
-    private SparseMatrixWithIndexesTriplet nodalInjectionsMatrix;
-    private Map<String, Double> dcNodalInjections;
     private Map<String, DecomposedFlow> decomposedFlowsMapBeforeRescaling;
     private Map<String, DecomposedFlow> decomposedFlowMapAfterRescaling;
     private final Set<Country> zoneSet;
@@ -92,37 +88,6 @@ public class FlowDecompositionResults {
      */
     public Map<String, DecomposedFlow> getDecomposedFlowMap() {
         return decomposedFlowMapAfterRescaling;
-    }
-
-    /**
-     * Nodal injections are an intermediate results.
-     * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
-     * They are represented as a sparse map of map.
-     * The first key is a node id, the second key is a column identifier and the value is the nodal injection.
-     * The one of the column id is the {@code "Allocated Flow"}. It corresponds to the allocated nodal injection.
-     * The other column ids are Zone Ids as Strings with a prefix {@code "Loop Flow from XX"}.
-     * Each column corresponds to the nodal injection in this zone.
-     * @param fillZeros Ignore the sparse property of the nodal injections.
-     *                  It fills blanks with zeros.
-     * @return An optional containing nodal injections
-     */
-    public Optional<Map<String, Map<String, Double>>> getAllocatedAndLoopFlowNodalInjectionsMap(boolean fillZeros) {
-        return Optional.ofNullable(nodalInjectionsMatrix).map(matrix -> matrix.toMap(fillZeros));
-    }
-
-    public Optional<Map<String, Map<String, Double>>> getAllocatedAndLoopFlowNodalInjectionsMap() {
-        return getAllocatedAndLoopFlowNodalInjectionsMap(DEFAULT_FILL_ZEROS);
-    }
-
-    /**
-     * DC Nodal injections are an intermediate results.
-     * They will be saved if this runner has its argument {@code saveIntermediates} set to {@code true}.
-     * They are represented as a map.
-     * The key is a node id and the value is the DC nodal injection.
-     * @return An optional containing DC nodal injections
-     */
-    public Optional<Map<String, Double>> getDcNodalInjectionsMap() {
-        return Optional.ofNullable(dcNodalInjections);
     }
 
     private boolean isDecomposedFlowMapCacheValid() {
@@ -185,18 +150,6 @@ public class FlowDecompositionResults {
 
     void saveRescaledDecomposedFlowMap(Map<String, DecomposedFlow> decomposedFlowMap) {
         this.decomposedFlowMapAfterRescaling = decomposedFlowMap;
-    }
-
-    void saveNodalInjectionsMatrix(SparseMatrixWithIndexesTriplet nodalInjectionsMatrix) {
-        if (saveIntermediates) {
-            this.nodalInjectionsMatrix = nodalInjectionsMatrix;
-        }
-    }
-
-    void saveDcNodalInjections(Map<String, Double> dcNodalInjections) {
-        if (saveIntermediates) {
-            this.dcNodalInjections = dcNodalInjections;
-        }
     }
 
     public void saveXnec(List<Branch> xnecList) {

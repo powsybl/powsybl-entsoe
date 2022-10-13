@@ -49,12 +49,6 @@ class AllocatedFlowTests {
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
-
-        var optionalNodalInjections = flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap();
-        assertTrue(optionalNodalInjections.isPresent());
-        var nodalInjections = optionalNodalInjections.get();
-        assertEquals(-100.0935, nodalInjections.get(genBe).get(allocated), EPSILON);
-        assertEquals(+100.0935, nodalInjections.get(genFr).get(allocated), EPSILON);
     }
 
     @Test
@@ -74,12 +68,6 @@ class AllocatedFlowTests {
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
-
-        var optionalNodalInjections = flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap();
-        assertTrue(optionalNodalInjections.isPresent());
-        var nodalInjections = optionalNodalInjections.get();
-        assertEquals(-100.0935, nodalInjections.get(genBe).get(allocated), EPSILON);
-        assertEquals(+100.0935, nodalInjections.get(genFr).get(allocated), EPSILON);
     }
 
     @Test
@@ -89,7 +77,6 @@ class AllocatedFlowTests {
         Network network = TestUtil.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
-        assertTrue(flowDecompositionResults.getAllocatedAndLoopFlowNodalInjectionsMap().isEmpty());
     }
 
 }

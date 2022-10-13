@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-class SensiComputerTests {
+class SensitivityComputerTests {
     private static final double EPSILON = 1e-3;
 
     @Test

@@ -67,7 +67,7 @@ public class FlowDecompositionComputer {
         runDcLoadFlow(network);
 
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
-            flowDecompositionResults, netPositions, networkMatrixIndexes, glsks);
+            netPositions, networkMatrixIndexes, glsks);
         saveDcReferenceFlow(flowDecompositionResults, xnecList);
 
         // DC Sensi
@@ -152,36 +152,27 @@ public class FlowDecompositionComputer {
     }
 
     private SparseMatrixWithIndexesTriplet getNodalInjectionsMatrix(Network network,
-                                                                    FlowDecompositionResults flowDecompositionResults,
                                                                     Map<Country, Double> netPositions,
                                                                     NetworkMatrixIndexes networkMatrixIndexes,
                                                                     Map<Country, Map<String, Double>> glsks) {
         NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes);
-        Map<String, Double> dcNodalInjection = getDcNodalInjection(flowDecompositionResults, networkMatrixIndexes);
+        Map<String, Double> dcNodalInjection = getDcNodalInjection(networkMatrixIndexes);
 
-        return getNodalInjectionsMatrix(network, flowDecompositionResults, netPositions, glsks,
+        return getNodalInjectionsMatrix(network, netPositions, glsks,
             nodalInjectionComputer, dcNodalInjection);
     }
 
-    private Map<String, Double> getDcNodalInjection(FlowDecompositionResults flowDecompositionResults,
-                                                    NetworkMatrixIndexes networkMatrixIndexes) {
+    private Map<String, Double> getDcNodalInjection(NetworkMatrixIndexes networkMatrixIndexes) {
         ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer(networkMatrixIndexes);
-        Map<String, Double> dcNodalInjection = referenceNodalInjectionComputer.run();
-        flowDecompositionResults.saveDcNodalInjections(dcNodalInjection);
-        return dcNodalInjection;
+        return referenceNodalInjectionComputer.run();
     }
 
     private SparseMatrixWithIndexesTriplet getNodalInjectionsMatrix(Network network,
-                                                                    FlowDecompositionResults flowDecompositionResults,
                                                                     Map<Country, Double> netPositions,
                                                                     Map<Country, Map<String, Double>> glsks,
                                                                     NodalInjectionComputer nodalInjectionComputer,
                                                                     Map<String, Double> dcNodalInjection) {
-        SparseMatrixWithIndexesTriplet nodalInjectionsMatrix =
-            nodalInjectionComputer.run(network,
-                glsks, netPositions, dcNodalInjection);
-        flowDecompositionResults.saveNodalInjectionsMatrix(nodalInjectionsMatrix);
-        return nodalInjectionsMatrix;
+        return nodalInjectionComputer.run(network, glsks, netPositions, dcNodalInjection);
     }
 
     private void saveDcReferenceFlow(FlowDecompositionResults flowDecompositionResults, List<Branch> xnecList) {
