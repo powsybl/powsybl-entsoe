@@ -28,20 +28,20 @@ class AllocatedFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
-        FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
+        FlowDecompositionResults flowDecompositionResultsBuilder = allocatedFlowComputer.run(network);
 
-        String networkId = flowDecompositionResults.getNetworkId();
+        String networkId = flowDecompositionResultsBuilder.getNetworkId();
         String expectedNetworkId = networkFileName.split(".uct")[0];
         assertEquals(expectedNetworkId, networkId);
-        String id = flowDecompositionResults.getId();
+        String id = flowDecompositionResultsBuilder.getId();
         assertTrue(id.contains(expectedNetworkId));
 
-        Set<Country> zones = flowDecompositionResults.getZoneSet();
+        Set<Country> zones = flowDecompositionResultsBuilder.getZoneSet();
         assertTrue(zones.contains(Country.FR));
         assertTrue(zones.contains(Country.BE));
         assertEquals(2, zones.size());
 
-        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
+        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResultsBuilder.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
     }
 
@@ -52,9 +52,9 @@ class AllocatedFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
-        FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
+        FlowDecompositionResults flowDecompositionResultsBuilder = allocatedFlowComputer.run(network);
 
-        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
+        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResultsBuilder.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
     }
 }

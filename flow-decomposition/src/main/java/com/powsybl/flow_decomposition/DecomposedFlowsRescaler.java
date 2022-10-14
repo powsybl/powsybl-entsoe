@@ -9,30 +9,25 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Country;
 
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-class DecomposedFlowsRescaler {
+final class DecomposedFlowsRescaler {
+    private DecomposedFlowsRescaler() {
+    }
 
-    private double reLU(double value) {
+    private static double reLU(double value) {
         return value > 0 ? value : 0.;
     }
 
-    private double rescaleValue(double initialValue, double delta, double sumOfReLUFlows) {
+    private static double rescaleValue(double initialValue, double delta, double sumOfReLUFlows) {
         return initialValue + delta * reLU(initialValue) / sumOfReLUFlows;
     }
 
-    Map<String, DecomposedFlow> rescale(Map<String, DecomposedFlow> decomposedFlowMap) {
-        Map<String, DecomposedFlow> rescaledDecomposedFlowMap = new TreeMap<>();
-        decomposedFlowMap.forEach((s, decomposedFlow) -> rescaledDecomposedFlowMap.put(s, rescale(decomposedFlow)));
-        return rescaledDecomposedFlowMap;
-    }
-
-    DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
+    static DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
         double allocatedFlow = decomposedFlow.getAllocatedFlow();
         double pstFlow = decomposedFlow.getPstFlow();
         Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
@@ -45,9 +40,9 @@ class DecomposedFlowsRescaler {
             return decomposedFlow;
         }
         double deltaToRescale = acReferenceFlow * Math.signum(acReferenceFlow) - decomposedFlow.getTotalFlow();
-        double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + loopFlows.values().stream().mapToDouble(this::reLU).sum() + reLU(internalFlow);
+        double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + loopFlows.values().stream().mapToDouble(DecomposedFlowsRescaler::reLU).sum() + reLU(internalFlow);
         Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
         double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
         double rescaledPstFlow = rescaleValue(pstFlow, deltaToRescale, sumOfReLUFlows);
         double rescaleInternalFlow = rescaleValue(internalFlow, deltaToRescale, sumOfReLUFlows);

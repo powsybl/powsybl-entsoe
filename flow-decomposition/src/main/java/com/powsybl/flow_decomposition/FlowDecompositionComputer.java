@@ -95,7 +95,7 @@ public class FlowDecompositionComputer {
                 xnecSelector = new XnecSelectorInterconnection();
                 break;
             case INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC:
-                Map<String, Map<Country, Double>> zonalPtdf = getZonalPtdf(network, glsks, flowDecompositionResults);
+                Map<String, Map<Country, Double>> zonalPtdf = getZonalPtdf(network, glsks);
                 xnecSelector = new XnecSelector5percPtdf(zonalPtdf);
                 break;
             default:
@@ -123,8 +123,7 @@ public class FlowDecompositionComputer {
     }
 
     private Map<String, Map<Country, Double>> getZonalPtdf(Network network,
-                                                           Map<Country, Map<String, Double>> glsks,
-                                                           FlowDecompositionResults flowDecompositionResults) {
+                                                           Map<Country, Map<String, Double>> glsks) {
         ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner);
         return zonalSensitivityAnalyser.run(network,
             glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
@@ -210,19 +209,6 @@ public class FlowDecompositionComputer {
                                  SparseMatrixWithIndexesTriplet psdfMatrix) {
         PstFlowComputer pstFlowComputer = new PstFlowComputer();
         SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
-        flowDecompositionResults.savePstFlowMatrix(pstFlowMatrix);
-    }
-
-    private void rescale(FlowDecompositionResults flowDecompositionResults) {
-        flowDecompositionResults.saveRescaledDecomposedFlowMap(getRescaledDecomposedFlowMap(flowDecompositionResults));
-    }
-
-    private Map<String, DecomposedFlow> getRescaledDecomposedFlowMap(FlowDecompositionResults flowDecompositionResults) {
-        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMapBeforeRescaling();
-        if (parameters.isRescaleEnabled()) {
-            DecomposedFlowsRescaler decomposedFlowsRescaler = new DecomposedFlowsRescaler();
-            return decomposedFlowsRescaler.rescale(decomposedFlowMap);
-        }
-        return decomposedFlowMap;
+        flowDecompositionResultsBuilder.savePstFlowMatrix(pstFlowMatrix);
     }
 }

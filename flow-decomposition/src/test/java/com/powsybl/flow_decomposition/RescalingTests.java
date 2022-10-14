@@ -61,8 +61,7 @@ class RescalingTests {
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
         assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
 
-        DecomposedFlowsRescaler rescaler = new DecomposedFlowsRescaler();
-        return rescaler.rescale(decomposedFlow);
+        return DecomposedFlowsRescaler.rescale(decomposedFlow);
     }
 
     @Test
@@ -153,14 +152,7 @@ class RescalingTests {
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
 
-        for (String xnecId : flowDecompositionResults.getDecomposedFlowMap().keySet()) {
-            DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMapBeforeRescaling().get(xnecId);
-            assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
-            if (enableRescaledResults) {
-                DecomposedFlow rescaledDecomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnecId);
-                assertEquals(Math.abs(rescaledDecomposedFlow.getAcReferenceFlow()), rescaledDecomposedFlow.getTotalFlow(), EPSILON);
-            }
-        }
+        TestUtils.assertCoherenceTotalFlow(enableRescaledResults, flowDecompositionResults);
     }
 
     @Test
@@ -178,8 +170,6 @@ class RescalingTests {
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
 
         String xnecId = "BLOAD 11 FLOAD 11 1";
-        assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMapBeforeRescaling().get(xnecId).getAcReferenceFlow()));
-        assertFalse(Double.isNaN(flowDecompositionResults.getDecomposedFlowMapBeforeRescaling().get(xnecId).getAllocatedFlow()));
         assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAcReferenceFlow()));
         assertFalse(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow()));
 

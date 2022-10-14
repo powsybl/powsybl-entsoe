@@ -28,9 +28,9 @@ class PstFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
-        FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
+        FlowDecompositionResults flowDecompositionResultsBuilder = flowComputer.run(network);
 
-        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
+        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResultsBuilder.getDecomposedFlowMap();
         assertEquals(0, decomposedFlowMap.get(x1).getPstFlow(), EPSILON);
         assertEquals(0, decomposedFlowMap.get(x2).getPstFlow(), EPSILON);
     }
@@ -43,9 +43,9 @@ class PstFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
-        FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
+        FlowDecompositionResults flowDecompositionResultsBuilder = flowComputer.run(network);
 
-        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
+        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResultsBuilder.getDecomposedFlowMap();
         assertEquals(163.652702605, decomposedFlowMap.get(x1).getPstFlow(), EPSILON);
         assertEquals(163.652702605, decomposedFlowMap.get(x2).getPstFlow(), EPSILON);
     }

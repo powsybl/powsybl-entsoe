@@ -9,7 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
