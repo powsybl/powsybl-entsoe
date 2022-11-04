@@ -121,7 +121,7 @@ public class CneExporterTest extends AbstractConverterTest {
                 .addBusbarSection("BBS1")
                 .build();
         // Create a preContingencyResult & postContingencyResult
-        LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1), Collections.emptyList());
+        LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1));
         LimitViolationsResult postContingencyLimitViolationResult = new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, postContingencyLimitViolationResult);
         // Create SecurityAnalysisResult
