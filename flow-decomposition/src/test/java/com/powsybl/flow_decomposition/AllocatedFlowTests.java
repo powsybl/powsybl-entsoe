@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +24,7 @@ class AllocatedFlowTests {
 
     static Network importNetwork(String networkResourcePath) {
         String networkName = Paths.get(networkResourcePath).getFileName().toString();
-        return Importers.loadNetwork(networkName, AllocatedFlowTests.class.getResourceAsStream(networkResourcePath));
+        return Network.read(networkName, AllocatedFlowTests.class.getResourceAsStream(networkResourcePath));
     }
 
     @Test

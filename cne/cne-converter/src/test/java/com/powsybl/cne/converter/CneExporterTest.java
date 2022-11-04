@@ -12,10 +12,8 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.ComparisonUtils;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
-import com.powsybl.security.LimitViolationsResult;
-import com.powsybl.security.SecurityAnalysisResult;
+import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.security.*;
 import com.powsybl.security.converter.SecurityAnalysisResultExporter;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.extensions.ActivePowerExtension;
@@ -123,9 +121,10 @@ public class CneExporterTest extends AbstractConverterTest {
                 .addBusbarSection("BBS1")
                 .build();
         // Create a preContingencyResult & postContingencyResult
-        LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
+        LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1), Collections.emptyList());
+        LimitViolationsResult postContingencyLimitViolationResult = new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, postContingencyLimitViolationResult);
         // Create SecurityAnalysisResult
-        return new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
+        return new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
     }
 }

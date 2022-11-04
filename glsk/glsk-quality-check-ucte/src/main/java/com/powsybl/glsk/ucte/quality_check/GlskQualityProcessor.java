@@ -8,7 +8,6 @@ package com.powsybl.glsk.ucte.quality_check;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 
 import java.io.InputStream;
@@ -23,7 +22,7 @@ public final class GlskQualityProcessor {
     }
 
     public static void process(String cgmName, InputStream cgmIs, InputStream glskIs, Instant localDate, Reporter reporter) {
-        process(UcteGlskDocument.importGlsk(glskIs), Importers.loadNetwork(cgmName, cgmIs), localDate, reporter);
+        process(UcteGlskDocument.importGlsk(glskIs), Network.read(cgmName, cgmIs), localDate, reporter);
     }
 
     public static void process(UcteGlskDocument ucteGlskDocument, Network network, Instant instant, Reporter reporter) {
