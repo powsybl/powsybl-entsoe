@@ -9,7 +9,6 @@ package com.powsybl.entsoe.cgmes.balances_adjustment.util;
 import com.powsybl.balances_adjustment.util.NetworkArea;
 import com.powsybl.balances_adjustment.util.NetworkAreaFactory;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import org.junit.Test;
@@ -38,7 +37,7 @@ public class CgmesBoundariesAreaTest {
 
     @Test
     public void testWithArea() {
-        Network network = Importers.loadNetwork("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
+        Network network = Network.read("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
         NetworkAreaFactory factory = new CgmesBoundariesAreaFactory(new ArrayList<>(network.getExtension(CgmesControlAreas.class).getCgmesControlAreas()));
         NetworkArea area = factory.create(network);
         assertEquals(Stream.of(network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6"),

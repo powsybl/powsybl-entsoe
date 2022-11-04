@@ -10,7 +10,6 @@ import com.powsybl.balances_adjustment.util.NetworkArea;
 import com.powsybl.balances_adjustment.util.NetworkAreaFactory;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
@@ -26,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 public class CgmesVoltageLevelsAreaTest {
 
     private final String[] voltageLevelsIds = {"_d0486169-2205-40b2-895e-b672ecb9e5fc", "_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386", "_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0", "_469df5f7-058f-4451-a998-57a48e8a56fe", "_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c"};
-    private final Network network = Importers.loadNetwork("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
+    private final Network network = Network.read("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
 
     public static final double DELTA_POWER = 1e-5;
 

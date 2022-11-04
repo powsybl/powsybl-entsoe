@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
@@ -25,7 +24,7 @@ class CountryNetPositionComputationTest {
 
     @Test
     void testLines() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(1000.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
         assertEquals(1500.0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
@@ -37,7 +36,7 @@ class CountryNetPositionComputationTest {
 
     @Test
     void testDanglingLines() {
-        Network network = Importers.loadNetwork("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
+        Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
         LoadFlow.run(network);
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(1000.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
@@ -50,7 +49,7 @@ class CountryNetPositionComputationTest {
 
     @Test
     void testHvdcLines() {
-        Network network = Importers.loadNetwork("TestCaseHvdc.xiidm", getClass().getResourceAsStream("TestCaseHvdc.xiidm"));
+        Network network = Network.read("TestCaseHvdc.xiidm", getClass().getResourceAsStream("TestCaseHvdc.xiidm"));
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(272.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
         assertEquals(-272.0, netPositions.get(Country.DE), DOUBLE_TOLERANCE);

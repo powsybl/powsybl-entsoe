@@ -9,7 +9,6 @@ package com.powsybl.glsk.ucte.quality_check;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.glsk.ucte.UcteGlskDocument;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -33,7 +32,7 @@ public class GlskQualityProcessorTest {
     @Test
     public void qualityCheckWithCorrectValue() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         ReporterModel reporter = new ReporterModel("defaultTask", "defaultName");
         GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"), reporter);
 
@@ -43,7 +42,7 @@ public class GlskQualityProcessorTest {
     @Test
     public void qualityCheckWithError1() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(FIRST_ERROR));
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         ReporterModel reporter = new ReporterModel("defaultTask", "defaultName");
         GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"), reporter);
 
@@ -62,7 +61,7 @@ public class GlskQualityProcessorTest {
     @Test
     public void qualityCheckWithError2() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
-        Network network = Importers.loadNetwork("testCase_error_2.xiidm", getClass().getResourceAsStream("/testCase_error_2.xiidm"));
+        Network network = Network.read("testCase_error_2.xiidm", getClass().getResourceAsStream("/testCase_error_2.xiidm"));
         ReporterModel reporter = new ReporterModel("defaultTask", "defaultName");
         GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"), reporter);
 
@@ -76,7 +75,7 @@ public class GlskQualityProcessorTest {
     @Test
     public void qualityCheckWithError3() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
-        Network network = Importers.loadNetwork("testCase_error_3.xiidm", getClass().getResourceAsStream("/testCase_error_3.xiidm"));
+        Network network = Network.read("testCase_error_3.xiidm", getClass().getResourceAsStream("/testCase_error_3.xiidm"));
         ReporterModel reporter = new ReporterModel("defaultTask", "defaultName");
         GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"), reporter);
 
@@ -90,7 +89,7 @@ public class GlskQualityProcessorTest {
     @Test
     public void qualityCheckLoadNotConnected() {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream(COUNTRYTEST));
-        Network network = Importers.loadNetwork("testCase_error_load_not_connected.xiidm", getClass().getResourceAsStream("/testCase_error_load_not_connected.xiidm"));
+        Network network = Network.read("testCase_error_load_not_connected.xiidm", getClass().getResourceAsStream("/testCase_error_load_not_connected.xiidm"));
         ReporterModel reporter = new ReporterModel("defaultTask", "defaultName");
         GlskQualityProcessor.process(ucteGlskDocument, network, Instant.parse("2016-07-28T23:30:00Z"), reporter);
 

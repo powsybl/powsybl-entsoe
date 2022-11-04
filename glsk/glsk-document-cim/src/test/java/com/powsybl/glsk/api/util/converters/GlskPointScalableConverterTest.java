@@ -9,7 +9,6 @@ package com.powsybl.glsk.api.util.converters;
 import com.google.common.math.DoubleMath;
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.cim.CimGlskDocument;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -46,7 +45,7 @@ public class GlskPointScalableConverterTest {
 
     @Before
     public void setUp() {
-        testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        testNetwork = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
         glskPointCountry = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
         glskPointCountryGskLsk = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42COUNTRYGSKLSK)).getGlskPoints().get(0);
