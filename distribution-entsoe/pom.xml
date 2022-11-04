@@ -26,6 +26,10 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-balances-adjustment</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cne-converter</artifactId>
         </dependency>
         <dependency>

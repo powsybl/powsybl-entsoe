@@ -36,8 +36,9 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-balances-adjustment</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
