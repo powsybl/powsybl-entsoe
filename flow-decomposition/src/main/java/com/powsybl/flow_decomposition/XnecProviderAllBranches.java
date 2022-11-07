@@ -9,13 +9,15 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-interface XnecSelector {
-
-    List<Branch> run(Network network);
+public class XnecProviderAllBranches implements XnecProvider {
+    @Override
+    public List<Branch> getNetworkElements(Network network) {
+        return network.getBranchStream().collect(Collectors.toList());
+    }
 }

@@ -30,15 +30,16 @@ import java.util.stream.Collectors;
  */
 class FlowDecompositionResultsBuilder {
     private static final double NO_FLOW = 0.;
+    private final Map<String, Branch> xnecMap;
     private final Network network;
     private final Date date;
     private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
     private Map<String, Map<String, Double>> pstFlowMap;
     private Map<String, Double> acReferenceFlow;
     private Map<String, Double> dcReferenceFlow;
-    private Map<String, Branch> xnecMap;
 
-    FlowDecompositionResultsBuilder(Network network) {
+    FlowDecompositionResultsBuilder(List<Branch> xnecList, Network network) {
+        this.xnecMap = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
         this.network = network;
         this.date = Date.from(Instant.now());
     }
@@ -57,10 +58,6 @@ class FlowDecompositionResultsBuilder {
 
     void saveDcReferenceFlow(Map<String, Double> dcReferenceFlow) {
         this.dcReferenceFlow = dcReferenceFlow;
-    }
-
-    void saveXnec(List<Branch> xnecList) {
-        this.xnecMap = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
     }
 
     FlowDecompositionResults build(boolean isRescaleEnable) {

@@ -14,15 +14,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This class selects branches is they are interconnections.
- *
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-class XnecSelectorInterconnection implements XnecSelector {
-    public List<Branch> run(Network network) {
+public class XnecProviderInterconnection implements XnecProvider {
+    @Override
+    public List<Branch> getNetworkElements(Network network) {
         return NetworkUtil.getAllValidBranches(network)
             .stream()
-            .filter(XnecSelectorInterconnection::isAnInterconnection)
+            .filter(XnecProviderInterconnection::isAnInterconnection)
             .collect(Collectors.toList());
     }
 
@@ -31,5 +30,4 @@ class XnecSelectorInterconnection implements XnecSelector {
         Country country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
         return !country1.equals(country2);
     }
-
 }

@@ -12,7 +12,9 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,10 +65,14 @@ class CgmesIntegrationTests {
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
-            .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS)
-            .setXnecSelectionStrategy(FlowDecompositionParameters.XnecSelectionStrategy.INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC);
-        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
-        assertNotNull(flowDecompositionResults.getDecomposedFlowMap());
+            .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
+        Optional<Branch> optionalBranch = network.getBranchStream().findAny();
+        if (optionalBranch.isPresent()) {
+            String xnecId = optionalBranch.get().getId();
+            XnecProvider xnecProvider = new XnecProviderImpl(List.of(xnecId));
+            FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+            FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
+            assertNotNull(flowDecompositionResults.getDecomposedFlowMap().get(xnecId));
+        }
     }
 }
