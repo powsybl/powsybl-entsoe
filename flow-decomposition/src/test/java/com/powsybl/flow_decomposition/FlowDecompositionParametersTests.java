@@ -47,7 +47,6 @@ class FlowDecompositionParametersTests {
     @Test
     void checkDefaultParameters() {
         FlowDecompositionParameters parameters = FlowDecompositionParameters.load();
-        assertFalse(parameters.doesSaveIntermediates());
         assertFalse(parameters.isLossesCompensationEnabled());
         assertEquals(1e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(1e-5, parameters.getSensitivityEpsilon(), EPSILON);
@@ -59,7 +58,6 @@ class FlowDecompositionParametersTests {
     @Test
     void checkCompleteConfigurationOfParameters() {
         MapModuleConfig mapModuleConfig = platformConfig.createModuleConfig("flow-decomposition-default-parameters");
-        mapModuleConfig.setStringProperty("save-intermediates", Boolean.toString(true));
         mapModuleConfig.setStringProperty("enable-losses-compensation", Boolean.toString(true));
         mapModuleConfig.setStringProperty("losses-compensation-epsilon", Double.toString(2e-5));
         mapModuleConfig.setStringProperty("sensitivity-epsilon", Double.toString(3e-3));
@@ -68,7 +66,6 @@ class FlowDecompositionParametersTests {
         mapModuleConfig.setStringProperty("dc-fallback-enabled-after-ac-divergence", Boolean.toString(false));
 
         FlowDecompositionParameters parameters = FlowDecompositionParameters.load(platformConfig);
-        assertTrue(parameters.doesSaveIntermediates());
         assertTrue(parameters.isLossesCompensationEnabled());
         assertEquals(2e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(3e-3, parameters.getSensitivityEpsilon(), EPSILON);
@@ -80,11 +77,9 @@ class FlowDecompositionParametersTests {
     @Test
     void checkIncompleteConfigurationOfParameters() {
         MapModuleConfig mapModuleConfig = platformConfig.createModuleConfig("flow-decomposition-default-parameters");
-        mapModuleConfig.setStringProperty("save-intermediates", Boolean.toString(true));
         mapModuleConfig.setStringProperty("losses-compensation-epsilon", Double.toString(2e-5));
 
         FlowDecompositionParameters parameters = FlowDecompositionParameters.load(platformConfig);
-        assertTrue(parameters.doesSaveIntermediates());
         assertFalse(parameters.isLossesCompensationEnabled());
         assertEquals(2e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(1e-5, parameters.getSensitivityEpsilon(), EPSILON);

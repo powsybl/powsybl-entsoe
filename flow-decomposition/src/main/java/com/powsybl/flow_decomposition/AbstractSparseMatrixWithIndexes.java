@@ -13,7 +13,6 @@ import java.util.Map;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 abstract class AbstractSparseMatrixWithIndexes {
-    private static final boolean DO_NOT_FILL_ZEROS = false;
     protected final Map<String, Integer> rowIndex;
     protected final Map<String, Integer> colIndex;
 
@@ -22,9 +21,5 @@ abstract class AbstractSparseMatrixWithIndexes {
         this.colIndex = colIndex;
     }
 
-    abstract Map<String, Map<String, Double>> toMap(boolean fillZeros);
-
-    Map<String, Map<String, Double>> toMap() {
-        return toMap(DO_NOT_FILL_ZEROS);
-    }
+    abstract Map<String, Map<String, Double>> toMap();
 }

@@ -29,7 +29,7 @@ class InternalFlowTests {
 
     @Test
     void testNetworkWithoutInternalFlow() {
-        Network network = AllocatedFlowTests.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResults(network);
 
@@ -65,16 +65,15 @@ class InternalFlowTests {
 
     private static Network getHighPtdfNetwork() {
         String line = "FGEN  11 FLOAD 11 A";
-        Network network = AllocatedFlowTests.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
         network.getLine(line).getTerminal1().disconnect();
         return network;
     }
 
     private static FlowDecompositionResults getFlowDecompositionResults(Network network) {
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
-        flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION);
-        flowDecompositionParameters.setXnecSelectionStrategy(FlowDecompositionParameters.XnecSelectionStrategy.INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC);
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
+            .setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
+            .setXnecSelectionStrategy(FlowDecompositionParameters.XnecSelectionStrategy.INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         return flowComputer.run(network);
     }
@@ -124,8 +123,7 @@ class InternalFlowTests {
         DecomposedFlow decomposedFlow = getDecomposedFlow(internalFlow, acReferenceFlow, dcReferenceFlow);
         assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
 
-        DecomposedFlowsRescaler rescaler = new DecomposedFlowsRescaler();
-        return rescaler.rescale(decomposedFlow);
+        return DecomposedFlowsRescaler.rescale(decomposedFlow);
     }
 
     private void checkRescaleAcReference(double acReferenceFlow, double dcReferenceFlow, DecomposedFlow rescaledFlow, double expectedAllocatedFlow, double expectedInternalFlow, double expectedPstFlow, double expectedLoopFlowBE, double expectedLoopFlowES) {

@@ -9,7 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -20,22 +20,19 @@ class ZonalPtdfXnecSelectionTests {
 
     @Test
     void testDisableZonalPtdfComputationWithNoHighPtdfLine() {
-        Network network = AllocatedFlowTests.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsNoZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isEmpty());
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 
     @Test
     void testEnableZonalPtdfComputationWithNoHighPtdfLine() {
-        Network network = AllocatedFlowTests.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsWithZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isPresent());
-        assertFalse(flowDecompositionResults.getZonalPtdfMap().get().isEmpty());
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 
@@ -45,7 +42,6 @@ class ZonalPtdfXnecSelectionTests {
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsNoZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isEmpty());
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 
@@ -55,14 +51,12 @@ class ZonalPtdfXnecSelectionTests {
 
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsWithZonalPtdf(network);
 
-        assertTrue(flowDecompositionResults.getZonalPtdfMap().isPresent());
-        assertFalse(flowDecompositionResults.getZonalPtdfMap().get().isEmpty());
         assertEquals(2 + 10 - 1, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 
     private static Network getHighPtdfNetwork() {
         String line = "FGEN  11 FLOAD 11 A";
-        Network network = AllocatedFlowTests.importNetwork(NETWORK_FILE_NAME);
+        Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
         network.getLine(line).getTerminal1().disconnect();
         return network;
     }
@@ -76,9 +70,8 @@ class ZonalPtdfXnecSelectionTests {
     }
 
     private static FlowDecompositionResults getFlowDecompositionResults(FlowDecompositionParameters.XnecSelectionStrategy xnecSelectionStrategy, Network network) {
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setSaveIntermediates(FlowDecompositionParameters.SAVE_INTERMEDIATES);
-        flowDecompositionParameters.setXnecSelectionStrategy(xnecSelectionStrategy);
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
+            .setXnecSelectionStrategy(xnecSelectionStrategy);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         return flowComputer.run(network);
     }
