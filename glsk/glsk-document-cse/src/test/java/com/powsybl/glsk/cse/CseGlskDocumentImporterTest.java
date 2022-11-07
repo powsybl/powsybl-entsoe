@@ -11,7 +11,6 @@ import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.commons.ZonalData;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertManualGskBlocks() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable manualScalable = glskDocument.getZonalScalable(network).getData("FR_MANUAL");
 
@@ -64,7 +63,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertReserveGskBlocksDown() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable reserveScalable = glskDocument.getZonalScalable(network).getData("FR_RESERVE");
 
@@ -79,7 +78,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertReserveGskBlocksDownWithReachingLimits() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable reserveScalable = glskDocument.getZonalScalable(network).getData("FR_RESERVE");
 
@@ -95,7 +94,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertReserveGskBlocksUp() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable reserveScalable = glskDocument.getZonalScalable(network).getData("FR_RESERVE");
 
@@ -110,7 +109,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertReserveGskBlocksUpWithReachingLimits() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable reserveScalable = glskDocument.getZonalScalable(network).getData("FR_RESERVE");
 
@@ -136,7 +135,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertPropGskBlocks() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable propGskScalable = glskDocument.getZonalScalable(network).getData("FR_PROPGSK");
 
@@ -164,7 +163,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertPropGlskBlocks() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable propGlskScalable = glskDocument.getZonalScalable(network).getData("FR_PROPGLSK");
 
@@ -185,7 +184,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertPropLskBlocksWithPassingLoadsAsGenerators() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable propGlskScalable = glskDocument.getZonalScalable(network).getData("FR_PROPGLSK");
 
@@ -212,7 +211,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksDown() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER");
 
@@ -229,7 +228,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksUp() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER");
 
@@ -246,7 +245,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueDown() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER_ISSUE_PC");
 
@@ -263,7 +262,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueUp() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER_ISSUE_PC");
 
@@ -280,7 +279,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterWithHybridGskBelowMaximumShift() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskHybrid.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("10YCH-SWISSGRIDZ");
 
@@ -297,7 +296,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterWithHybridGskAboveMaximumShift() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskHybrid.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("10YCH-SWISSGRIDZ");
 
@@ -314,7 +313,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkCseGlskDocumentImporterWithHybridGskGoingDown() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskHybrid.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("10YCH-SWISSGRIDZ");
 
@@ -334,7 +333,7 @@ public class CseGlskDocumentImporterTest {
         // BBE1 has initially no remaining up capacity due to network limitation but BBE3 has remaining up capacity
         // NNL1 has initially no remaining up capacity due to GLSK limits but NNL2 has remaining up capacity
         // FFR1 has initially no remaining up capacity due to network limitation and FFR2 has initially no remaining up capacity due to GLSK limits
-        Network network = Importers.loadNetwork("testCaseWithInitialLimits.xiidm", getClass().getResourceAsStream("/testCaseWithInitialLimits.xiidm"));
+        Network network = Network.read("testCaseWithInitialLimits.xiidm", getClass().getResourceAsStream("/testCaseWithInitialLimits.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithInitialLimits.xml"));
 
         assertEquals(1500, network.getGenerator("BBE1AA1 _generator").getTargetP(), EPSILON);
@@ -354,7 +353,7 @@ public class CseGlskDocumentImporterTest {
 
     @Test
     public void checkFactorTagIsOptional() {
-        Network network = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         InputStream is = getClass().getResourceAsStream("/testGlskWithMissingFactorTag.xml");
         ZonalData<Scalable> zs = CseGlskDocument.importGlsk(is).getZonalScalable(network);
 

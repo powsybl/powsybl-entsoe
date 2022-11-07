@@ -11,7 +11,6 @@ import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.cim.CimGlskDocument;
 import com.google.common.math.DoubleMath;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;
@@ -52,7 +51,7 @@ public class GlskPointLinearGlskConverterTest {
 
     @Before
     public void setUp() {
-        testNetwork = Importers.loadNetwork("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        testNetwork = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
         glskPointCountry = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42COUNTRYIIDM)).getGlskPoints().get(0);
         glskPointCountryQuantity = CimGlskDocument.importGlsk(getResourceAsStream(GLSKB42COUNTRYQUANTITY)).getGlskPoints().get(0);
