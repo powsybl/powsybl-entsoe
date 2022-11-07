@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 
 import java.nio.file.Paths;
@@ -26,7 +25,7 @@ public final class TestUtils {
 
     static Network importNetwork(String networkResourcePath) {
         String networkName = Paths.get(networkResourcePath).getFileName().toString();
-        return Importers.loadNetwork(networkName, TestUtils.class.getResourceAsStream(networkResourcePath));
+        return Network.read(networkName, TestUtils.class.getResourceAsStream(networkResourcePath));
     }
 
     public static void assertCoherenceTotalFlow(boolean enableRescaledResults, FlowDecompositionResults flowDecompositionResults) {
