@@ -31,34 +31,34 @@ class InternalFlowTests {
     void testNetworkWithoutInternalFlow() {
         Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
 
-        FlowDecompositionResults flowDecompositionResultsBuilder = getFlowDecompositionResults(network);
+        FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResults(network);
 
-        assertEquals(2, flowDecompositionResultsBuilder.getDecomposedFlowMap().size());
-        assertEquals(0.0, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_GFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_GFR_LBE).getCountry1());
-        assertEquals(Country.BE, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_GFR_LBE).getCountry2());
-        assertEquals(0.0, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_LFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_LFR_LBE).getCountry1());
-        assertEquals(Country.BE, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_LFR_LBE).getCountry2());
+        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
+        assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getInternalFlow());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry2());
+        assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getInternalFlow());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry2());
     }
 
     @Test
     void testNetworkWithInternalFlow() {
         Network network = getHighPtdfNetwork();
 
-        FlowDecompositionResults flowDecompositionResultsBuilder = getFlowDecompositionResults(network);
+        FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResults(network);
 
-        assertEquals(2 + 10 - 1, flowDecompositionResultsBuilder.getDecomposedFlowMap().size());
-        assertEquals(0.0, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_GFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_GFR_LBE).getCountry1());
-        assertEquals(Country.BE, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_GFR_LBE).getCountry2());
-        assertEquals(0.0, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_LFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_LFR_LBE).getCountry1());
-        assertEquals(Country.BE, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(X_LFR_LBE).getCountry2());
+        assertEquals(2 + 10 - 1, flowDecompositionResults.getDecomposedFlowMap().size());
+        assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getInternalFlow());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry2());
+        assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getInternalFlow());
+        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry1());
+        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry2());
         for (int i = 1; i < 10; i++) {
             String lineId = String.format(X_INTERNAL_FR_FORMAT, i);
-            assertEquals(10., flowDecompositionResultsBuilder.getDecomposedFlowMap().get(lineId).getInternalFlow(), EPSILON);
-            assertEquals(Country.FR, flowDecompositionResultsBuilder.getDecomposedFlowMap().get(lineId).getCountry1());
+            assertEquals(10., flowDecompositionResults.getDecomposedFlowMap().get(lineId).getInternalFlow(), EPSILON);
+            assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(lineId).getCountry1());
         }
 
     }

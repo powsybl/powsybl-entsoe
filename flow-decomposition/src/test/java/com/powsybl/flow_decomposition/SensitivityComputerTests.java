@@ -36,10 +36,12 @@ class SensitivityComputerTests {
         String xnecFrBe = "FGEN1 11 BLOAD 11 1";
         String xnecBeBe = "BLOAD 11 BGEN2 11 1";
         Network network = importNetwork(networkFileName);
-        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
+        FlowDecompositionParameters parameters = FlowDecompositionParameters.load();
+        SensitivityAnalysis.Runner sensitivityAnalysisRunner = SensitivityAnalysis.find();
         List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
-        SensitivityAnalyser sensitivityAnalyser = flowDecompositionComputer.getSensitivityAnalyser(network, networkMatrixIndexes);
+        SensitivityAnalyser sensitivityAnalyser = new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet ptdfMatrix =
             sensitivityAnalyser.run(networkMatrixIndexes.getNodeIdList(),
                 networkMatrixIndexes.getNodeIndex(),
@@ -108,10 +110,12 @@ class SensitivityComputerTests {
         String pst = "BLOAD 11 BLOAD 12 2";
         String x1 = "FGEN  11 BLOAD 11 1";
         String x2 = "FGEN  11 BLOAD 12 1";
-        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
+        FlowDecompositionParameters parameters = FlowDecompositionParameters.load();
+        SensitivityAnalysis.Runner sensitivityAnalysisRunner = SensitivityAnalysis.find();
         List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
-        SensitivityAnalyser sensitivityAnalyser = flowDecompositionComputer.getSensitivityAnalyser(network, networkMatrixIndexes);
+        SensitivityAnalyser sensitivityAnalyser = new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.run(networkMatrixIndexes.getPstList(),
             networkMatrixIndexes.getPstIndex(), SensitivityVariableType.TRANSFORMER_PHASE);
         Map<String, Map<String, Double>> psdf = psdfMatrix.toMap();

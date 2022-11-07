@@ -176,7 +176,7 @@ public class FlowDecompositionComputer {
         flowDecompositionResultsBuilder.saveDcReferenceFlow(getXnecReferenceFlows(xnecList));
     }
 
-    SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
+    private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
         return new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
     }
 
