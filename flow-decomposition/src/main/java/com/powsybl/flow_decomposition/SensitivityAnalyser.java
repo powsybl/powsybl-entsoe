@@ -6,12 +6,16 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.SensitivityAnalysis;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityFactorReader;
+import com.powsybl.sensitivity.SensitivityResultWriter;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.SensitivityVariableType;
+import org.jgrapht.alg.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,28 +76,23 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private void partialFillSensitivityMatrix(SensitivityVariableType sensitivityVariableType,
                                               SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet,
                                               List<String> variableList) {
-        List<SensitivityFactor> factors = getFactors(variableList, sensitivityVariableType);
-        fillSensitivityAnalysisResult(factors, sensitivityMatrixTriplet);
+        List<Pair<String, String>> factors = getFunctionVariableFactors(variableList, functionList);
+        fillSensitivityAnalysisResult(factors, sensitivityMatrixTriplet, sensitivityVariableType);
     }
 
-    private List<SensitivityFactor> getFactors(List<String> variableList,
-                                               SensitivityVariableType sensitivityVariableType) {
-        return getFactors(variableList, functionList, sensitivityVariableType, SENSITIVITY_VARIABLE_SET);
+    private void fillSensitivityAnalysisResult(List<Pair<String, String>> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet, SensitivityVariableType sensitivityVariableType) {
+        SensitivityFactorReader factorReader = getSensitivityFactorReader(factors, sensitivityVariableType, SENSITIVITY_VARIABLE_SET);
+        SensitivityResultWriter valueWriter = getSensitivityResultWriter(factors, sensitivityMatrixTriplet);
+        runSensitivityAnalysis(network, factorReader, valueWriter, SENSITIVITY_VARIABLE_SETS);
     }
 
-    private void fillSensitivityAnalysisResult(List<SensitivityFactor> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet) {
-        SensitivityFactorReader factorReader = handler -> factors.forEach(sensitivityFactor -> handler.onFactor(sensitivityFactor.getFunctionType(),
-            sensitivityFactor.getFunctionId(),
-            sensitivityFactor.getVariableType(),
-            sensitivityFactor.getVariableId(),
-            sensitivityFactor.isVariableSet(),
-            sensitivityFactor.getContingencyContext()));
-        SensitivityResultWriter valueWriter = new SensitivityResultWriter() {
+    private static SensitivityResultWriter getSensitivityResultWriter(List<Pair<String, String>> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet) {
+        return new SensitivityResultWriter() {
             @Override
             public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
-                SensitivityFactor factor = factors.get(factorIndex);
+                Pair<String, String> factor = factors.get(factorIndex);
                 double referenceOrientedSensitivity = functionReference < 0 ? -value : value;
-                sensitivityMatrixTriplet.addItem(factor.getFunctionId(), factor.getVariableId(), referenceOrientedSensitivity);
+                sensitivityMatrixTriplet.addItem(factor.getFirst(), factor.getSecond(), referenceOrientedSensitivity);
             }
 
             @Override
@@ -101,15 +100,5 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
                 // We do not manage contingency yet
             }
         };
-        runner.run(network,
-            network.getVariantManager().getWorkingVariantId(),
-            factorReader,
-            valueWriter,
-            CONTINGENCIES,
-            SENSITIVITY_VARIABLE_SETS,
-            sensitivityAnalysisParameters,
-            LocalComputationManager.getDefault(),
-            Reporter.NO_OP
-        );
     }
 }
