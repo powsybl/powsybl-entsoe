@@ -28,7 +28,6 @@ import java.util.Map;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class SensitivityAnalyser extends AbstractSensitivityAnalyser {
-    private static final int SENSITIVITY_VARIABLE_BATCH_SIZE = 15000;
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalyser.class);
     private static final boolean SENSITIVITY_VARIABLE_SET = false;
     public static final List<SensitivityVariableSet> SENSITIVITY_VARIABLE_SETS = Collections.emptyList();
@@ -58,8 +57,8 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
                                        Map<String, Integer> variableIndex,
                                        SensitivityVariableType sensitivityVariableType) {
         SparseMatrixWithIndexesTriplet sensiMatrixTriplet = initSensitivityMatrixTriplet(variableIndex);
-        for (int i = 0; i < variableList.size(); i += SENSITIVITY_VARIABLE_BATCH_SIZE) {
-            List<String> localVariableList = variableList.subList(i, Math.min(variableList.size(), i + SENSITIVITY_VARIABLE_BATCH_SIZE));
+        for (int i = 0; i < variableList.size(); i += parameters.getSensitivityVariableBatchSize()) {
+            List<String> localVariableList = variableList.subList(i, Math.min(variableList.size(), i + parameters.getSensitivityVariableBatchSize()));
             partialFillSensitivityMatrix(sensitivityVariableType, sensiMatrixTriplet, localVariableList);
         }
         return sensiMatrixTriplet;

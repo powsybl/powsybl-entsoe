@@ -53,6 +53,7 @@ class FlowDecompositionParametersTests {
         assertFalse(parameters.isRescaleEnabled());
         assertEquals(ONLY_INTERCONNECTIONS, parameters.getXnecSelectionStrategy());
         assertTrue(parameters.isDcFallbackEnabledAfterAcDivergence());
+        assertEquals(15000, parameters.getSensitivityVariableBatchSize());
     }
 
     @Test
@@ -64,6 +65,7 @@ class FlowDecompositionParametersTests {
         mapModuleConfig.setStringProperty("rescale-enabled", Boolean.toString(true));
         mapModuleConfig.setStringProperty("xnec-selection-strategy", INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC.name());
         mapModuleConfig.setStringProperty("dc-fallback-enabled-after-ac-divergence", Boolean.toString(false));
+        mapModuleConfig.setStringProperty("sensitivity-variable-batch-size", Integer.toString(1234));
 
         FlowDecompositionParameters parameters = FlowDecompositionParameters.load(platformConfig);
         assertTrue(parameters.isLossesCompensationEnabled());
@@ -72,6 +74,7 @@ class FlowDecompositionParametersTests {
         assertTrue(parameters.isRescaleEnabled());
         assertEquals(INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC, parameters.getXnecSelectionStrategy());
         assertFalse(parameters.isDcFallbackEnabledAfterAcDivergence());
+        assertEquals(1234, parameters.getSensitivityVariableBatchSize());
     }
 
     @Test
