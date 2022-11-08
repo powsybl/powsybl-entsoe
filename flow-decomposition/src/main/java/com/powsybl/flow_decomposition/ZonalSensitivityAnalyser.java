@@ -6,6 +6,8 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
@@ -13,6 +15,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
 
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -38,9 +42,8 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);
         List<SensitivityFactor> factors = getFactors(variableList, functionList,
             sensitivityVariableType, SENSITIVITY_VARIABLE_SET);
-        SensitivityAnalysisResult sensitivityResult = getSensitivityAnalysisResult(network,
+        return getSensitivityAnalysisResult(network,
             factors, sensitivityVariableSets);
-        return getZonalPtdfMap(variableList, functionList, sensitivityResult);
     }
 
     private List<String> getVariableList(Map<Country, Map<String, Double>> glsks) {
@@ -65,21 +68,39 @@ class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
         return new WeightedSensitivityVariable(stringDoubleEntry.getKey(), stringDoubleEntry.getValue());
     }
 
-    private SensitivityAnalysisResult getSensitivityAnalysisResult(Network network, List<SensitivityFactor> factors, List<SensitivityVariableSet> sensitivityVariableSets) {
-        return runner.run(network, factors, CONTINGENCIES, sensitivityVariableSets, sensitivityAnalysisParameters);
-    }
+    private Map<String, Map<Country, Double>> getSensitivityAnalysisResult(Network network, List<SensitivityFactor> factors, List<SensitivityVariableSet> sensitivityVariableSets) {
+        Map<String, Map<Country, Double>> zonalPtdf = new HashMap<>();
+        SensitivityFactorReader factorReader = handler -> factors.forEach(sensitivityFactor -> handler.onFactor(sensitivityFactor.getFunctionType(),
+            sensitivityFactor.getFunctionId(),
+            sensitivityFactor.getVariableType(),
+            sensitivityFactor.getVariableId(),
+            sensitivityFactor.isVariableSet(),
+            sensitivityFactor.getContingencyContext()));
+        SensitivityResultWriter valueWriter = new SensitivityResultWriter() {
+            @Override
+            public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
+                SensitivityFactor factor = factors.get(factorIndex);
+                String branchId = factor.getFunctionId();
+                zonalPtdf.putIfAbsent(branchId, new EnumMap<>(Country.class));
+                Country country = Country.valueOf(factor.getVariableId());
+                zonalPtdf.get(branchId).put(country, value);
+            }
 
-    private Map<String, Map<Country, Double>> getZonalPtdfMap(List<String> variableList,
-                                                              List<Branch> functionList,
-                                                              SensitivityAnalysisResult sensitivityResult) {
-        return functionList.stream().map(Identifiable::getId).collect(Collectors.toMap(
-            Function.identity(),
-            branch -> variableList.stream().collect(Collectors.toMap(
-                Country::valueOf,
-                variable -> getPtdfValue(branch, variable, sensitivityResult)))));
-    }
-
-    private double getPtdfValue(String branch, String variable, SensitivityAnalysisResult sensitivityResult) {
-        return sensitivityResult.getSensitivityValue(variable, branch, SENSITIVITY_FUNCTION_TYPE);
+            @Override
+            public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+                // We do not manage contingency yet
+            }
+        };
+        runner.run(network,
+            network.getVariantManager().getWorkingVariantId(),
+            factorReader,
+            valueWriter,
+            CONTINGENCIES,
+            sensitivityVariableSets,
+            sensitivityAnalysisParameters,
+            LocalComputationManager.getDefault(),
+            Reporter.NO_OP
+        );
+        return zonalPtdf;
     }
 }
