@@ -30,7 +30,7 @@ import java.util.Map;
 class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalyser.class);
     private static final boolean SENSITIVITY_VARIABLE_SET = false;
-    public static final List<SensitivityVariableSet> SENSITIVITY_VARIABLE_SETS = Collections.emptyList();
+    public static final List<SensitivityVariableSet> EMPTY_SENSITIVITY_VARIABLE_SETS = Collections.emptyList();
     private final Network network;
     private final List<Branch> functionList;
     private final Map<String, Integer> functionIndex;
@@ -82,7 +82,7 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private void fillSensitivityAnalysisResult(List<Pair<String, String>> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet, SensitivityVariableType sensitivityVariableType) {
         SensitivityFactorReader factorReader = getSensitivityFactorReader(factors, sensitivityVariableType, SENSITIVITY_VARIABLE_SET);
         SensitivityResultWriter valueWriter = getSensitivityResultWriter(factors, sensitivityMatrixTriplet);
-        runSensitivityAnalysis(network, factorReader, valueWriter, SENSITIVITY_VARIABLE_SETS);
+        runSensitivityAnalysis(network, factorReader, valueWriter, EMPTY_SENSITIVITY_VARIABLE_SETS);
     }
 
     private static SensitivityResultWriter getSensitivityResultWriter(List<Pair<String, String>> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet) {
