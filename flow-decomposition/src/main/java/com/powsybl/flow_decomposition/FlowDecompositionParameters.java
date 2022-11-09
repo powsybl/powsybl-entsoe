@@ -34,12 +34,14 @@ public class FlowDecompositionParameters {
     public static final boolean ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE = true;
     public static final boolean DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE = ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE;
     private static final XnecSelectionStrategy DEFAULT_XNEC_SELECTION_STRATEGY = XnecSelectionStrategy.ONLY_INTERCONNECTIONS;
+    private static final int DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE = 15000;
     private boolean enableLossesCompensation;
     private double lossesCompensationEpsilon;
     private double sensitivityEpsilon;
     private boolean rescaleEnabled;
     private XnecSelectionStrategy xnecSelectionStrategy;
     private boolean dcFallbackEnabledAfterAcDivergence;
+    private int sensitivityVariableBatchSize;
 
     public static FlowDecompositionParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -61,6 +63,7 @@ public class FlowDecompositionParameters {
             parameters.setRescaleEnabled(moduleConfig.getBooleanProperty("rescale-enabled", DEFAULT_RESCALE_ENABLED));
             parameters.setXnecSelectionStrategy(moduleConfig.getEnumProperty("xnec-selection-strategy", XnecSelectionStrategy.class, DEFAULT_XNEC_SELECTION_STRATEGY));
             parameters.setDcFallbackEnabledAfterAcDivergence(moduleConfig.getBooleanProperty("dc-fallback-enabled-after-ac-divergence", DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE));
+            parameters.setSensitivityVariableBatchSize(moduleConfig.getIntProperty("sensitivity-variable-batch-size", DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE));
         });
     }
 
@@ -71,6 +74,7 @@ public class FlowDecompositionParameters {
         this.rescaleEnabled = DEFAULT_RESCALE_ENABLED;
         this.xnecSelectionStrategy = DEFAULT_XNEC_SELECTION_STRATEGY;
         this.dcFallbackEnabledAfterAcDivergence = DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE;
+        this.sensitivityVariableBatchSize = DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE;
     }
 
     public FlowDecompositionParameters setEnableLossesCompensation(boolean enableLossesCompensation) {
@@ -124,6 +128,15 @@ public class FlowDecompositionParameters {
 
     public FlowDecompositionParameters setDcFallbackEnabledAfterAcDivergence(boolean dcFallbackEnabledAfterAcDivergence) {
         this.dcFallbackEnabledAfterAcDivergence = dcFallbackEnabledAfterAcDivergence;
+        return this;
+    }
+
+    public int getSensitivityVariableBatchSize() {
+        return sensitivityVariableBatchSize;
+    }
+
+    public FlowDecompositionParameters setSensitivityVariableBatchSize(int sensitivityVariableBatchSize) {
+        this.sensitivityVariableBatchSize = sensitivityVariableBatchSize;
         return this;
     }
 }

@@ -9,10 +9,17 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.SensitivityAnalysis;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
+import com.powsybl.sensitivity.SensitivityFactorReader;
+import com.powsybl.sensitivity.SensitivityResultWriter;
+import com.powsybl.sensitivity.SensitivityVariableSet;
+import com.powsybl.sensitivity.SensitivityVariableType;
+import org.jgrapht.alg.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -21,9 +28,9 @@ import java.util.Map;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class SensitivityAnalyser extends AbstractSensitivityAnalyser {
-    private static final int SENSITIVITY_VARIABLE_BATCH_SIZE = 15000;
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalyser.class);
     private static final boolean SENSITIVITY_VARIABLE_SET = false;
+    public static final List<SensitivityVariableSet> EMPTY_SENSITIVITY_VARIABLE_SETS = Collections.emptyList();
     private final Network network;
     private final List<Branch> functionList;
     private final Map<String, Integer> functionIndex;
@@ -50,8 +57,8 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
                                        Map<String, Integer> variableIndex,
                                        SensitivityVariableType sensitivityVariableType) {
         SparseMatrixWithIndexesTriplet sensiMatrixTriplet = initSensitivityMatrixTriplet(variableIndex);
-        for (int i = 0; i < variableList.size(); i += SENSITIVITY_VARIABLE_BATCH_SIZE) {
-            List<String> localVariableList = variableList.subList(i, Math.min(variableList.size(), i + SENSITIVITY_VARIABLE_BATCH_SIZE));
+        for (int i = 0; i < variableList.size(); i += parameters.getSensitivityVariableBatchSize()) {
+            List<String> localVariableList = variableList.subList(i, Math.min(variableList.size(), i + parameters.getSensitivityVariableBatchSize()));
             partialFillSensitivityMatrix(sensitivityVariableType, sensiMatrixTriplet, localVariableList);
         }
         return sensiMatrixTriplet;
@@ -68,35 +75,29 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private void partialFillSensitivityMatrix(SensitivityVariableType sensitivityVariableType,
                                               SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet,
                                               List<String> variableList) {
-        List<SensitivityFactor> factors = getFactors(variableList, sensitivityVariableType);
-        SensitivityAnalysisResult sensitivityResult = getSensitivityAnalysisResult(factors);
-        fillSensibilityMatrixTriplet(sensitivityMatrixTriplet, factors, sensitivityResult);
+        List<Pair<String, String>> factors = getFunctionVariableFactors(variableList, functionList);
+        fillSensitivityAnalysisResult(factors, sensitivityMatrixTriplet, sensitivityVariableType);
     }
 
-    private List<SensitivityFactor> getFactors(List<String> variableList,
-                                               SensitivityVariableType sensitivityVariableType) {
-        return getFactors(variableList, functionList, sensitivityVariableType, SENSITIVITY_VARIABLE_SET);
+    private void fillSensitivityAnalysisResult(List<Pair<String, String>> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet, SensitivityVariableType sensitivityVariableType) {
+        SensitivityFactorReader factorReader = getSensitivityFactorReader(factors, sensitivityVariableType, SENSITIVITY_VARIABLE_SET);
+        SensitivityResultWriter valueWriter = getSensitivityResultWriter(factors, sensitivityMatrixTriplet);
+        runSensitivityAnalysis(network, factorReader, valueWriter, EMPTY_SENSITIVITY_VARIABLE_SETS);
     }
 
-    private SensitivityAnalysisResult getSensitivityAnalysisResult(List<SensitivityFactor> factors) {
-        return runner.run(network, factors, sensitivityAnalysisParameters);
-    }
+    private static SensitivityResultWriter getSensitivityResultWriter(List<Pair<String, String>> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet) {
+        return new SensitivityResultWriter() {
+            @Override
+            public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
+                Pair<String, String> factor = factors.get(factorIndex);
+                double referenceOrientedSensitivity = functionReference < 0 ? -value : value;
+                sensitivityMatrixTriplet.addItem(factor.getFirst(), factor.getSecond(), referenceOrientedSensitivity);
+            }
 
-    private void fillSensibilityMatrixTriplet(
-        SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet,
-        List<SensitivityFactor> factors,
-        SensitivityAnalysisResult sensiResult) {
-        for (SensitivityValue sensitivityValue : sensiResult.getValues()) {
-            fillSensitivityMatrixCell(sensitivityMatrixTriplet, factors, sensitivityValue);
-        }
-    }
-
-    private void fillSensitivityMatrixCell(SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet,
-                                           List<SensitivityFactor> factors, SensitivityValue sensitivityValue) {
-        SensitivityFactor factor = factors.get(sensitivityValue.getFactorIndex());
-        double sensitivity = sensitivityValue.getValue();
-        double referenceOrientedSensitivity = sensitivityValue.getFunctionReference() < 0 ?
-            -sensitivity : sensitivity;
-        sensitivityMatrixTriplet.addItem(factor.getFunctionId(), factor.getVariableId(), referenceOrientedSensitivity);
+            @Override
+            public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+                // We do not manage contingency yet
+            }
+        };
     }
 }

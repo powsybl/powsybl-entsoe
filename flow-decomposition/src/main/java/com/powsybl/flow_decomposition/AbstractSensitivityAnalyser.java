@@ -6,11 +6,15 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
+import org.jgrapht.alg.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +38,6 @@ abstract class AbstractSensitivityAnalyser {
         this.runner = runner;
     }
 
-    private static LoadFlowParameters enforceDcLoadFlowCalculation(LoadFlowParameters initialLoadFlowParameters) {
-        LoadFlowParameters dcEnforcedParameters = initialLoadFlowParameters.copy();
-        dcEnforcedParameters.setDc(DC_LOAD_FLOW);
-        return dcEnforcedParameters;
-    }
-
     protected static SensitivityAnalysisParameters initSensitivityAnalysisParameters(LoadFlowParameters loadFlowParameters) {
         SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
         parameters.setLoadFlowParameters(enforceDcLoadFlowCalculation(loadFlowParameters));
@@ -47,27 +45,41 @@ abstract class AbstractSensitivityAnalyser {
         return parameters;
     }
 
-    protected List<SensitivityFactor> getFactors(List<String> variableList,
-                                       List<Branch> functionList,
-                                       SensitivityVariableType sensitivityVariableType,
-                                       boolean sensitivityVariableSet) {
-        List<SensitivityFactor> factors = new ArrayList<>();
+    private static LoadFlowParameters enforceDcLoadFlowCalculation(LoadFlowParameters initialLoadFlowParameters) {
+        LoadFlowParameters dcEnforcedParameters = initialLoadFlowParameters.copy();
+        dcEnforcedParameters.setDc(DC_LOAD_FLOW);
+        return dcEnforcedParameters;
+    }
+
+    protected List<Pair<String, String>> getFunctionVariableFactors(List<String> variableList,
+                                                                    List<Branch> functionList) {
+        List<Pair<String, String>> factors = new ArrayList<>();
         variableList.forEach(
             variable -> functionList.forEach(
-                function -> factors.add(getSensitivityFactor(function, variable,
-                    sensitivityVariableType, sensitivityVariableSet))));
+                function -> factors.add(Pair.of(function.getId(), variable))));
         return factors;
     }
 
-    protected SensitivityFactor getSensitivityFactor(Branch<?> function,
-                                                   String variable,
-                                                   SensitivityVariableType sensitivityVariableType,
-                                                   boolean sensitivityVariableSet) {
-        return new SensitivityFactor(
-            SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, function.getId(),
-            sensitivityVariableType, variable,
-            sensitivityVariableSet,
-            ContingencyContext.none()
+    protected static SensitivityFactorReader getSensitivityFactorReader(List<Pair<String, String>> factors, SensitivityVariableType sensitivityVariableType, boolean sensitivityVariableSet) {
+        return handler -> factors.forEach(
+            pair -> handler.onFactor(SENSITIVITY_FUNCTION_TYPE,
+                pair.getFirst(),
+                sensitivityVariableType,
+                pair.getSecond(),
+                sensitivityVariableSet,
+                ContingencyContext.none()));
+    }
+
+    protected void runSensitivityAnalysis(Network network, SensitivityFactorReader factorReader, SensitivityResultWriter valueWriter, List<SensitivityVariableSet> sensitivityVariableSets) {
+        runner.run(network,
+            network.getVariantManager().getWorkingVariantId(),
+            factorReader,
+            valueWriter,
+            CONTINGENCIES,
+            sensitivityVariableSets,
+            sensitivityAnalysisParameters,
+            LocalComputationManager.getDefault(),
+            Reporter.NO_OP
         );
     }
 }
