@@ -1,0 +1,22 @@
+{
+  "maxNumberIterations" : 11,
+  "thresholdNetPosition" : 2.0,
+  "load-flow-parameters" : {
+    "version" : "1.7",
+    "voltageInitMode" : "DC_VALUES",
+    "transformerVoltageControlOn" : true,
+    "phaseShifterRegulationOn" : true,
+    "noGeneratorReactiveLimits" : false,
+    "twtSplitShuntAdmittance" : false,
+    "shuntCompensatorVoltageControlOn" : false,
+    "readSlackBus" : true,
+    "writeSlackBus" : false,
+    "dc" : false,
+    "distributedSlack" : true,
+    "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
+    "dcUseTransformerRatio" : true,
+    "countriesToBalance" : [ ],
+    "connectedComponentMode" : "MAIN",
+    "hvdcAcEmulation" : true
+  }
+}

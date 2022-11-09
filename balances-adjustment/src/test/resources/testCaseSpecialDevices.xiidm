@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_1" id="Test" caseDate="2020-03-11T13:49:28.645+01:00" forecastDistance="0" sourceFormat="code">
+    <iidm:substation id="SUBSTATION_FR" name="Substation FR" country="FR">
+        <iidm:voltageLevel id="VOLTAGE_LEVEL_FR_400KV" name="Voltage level FR 400 kV" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS_FR_400KV_1" name="Bus FR 400kV 1" v="400.0" angle="0.0"/>
+                <iidm:bus id="BUS_FR_400KV_2" name="Bus FR 400kV 2" v="400.0" angle="-0.08594366908073425"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="GENERATOR_FR" name="Generator FR" energySource="OTHER" minP="0.0" maxP="1000.0" ratedS="100.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" targetQ="0.0" bus="BUS_FR_400KV_1" connectableBus="BUS_FR_400KV_1" p="-100.0">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:generator>
+            <iidm:vscConverterStation id="VSC_STATION_FR" name="VSC station FR" voltageRegulatorOn="false" lossFactor="0.0" voltageSetpoint="400.0" reactivePowerSetpoint="0.0" bus="BUS_FR_400KV_2" connectableBus="BUS_FR_400KV_2" p="50.0" q="999999.0">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VOLTAGE_LEVEL_FR_225KV" name="Voltage level FR 225 kV" nominalV="225.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS_FR_225KV" name="Bus FR 225kV" v="225.0" angle="-0.08594366908073425"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:threeWindingsTransformer id="3WT_FR" name="Three windings transformer FR" r1="0.1" x1="0.1" g1="0.1" b1="0.1" ratedU1="400.0" r2="0.1" x2="0.1" g2="0.1" b2="0.1" ratedU2="400.0" r3="0.1" x3="0.1" g3="0.1" b3="0.1" ratedU3="225.0" ratedU0="100.0" bus1="BUS_FR_400KV_1" connectableBus1="BUS_FR_400KV_1" voltageLevelId1="VOLTAGE_LEVEL_FR_400KV" bus2="BUS_FR_400KV_2" connectableBus2="BUS_FR_400KV_2" voltageLevelId2="VOLTAGE_LEVEL_FR_400KV" bus3="BUS_FR_225KV" connectableBus3="BUS_FR_225KV" voltageLevelId3="VOLTAGE_LEVEL_FR_225KV" p1="100.0" p2="-50.0" p3="-50.0"/>
+    </iidm:substation>
+    <iidm:substation id="SUBSTATION_ES" name="Substation ES" country="ES">
+        <iidm:voltageLevel id="VOLTAGE_LEVEL_ES_400KV" name="Voltage level ES 400 kV" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS_ES_400KV" name="Bus ES 400kV" v="400.0" angle="-0.08594366908073425"/>
+            </iidm:busBreakerTopology>
+            <iidm:vscConverterStation id="VSC_STATION_ES" name="VSC station ES" voltageRegulatorOn="false" lossFactor="0.0" voltageSetpoint="400.0" reactivePowerSetpoint="0.0" bus="BUS_ES_400KV" connectableBus="BUS_ES_400KV" p="-50.0" q="999999.0">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VOLTAGE_LEVEL_ES_225KV" name="Voltage level ES 225 kV" nominalV="225.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS_ES_225KV" name="Bus ES 225kV" v="225.0" angle="-0.09160251170396805"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="LOAD_ES" name="Load ES" loadType="UNDEFINED" p0="100.0" q0="0.0" bus="BUS_ES_225KV" connectableBus="BUS_ES_225KV" p="100.0"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="TWT_ES" name="Two windings transformer ES" r="0.1" x="0.1" g="0.1" b="0.1" ratedU1="400.0" ratedU2="225.0" bus1="BUS_ES_400KV" connectableBus1="BUS_ES_400KV" voltageLevelId1="VOLTAGE_LEVEL_ES_400KV" bus2="BUS_ES_225KV" connectableBus2="BUS_ES_225KV" voltageLevelId2="VOLTAGE_LEVEL_ES_225KV" p1="50.0" p2="-50.0"/>
+    </iidm:substation>
+    <iidm:line id="LINE_FR_ES" name="Line FR ES" r="0.1" x="0.1" g1="0.1" b1="0.1" g2="0.1" b2="0.1" bus1="BUS_FR_225KV" connectableBus1="BUS_FR_225KV" voltageLevelId1="VOLTAGE_LEVEL_FR_225KV" bus2="BUS_ES_225KV" connectableBus2="BUS_ES_225KV" voltageLevelId2="VOLTAGE_LEVEL_ES_225KV" p1="50.0" p2="-50.0"/>
+    <iidm:hvdcLine id="HVDC_FR_ES" name="HVDC FR ES" r="0.0" nominalV="400.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="50.0" maxP="1000.0" converterStation1="VSC_STATION_FR" converterStation2="VSC_STATION_ES"/>
+</iidm:network>

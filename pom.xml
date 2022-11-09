@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-entsoe</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ENTSO-E</name>
@@ -58,7 +58,6 @@
 
     <properties>
         <java.version>11</java.version>
-        <powsyblba.version>1.14.0</powsyblba.version>
         <powsyblcore.version>5.0.0-RC1</powsyblcore.version>
         <powsyblopenloadflow.version>0.23.1</powsyblopenloadflow.version>
         <sonar.coverage.jacoco.xmlReportPaths>
@@ -72,11 +71,12 @@
     </properties>
 
     <modules>
-        <module>entsoe-cgmes-balances-adjustment</module>
+        <module>balances-adjustment</module>
         <module>cne</module>
-        <module>glsk</module>
-        <module>flow-decomposition</module>
+        <module>entsoe-cgmes-balances-adjustment</module>
         <module>distribution-entsoe</module>
+        <module>flow-decomposition</module>
+        <module>glsk</module>
     </modules>
 
     <dependencyManagement>
@@ -91,10 +91,15 @@
 
             <dependency>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-balances-adjustment</artifactId>
-                <version>${powsyblba.version}</version>
+                <artifactId>powsybl-open-loadflow</artifactId>
+                <version>${powsyblopenloadflow.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-balances-adjustment</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-cne-converter</artifactId>
