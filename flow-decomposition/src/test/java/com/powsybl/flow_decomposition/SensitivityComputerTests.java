@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -52,6 +53,52 @@ class SensitivityComputerTests {
         assertEquals(-0.5, nodalPtdfs.get(xnecBeBe).get(loadBe), EPSILON);
         assertEquals(+0.5, nodalPtdfs.get(xnecBeBe).get(genBe), EPSILON);
         assertEquals(-0.5, nodalPtdfs.get(xnecBeBe).get(genFr), EPSILON);
+    }
+
+    @Test
+    void testThatZonalPtdfAreWellComputed() {
+        String networkFileName = "NETWORK_PARALLEL_LINES_PTDF.uct";
+        Network network = importNetwork(networkFileName);
+        String lineFrBe = "FLOAD 11 BLOAD 11 1";
+        String lineBeFr = "FGEN  11 BLOAD 11 1";
+        String line1 = "FGEN  11 FLOAD 11 1";
+        String line2 = "FGEN  11 FLOAD 11 2";
+        String line3 = "FGEN  11 FLOAD 11 3";
+        String line4 = "FGEN  11 FLOAD 11 4";
+        String line5 = "FGEN  11 FLOAD 11 5";
+        String line6 = "FGEN  11 FLOAD 11 6";
+        String line7 = "FGEN  11 FLOAD 11 7";
+        String line8 = "FGEN  11 FLOAD 11 8";
+        String line9 = "FGEN  11 FLOAD 11 9";
+        GlskComputer glskComputer = new GlskComputer();
+        Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
+        SensitivityAnalysis.Runner sensitivityAnalysisRunner = SensitivityAnalysis.find();
+        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner);
+        Map<String, Map<Country, Double>> zonalPtdfs = zonalSensitivityAnalyser.run(network,
+            glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
+        assertEquals(-0.025, zonalPtdfs.get(line1).get(Country.BE), EPSILON);
+        assertEquals(+0.025, zonalPtdfs.get(line1).get(Country.FR), EPSILON);
+        assertEquals(-0.025, zonalPtdfs.get(line2).get(Country.BE), EPSILON);
+        assertEquals(+0.025, zonalPtdfs.get(line2).get(Country.FR), EPSILON);
+        assertEquals(-0.025, zonalPtdfs.get(line3).get(Country.BE), EPSILON);
+        assertEquals(+0.025, zonalPtdfs.get(line3).get(Country.FR), EPSILON);
+        assertEquals(-0.025, zonalPtdfs.get(line4).get(Country.BE), EPSILON);
+        assertEquals(+0.025, zonalPtdfs.get(line4).get(Country.FR), EPSILON);
+        assertEquals(-0.025, zonalPtdfs.get(line5).get(Country.BE), EPSILON);
+        assertEquals(+0.025, zonalPtdfs.get(line5).get(Country.FR), EPSILON);
+        assertEquals(-0.025, zonalPtdfs.get(line6).get(Country.BE), EPSILON);
+        assertEquals(+0.025, zonalPtdfs.get(line6).get(Country.FR), EPSILON);
+        assertEquals(-0.025, zonalPtdfs.get(line7).get(Country.BE), EPSILON);
+        assertEquals(+0.025, zonalPtdfs.get(line7).get(Country.FR), EPSILON);
+        assertEquals(-0.025, zonalPtdfs.get(line8).get(Country.BE), EPSILON);
+        assertEquals(+0.025, zonalPtdfs.get(line8).get(Country.FR), EPSILON);
+        assertEquals(-0.025, zonalPtdfs.get(line9).get(Country.BE), EPSILON);
+        assertEquals(+0.025, zonalPtdfs.get(line9).get(Country.FR), EPSILON);
+        assertEquals(-0.225, zonalPtdfs.get(lineFrBe).get(Country.BE), EPSILON);
+        assertEquals(+0.225, zonalPtdfs.get(lineFrBe).get(Country.FR), EPSILON);
+        assertEquals(-0.275, zonalPtdfs.get(lineBeFr).get(Country.BE), EPSILON);
+        assertEquals(+0.275, zonalPtdfs.get(lineBeFr).get(Country.FR), EPSILON);
     }
 
     @Test
