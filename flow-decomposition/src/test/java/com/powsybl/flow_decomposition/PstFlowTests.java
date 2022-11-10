@@ -29,7 +29,7 @@ class PstFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
-        XnecProvider xnecProvider = new XnecProviderImpl(List.of(x1, x2));
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(x1, x2));
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
@@ -45,7 +45,7 @@ class PstFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
-        XnecProvider xnecProvider = new XnecProviderImpl(List.of(x1, x2));
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(x1, x2));
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();

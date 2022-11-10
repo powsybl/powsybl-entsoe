@@ -170,7 +170,7 @@ class RescalingTests {
             .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
 
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        XnecProvider xnecProvider = new XnecProviderImpl(List.of(xnecId));
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecId));
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
         assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAcReferenceFlow()));

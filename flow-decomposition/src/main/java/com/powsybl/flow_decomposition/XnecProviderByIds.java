@@ -11,19 +11,21 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-public class XnecProviderImpl implements XnecProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(XnecProviderImpl.class);
-    private final List<String> xnecList;
+public class XnecProviderByIds implements XnecProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(XnecProviderByIds.class);
+    private final Set<String> xnecList;
 
-    public XnecProviderImpl(List<String> xnecList) {
-        this.xnecList = xnecList;
+    public XnecProviderByIds(List<String> xnecList) {
+        this.xnecList = new HashSet<>(xnecList);
     }
 
     @Override

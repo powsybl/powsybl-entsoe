@@ -33,7 +33,7 @@ class LoadFlowFallbackTests {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setDcFallbackEnabledAfterAcDivergence(FlowDecompositionParameters.DISABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        XnecProvider xnecProvider = new XnecProviderImpl(List.of("ABSENT"));
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of("UNUSED"));
         Executable flowComputerExecutable = () -> flowComputer.run(xnecProvider, network);
         assertThrows(PowsyblException.class, flowComputerExecutable, FALLBACK_MESSAGE);
     }

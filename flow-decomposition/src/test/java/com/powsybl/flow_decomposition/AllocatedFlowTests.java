@@ -29,7 +29,7 @@ class AllocatedFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
-        XnecProvider xnecProvider = new XnecProviderImpl(List.of(xnecFrBee));
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecFrBee));
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(xnecProvider, network);
 
         String networkId = flowDecompositionResults.getNetworkId();
@@ -54,7 +54,7 @@ class AllocatedFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
-        XnecProvider xnecProvider = new XnecProviderImpl(List.of(xnecFrBee));
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecFrBee));
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(xnecProvider, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();

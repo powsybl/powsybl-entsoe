@@ -119,7 +119,7 @@ class LossesCompensationTests {
         String xnecId = "FLOAD 11 BLOAD 11 1";
 
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer();
-        XnecProvider xnecProvider = new XnecProviderImpl(List.of(xnecId));
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecId));
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
         assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow(), EPSILON);
@@ -136,7 +136,7 @@ class LossesCompensationTests {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
         flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        XnecProvider xnecProvider = new XnecProviderImpl(List.of(xnecId));
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecId));
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
         assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow(), EPSILON);
@@ -153,7 +153,7 @@ class LossesCompensationTests {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
         flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        XnecProvider xnecProvider = new XnecProviderImpl(List.of(xnecId));
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecId));
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
         assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow(), EPSILON);

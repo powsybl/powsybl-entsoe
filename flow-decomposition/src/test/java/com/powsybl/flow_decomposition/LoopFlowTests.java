@@ -31,7 +31,7 @@ class LoopFlowTests {
         String x5 = "FLOAD 11 ELOAD 11 1";
 
         Network network = TestUtils.importNetwork(networkFileName);
-        XnecProvider xnecProvider = new XnecProviderImpl(List.of(x1, x2, x4, x5));
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(x1, x2, x4, x5));
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
 
