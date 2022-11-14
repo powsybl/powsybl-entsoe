@@ -6,13 +6,17 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.sensitivity.*;
+import com.powsybl.sensitivity.SensitivityAnalysis;
+import com.powsybl.sensitivity.SensitivityVariableType;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -50,13 +54,13 @@ public class FlowDecompositionComputer {
         this(flowDecompositionParameters, LoadFlowParameters.load());
     }
 
-    public FlowDecompositionResults run(Network network) {
-        FlowDecompositionResultsBuilder flowDecompositionResultsBuilder = new FlowDecompositionResultsBuilder(network);
+    public FlowDecompositionResults run(XnecProvider xnecProvider, Network network) {
+        List<Branch> xnecList = xnecProvider.getNetworkElements(network);
+        FlowDecompositionResultsBuilder flowDecompositionResultsBuilder = new FlowDecompositionResultsBuilder(xnecList, network);
 
         LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
 
         Map<Country, Map<String, Double>> glsks = getGlsks(network);
-        List<Branch> xnecList = getXnecList(network, glsks, flowDecompositionResultsBuilder);
         Map<Country, Double> netPositions = getZonesNetPosition(network);
         saveAcReferenceFlow(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
         compensateLosses(network);
@@ -86,25 +90,6 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
-    private List<Branch> getXnecList(Network network, Map<Country, Map<String, Double>> glsks, FlowDecompositionResultsBuilder flowDecompositionResultsBuilder) {
-        XnecSelector xnecSelector;
-        switch (parameters.getXnecSelectionStrategy()) {
-            case ONLY_INTERCONNECTIONS:
-                xnecSelector = new XnecSelectorInterconnection();
-                break;
-            case INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC:
-                Map<String, Map<Country, Double>> zonalPtdf = getZonalPtdf(network, glsks);
-                xnecSelector = new XnecSelector5percPtdf(zonalPtdf);
-                break;
-            default:
-                throw new PowsyblException(String.format("XnecSelectionStrategy %s is not valid",
-                    parameters.getXnecSelectionStrategy()));
-        }
-        List<Branch> xnecList = xnecSelector.run(network);
-        flowDecompositionResultsBuilder.saveXnec(xnecList);
-        return xnecList;
-    }
-
     private void saveAcReferenceFlow(FlowDecompositionResultsBuilder flowDecompositionResultsBuilder, List<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         Map<String, Double> acReferenceFlows;
         if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
@@ -118,13 +103,6 @@ public class FlowDecompositionComputer {
     private Map<Country, Map<String, Double>> getGlsks(Network network) {
         GlskComputer glskComputer = new GlskComputer();
         return glskComputer.run(network);
-    }
-
-    private Map<String, Map<Country, Double>> getZonalPtdf(Network network,
-                                                           Map<Country, Map<String, Double>> glsks) {
-        ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner);
-        return zonalSensitivityAnalyser.run(network,
-            glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network) {

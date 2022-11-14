@@ -7,13 +7,18 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -29,7 +34,8 @@ class LoadFlowFallbackTests {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setDcFallbackEnabledAfterAcDivergence(FlowDecompositionParameters.DISABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        Executable flowComputerExecutable = () -> flowComputer.run(network);
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of("UNUSED"));
+        Executable flowComputerExecutable = () -> flowComputer.run(xnecProvider, network);
         assertThrows(PowsyblException.class, flowComputerExecutable, FALLBACK_MESSAGE);
     }
 

@@ -6,9 +6,11 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +30,8 @@ class AllocatedFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
-        FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecFrBee));
+        FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(xnecProvider, network);
 
         String networkId = flowDecompositionResults.getNetworkId();
         String expectedNetworkId = networkFileName.split(".uct")[0];
@@ -52,7 +55,8 @@ class AllocatedFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
-        FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(network);
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecFrBee));
+        FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(xnecProvider, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);

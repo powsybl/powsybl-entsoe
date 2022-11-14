@@ -31,7 +31,7 @@ public final class NetworkUtil {
         return String.format("%s %s", LOOP_FLOWS_COLUMN_PREFIX, country.toString());
     }
 
-    static Country getTerminalCountry(Terminal terminal) {
+    public static Country getTerminalCountry(Terminal terminal) {
         Optional<Substation> optionalSubstation = terminal.getVoltageLevel().getSubstation();
         if (optionalSubstation.isEmpty()) {
             throw new PowsyblException(String.format("Voltage level %s does not belong to any substation. " +
@@ -67,7 +67,7 @@ public final class NetworkUtil {
             ));
     }
 
-    static List<Branch> getAllValidBranches(Network network) {
+    public static List<Branch> getAllValidBranches(Network network) {
         return network.getBranchStream()
             .filter(NetworkUtil::isConnected)
             .filter(NetworkUtil::isInMainSynchronousComponent) // TODO Is connectedCompenent enough ?

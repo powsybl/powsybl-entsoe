@@ -70,8 +70,6 @@ class SensitivityComputerTests {
         String line7 = "FGEN  11 FLOAD 11 7";
         String line8 = "FGEN  11 FLOAD 11 8";
         String line9 = "FGEN  11 FLOAD 11 9";
-        String lineA = "FGEN  11 FLOAD 11 A";
-        network.getLine(lineA).getTerminal1().disconnect();
         GlskComputer glskComputer = new GlskComputer();
         Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
         LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();

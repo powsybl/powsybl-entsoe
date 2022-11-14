@@ -6,9 +6,11 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +30,8 @@ class PstFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
-        FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(x1, x2));
+        FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(0, decomposedFlowMap.get(x1).getPstFlow(), EPSILON);
@@ -43,7 +46,8 @@ class PstFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
-        FlowDecompositionResults flowDecompositionResults = flowComputer.run(network);
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(x1, x2));
+        FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(163.652702605, decomposedFlowMap.get(x1).getPstFlow(), EPSILON);

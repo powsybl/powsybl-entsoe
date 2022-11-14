@@ -17,9 +17,9 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 
-import static com.powsybl.flow_decomposition.FlowDecompositionParameters.XnecSelectionStrategy.INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC;
-import static com.powsybl.flow_decomposition.FlowDecompositionParameters.XnecSelectionStrategy.ONLY_INTERCONNECTIONS;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -51,7 +51,6 @@ class FlowDecompositionParametersTests {
         assertEquals(1e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(1e-5, parameters.getSensitivityEpsilon(), EPSILON);
         assertFalse(parameters.isRescaleEnabled());
-        assertEquals(ONLY_INTERCONNECTIONS, parameters.getXnecSelectionStrategy());
         assertTrue(parameters.isDcFallbackEnabledAfterAcDivergence());
         assertEquals(15000, parameters.getSensitivityVariableBatchSize());
     }
@@ -63,7 +62,6 @@ class FlowDecompositionParametersTests {
         mapModuleConfig.setStringProperty("losses-compensation-epsilon", Double.toString(2e-5));
         mapModuleConfig.setStringProperty("sensitivity-epsilon", Double.toString(3e-3));
         mapModuleConfig.setStringProperty("rescale-enabled", Boolean.toString(true));
-        mapModuleConfig.setStringProperty("xnec-selection-strategy", INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC.name());
         mapModuleConfig.setStringProperty("dc-fallback-enabled-after-ac-divergence", Boolean.toString(false));
         mapModuleConfig.setStringProperty("sensitivity-variable-batch-size", Integer.toString(1234));
 
@@ -72,7 +70,6 @@ class FlowDecompositionParametersTests {
         assertEquals(2e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(3e-3, parameters.getSensitivityEpsilon(), EPSILON);
         assertTrue(parameters.isRescaleEnabled());
-        assertEquals(INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC, parameters.getXnecSelectionStrategy());
         assertFalse(parameters.isDcFallbackEnabledAfterAcDivergence());
         assertEquals(1234, parameters.getSensitivityVariableBatchSize());
     }
@@ -87,7 +84,6 @@ class FlowDecompositionParametersTests {
         assertEquals(2e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(1e-5, parameters.getSensitivityEpsilon(), EPSILON);
         assertFalse(parameters.isRescaleEnabled());
-        assertEquals(ONLY_INTERCONNECTIONS, parameters.getXnecSelectionStrategy());
         assertTrue(parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 }

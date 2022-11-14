@@ -6,10 +6,13 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
+import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -150,7 +153,8 @@ class RescalingTests {
             .setRescaleEnabled(enableRescaledResults);
 
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
+        XnecProvider xnecProvider = new XnecProviderAllBranches();
+        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
         TestUtils.assertCoherenceTotalFlow(enableRescaledResults, flowDecompositionResults);
     }
@@ -159,6 +163,7 @@ class RescalingTests {
     void testRescalingDoesNotOccurWhenAcDiverge() {
         String networkFileName = "NETWORK_LOOP_FLOW_WITH_COUNTRIES.uct";
         Network network = TestUtils.importNetwork(networkFileName);
+        String xnecId = "BLOAD 11 FLOAD 11 1";
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
@@ -167,9 +172,9 @@ class RescalingTests {
             .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
 
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecId));
+        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
-        String xnecId = "BLOAD 11 FLOAD 11 1";
         assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAcReferenceFlow()));
         assertFalse(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow()));
 

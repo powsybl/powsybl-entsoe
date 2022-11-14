@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -28,27 +29,16 @@ class InternalFlowTests {
     public static final String X_LFR_LBE = "FLOAD 11 BLOAD 11 1";
 
     @Test
-    void testNetworkWithoutInternalFlow() {
+    void testNetworkWithInternalFlow() {
         Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
 
-        FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResults(network);
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
+            .setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        XnecProvider xnecProvider = new XnecProviderAllBranches();
+        FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
 
-        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
-        assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry1());
-        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry2());
-        assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getInternalFlow());
-        assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry1());
-        assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_LFR_LBE).getCountry2());
-    }
-
-    @Test
-    void testNetworkWithInternalFlow() {
-        Network network = getHighPtdfNetwork();
-
-        FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResults(network);
-
-        assertEquals(2 + 10 - 1, flowDecompositionResults.getDecomposedFlowMap().size());
+        assertEquals(11, flowDecompositionResults.getDecomposedFlowMap().size());
         assertEquals(0.0, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getInternalFlow());
         assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry1());
         assertEquals(Country.BE, flowDecompositionResults.getDecomposedFlowMap().get(X_GFR_LBE).getCountry2());
@@ -60,22 +50,6 @@ class InternalFlowTests {
             assertEquals(10., flowDecompositionResults.getDecomposedFlowMap().get(lineId).getInternalFlow(), EPSILON);
             assertEquals(Country.FR, flowDecompositionResults.getDecomposedFlowMap().get(lineId).getCountry1());
         }
-
-    }
-
-    private static Network getHighPtdfNetwork() {
-        String line = "FGEN  11 FLOAD 11 A";
-        Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
-        network.getLine(line).getTerminal1().disconnect();
-        return network;
-    }
-
-    private static FlowDecompositionResults getFlowDecompositionResults(Network network) {
-        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
-            .setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
-            .setXnecSelectionStrategy(FlowDecompositionParameters.XnecSelectionStrategy.INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC);
-        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        return flowComputer.run(network);
     }
 
     @Test

@@ -7,16 +7,23 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.iidm.network.*;
+import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Importers;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -63,10 +70,12 @@ class CgmesIntegrationTests {
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
-            .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS)
-            .setXnecSelectionStrategy(FlowDecompositionParameters.XnecSelectionStrategy.INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC);
+            .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
+        String xnecId = "044cd006-c766-11e1-8775-005056c00008";
+        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecId));
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(network);
-        assertNotNull(flowDecompositionResults.getDecomposedFlowMap());
+        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
+        assertNotNull(flowDecompositionResults.getDecomposedFlowMap().get(xnecId));
+        assertEquals(1, flowDecompositionResults.getDecomposedFlowMap().size());
     }
 }

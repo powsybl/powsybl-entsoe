@@ -23,7 +23,7 @@ public final class TestUtils {
     private TestUtils() {
     }
 
-    static Network importNetwork(String networkResourcePath) {
+    public static Network importNetwork(String networkResourcePath) {
         String networkName = Paths.get(networkResourcePath).getFileName().toString();
         return Network.read(networkName, TestUtils.class.getResourceAsStream(networkResourcePath));
     }

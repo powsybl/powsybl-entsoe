@@ -15,11 +15,6 @@ import java.util.Objects;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class FlowDecompositionParameters {
-    public enum XnecSelectionStrategy {
-        ONLY_INTERCONNECTIONS,
-        INTERCONNECTION_OR_ZONE_TO_ZONE_PTDF_GT_5PC,
-    }
-
     public static final boolean ENABLE_RESCALED_RESULTS = true;
     public static final boolean DISABLE_RESCALED_RESULTS = false;
     public static final double DISABLE_SENSITIVITY_EPSILON = -1;
@@ -33,13 +28,11 @@ public class FlowDecompositionParameters {
     public static final boolean DISABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE = false;
     public static final boolean ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE = true;
     public static final boolean DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE = ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE;
-    private static final XnecSelectionStrategy DEFAULT_XNEC_SELECTION_STRATEGY = XnecSelectionStrategy.ONLY_INTERCONNECTIONS;
     private static final int DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE = 15000;
     private boolean enableLossesCompensation;
     private double lossesCompensationEpsilon;
     private double sensitivityEpsilon;
     private boolean rescaleEnabled;
-    private XnecSelectionStrategy xnecSelectionStrategy;
     private boolean dcFallbackEnabledAfterAcDivergence;
     private int sensitivityVariableBatchSize;
 
@@ -61,7 +54,6 @@ public class FlowDecompositionParameters {
             parameters.setLossesCompensationEpsilon(moduleConfig.getDoubleProperty("losses-compensation-epsilon", DEFAULT_LOSSES_COMPENSATION_EPSILON));
             parameters.setSensitivityEpsilon(moduleConfig.getDoubleProperty("sensitivity-epsilon", DEFAULT_SENSITIVITY_EPSILON));
             parameters.setRescaleEnabled(moduleConfig.getBooleanProperty("rescale-enabled", DEFAULT_RESCALE_ENABLED));
-            parameters.setXnecSelectionStrategy(moduleConfig.getEnumProperty("xnec-selection-strategy", XnecSelectionStrategy.class, DEFAULT_XNEC_SELECTION_STRATEGY));
             parameters.setDcFallbackEnabledAfterAcDivergence(moduleConfig.getBooleanProperty("dc-fallback-enabled-after-ac-divergence", DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE));
             parameters.setSensitivityVariableBatchSize(moduleConfig.getIntProperty("sensitivity-variable-batch-size", DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE));
         });
@@ -72,7 +64,6 @@ public class FlowDecompositionParameters {
         this.lossesCompensationEpsilon = DEFAULT_LOSSES_COMPENSATION_EPSILON;
         this.sensitivityEpsilon = DEFAULT_SENSITIVITY_EPSILON;
         this.rescaleEnabled = DEFAULT_RESCALE_ENABLED;
-        this.xnecSelectionStrategy = DEFAULT_XNEC_SELECTION_STRATEGY;
         this.dcFallbackEnabledAfterAcDivergence = DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE;
         this.sensitivityVariableBatchSize = DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE;
     }
@@ -110,15 +101,6 @@ public class FlowDecompositionParameters {
 
     public FlowDecompositionParameters setRescaleEnabled(boolean rescaleEnabled) {
         this.rescaleEnabled = rescaleEnabled;
-        return this;
-    }
-
-    public XnecSelectionStrategy getXnecSelectionStrategy() {
-        return xnecSelectionStrategy;
-    }
-
-    public FlowDecompositionParameters setXnecSelectionStrategy(XnecSelectionStrategy xnecSelectionStrategy) {
-        this.xnecSelectionStrategy = xnecSelectionStrategy;
         return this;
     }
 

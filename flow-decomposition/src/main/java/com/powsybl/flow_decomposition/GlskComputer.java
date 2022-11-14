@@ -18,12 +18,8 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class GlskComputer {
-    Map<Country, Map<String, Double>> run(Network network) {
-        return buildAutoGlsks(network);
-    }
-
-    private Map<Country, Map<String, Double>> buildAutoGlsks(Network network) {
+public class GlskComputer {
+    public Map<Country, Map<String, Double>> run(Network network) {
         Map<Country, Map<String, Double>> glsks = network.getCountries().stream().collect(Collectors.toMap(
             Function.identity(),
             country -> new HashMap<>()));

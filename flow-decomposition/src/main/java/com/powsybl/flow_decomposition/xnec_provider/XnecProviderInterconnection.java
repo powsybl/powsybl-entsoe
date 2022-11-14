@@ -4,8 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.flow_decomposition;
+package com.powsybl.flow_decomposition.xnec_provider;
 
+import com.powsybl.flow_decomposition.NetworkUtil;
+import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -14,15 +16,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * This class selects branches is they are interconnections.
- *
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-class XnecSelectorInterconnection implements XnecSelector {
-    public List<Branch> run(Network network) {
+public class XnecProviderInterconnection implements XnecProvider {
+    @Override
+    public List<Branch> getNetworkElements(Network network) {
         return NetworkUtil.getAllValidBranches(network)
             .stream()
-            .filter(XnecSelectorInterconnection::isAnInterconnection)
+            .filter(XnecProviderInterconnection::isAnInterconnection)
             .collect(Collectors.toList());
     }
 
@@ -31,5 +32,4 @@ class XnecSelectorInterconnection implements XnecSelector {
         Country country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
         return !country1.equals(country2);
     }
-
 }
