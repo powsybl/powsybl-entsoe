@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
+public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final boolean SENSITIVITY_VARIABLE_SET = true;
 
     public ZonalSensitivityAnalyser(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner runner) {

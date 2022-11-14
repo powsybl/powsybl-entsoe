@@ -4,8 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.flow_decomposition;
+package com.powsybl.flow_decomposition.xnec_provider;
 
+import com.powsybl.flow_decomposition.TestUtils;
+import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -66,6 +69,22 @@ class XnecProviderByIdsTests {
         List<String> xnecList = List.of(xnecFrBe, xnecBeBe, xnecFrBe);
         XnecProvider xnecProvider = new XnecProviderByIds(xnecList);
         List<Branch> branchList = xnecProvider.getNetworkElements(network);
+        assertTrue(branchList.contains(network.getBranch(xnecFrBe)));
+        assertTrue(branchList.contains(network.getBranch(xnecBeBe)));
+        assertEquals(2, branchList.size());
+    }
+
+    @Test
+    void testXnecProviderDisconnectedBranch() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
+        Network network = TestUtils.importNetwork(networkFileName);
+        String xnecFrBe = "FGEN1 11 BLOAD 11 1";
+        String xnecBeBe = "BLOAD 11 BGEN2 11 1";
+        network.getBranch(xnecBeBe).getTerminal1().disconnect();
+        List<String> xnecList = List.of(xnecFrBe, xnecBeBe);
+        XnecProvider xnecProvider = new XnecProviderByIds(xnecList);
+        List<Branch> branchList = xnecProvider.getNetworkElements(network);
+        assertFalse(network.getBranch(xnecBeBe).getTerminal1().isConnected());
         assertTrue(branchList.contains(network.getBranch(xnecFrBe)));
         assertTrue(branchList.contains(network.getBranch(xnecBeBe)));
         assertEquals(2, branchList.size());
