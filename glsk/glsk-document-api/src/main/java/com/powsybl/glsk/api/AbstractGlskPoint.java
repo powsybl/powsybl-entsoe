@@ -77,7 +77,7 @@ public abstract class AbstractGlskPoint implements GlskPoint {
 
     @Override
     public void setPointInterval(Interval pointInterval) {
-        this.pointInterval =  pointInterval;
+        this.pointInterval = pointInterval;
     }
 
     @Override
