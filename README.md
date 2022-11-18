@@ -6,7 +6,9 @@
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/powsybl)
 [![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://powsybl.slack.com)
-<!-- Add javadoc link after the first release -->
+[![Javadocs](https://www.javadoc.io/badge/com.powsybl/powsybl-entsoe.svg?color=blue)](https://www.javadoc.io/doc/com.powsybl/powsybl-core)
 
 
-This framework provides components specific to ENTSO-E-orientated processes.
+
+This framework provides components specific to ENTSO-E-orientated processes such as balances adjustment.
+Balances adjustment is a process that consists in acting on specified injections to ensure given balance on specific network areas.
