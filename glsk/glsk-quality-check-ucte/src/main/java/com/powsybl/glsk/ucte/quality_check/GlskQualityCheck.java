@@ -47,11 +47,11 @@ class GlskQualityCheck {
     }
 
     private void checkGlskPoint(GlskPoint glskPoint, Network network, String tso, Reporter reporter) {
-        List<String> manualGskGenerators =  glskPoint.getGlskShiftKeys().stream()
+        List<String> manualGskGenerators = glskPoint.getGlskShiftKeys().stream()
                 .filter(gskShiftKey -> gskShiftKey.getPsrType().equals(GENERATOR) && gskShiftKey.getBusinessType().equals("B43"))
                 .flatMap(gskShiftKey -> gskShiftKey.getRegisteredResourceArrayList().stream())
                 .map(GlskRegisteredResource::getGeneratorId).collect(Collectors.toList());
-        List<String> manualGskLoads =  glskPoint.getGlskShiftKeys().stream()
+        List<String> manualGskLoads = glskPoint.getGlskShiftKeys().stream()
                 .filter(gskShiftKey -> gskShiftKey.getPsrType().equals(LOAD) && gskShiftKey.getBusinessType().equals("B43"))
                 .flatMap(gskShiftKey -> gskShiftKey.getRegisteredResourceArrayList().stream())
                 .map(GlskRegisteredResource::getLoadId).collect(Collectors.toList());

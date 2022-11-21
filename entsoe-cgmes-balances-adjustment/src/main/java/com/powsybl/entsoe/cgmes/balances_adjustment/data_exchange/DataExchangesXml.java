@@ -113,7 +113,7 @@ public final class DataExchangesXml {
 
             var xmlReader = factory.createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilEndElement(DataExchangesConstants.ROOT, xmlReader,  () -> {
+                XmlUtil.readUntilEndElement(DataExchangesConstants.ROOT, xmlReader, () -> {
                     switch (xmlReader.getLocalName()) {
 
                         case DataExchangesConstants.MRID:
@@ -238,7 +238,7 @@ public final class DataExchangesXml {
 
         // Log TimeSeries Reason
         if (LOGGER.isInfoEnabled() && Objects.nonNull(context.code) && Objects.nonNull(context.text)) {
-            LOGGER.info("TimeSeries '{}' [{}, {}] - {} ({}) : {}",  context.mRID,
+            LOGGER.info("TimeSeries '{}' [{}, {}] - {} ({}) : {}", context.mRID,
                                                                     context.period.getStart(), context.period.getEnd(),
                                                                     context.code,
                                                                     StandardReasonCodeType.valueOf(context.code).getDescription(),

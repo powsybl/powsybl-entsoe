@@ -47,7 +47,7 @@ public class JsonBalanceComputationParametersTest extends AbstractConverterTest 
         BalanceComputationParameters parameters = JsonBalanceComputationParameters.read(getClass().getResourceAsStream("/balanceComputationParameters.json"));
         assertEquals(11, parameters.getMaxNumberIterations());
         assertEquals(2, parameters.getThresholdNetPosition(), .01);
-        LoadFlowParameters actualLoadflowParams =  parameters.getLoadFlowParameters();
+        LoadFlowParameters actualLoadflowParams = parameters.getLoadFlowParameters();
         assertEquals("DC_VALUES", actualLoadflowParams.getVoltageInitMode().toString());
         assertTrue(actualLoadflowParams.isTransformerVoltageControlOn());
         assertTrue(actualLoadflowParams.isPhaseShifterRegulationOn());
