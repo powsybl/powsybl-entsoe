@@ -55,35 +55,26 @@ public class FlowDecompositionComputer {
     }
 
     public FlowDecompositionResults run(XnecProvider xnecProvider, Network network) {
-        List<Branch> xnecList = xnecProvider.getNetworkElements(network);
-        FlowDecompositionResultsBuilder flowDecompositionResultsBuilder = new FlowDecompositionResultsBuilder(xnecList, network);
+        LossesCompensator.addZeroMWLossesLoadsOnBuses(network);
+        VariantManager variantManager = new VariantManager(network, xnecProvider);
+        variantManager.createAVariantPerContingency(network);
 
         LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
 
         Map<Country, Map<String, Double>> glsks = getGlsks(network);
         Map<Country, Double> netPositions = getZonesNetPosition(network);
-        saveAcReferenceFlow(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
-        compensateLosses(network);
 
-        // None
-        NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
-
-        runDcLoadFlow(network);
-
-        SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
-            netPositions, networkMatrixIndexes, glsks);
-        saveDcReferenceFlow(flowDecompositionResultsBuilder, xnecList);
-
-        // DC Sensi
-        SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
-        SparseMatrixWithIndexesTriplet ptdfMatrix = getPtdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
-        SparseMatrixWithIndexesTriplet psdfMatrix = getPsdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
-
-        // None
-        computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);
-        computePstFlows(network, flowDecompositionResultsBuilder, networkMatrixIndexes, psdfMatrix);
-
-        return flowDecompositionResultsBuilder.build(parameters.isRescaleEnabled());
+        FlowDecompositionResultsBuffer flowDecompositionResultsBuffer = new FlowDecompositionResultsBuffer(network);
+        xnecProvider.getNetworkElementsPerContingency(network)
+            .forEach((contingencyId, xnecList) -> decomposeFlowForVariant(network,
+                flowDecompositionResultsBuffer,
+                variantManager,
+                contingencyId,
+                xnecList,
+                loadFlowServiceAcResult,
+                netPositions,
+                glsks));
+        return flowDecompositionResultsBuffer.build();
     }
 
     private LoadFlowRunningService.Result runAcLoadFlow(Network network) {
@@ -110,6 +101,42 @@ public class FlowDecompositionComputer {
         return netPositionComputer.run(network);
     }
 
+    private void decomposeFlowForVariant(Network network,
+                                         FlowDecompositionResultsBuffer flowDecompositionResultsBuffer,
+                                         VariantManager variantManager,
+                                         String contingencyId,
+                                         List<Branch> xnecList,
+                                         LoadFlowRunningService.Result loadFlowServiceAcResult,
+                                         Map<Country, Double> netPositions,
+                                         Map<Country, Map<String, Double>> glsks) {
+        if (!contingencyId.equals(XnecProvider.NO_CONTINGENCY_ID)) {
+            variantManager.setNetworkVariant(network, contingencyId);
+            loadFlowServiceAcResult = runAcLoadFlow(network);
+        }
+        FlowDecompositionResultsBuilder flowDecompositionResultsBuilder = new FlowDecompositionResultsBuilder(xnecList);
+        saveAcReferenceFlow(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
+        compensateLosses(network);
+
+        // None
+        NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
+
+        runDcLoadFlow(network);
+
+        SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
+            netPositions, networkMatrixIndexes, glsks);
+        saveDcReferenceFlow(flowDecompositionResultsBuilder, xnecList);
+
+        // DC Sensi
+        SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
+        SparseMatrixWithIndexesTriplet ptdfMatrix = getPtdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
+        SparseMatrixWithIndexesTriplet psdfMatrix = getPsdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
+
+        // None
+        computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);
+        computePstFlows(network, flowDecompositionResultsBuilder, networkMatrixIndexes, psdfMatrix);
+        flowDecompositionResultsBuffer.add(flowDecompositionResultsBuilder.build(contingencyId, parameters.isRescaleEnabled()));
+    }
+
     private Map<String, Double> getXnecReferenceFlows(List<Branch> xnecList) {
         ReferenceFlowComputer referenceFlowComputer = new ReferenceFlowComputer();
         return referenceFlowComputer.run(xnecList);
@@ -118,7 +145,7 @@ public class FlowDecompositionComputer {
     private void compensateLosses(Network network) {
         if (parameters.isLossesCompensationEnabled()) {
             LossesCompensator lossesCompensator = new LossesCompensator(parameters);
-            lossesCompensator.run(network);
+            lossesCompensator.compensateLossesOnBranches(network);
         }
     }
 

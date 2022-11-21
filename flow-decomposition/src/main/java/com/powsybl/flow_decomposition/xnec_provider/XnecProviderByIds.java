@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public final class XnecProviderByIds implements XnecProvider {
-    private static final String NO_CONTINGENCY_ID = "";
-    private static final Contingency NO_CONTINGENCY = null;
     private static final Logger LOGGER = LoggerFactory.getLogger(XnecProviderByIds.class);
     private final Map<String, Contingency> contingencyIdToContingencyMap;
     private final Map<Contingency, Set<String>> contingencyToXnecMap;

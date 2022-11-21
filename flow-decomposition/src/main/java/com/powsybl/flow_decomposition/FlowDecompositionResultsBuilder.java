@@ -9,10 +9,13 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
 
-import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -31,17 +34,13 @@ import java.util.stream.Collectors;
 class FlowDecompositionResultsBuilder {
     private static final double NO_FLOW = 0.;
     private final Map<String, Branch> xnecMap;
-    private final Network network;
-    private final Date date;
     private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
     private Map<String, Map<String, Double>> pstFlowMap;
     private Map<String, Double> acReferenceFlow;
     private Map<String, Double> dcReferenceFlow;
 
-    FlowDecompositionResultsBuilder(List<Branch> xnecList, Network network) {
+    FlowDecompositionResultsBuilder(List<Branch> xnecList) {
         this.xnecMap = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
-        this.network = network;
-        this.date = Date.from(Instant.now());
     }
 
     void saveAllocatedAndLoopFlowsMatrix(SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix) {
@@ -60,14 +59,17 @@ class FlowDecompositionResultsBuilder {
         this.dcReferenceFlow = dcReferenceFlow;
     }
 
-    FlowDecompositionResults build(boolean isRescaleEnable) {
+    Map<String, DecomposedFlow> build(String contingencyId, boolean isRescaleEnable) {
         Map<String, DecomposedFlow> decomposedFlowMap = new HashMap<>();
         allocatedAndLoopFlowsMatrix.toMap()
-            .forEach((xnecId, decomposedFlow) -> decomposedFlowMap.put(xnecId, createDecomposedFlow(xnecId, decomposedFlow, isRescaleEnable)));
-        return new FlowDecompositionResults(network, date, decomposedFlowMap);
+            .forEach((branchId, decomposedFlow) -> {
+                String xnecId = NetworkUtil.getXnecId(contingencyId, branchId);
+                decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, contingencyId, decomposedFlow, isRescaleEnable));
+            });
+        return decomposedFlowMap;
     }
 
-    private DecomposedFlow createDecomposedFlow(String xnecId, Map<String, Double> allocatedAndLoopFlowMap, boolean isRescaleEnable) {
+    private DecomposedFlow createDecomposedFlow(String xnecId, String contingencyId, Map<String, Double> allocatedAndLoopFlowMap, boolean isRescaleEnable) {
         Map<String, Double> loopFlowsMap = allocatedAndLoopFlowMap.entrySet().stream()
             .filter(entry -> entry.getKey().startsWith(NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -76,7 +78,8 @@ class FlowDecompositionResultsBuilder {
         Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(xnecId).getTerminal1());
         Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(xnecId).getTerminal2());
         double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
-        DecomposedFlow decomposedFlow = new DecomposedFlow(loopFlowsMap, internalFlow, allocatedFlow, pstFlow,
+        DecomposedFlow decomposedFlow = new DecomposedFlow(xnecId, contingencyId,
+            loopFlowsMap, internalFlow, allocatedFlow, pstFlow,
             acReferenceFlow.get(xnecId), dcReferenceFlow.get(xnecId),
             country1, country2
         );

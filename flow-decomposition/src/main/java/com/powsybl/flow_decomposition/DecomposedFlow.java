@@ -16,6 +16,8 @@ import java.util.*;
  */
 public class DecomposedFlow {
     private static final double NO_FLOW = 0.;
+    private final String branchId;
+    private final String contingencyId;
     private final Map<String, Double> loopFlowsMap = new TreeMap<>();
     private final double allocatedFlow;
     private final double pstFlow;
@@ -30,7 +32,9 @@ public class DecomposedFlow {
     static final String AC_REFERENCE_FLOW_COLUMN_NAME = "Reference AC Flow";
     static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
 
-    protected DecomposedFlow(Map<String, Double> loopFlowsMap, double internalFlow, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow, Country country1, Country country2) {
+    protected DecomposedFlow(String branchId, String contingencyId, Map<String, Double> loopFlowsMap, double internalFlow, double allocatedFlow, double pstFlow, double acReferenceFlow, double dcReferenceFlow, Country country1, Country country2) {
+        this.branchId = branchId;
+        this.contingencyId = contingencyId;
         this.loopFlowsMap.putAll(loopFlowsMap);
         this.internalFlow = internalFlow;
         this.allocatedFlow = allocatedFlow;
@@ -39,6 +43,18 @@ public class DecomposedFlow {
         this.dcReferenceFlow = dcReferenceFlow;
         this.country1 = country1;
         this.country2 = country2;
+    }
+
+    public String getBranchId() {
+        return branchId;
+    }
+
+    public String getContingencyId() {
+        return contingencyId;
+    }
+
+    public String getId() {
+        return NetworkUtil.getXnecId(contingencyId, branchId);
     }
 
     public double getAllocatedFlow() {
@@ -91,7 +107,7 @@ public class DecomposedFlow {
 
     @Override
     public String toString() {
-        return getAllKeyMap().toString();
+        return String.format("branchId: %s, contingencyId: %s, decomposition: %s", branchId, contingencyId, getAllKeyMap());
     }
 
     private TreeMap<String, Double> getAllKeyMap() {

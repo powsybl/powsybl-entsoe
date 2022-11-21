@@ -33,11 +33,11 @@ import java.util.stream.Collectors;
 public class XnecProvider5percPtdf implements XnecProvider {
     public static final double MAX_ZONE_TO_ZONE_PTDF_THRESHOLD = 0.05;
 
-    private boolean isAXnec(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
+    private static boolean isAXnec(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
         return XnecProviderInterconnection.isAnInterconnection(branch) || hasMoreThan5PercentPtdf(getZonalPtdf(branch, zonalPtdf));
     }
 
-    private Collection<Double> getZonalPtdf(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
+    private static Collection<Double> getZonalPtdf(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
         return zonalPtdf.getOrDefault(branch.getId(), Collections.emptyMap()).values();
     }
 
@@ -46,8 +46,7 @@ public class XnecProvider5percPtdf implements XnecProvider {
             && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
     }
 
-    @Override
-    public List<Branch> getNetworkElements(Network network) {
+    public static List<Branch> getBranches(Network network) {
         GlskComputer glskComputer = new GlskComputer();
         Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
         ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(LoadFlowParameters.load(), SensitivityAnalysis.find());
@@ -59,13 +58,18 @@ public class XnecProvider5percPtdf implements XnecProvider {
     }
 
     @Override
+    public List<Branch> getNetworkElements(Network network) {
+        return getBranches(network);
+    }
+
+    @Override
     public List<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
         return Collections.emptyList();
     }
 
     @Override
     public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
-        return Collections.emptyMap();
+        return Map.of(NO_CONTINGENCY_ID, getNetworkElements(network));
     }
 
     @Override

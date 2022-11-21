@@ -28,6 +28,8 @@ final class DecomposedFlowsRescaler {
     }
 
     static DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
+        String branchId = decomposedFlow.getBranchId();
+        String contingencyId = decomposedFlow.getContingencyId();
         double allocatedFlow = decomposedFlow.getAllocatedFlow();
         double pstFlow = decomposedFlow.getPstFlow();
         Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
@@ -46,6 +48,6 @@ final class DecomposedFlowsRescaler {
         double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
         double rescaledPstFlow = rescaleValue(pstFlow, deltaToRescale, sumOfReLUFlows);
         double rescaleInternalFlow = rescaleValue(internalFlow, deltaToRescale, sumOfReLUFlows);
-        return new DecomposedFlow(rescaledLoopFlows, rescaleInternalFlow, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
+        return new DecomposedFlow(branchId, contingencyId, rescaledLoopFlows, rescaleInternalFlow, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
     }
 }

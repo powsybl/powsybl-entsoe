@@ -47,7 +47,7 @@ class LossesCompensator {
         compensateLossesOnBranches(network);
     }
 
-    private void addZeroMWLossesLoadsOnBuses(Network network) {
+    static void addZeroMWLossesLoadsOnBuses(Network network) {
         // We want to add a single null load per bus
         // Mapping by bus Id is important as bus are generated on-fly
         // This matters for node breaker topology
@@ -59,7 +59,7 @@ class LossesCompensator {
             .forEach(busId -> addZeroMWLossesLoad(network, busId));
     }
 
-    private void addZeroMWLossesLoad(Network network, String busId) {
+    private static void addZeroMWLossesLoad(Network network, String busId) {
         String lossesId = getLossesId(busId);
         Bus bus = network.getBusBreakerView().getBus(busId);
         switch (bus.getVoltageLevel().getTopologyKind()) {
@@ -103,7 +103,7 @@ class LossesCompensator {
         return String.format("LOSSES %s", id);
     }
 
-    private void compensateLossesOnBranches(Network network) {
+    void compensateLossesOnBranches(Network network) {
         network.getBranchStream()
             .filter(this::hasBuses)
             .filter(this::hasP0s)
