@@ -6,19 +6,29 @@
  */
 package com.powsybl.flow_decomposition.xnec_provider;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import java.util.Collections;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class XnecProviderInterconnection implements XnecProvider {
+    static boolean isAnInterconnection(Branch<?> branch) {
+        Country country1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
+        Country country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
+        return !country1.equals(country2);
+    }
+
     @Override
     public List<Branch> getNetworkElements(Network network) {
         return NetworkUtil.getAllValidBranches(network)
@@ -27,9 +37,18 @@ public class XnecProviderInterconnection implements XnecProvider {
             .collect(Collectors.toList());
     }
 
-    static boolean isAnInterconnection(Branch<?> branch) {
-        Country country1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
-        Country country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
-        return !country1.equals(country2);
+    @Override
+    public List<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public List<Contingency> getContingencies(Network network) {
+        return Collections.emptyList();
     }
 }

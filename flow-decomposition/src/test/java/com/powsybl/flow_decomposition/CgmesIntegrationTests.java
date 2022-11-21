@@ -17,8 +17,8 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -72,7 +72,7 @@ class CgmesIntegrationTests {
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
             .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
         String xnecId = "044cd006-c766-11e1-8775-005056c00008";
-        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecId));
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
         assertNotNull(flowDecompositionResults.getDecomposedFlowMap().get(xnecId));

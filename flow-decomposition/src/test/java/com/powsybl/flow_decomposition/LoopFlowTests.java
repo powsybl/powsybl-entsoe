@@ -11,8 +11,8 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,7 +32,7 @@ class LoopFlowTests {
         String x5 = "FLOAD 11 ELOAD 11 1";
 
         Network network = TestUtils.importNetwork(networkFileName);
-        XnecProvider xnecProvider = new XnecProviderByIds(List.of(x1, x2, x4, x5));
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(x1, x2, x4, x5)).build();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
 

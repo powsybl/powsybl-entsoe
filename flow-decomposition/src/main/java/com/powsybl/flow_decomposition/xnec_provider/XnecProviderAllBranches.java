@@ -6,11 +6,15 @@
  */
 package com.powsybl.flow_decomposition.xnec_provider;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -20,5 +24,20 @@ public class XnecProviderAllBranches implements XnecProvider {
     @Override
     public List<Branch> getNetworkElements(Network network) {
         return network.getBranchStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public List<Contingency> getContingencies(Network network) {
+        return Collections.emptyList();
     }
 }

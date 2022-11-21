@@ -6,14 +6,22 @@
  */
 package com.powsybl.flow_decomposition.xnec_provider;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.contingency.BranchContingency;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyBuilder;
 import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,17 +29,77 @@ import java.util.stream.Collectors;
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-public class XnecProviderByIds implements XnecProvider {
+public final class XnecProviderByIds implements XnecProvider {
+    private static final String NO_CONTINGENCY_ID = "";
+    private static final Contingency NO_CONTINGENCY = null;
     private static final Logger LOGGER = LoggerFactory.getLogger(XnecProviderByIds.class);
-    private final Set<String> xnecList;
+    private final Map<String, Contingency> contingencyIdToContingencyMap;
+    private final Map<Contingency, Set<String>> contingencyToXnecMap;
 
-    public XnecProviderByIds(List<String> xnecList) {
-        this.xnecList = new HashSet<>(xnecList);
+    private XnecProviderByIds(Map<String, Contingency> contingencyIdToContingencyMap, Map<Contingency, Set<String>> contingencyToXnecMap) {
+        this.contingencyIdToContingencyMap = contingencyIdToContingencyMap;
+        this.contingencyToXnecMap = contingencyToXnecMap;
     }
 
-    @Override
-    public List<Branch> getNetworkElements(Network network) {
-        return xnecList.stream()
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final Map<String, Contingency> contingencyIdToContingencyMap = new HashMap<>();
+        private final Map<Contingency, Set<String>> contingencyToXnecMap = new HashMap<>();
+
+        public Builder addContingencies(Map<String, Set<String>> contingencies) {
+            contingencies.forEach(this::addContingency);
+            return this;
+        }
+
+        public Builder addContingency(String contingencyId, Set<String> contingencyElementIdSet) {
+            Contingency contingency = createContingency(contingencyId, contingencyElementIdSet);
+            contingencyIdToContingencyMap.put(contingencyId, contingency);
+            contingencyToXnecMap.put(contingency, new HashSet<>());
+            return this;
+        }
+
+        private static Contingency createContingency(String contingencyId, Set<String> contingencyElementIdSet) {
+            ContingencyBuilder contingencyBuilder = Contingency.builder(contingencyId);
+            contingencyElementIdSet.forEach(contingencyBuilder::addBranch);
+            return contingencyBuilder.build();
+        }
+
+        public Builder addNetworkElementsAfterContingencies(Set<String> branchIds, Set<String> contingencyIds) {
+            contingencyIds.forEach(contingencyId -> {
+                if (contingencyIdToContingencyMap.containsKey(contingencyId)) {
+                    Contingency contingency = contingencyIdToContingencyMap.get(contingencyId);
+                    branchIds.forEach(branchId -> {
+                        if (!contingency.getElements().contains(new BranchContingency(branchId))) {
+                            contingencyToXnecMap.get(contingency).add(branchId);
+                        }
+                    });
+                } else {
+                    throw new PowsyblException(String.format("Contingency Id '%s' have not been defined. See addContingency and/or addContingencies", contingencyId));
+                }
+            });
+            return this;
+        }
+
+        public Builder addNetworkElementsOnBasecase(Set<String> branchIds) {
+            this.contingencyIdToContingencyMap.putIfAbsent(NO_CONTINGENCY_ID, NO_CONTINGENCY);
+            this.contingencyToXnecMap.putIfAbsent(NO_CONTINGENCY, new HashSet<>());
+            contingencyToXnecMap.get(NO_CONTINGENCY).addAll(branchIds);
+            return this;
+        }
+
+        public XnecProviderByIds build() {
+            return new XnecProviderByIds(contingencyIdToContingencyMap, contingencyToXnecMap);
+        }
+    }
+
+    private List<Branch> getBranches(Contingency contingency, Network network) {
+        if (!contingencyToXnecMap.containsKey(contingency)) {
+            return Collections.emptyList();
+        }
+        return contingencyToXnecMap.get(contingency).stream()
             .map(xnecId -> {
                 Branch branch = network.getBranch(xnecId);
                 if (Objects.isNull(branch)) {
@@ -39,6 +107,33 @@ public class XnecProviderByIds implements XnecProvider {
                 }
                 return branch;
             })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Branch> getNetworkElements(Network network) {
+        return getBranches(NO_CONTINGENCY, network);
+    }
+
+    @Override
+    public List<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+        if (!contingencyIdToContingencyMap.containsKey(contingencyId)) {
+            return Collections.emptyList();
+        }
+        return getBranches(contingencyIdToContingencyMap.get(contingencyId), network);
+    }
+
+    @Override
+    public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
+        Map<String, List<Branch>> contingencyIdToXnec = new HashMap<>(); //Cache ?
+        contingencyIdToContingencyMap.forEach((contingencyId, contingency) -> contingencyIdToXnec.put(contingencyId, getBranches(contingency, network)));
+        return contingencyIdToXnec;
+    }
+
+    @Override
+    public List<Contingency> getContingencies(Network network) {
+        return contingencyToXnecMap.keySet().stream()
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
