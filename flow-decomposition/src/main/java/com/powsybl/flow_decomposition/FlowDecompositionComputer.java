@@ -71,7 +71,6 @@ public class FlowDecompositionComputer {
                 variantManager,
                 contingencyId,
                 xnecList,
-                loadFlowServiceAcResult,
                 netPositions,
                 glsks));
         return flowDecompositionResultsBuffer.build();
@@ -106,13 +105,12 @@ public class FlowDecompositionComputer {
                                          VariantManager variantManager,
                                          String contingencyId,
                                          List<Branch> xnecList,
-                                         LoadFlowRunningService.Result loadFlowServiceAcResult,
                                          Map<Country, Double> netPositions,
                                          Map<Country, Map<String, Double>> glsks) {
         if (!contingencyId.equals(XnecProvider.NO_CONTINGENCY_ID)) {
             variantManager.setNetworkVariant(network, contingencyId);
-            loadFlowServiceAcResult = runAcLoadFlow(network);
         }
+        LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
         FlowDecompositionResultsBuilder flowDecompositionResultsBuilder = new FlowDecompositionResultsBuilder(xnecList);
         saveAcReferenceFlow(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
         compensateLosses(network);
