@@ -59,7 +59,7 @@ public class FlowDecompositionComputer {
         VariantManager variantManager = new VariantManager(network, xnecProvider);
         variantManager.createAVariantPerContingency(network);
 
-        LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
+        runAcLoadFlow(network);
 
         Map<Country, Map<String, Double>> glsks = getGlsks(network);
         Map<Country, Double> netPositions = getZonesNetPosition(network);
