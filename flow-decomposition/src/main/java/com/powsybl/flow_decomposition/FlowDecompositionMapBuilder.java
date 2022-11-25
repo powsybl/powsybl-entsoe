@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * @see FlowDecompositionComputer
  * @see DecomposedFlow
  */
-class FlowDecompositionResultsBuilder {
+class FlowDecompositionMapBuilder {
     private static final double NO_FLOW = 0.;
     private final Map<String, Branch> xnecMap;
     private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
@@ -39,7 +39,7 @@ class FlowDecompositionResultsBuilder {
     private Map<String, Double> acReferenceFlow;
     private Map<String, Double> dcReferenceFlow;
 
-    FlowDecompositionResultsBuilder(List<Branch> xnecList) {
+    FlowDecompositionMapBuilder(List<Branch> xnecList) {
         this.xnecMap = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
     }
 
