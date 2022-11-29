@@ -51,4 +51,14 @@ class XnecProvider5percPtdfTests {
         assertTrue(branchList.contains(network.getBranch(line9)));
         assertEquals(11, branchList.size());
     }
+
+    @Test
+    void testInterfaceDoesNotSupportContingencies() {
+        String networkFileName = "NETWORK_PARALLEL_LINES_PTDF.uct";
+        Network network = TestUtils.importNetwork(networkFileName);
+        XnecProvider xnecProvider = new XnecProvider5percPtdf();
+        assertTrue(xnecProvider.getNetworkElements("contingency id", network).isEmpty());
+        assertTrue(xnecProvider.getNetworkElementsPerContingency(network).isEmpty());
+        assertTrue(xnecProvider.getContingencies(network).isEmpty());
+    }
 }

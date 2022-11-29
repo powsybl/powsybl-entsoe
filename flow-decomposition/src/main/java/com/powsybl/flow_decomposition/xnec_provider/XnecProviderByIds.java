@@ -94,14 +94,7 @@ public final class XnecProviderByIds implements XnecProvider {
         }
     }
 
-    private List<Branch> getBranches(Contingency contingency, Network network) {
-        if (!contingencyToXnecMap.containsKey(contingency)) {
-            return Collections.emptyList();
-        }
-        return mapBranchSet(contingencyToXnecMap.get(contingency), network);
-    }
-
-    private List<Branch> mapBranchSet(Set<String> branchSet, Network network) {
+    private List<Branch> mapBranchSetToList(Set<String> branchSet, Network network) {
         return branchSet.stream()
             .map(xnecId -> {
                 Branch branch = network.getBranch(xnecId);
@@ -116,7 +109,7 @@ public final class XnecProviderByIds implements XnecProvider {
 
     @Override
     public List<Branch> getNetworkElements(Network network) {
-        return mapBranchSet(bestCaseBranches, network);
+        return mapBranchSetToList(bestCaseBranches, network);
     }
 
     @Override
@@ -124,13 +117,13 @@ public final class XnecProviderByIds implements XnecProvider {
         if (!contingencyIdToContingencyMap.containsKey(contingencyId)) {
             return Collections.emptyList();
         }
-        return getBranches(contingencyIdToContingencyMap.get(contingencyId), network);
+        return mapBranchSetToList(contingencyToXnecMap.get(contingencyIdToContingencyMap.get(contingencyId)), network);
     }
 
     @Override
     public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
-        Map<String, List<Branch>> contingencyIdToXnec = new HashMap<>(); //Cache ?
-        contingencyIdToContingencyMap.forEach((contingencyId, contingency) -> contingencyIdToXnec.put(contingencyId, getBranches(contingency, network)));
+        Map<String, List<Branch>> contingencyIdToXnec = new HashMap<>(); //TODO Cache ?
+        contingencyIdToContingencyMap.forEach((contingencyId, contingency) -> contingencyIdToXnec.put(contingencyId, mapBranchSetToList(contingencyToXnecMap.get(contingency), network)));
         return contingencyIdToXnec;
     }
 

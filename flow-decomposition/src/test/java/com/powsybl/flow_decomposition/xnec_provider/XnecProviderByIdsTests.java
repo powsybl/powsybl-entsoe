@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition.xnec_provider;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.flow_decomposition.TestUtils;
 import com.powsybl.flow_decomposition.XnecProvider;
@@ -13,12 +14,14 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -233,5 +236,17 @@ class XnecProviderByIdsTests {
         assertTrue(networkElementsPerContingency.get(x3).contains(network.getBranch(x1)));
         assertTrue(networkElementsPerContingency.get(x3).contains(network.getBranch(x2)));
         assertFalse(networkElementsPerContingency.get(x3).contains(network.getBranch(x3)));
+    }
+
+    @Test
+    void testContingencyIdNotDefined() {
+        assertThrows(PowsyblException.class, () -> XnecProviderByIds.builder().addNetworkElementsAfterContingencies(Collections.emptySet(), Collections.singleton("NON EXISTING CONTINGENCY ID")));
+    }
+
+    @Test
+    void testContingencyNotProvided() {
+        String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES_NON_NEUTRAL.uct";
+        Network network = TestUtils.importNetwork(networkFileName);
+        assertTrue(XnecProviderByIds.builder().build().getNetworkElements("NON PRESENT CONTINGENCY ID", network).isEmpty());
     }
 }
