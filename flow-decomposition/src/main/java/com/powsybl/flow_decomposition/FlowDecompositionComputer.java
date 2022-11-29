@@ -65,6 +65,13 @@ public class FlowDecompositionComputer {
         Map<Country, Double> netPositions = getZonesNetPosition(network);
 
         FlowDecompositionResultsBuffer flowDecompositionResultsBuffer = new FlowDecompositionResultsBuffer(network);
+        decomposeFlowForVariant(network,
+            flowDecompositionResultsBuffer,
+            variantManager,
+            XnecProvider.NO_CONTINGENCY_ID,
+            xnecProvider.getNetworkElements(network),
+            netPositions,
+            glsks);
         xnecProvider.getNetworkElementsPerContingency(network)
             .forEach((contingencyId, xnecList) -> decomposeFlowForVariant(network,
                 flowDecompositionResultsBuffer,

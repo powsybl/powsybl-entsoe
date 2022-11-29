@@ -33,10 +33,12 @@ public final class XnecProviderByIds implements XnecProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(XnecProviderByIds.class);
     private final Map<String, Contingency> contingencyIdToContingencyMap;
     private final Map<Contingency, Set<String>> contingencyToXnecMap;
+    private final Set<String> bestCaseBranches;
 
-    private XnecProviderByIds(Map<String, Contingency> contingencyIdToContingencyMap, Map<Contingency, Set<String>> contingencyToXnecMap) {
+    private XnecProviderByIds(Map<String, Contingency> contingencyIdToContingencyMap, Map<Contingency, Set<String>> contingencyToXnecMap, Set<String> bestCaseBranches) {
         this.contingencyIdToContingencyMap = contingencyIdToContingencyMap;
         this.contingencyToXnecMap = contingencyToXnecMap;
+        this.bestCaseBranches = bestCaseBranches;
     }
 
     public static Builder builder() {
@@ -46,6 +48,7 @@ public final class XnecProviderByIds implements XnecProvider {
     public static class Builder {
         private final Map<String, Contingency> contingencyIdToContingencyMap = new HashMap<>();
         private final Map<Contingency, Set<String>> contingencyToXnecMap = new HashMap<>();
+        private final Set<String> bestCaseBranches = new HashSet<>();
 
         public Builder addContingencies(Map<String, Set<String>> contingencies) {
             contingencies.forEach(this::addContingency);
@@ -59,7 +62,7 @@ public final class XnecProviderByIds implements XnecProvider {
             return this;
         }
 
-        private static Contingency createContingency(String contingencyId, Set<String> contingencyElementIdSet) {
+        private Contingency createContingency(String contingencyId, Set<String> contingencyElementIdSet) {
             ContingencyBuilder contingencyBuilder = Contingency.builder(contingencyId);
             contingencyElementIdSet.forEach(contingencyBuilder::addBranch);
             return contingencyBuilder.build();
@@ -82,14 +85,12 @@ public final class XnecProviderByIds implements XnecProvider {
         }
 
         public Builder addNetworkElementsOnBasecase(Set<String> branchIds) {
-            this.contingencyIdToContingencyMap.putIfAbsent(NO_CONTINGENCY_ID, NO_CONTINGENCY);
-            this.contingencyToXnecMap.putIfAbsent(NO_CONTINGENCY, new HashSet<>());
-            contingencyToXnecMap.get(NO_CONTINGENCY).addAll(branchIds);
+            bestCaseBranches.addAll(branchIds);
             return this;
         }
 
         public XnecProviderByIds build() {
-            return new XnecProviderByIds(contingencyIdToContingencyMap, contingencyToXnecMap);
+            return new XnecProviderByIds(contingencyIdToContingencyMap, contingencyToXnecMap, bestCaseBranches);
         }
     }
 
@@ -97,7 +98,11 @@ public final class XnecProviderByIds implements XnecProvider {
         if (!contingencyToXnecMap.containsKey(contingency)) {
             return Collections.emptyList();
         }
-        return contingencyToXnecMap.get(contingency).stream()
+        return mapBranchSet(contingencyToXnecMap.get(contingency), network);
+    }
+
+    private List<Branch> mapBranchSet(Set<String> branchSet, Network network) {
+        return branchSet.stream()
             .map(xnecId -> {
                 Branch branch = network.getBranch(xnecId);
                 if (Objects.isNull(branch)) {
@@ -111,7 +116,7 @@ public final class XnecProviderByIds implements XnecProvider {
 
     @Override
     public List<Branch> getNetworkElements(Network network) {
-        return getBranches(NO_CONTINGENCY, network);
+        return mapBranchSet(bestCaseBranches, network);
     }
 
     @Override

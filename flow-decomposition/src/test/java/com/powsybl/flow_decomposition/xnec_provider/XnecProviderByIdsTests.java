@@ -39,10 +39,7 @@ class XnecProviderByIdsTests {
         assertEquals(1, branchList.size());
 
         Map<String, List<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
-        assertEquals(1, networkElementsPerContingency.size());
-        assertTrue(networkElementsPerContingency.containsKey(""));
-        assertEquals(1, networkElementsPerContingency.get("").size());
-        assertTrue(networkElementsPerContingency.get("").contains(network.getBranch(xnecFrBe)));
+        assertEquals(0, networkElementsPerContingency.size());
     }
 
     @Test
@@ -172,13 +169,9 @@ class XnecProviderByIdsTests {
         assertTrue(xnecListX1.isEmpty());
 
         Map<String, List<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
-        assertEquals(2, networkElementsPerContingency.size());
-        assertTrue(networkElementsPerContingency.containsKey(""));
+        assertEquals(1, networkElementsPerContingency.size());
         assertTrue(networkElementsPerContingency.containsKey(x2));
-        assertEquals(2, networkElementsPerContingency.get("").size());
         assertEquals(1, networkElementsPerContingency.get(x2).size());
-        assertTrue(networkElementsPerContingency.get("").contains(network.getBranch(x1)));
-        assertTrue(networkElementsPerContingency.get("").contains(network.getBranch(x2)));
         assertTrue(networkElementsPerContingency.get(x2).contains(network.getBranch(x1)));
     }
 
@@ -224,18 +217,13 @@ class XnecProviderByIdsTests {
         assertTrue(xnecListX3.contains(network.getBranch(x2)));
 
         Map<String, List<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
-        assertEquals(4, networkElementsPerContingency.size());
-        assertTrue(networkElementsPerContingency.containsKey(""));
+        assertEquals(3, networkElementsPerContingency.size());
         assertTrue(networkElementsPerContingency.containsKey(x1));
         assertTrue(networkElementsPerContingency.containsKey(x2));
         assertTrue(networkElementsPerContingency.containsKey(x3));
-        assertEquals(3, networkElementsPerContingency.get("").size());
         assertEquals(2, networkElementsPerContingency.get(x1).size());
         assertEquals(2, networkElementsPerContingency.get(x2).size());
         assertEquals(2, networkElementsPerContingency.get(x3).size());
-        assertTrue(networkElementsPerContingency.get("").contains(network.getBranch(x1)));
-        assertTrue(networkElementsPerContingency.get("").contains(network.getBranch(x2)));
-        assertTrue(networkElementsPerContingency.get("").contains(network.getBranch(x3)));
         assertFalse(networkElementsPerContingency.get(x1).contains(network.getBranch(x1)));
         assertTrue(networkElementsPerContingency.get(x1).contains(network.getBranch(x2)));
         assertTrue(networkElementsPerContingency.get(x1).contains(network.getBranch(x3)));

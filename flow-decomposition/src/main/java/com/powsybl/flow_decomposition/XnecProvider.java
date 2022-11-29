@@ -36,7 +36,7 @@ public interface XnecProvider extends ContingenciesProvider {
     List<Branch> getNetworkElements(@NonNull String contingencyId, Network network);
 
     /**
-     * Return all XNECs mapped by contingency (basecase included)
+     * Return all XNECs mapped by contingency (basecase not included)
      * @param network network used to find branches
      * @return
      */
