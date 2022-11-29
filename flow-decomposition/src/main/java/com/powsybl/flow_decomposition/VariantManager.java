@@ -18,16 +18,15 @@ import java.util.stream.Collectors;
 public class VariantManager {
     private final String defaultVariantId;
     private final List<Contingency> contingencies;
-    private final List<String> variantIdList;
 
     VariantManager(Network network, XnecProvider xnecProvider) {
         this.defaultVariantId = network.getVariantManager().getWorkingVariantId();
         contingencies = xnecProvider.getContingencies(network);
-        variantIdList = contingencies.stream().map(Contingency::getId).collect(Collectors.toList());
     }
 
     void createAVariantPerContingency(Network network) {
-        if (!variantIdList.isEmpty()) {
+        if (!contingencies.isEmpty()) {
+            List<String> variantIdList = contingencies.stream().map(Contingency::getId).collect(Collectors.toList());
             network.getVariantManager().cloneVariant(defaultVariantId, variantIdList); //TODO delete variants
             contingencies.forEach(contingency -> {
                 setNetworkVariant(network, contingency.getId());

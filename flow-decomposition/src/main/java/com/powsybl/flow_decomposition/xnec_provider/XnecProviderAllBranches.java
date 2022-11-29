@@ -33,7 +33,7 @@ public class XnecProviderAllBranches implements XnecProvider {
 
     @Override
     public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
-        return Map.of(NO_CONTINGENCY_ID, getNetworkElements(network));
+        return Collections.emptyMap();
     }
 
     @Override
