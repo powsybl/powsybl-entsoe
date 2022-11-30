@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
  * @see DecomposedFlow
  */
 public class FlowDecompositionResults {
+    private static final String NO_CONTINGENCY_ID = "";
     private final String networkId;
     private final String id;
     private final Set<Country> zoneSet;
@@ -137,5 +138,9 @@ public class FlowDecompositionResults {
 
     PerStateBuilder getBuilder(String contingencyId, List<Branch> xnecList) {
         return new PerStateBuilder(contingencyId, xnecList);
+    }
+
+    public PerStateBuilder getBuilder(List<Branch> xnecList) {
+        return new PerStateBuilder(NO_CONTINGENCY_ID, xnecList);
     }
 }

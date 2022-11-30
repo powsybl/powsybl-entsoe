@@ -63,14 +63,14 @@ public class FlowDecompositionComputer {
         Map<Country, Double> netPositions = getZonesNetPosition(network);
 
         FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
-        decomposeFlowForBestState(network,
+        decomposeFlowForNState(network,
             flowDecompositionResults,
             xnecProvider.getNetworkElements(network),
             netPositions,
             glsks,
             loadFlowServiceAcResult);
         xnecProvider.getNetworkElementsPerContingency(network)
-            .forEach((contingencyId, xnecList) -> decomposeFlowForVariant(network,
+            .forEach((contingencyId, xnecList) -> decomposeFlowForContingencyState(network,
                 flowDecompositionResults,
                 networkStateManager,
                 contingencyId,
@@ -80,25 +80,25 @@ public class FlowDecompositionComputer {
         return flowDecompositionResults;
     }
 
-    private void decomposeFlowForBestState(Network network,
-                                           FlowDecompositionResults flowDecompositionResults,
-                                           List<Branch> xnecList,
-                                           Map<Country, Double> netPositions,
-                                           Map<Country, Map<String, Double>> glsks,
-                                           LoadFlowRunningService.Result loadFlowServiceAcResult) {
+    private void decomposeFlowForNState(Network network,
+                                        FlowDecompositionResults flowDecompositionResults,
+                                        List<Branch> xnecList,
+                                        Map<Country, Double> netPositions,
+                                        Map<Country, Map<String, Double>> glsks,
+                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
         if (!xnecList.isEmpty()) {
-            FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder = flowDecompositionResults.getBuilder(XnecProvider.NO_CONTINGENCY_ID, xnecList);
+            FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder = flowDecompositionResults.getBuilder(xnecList);
             decomposeFlowForState(network, xnecList, flowDecompositionResultsBuilder, netPositions, glsks, loadFlowServiceAcResult);
         }
     }
 
-    private void decomposeFlowForVariant(Network network,
-                                         FlowDecompositionResults flowDecompositionResults,
-                                         NetworkStateManager networkStateManager,
-                                         String contingencyId,
-                                         List<Branch> xnecList,
-                                         Map<Country, Double> netPositions,
-                                         Map<Country, Map<String, Double>> glsks) {
+    private void decomposeFlowForContingencyState(Network network,
+                                                  FlowDecompositionResults flowDecompositionResults,
+                                                  NetworkStateManager networkStateManager,
+                                                  String contingencyId,
+                                                  List<Branch> xnecList,
+                                                  Map<Country, Double> netPositions,
+                                                  Map<Country, Map<String, Double>> glsks) {
         if (!xnecList.isEmpty()) {
             networkStateManager.setNetworkVariant(contingencyId);
             LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
