@@ -27,7 +27,7 @@ public class VariantManager {
     void createAVariantPerContingency(Network network) {
         if (!contingencies.isEmpty()) {
             List<String> variantIdList = contingencies.stream().map(Contingency::getId).collect(Collectors.toList());
-            network.getVariantManager().cloneVariant(defaultVariantId, variantIdList); //TODO delete variants
+            network.getVariantManager().cloneVariant(defaultVariantId, variantIdList);
             contingencies.forEach(contingency -> {
                 setNetworkVariant(network, contingency.getId());
                 contingency.toModification().apply(network);
@@ -42,5 +42,9 @@ public class VariantManager {
 
     void setNetworkVariant(Network network, String variantId) {
         network.getVariantManager().setWorkingVariant(variantId);
+    }
+
+    void deleteAllContingencyVariants(Network network) {
+        contingencies.forEach(contingency -> network.getVariantManager().removeVariant(contingency.getId()));
     }
 }

@@ -77,6 +77,7 @@ public class FlowDecompositionComputer {
                 xnecList,
                 netPositions,
                 glsks));
+        networkStateManager.deleteAllContingencyVariants();
         return flowDecompositionResults;
     }
 

@@ -122,7 +122,7 @@ public final class XnecProviderByIds implements XnecProvider {
 
     @Override
     public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
-        Map<String, List<Branch>> contingencyIdToXnec = new HashMap<>(); //TODO Cache ?
+        Map<String, List<Branch>> contingencyIdToXnec = new HashMap<>();
         contingencyIdToContingencyMap.forEach((contingencyId, contingency) -> contingencyIdToXnec.put(contingencyId, mapBranchSetToList(contingencyToXnecMap.get(contingency), network)));
         return contingencyIdToXnec;
     }

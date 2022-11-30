@@ -26,4 +26,8 @@ public class NetworkStateManager {
     public void setNetworkVariant(String contingencyId) {
         variantManager.setNetworkVariant(network, contingencyId);
     }
+
+    public void deleteAllContingencyVariants() {
+        variantManager.deleteAllContingencyVariants(network);
+    }
 }
