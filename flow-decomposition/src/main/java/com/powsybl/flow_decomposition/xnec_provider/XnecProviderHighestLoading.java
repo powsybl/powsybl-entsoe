@@ -11,7 +11,9 @@ import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import java.util.*;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -19,27 +21,25 @@ import java.util.stream.Collectors;
  */
 public class XnecProviderHighestLoading implements XnecProvider {
     @Override
-    public List<Branch> getNetworkElements(Network network) {
-        List<Branch<?>> xnecList = NetworkUtil.getAllValidBranches(network)
-                .stream()
+    public List<Branch> getNetworkElements(final Network network) {
+        // Fetch XNEC and the set of XNE ids
+        final List<Branch<?>> xnecList = NetworkUtil.getAllValidBranches(network).stream()
                 .filter(XnecProviderInterconnection::isAnInterconnection)
                 .collect(Collectors.toList());
-
-        Set<String> xneIds = xnecList.stream()
+        final Set<String> xneIds = xnecList.stream()
                 .map(Identifiable::getNameOrId)
                 .collect(Collectors.toSet());
 
-        List<Branch> selection = new LinkedList<>();
-
-        for (String xneId : xneIds) {
+        // Select one XNEC by XNE
+        final List<Branch> selection = new LinkedList<>();
+        for (final String xneId : xneIds) {
             Branch refBranch = getReferenceContingency(xneId, xnecList);
             selection.add(refBranch);
         }
-
         return selection;
     }
 
-    private Branch getReferenceContingency(String xneId, List<Branch<?>> xnecList) {
+    private Branch getReferenceContingency(final String xneId, final List<Branch<?>> xnecList) {
         // TODO - implements
         // check for materialized remedial action
         // then, compare based on Active Power Flow
