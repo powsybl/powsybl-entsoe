@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-public class VariantManager {
+class VariantManager {
     private final String defaultVariantId;
     private final List<Contingency> contingencies;
 
@@ -36,7 +36,7 @@ public class VariantManager {
         }
     }
 
-    private void setDefaultNetworkVariant(Network network) {
+    void setDefaultNetworkVariant(Network network) {
         setNetworkVariant(network, defaultVariantId);
     }
 
