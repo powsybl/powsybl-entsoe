@@ -82,6 +82,7 @@ public class CsvExporter {
     private void printHeaderRow(Set<String> loopFlowKeys, CSVPrinter printer) {
         failSilentlyPrint(printer, EMPTY_CELL_VALUE);
         failSilentlyPrint(printer, DecomposedFlow.ALLOCATED_COLUMN_NAME);
+        failSilentlyPrint(printer, DecomposedFlow.INTERNAL_COLUMN_NAME);
         failSilentlyPrint(printer, DecomposedFlow.PST_COLUMN_NAME);
         loopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, loopFlowKey));
         failSilentlyPrint(printer, DecomposedFlow.AC_REFERENCE_FLOW_COLUMN_NAME);
@@ -96,6 +97,7 @@ public class CsvExporter {
     private void printContentRow(String xnecId, DecomposedFlow decomposedFlow, Set<String> allLoopFlowKeys, CSVPrinter printer) {
         failSilentlyPrint(printer, xnecId);
         failSilentlyPrint(printer, decomposedFlow.getAllocatedFlow());
+        failSilentlyPrint(printer, decomposedFlow.getInternalFlow());
         failSilentlyPrint(printer, decomposedFlow.getPstFlow());
         allLoopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, decomposedFlow.getLoopFlows().getOrDefault(loopFlowKey, NO_FLOW)));
         failSilentlyPrint(printer, decomposedFlow.getAcReferenceFlow());
