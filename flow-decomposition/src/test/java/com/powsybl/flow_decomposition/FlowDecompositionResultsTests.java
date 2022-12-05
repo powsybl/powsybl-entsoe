@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.powsybl.iidm.network.Country.BE;
+import static com.powsybl.iidm.network.Country.DE;
 import static com.powsybl.iidm.network.Country.FR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,8 +35,11 @@ class FlowDecompositionResultsTests {
         FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
         assertEquals(network.getNameOrId(), flowDecompositionResults.getNetworkId());
         assertTrue(flowDecompositionResults.getId().startsWith("Flow_Decomposition_Results_of_"));
-        assertEquals(2, flowDecompositionResults.getZoneSet());
-        //TODO
+        Set<Country> zoneSet = flowDecompositionResults.getZoneSet();
+        assertEquals(3, zoneSet.size());
+        assertTrue(zoneSet.contains(FR));
+        assertTrue(zoneSet.contains(DE));
+        assertTrue(zoneSet.contains(BE));
     }
 
     @Test
@@ -75,7 +80,11 @@ class FlowDecompositionResultsTests {
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());
         DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(branchId);
-        assertEquals(10, decomposedFlow.getAcReferenceFlow());
+        assertEquals(10.0, decomposedFlow.getAcReferenceFlow());
+        assertEquals(11.0, decomposedFlow.getDcReferenceFlow());
+        assertEquals(20.0, decomposedFlow.getAllocatedFlow());
+        assertEquals(12.0, decomposedFlow.getLoopFlow(FR));
+        assertEquals(2.0, decomposedFlow.getPstFlow());
         //TODO
     }
 }
