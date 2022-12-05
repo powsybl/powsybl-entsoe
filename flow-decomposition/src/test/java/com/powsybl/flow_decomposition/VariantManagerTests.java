@@ -48,7 +48,7 @@ class VariantManagerTests {
     }
 
     @Test
-    void testCreateAVariantPerContingency(){
+    void testCreateAVariantPerContingency() {
         VariantManager variantManager = new VariantManager(network, xnecProvider);
         assertEquals(1, variantIds.size());
         assertTrue(variantIds.contains("InitialState"));
@@ -61,7 +61,7 @@ class VariantManagerTests {
     }
 
     @Test
-    void testChangeVariant(){
+    void testChangeVariant() {
         VariantManager variantManager = new VariantManager(network, xnecProvider);
         variantManager.createAVariantPerContingency(network);
         assertEquals("InitialState", network.getVariantManager().getWorkingVariantId());
@@ -80,7 +80,7 @@ class VariantManagerTests {
     }
 
     @Test
-    void testDeleteAllContingencyVariants(){
+    void testDeleteAllContingencyVariants() {
         VariantManager variantManager = new VariantManager(network, xnecProvider);
         variantManager.createAVariantPerContingency(network);
         variantManager.deleteAllContingencyVariants(network);

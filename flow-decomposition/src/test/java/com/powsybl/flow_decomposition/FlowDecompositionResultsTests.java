@@ -14,22 +14,22 @@ import org.junit.jupiter.api.Test;
  */
 class FlowDecompositionResultsTests {
     @Test
-    void testBuilderSave(){
+    void testBuilderSave() {
 
     }
 
     @Test
-    void testBuilderCreateDecomposedFlow(){
+    void testBuilderCreateDecomposedFlow() {
 
     }
 
     @Test
-    void testBuilderBuild(){
+    void testBuilderBuild() {
 
     }
 
     @Test
-    void testGetters(){
+    void testGetters() {
 
     }
 }

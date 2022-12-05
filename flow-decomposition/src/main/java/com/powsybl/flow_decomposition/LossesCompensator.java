@@ -99,7 +99,7 @@ class LossesCompensator {
             .add();
     }
 
-    private static String getLossesId(String id) {
+    static String getLossesId(String id) {
         return String.format("LOSSES %s", id);
     }
 
