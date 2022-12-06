@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-public class NetworkStateManager {
+class NetworkStateManager {
     private final Network network;
     private final VariantManager variantManager;
 

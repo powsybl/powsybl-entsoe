@@ -88,6 +88,6 @@ public final class NetworkUtil {
     }
 
     static String getXnecId(String contingencyId, String branchId) {
-        return contingencyId.length() > 0 ? String.format("%s_%s", branchId, contingencyId) : branchId;
+        return contingencyId.isEmpty() ? branchId : String.format("%s_%s", branchId, contingencyId);
     }
 }
