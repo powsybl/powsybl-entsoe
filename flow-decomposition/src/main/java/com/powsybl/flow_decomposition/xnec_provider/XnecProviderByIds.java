@@ -45,10 +45,14 @@ public final class XnecProviderByIds implements XnecProvider {
         return new Builder();
     }
 
-    public static class Builder {
+    public static final class Builder {
         private final Map<String, Contingency> contingencyIdToContingencyMap = new HashMap<>();
         private final Map<Contingency, Set<String>> contingencyToXnecMap = new HashMap<>();
         private final Set<String> bestCaseBranches = new HashSet<>();
+
+        private Builder() {
+            //private Builder, use XnecProviderByIds.builder()
+        }
 
         public Builder addContingencies(Map<String, Set<String>> contingencies) {
             contingencies.forEach(this::addContingency);
@@ -75,6 +79,8 @@ public final class XnecProviderByIds implements XnecProvider {
                     branchIds.forEach(branchId -> {
                         if (!contingency.getElements().contains(new BranchContingency(branchId))) {
                             contingencyToXnecMap.get(contingency).add(branchId);
+                        } else {
+                            LOGGER.warn(String.format("Branch '%s' is used inside contingency '%s'. This pair of branch/contingency is ignored", branchId, contingencyId));
                         }
                     });
                 } else {

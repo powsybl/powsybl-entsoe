@@ -46,7 +46,7 @@ class FlowDecompositionWithContingencyTests {
     }
 
     @Test
-    void testNStateandN1PostContingencyState() {
+    void testNStateAndN1PostContingencyState() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         String branchId = "DB000011 DF000011 1";
         String contingencyId1 = "";
@@ -72,7 +72,7 @@ class FlowDecompositionWithContingencyTests {
     }
 
     @Test
-    void testNStateN1PostContingencyStateAndN2PostContingencyState() {
+    void testSingleN2PostContingencyState() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         String branchId = "DB000011 DF000011 1";
         String contingencyElementId1 = "FB000011 FD000011 1";
@@ -96,7 +96,7 @@ class FlowDecompositionWithContingencyTests {
     }
 
     @Test
-    void testSingleN2PostContingencyState() {
+    void testNStateN1AndN2PostContingencyState() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         String branchId = "DB000011 DF000011 1";
         String contingencyElementId1 = "FB000011 FD000011 1";
