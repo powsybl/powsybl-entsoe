@@ -15,6 +15,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -22,17 +23,17 @@ import java.util.stream.Collectors;
  */
 public class XnecProviderAllBranches implements XnecProvider {
     @Override
-    public List<Branch> getNetworkElements(Network network) {
-        return network.getBranchStream().collect(Collectors.toList());
+    public Set<Branch> getNetworkElements(Network network) {
+        return network.getBranchStream().collect(Collectors.toSet());
     }
 
     @Override
-    public List<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
-        return Collections.emptyList();
+    public Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+        return Collections.emptySet();
     }
 
     @Override
-    public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
+    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
         return Collections.emptyMap();
     }
 

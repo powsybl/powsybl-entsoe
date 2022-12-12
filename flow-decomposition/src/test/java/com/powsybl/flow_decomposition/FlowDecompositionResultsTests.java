@@ -77,7 +77,7 @@ class FlowDecompositionResultsTests {
 
     @Test
     void testBuilderNState() {
-        List<Branch> nStateXnecList = xnecProvider.getNetworkElements(network);
+        Set<Branch> nStateXnecList = xnecProvider.getNetworkElements(network);
         FlowDecompositionResults.PerStateBuilder nStateBuilder = flowDecompositionResults.getBuilder(nStateXnecList);
 
         nStateBuilder.saveAcReferenceFlow(Map.of(branchId, 10.0));
@@ -102,7 +102,7 @@ class FlowDecompositionResultsTests {
 
     @Test
     void testBuilderN1State() {
-        List<Branch> n1StateContingency2XnecList = xnecProvider.getNetworkElements(contingencyId2, network);
+        Set<Branch> n1StateContingency2XnecList = xnecProvider.getNetworkElements(contingencyId2, network);
         FlowDecompositionResults.PerStateBuilder n1StateBuilder = flowDecompositionResults.getBuilder(contingencyId2, n1StateContingency2XnecList);
         String xnecId = "DB000011 DF000011 1_DD000011 DF000011 1";
 
@@ -128,7 +128,7 @@ class FlowDecompositionResultsTests {
 
     @Test
     void testBuilderN2State() {
-        List<Branch> n1StateContingency3XnecList = xnecProvider.getNetworkElements(contingencyId3, network);
+        Set<Branch> n1StateContingency3XnecList = xnecProvider.getNetworkElements(contingencyId3, network);
         FlowDecompositionResults.PerStateBuilder n2StateBuilder = flowDecompositionResults.getBuilder(contingencyId3, n1StateContingency3XnecList);
         String xnecId = "DB000011 DF000011 1_FB000011 FD000011 1_FB000021 FD000021 1";
 

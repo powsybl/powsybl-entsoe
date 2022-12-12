@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,10 +28,10 @@ class XnecProviderAllBranchesTests {
         String xnecFrBe = "FGEN1 11 BLOAD 11 1";
         String xnecBeBe = "BLOAD 11 BGEN2 11 1";
         XnecProvider xnecProvider = new XnecProviderAllBranches();
-        List<Branch> branchList = xnecProvider.getNetworkElements(network);
-        assertTrue(branchList.contains(network.getBranch(xnecFrBe)));
-        assertTrue(branchList.contains(network.getBranch(xnecBeBe)));
-        assertEquals(2, branchList.size());
+        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
+        assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
+        assertTrue(branchSet.contains(network.getBranch(xnecBeBe)));
+        assertEquals(2, branchSet.size());
     }
 
     @Test

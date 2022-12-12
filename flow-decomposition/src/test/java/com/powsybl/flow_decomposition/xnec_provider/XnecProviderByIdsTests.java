@@ -37,11 +37,11 @@ class XnecProviderByIdsTests {
         XnecProvider xnecProvider = XnecProviderByIds.builder()
             .addNetworkElementsOnBasecase(xnecSet)
             .build();
-        List<Branch> branchList = xnecProvider.getNetworkElements(network);
-        assertTrue(branchList.contains(network.getBranch(xnecFrBe)));
-        assertEquals(1, branchList.size());
+        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
+        assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
+        assertEquals(1, branchSet.size());
 
-        Map<String, List<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
+        Map<String, Set<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
         assertEquals(0, networkElementsPerContingency.size());
     }
 
@@ -54,9 +54,9 @@ class XnecProviderByIdsTests {
         XnecProvider xnecProvider = XnecProviderByIds.builder()
             .addNetworkElementsOnBasecase(xnecSet)
             .build();
-        List<Branch> branchList = xnecProvider.getNetworkElements(network);
-        assertTrue(branchList.contains(network.getBranch(xnecFrBe)));
-        assertEquals(1, branchList.size());
+        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
+        assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
+        assertEquals(1, branchSet.size());
     }
 
     @Test
@@ -69,10 +69,10 @@ class XnecProviderByIdsTests {
         XnecProvider xnecProvider = XnecProviderByIds.builder()
             .addNetworkElementsOnBasecase(xnecSet)
             .build();
-        List<Branch> branchList = xnecProvider.getNetworkElements(network);
-        assertTrue(branchList.contains(network.getBranch(xnecFrBe)));
-        assertTrue(branchList.contains(network.getBranch(xnecBeBe)));
-        assertEquals(2, branchList.size());
+        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
+        assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
+        assertTrue(branchSet.contains(network.getBranch(xnecBeBe)));
+        assertEquals(2, branchSet.size());
     }
 
     @Test
@@ -85,10 +85,10 @@ class XnecProviderByIdsTests {
             .addNetworkElementsOnBasecase(Set.of(xnecFrBe, xnecBeBe))
             .addNetworkElementsOnBasecase(Set.of(xnecFrBe))
             .build();
-        List<Branch> branchList = xnecProvider.getNetworkElements(network);
-        assertTrue(branchList.contains(network.getBranch(xnecFrBe)));
-        assertTrue(branchList.contains(network.getBranch(xnecBeBe)));
-        assertEquals(2, branchList.size());
+        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
+        assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
+        assertTrue(branchSet.contains(network.getBranch(xnecBeBe)));
+        assertEquals(2, branchSet.size());
     }
 
     @Test
@@ -102,11 +102,11 @@ class XnecProviderByIdsTests {
         XnecProvider xnecProvider = XnecProviderByIds.builder()
             .addNetworkElementsOnBasecase(xnecSet)
             .build();
-        List<Branch> branchList = xnecProvider.getNetworkElements(network);
+        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
         assertFalse(network.getBranch(xnecBeBe).getTerminal1().isConnected());
-        assertTrue(branchList.contains(network.getBranch(xnecFrBe)));
-        assertTrue(branchList.contains(network.getBranch(xnecBeBe)));
-        assertEquals(2, branchList.size());
+        assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
+        assertTrue(branchSet.contains(network.getBranch(xnecBeBe)));
+        assertEquals(2, branchSet.size());
     }
 
     @Test
@@ -125,17 +125,17 @@ class XnecProviderByIdsTests {
         assertEquals(1, contingencies.size());
         assertTrue(contingencies.contains(Contingency.builder(x2).addBranch(x2).build()));
 
-        List<Branch> xnecList = xnecProvider.getNetworkElements(network);
-        assertTrue(xnecList.isEmpty());
+        Set<Branch> xnecSet = xnecProvider.getNetworkElements(network);
+        assertTrue(xnecSet.isEmpty());
 
-        List<Branch> xnecListX2 = xnecProvider.getNetworkElements(x2, network);
-        assertEquals(1, xnecListX2.size());
-        assertTrue(xnecListX2.contains(network.getBranch(x1)));
+        Set<Branch> xnecSetX2 = xnecProvider.getNetworkElements(x2, network);
+        assertEquals(1, xnecSetX2.size());
+        assertTrue(xnecSetX2.contains(network.getBranch(x1)));
 
-        List<Branch> xnecListX1 = xnecProvider.getNetworkElements(x1, network);
-        assertTrue(xnecListX1.isEmpty());
+        Set<Branch> xnecSetX1 = xnecProvider.getNetworkElements(x1, network);
+        assertTrue(xnecSetX1.isEmpty());
 
-        Map<String, List<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
+        Map<String, Set<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
         assertEquals(1, networkElementsPerContingency.size());
         assertTrue(networkElementsPerContingency.containsKey(x2));
         assertEquals(1, networkElementsPerContingency.get(x2).size());
@@ -159,19 +159,19 @@ class XnecProviderByIdsTests {
         assertEquals(1, contingencies.size());
         assertTrue(contingencies.contains(Contingency.builder(x2).addBranch(x2).build()));
 
-        List<Branch> xneList = xnecProvider.getNetworkElements(network);
+        Set<Branch> xneList = xnecProvider.getNetworkElements(network);
         assertEquals(2, xneList.size());
         assertTrue(xneList.contains(network.getBranch(x1)));
         assertTrue(xneList.contains(network.getBranch(x2)));
 
-        List<Branch> xnecListX2 = xnecProvider.getNetworkElements(x2, network);
-        assertEquals(1, xnecListX2.size());
-        assertTrue(xnecListX2.contains(network.getBranch(x1)));
+        Set<Branch> xnecSetX2 = xnecProvider.getNetworkElements(x2, network);
+        assertEquals(1, xnecSetX2.size());
+        assertTrue(xnecSetX2.contains(network.getBranch(x1)));
 
-        List<Branch> xnecListX1 = xnecProvider.getNetworkElements(x1, network);
-        assertTrue(xnecListX1.isEmpty());
+        Set<Branch> xnecSetX1 = xnecProvider.getNetworkElements(x1, network);
+        assertTrue(xnecSetX1.isEmpty());
 
-        Map<String, List<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
+        Map<String, Set<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
         assertEquals(1, networkElementsPerContingency.size());
         assertTrue(networkElementsPerContingency.containsKey(x2));
         assertEquals(1, networkElementsPerContingency.get(x2).size());
@@ -198,28 +198,28 @@ class XnecProviderByIdsTests {
         assertTrue(contingencies.contains(Contingency.builder(x2).addBranch(x2).build()));
         assertTrue(contingencies.contains(Contingency.builder(x3).addBranch(x3).build()));
 
-        List<Branch> xneList = xnecProvider.getNetworkElements(network);
+        Set<Branch> xneList = xnecProvider.getNetworkElements(network);
         assertEquals(3, xneList.size());
         assertTrue(xneList.contains(network.getBranch(x1)));
         assertTrue(xneList.contains(network.getBranch(x2)));
         assertTrue(xneList.contains(network.getBranch(x3)));
 
-        List<Branch> xnecListX1 = xnecProvider.getNetworkElements(x1, network);
-        assertEquals(2, xnecListX1.size());
-        assertTrue(xnecListX1.contains(network.getBranch(x2)));
-        assertTrue(xnecListX1.contains(network.getBranch(x3)));
+        Set<Branch> xnecSetX1 = xnecProvider.getNetworkElements(x1, network);
+        assertEquals(2, xnecSetX1.size());
+        assertTrue(xnecSetX1.contains(network.getBranch(x2)));
+        assertTrue(xnecSetX1.contains(network.getBranch(x3)));
 
-        List<Branch> xnecListX2 = xnecProvider.getNetworkElements(x2, network);
-        assertEquals(2, xnecListX2.size());
-        assertTrue(xnecListX2.contains(network.getBranch(x1)));
-        assertTrue(xnecListX2.contains(network.getBranch(x3)));
+        Set<Branch> xnecSetX2 = xnecProvider.getNetworkElements(x2, network);
+        assertEquals(2, xnecSetX2.size());
+        assertTrue(xnecSetX2.contains(network.getBranch(x1)));
+        assertTrue(xnecSetX2.contains(network.getBranch(x3)));
 
-        List<Branch> xnecListX3 = xnecProvider.getNetworkElements(x3, network);
-        assertEquals(2, xnecListX3.size());
-        assertTrue(xnecListX3.contains(network.getBranch(x1)));
-        assertTrue(xnecListX3.contains(network.getBranch(x2)));
+        Set<Branch> xnecSetX3 = xnecProvider.getNetworkElements(x3, network);
+        assertEquals(2, xnecSetX3.size());
+        assertTrue(xnecSetX3.contains(network.getBranch(x1)));
+        assertTrue(xnecSetX3.contains(network.getBranch(x2)));
 
-        Map<String, List<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
+        Map<String, Set<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
         assertEquals(3, networkElementsPerContingency.size());
         assertTrue(networkElementsPerContingency.containsKey(x1));
         assertTrue(networkElementsPerContingency.containsKey(x2));

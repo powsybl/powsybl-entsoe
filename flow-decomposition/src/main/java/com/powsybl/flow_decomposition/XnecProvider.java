@@ -11,8 +11,8 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -20,22 +20,25 @@ import java.util.Map;
 public interface XnecProvider extends ContingenciesProvider {
     /**
      * Return basecase NEC
+     *
      * @param network network used to find branches.
-     * @return a list of branches to monitor
+     * @return a set of branches to monitor
      */
-    List<Branch> getNetworkElements(Network network);
+    Set<Branch> getNetworkElements(Network network);
 
     /**
      * Return XNEC given contingency
+     *
      * @param network network used to find branches.
-     * @return a list of branches to monitor
+     * @return a set of branches to monitor
      */
-    List<Branch> getNetworkElements(@NonNull String contingencyId, Network network);
+    Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network);
 
     /**
      * Return all XNECs mapped by contingency (basecase not included)
+     *
      * @param network network used to find branches
      * @return
      */
-    Map<String, List<Branch>> getNetworkElementsPerContingency(Network network);
+    Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network);
 }

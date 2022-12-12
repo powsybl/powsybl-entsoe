@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -46,7 +47,7 @@ public class XnecProvider5percPtdf implements XnecProvider {
             && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
     }
 
-    public static List<Branch> getBranches(Network network) {
+    public static Set<Branch> getBranches(Network network) {
         GlskComputer glskComputer = new GlskComputer();
         Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
         ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(LoadFlowParameters.load(), SensitivityAnalysis.find());
@@ -54,21 +55,21 @@ public class XnecProvider5percPtdf implements XnecProvider {
         return NetworkUtil.getAllValidBranches(network)
             .stream()
             .filter(branch -> isAXnec(branch, zonalPtdf))
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
     }
 
     @Override
-    public List<Branch> getNetworkElements(Network network) {
+    public Set<Branch> getNetworkElements(Network network) {
         return getBranches(network);
     }
 
     @Override
-    public List<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
-        return Collections.emptyList();
+    public Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+        return Collections.emptySet();
     }
 
     @Override
-    public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
+    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
         return Collections.emptyMap();
     }
 

@@ -42,7 +42,7 @@ public class FlowDecompositionResults {
         private Map<String, Double> acReferenceFlow;
         private Map<String, Double> dcReferenceFlow;
 
-        PerStateBuilder(String contingencyId, List<Branch> xnecList) {
+        PerStateBuilder(String contingencyId, Set<Branch> xnecList) {
             this.xnecMap = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
             this.contingencyId = contingencyId;
         }
@@ -136,11 +136,11 @@ public class FlowDecompositionResults {
         return decomposedFlowMap;
     }
 
-    PerStateBuilder getBuilder(String contingencyId, List<Branch> xnecList) {
+    PerStateBuilder getBuilder(String contingencyId, Set<Branch> xnecList) {
         return new PerStateBuilder(contingencyId, xnecList);
     }
 
-    public PerStateBuilder getBuilder(List<Branch> xnecList) {
+    public PerStateBuilder getBuilder(Set<Branch> xnecList) {
         return new PerStateBuilder(NO_CONTINGENCY_ID, xnecList);
     }
 }

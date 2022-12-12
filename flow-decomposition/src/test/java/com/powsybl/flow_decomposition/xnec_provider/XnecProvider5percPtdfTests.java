@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,7 +37,7 @@ class XnecProvider5percPtdfTests {
         String line8 = "FGEN  11 FLOAD 11 8";
         String line9 = "FGEN  11 FLOAD 11 9";
         XnecProvider xnecProvider = new XnecProvider5percPtdf();
-        List<Branch> branchList = xnecProvider.getNetworkElements(network);
+        Set<Branch> branchList = xnecProvider.getNetworkElements(network);
         assertTrue(branchList.contains(network.getBranch(lineFrBe)));
         assertTrue(branchList.contains(network.getBranch(lineBeFr)));
         assertTrue(branchList.contains(network.getBranch(line1)));

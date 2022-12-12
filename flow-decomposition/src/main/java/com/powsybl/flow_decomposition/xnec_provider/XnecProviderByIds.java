@@ -100,7 +100,7 @@ public final class XnecProviderByIds implements XnecProvider {
         }
     }
 
-    private List<Branch> mapBranchSetToList(Set<String> branchSet, Network network) {
+    private Set<Branch> mapBranchSetToList(Set<String> branchSet, Network network) {
         return branchSet.stream()
             .map(xnecId -> {
                 Branch branch = network.getBranch(xnecId);
@@ -110,25 +110,25 @@ public final class XnecProviderByIds implements XnecProvider {
                 return branch;
             })
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
     }
 
     @Override
-    public List<Branch> getNetworkElements(Network network) {
+    public Set<Branch> getNetworkElements(Network network) {
         return mapBranchSetToList(bestCaseBranches, network);
     }
 
     @Override
-    public List<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+    public Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
         if (!contingencyIdToContingencyMap.containsKey(contingencyId)) {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
         return mapBranchSetToList(contingencyToXnecMap.get(contingencyIdToContingencyMap.get(contingencyId)), network);
     }
 
     @Override
-    public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
-        Map<String, List<Branch>> contingencyIdToXnec = new HashMap<>();
+    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
+        Map<String, Set<Branch>> contingencyIdToXnec = new HashMap<>();
         contingencyIdToContingencyMap.forEach((contingencyId, contingency) -> contingencyIdToXnec.put(contingencyId, mapBranchSetToList(contingencyToXnecMap.get(contingency), network)));
         return contingencyIdToXnec;
     }
