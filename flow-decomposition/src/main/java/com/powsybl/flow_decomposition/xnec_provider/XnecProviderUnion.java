@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.flow_decomposition.xnec_provider;
 
 import com.powsybl.commons.PowsyblException;
@@ -17,20 +24,25 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ */
 public class XnecProviderUnion implements XnecProvider {
     private final List<XnecProvider> xnecProviders;
-    private Cache cache = null;
+    private ContingencyConsistencyCache contingencyConsistencyCache = null;
 
     public XnecProviderUnion(List<XnecProvider> xnecProviders) {
         this.xnecProviders = xnecProviders;
     }
 
-    private class Cache {
+    private class ContingencyConsistencyCache {
         private final Set<String> validContingencyIds = new HashSet<>();
         private final Map<String, Set<Branch>> contingencyIdToXnec = new HashMap<>();
         private final Set<Contingency> contingencies = new HashSet<>();
+        private final int networkHash;
 
-        public Cache(Network network) {
+        public ContingencyConsistencyCache(Network network) {
+            networkHash = network.hashCode();
             xnecProviders.forEach(xnecProvider -> xnecProvider.getContingencies(network).forEach(
                 contingency -> {
                     String contingencyId = contingency.getId();
@@ -42,6 +54,10 @@ public class XnecProviderUnion implements XnecProvider {
                         validContingencyIds.add(contingencyId);
                     }
                 }));
+        }
+
+        public boolean isValid(Network network) {
+            return network.hashCode() == networkHash;
         }
 
         private void assertContingencyDefinitionIsUniqueAcrossXnecProviders(String contingencyId, Network network) {
@@ -79,8 +95,10 @@ public class XnecProviderUnion implements XnecProvider {
         }
     }
 
-    private void initCache(Network network) {
-        cache = cache == null ? new Cache(network) : cache;
+    private void initizializeContingencyConsistencyCache(Network network) {
+        if (contingencyConsistencyCache == null || !contingencyConsistencyCache.isValid(network)) {
+            contingencyConsistencyCache = new ContingencyConsistencyCache(network);
+        }
     }
 
     @Override
@@ -97,13 +115,13 @@ public class XnecProviderUnion implements XnecProvider {
 
     @Override
     public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
-        initCache(network);
-        return cache.getContingencyIdToXnec();
+        initizializeContingencyConsistencyCache(network);
+        return contingencyConsistencyCache.getContingencyIdToXnec();
     }
 
     @Override
     public List<Contingency> getContingencies(Network network) {
-        initCache(network);
-        return cache.getContingencies();
+        initizializeContingencyConsistencyCache(network);
+        return contingencyConsistencyCache.getContingencies();
     }
 }

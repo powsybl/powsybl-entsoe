@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.flow_decomposition.xnec_provider;
 
 import com.powsybl.commons.PowsyblException;
@@ -16,6 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ */
 class XnecProviderUnionTests {
     @Test
     void testUnionSinglepProviderOnBasecase() {
@@ -251,5 +261,56 @@ class XnecProviderUnionTests {
         assertTrue(networkElementsPerContingency.get(line8).contains(network.getBranch(line2)));
         assertTrue(networkElementsPerContingency.get(line8).contains(network.getBranch(lineBeFr)));
         assertTrue(networkElementsPerContingency.get(line8).contains(network.getBranch(lineFrBe)));
+    }
+
+    @Test
+    void testContingencyConsistencyCacheIsUpdatedWhenChangingNetworks() {
+        String networkFileName1 = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
+        String networkFileName2 = "NETWORK_PST_FLOW_WITH_COUNTRIES_NON_NEUTRAL.uct";
+        String x1 = "FGEN  11 BLOAD 11 1";
+        String x2 = "FGEN  11 BLOAD 12 1";
+
+        Network network1 = TestUtils.importNetwork(networkFileName1);
+        Network network2 = TestUtils.importNetwork(networkFileName2);
+
+        XnecProvider xnecProviderId1 = XnecProviderByIds.builder()
+            .addContingency(x1, Set.of(x1))
+            .addNetworkElementsAfterContingencies(Set.of(x2), Set.of(x1))
+            .build();
+        XnecProvider xnecProviderId2 = XnecProviderByIds.builder()
+            .addContingency(x2, Set.of(x2))
+            .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
+            .build();
+        XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderId1, xnecProviderId2));
+
+        testXnecProviderValidForNetwork(network1, xnecProvider, x1, x2);
+        testXnecProviderValidForNetwork(network2, xnecProvider, x1, x2);
+    }
+
+    private static void testXnecProviderValidForNetwork(Network network, XnecProvider xnecProvider, String x1, String x2) {
+        List<Contingency> contingencies = xnecProvider.getContingencies(network);
+        assertEquals(2, contingencies.size());
+        assertTrue(contingencies.contains(Contingency.builder(x1).addBranch(x1).build()));
+        assertTrue(contingencies.contains(Contingency.builder(x2).addBranch(x2).build()));
+
+        Set<Branch> branchSet1 = xnecProvider.getNetworkElements(network);
+        assertTrue(branchSet1.isEmpty());
+
+        Set<Branch> branchSet1x1 = xnecProvider.getNetworkElements(x1, network);
+        assertTrue(branchSet1x1.contains(network.getBranch(x2)));
+        assertEquals(1, branchSet1x1.size());
+
+        Set<Branch> branchSet1x2 = xnecProvider.getNetworkElements(x2, network);
+        assertTrue(branchSet1x2.contains(network.getBranch(x1)));
+        assertEquals(1, branchSet1x2.size());
+
+        Map<String, Set<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
+        assertEquals(2, networkElementsPerContingency.size());
+        assertTrue(networkElementsPerContingency.containsKey(x1));
+        assertTrue(networkElementsPerContingency.containsKey(x2));
+        assertEquals(1, networkElementsPerContingency.get(x1).size());
+        assertTrue(networkElementsPerContingency.get(x1).contains(network.getBranch(x2)));
+        assertEquals(1, networkElementsPerContingency.get(x2).size());
+        assertTrue(networkElementsPerContingency.get(x2).contains(network.getBranch(x1)));
     }
 }
