@@ -37,19 +37,19 @@ class XnecProvider5percPtdfTests {
         String line8 = "FGEN  11 FLOAD 11 8";
         String line9 = "FGEN  11 FLOAD 11 9";
         XnecProvider xnecProvider = new XnecProvider5percPtdf();
-        Set<Branch> branchList = xnecProvider.getNetworkElements(network);
-        assertTrue(branchList.contains(network.getBranch(lineFrBe)));
-        assertTrue(branchList.contains(network.getBranch(lineBeFr)));
-        assertTrue(branchList.contains(network.getBranch(line1)));
-        assertTrue(branchList.contains(network.getBranch(line2)));
-        assertTrue(branchList.contains(network.getBranch(line3)));
-        assertTrue(branchList.contains(network.getBranch(line4)));
-        assertTrue(branchList.contains(network.getBranch(line5)));
-        assertTrue(branchList.contains(network.getBranch(line6)));
-        assertTrue(branchList.contains(network.getBranch(line7)));
-        assertTrue(branchList.contains(network.getBranch(line8)));
-        assertTrue(branchList.contains(network.getBranch(line9)));
-        assertEquals(11, branchList.size());
+        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
+        assertTrue(branchSet.contains(network.getBranch(lineFrBe)));
+        assertTrue(branchSet.contains(network.getBranch(lineBeFr)));
+        assertTrue(branchSet.contains(network.getBranch(line1)));
+        assertTrue(branchSet.contains(network.getBranch(line2)));
+        assertTrue(branchSet.contains(network.getBranch(line3)));
+        assertTrue(branchSet.contains(network.getBranch(line4)));
+        assertTrue(branchSet.contains(network.getBranch(line5)));
+        assertTrue(branchSet.contains(network.getBranch(line6)));
+        assertTrue(branchSet.contains(network.getBranch(line7)));
+        assertTrue(branchSet.contains(network.getBranch(line8)));
+        assertTrue(branchSet.contains(network.getBranch(line9)));
+        assertEquals(11, branchSet.size());
     }
 
     @Test
