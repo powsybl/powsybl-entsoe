@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.powsybl.flow_decomposition.DecomposedFlow.ALLOCATED_COLUMN_NAME;
+import static com.powsybl.flow_decomposition.DecomposedFlow.PST_COLUMN_NAME;
 import static com.powsybl.iidm.network.Country.BE;
 import static com.powsybl.iidm.network.Country.DE;
 import static com.powsybl.iidm.network.Country.FR;
@@ -82,8 +84,8 @@ class FlowDecompositionResultsTests {
 
         nStateBuilder.saveAcReferenceFlow(Map.of(branchId, 10.0));
         nStateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
-        nStateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(DecomposedFlow.ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
-        nStateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(DecomposedFlow.PST_COLUMN_NAME, 0), pstMatrix));
+        nStateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
+        nStateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
         nStateBuilder.build(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
@@ -108,8 +110,8 @@ class FlowDecompositionResultsTests {
 
         n1StateBuilder.saveAcReferenceFlow(Map.of(branchId, 10.0));
         n1StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
-        n1StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(DecomposedFlow.ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
-        n1StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(DecomposedFlow.PST_COLUMN_NAME, 0), pstMatrix));
+        n1StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
+        n1StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
         n1StateBuilder.build(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
@@ -134,8 +136,8 @@ class FlowDecompositionResultsTests {
 
         n2StateBuilder.saveAcReferenceFlow(Map.of(branchId, 10.0));
         n2StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
-        n2StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(DecomposedFlow.ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
-        n2StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(DecomposedFlow.PST_COLUMN_NAME, 0), pstMatrix));
+        n2StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
+        n2StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
         n2StateBuilder.build(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();

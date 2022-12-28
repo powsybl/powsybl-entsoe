@@ -6,7 +6,14 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +34,7 @@ class NetworkMatrixIndexes {
     private final Map<String, Integer> xnecIndex;
     private final Map<String, Integer> nodeIndex;
     private final Map<String, Integer> pstIndex;
+    private final List<Injection<?>> xnodeList;
 
     NetworkMatrixIndexes(Network network, List<Branch> xnecList) {
         this.xnecList = xnecList;
@@ -36,6 +44,7 @@ class NetworkMatrixIndexes {
         xnecIndex = getXnecIndex(this.xnecList);
         nodeIndex = NetworkUtil.getIndex(nodeIdList);
         pstIndex = NetworkUtil.getIndex(pstList);
+        xnodeList = getXNodeList(network);
     }
 
     List<Branch> getXnecList() {
@@ -68,6 +77,10 @@ class NetworkMatrixIndexes {
 
     int getPstCount() {
         return xnecList.size();
+    }
+
+    public List<Injection<?>> getUnmergedXNodeList() {
+        return xnodeList;
     }
 
     private List<Injection<?>> getNodeList(Network network) {
@@ -125,5 +138,13 @@ class NetworkMatrixIndexes {
                 i -> xnecList.get(i).getId(),
                 Function.identity()
             ));
+    }
+
+    private List<Injection<?>> getXNodeList(Network network) {
+        return network.getDanglingLineStream()
+            .filter(this::isInjectionConnected)
+            .filter(this::isInjectionInMainSynchronousComponent)
+            .map(danglingLine -> (Injection<?>) danglingLine)
+            .collect(Collectors.toList());
     }
 }
