@@ -34,7 +34,7 @@ public class NetworkAreaUtilTest {
         assertEquals(1, injections.size());
         Load load = network.getLoad("LOAD");
         assertTrue(injections.contains(load));
-        assertEquals(10, scalable.scale(network, 10), 0.0);
+        assertEquals(10, scalable.scale(network, 10, Scalable.ScalingConvention.GENERATOR), 0.0);
     }
 
     @Test
