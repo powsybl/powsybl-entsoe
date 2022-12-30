@@ -46,7 +46,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
 
-        manualScalable.scale(network, 1000.);
+        manualScalable.scale(network, 1000., Scalable.ScalingConvention.GENERATOR);
         assertEquals(2700., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3300., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
     }
@@ -71,7 +71,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
 
-        assertEquals(-900, reserveScalable.scale(network, -900), EPSILON);
+        assertEquals(-900, reserveScalable.scale(network, -900, Scalable.ScalingConvention.GENERATOR), EPSILON);
         assertEquals(1400, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(1700, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
     }
@@ -87,7 +87,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
 
         // 1000 MW missing for down-scaling
-        assertEquals(-3000, reserveScalable.scale(network, -4000), EPSILON);
+        assertEquals(-3000, reserveScalable.scale(network, -4000, Scalable.ScalingConvention.GENERATOR), EPSILON);
         assertEquals(0, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(1000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
     }
@@ -102,7 +102,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
 
-        assertEquals(1000, reserveScalable.scale(network, 1000), EPSILON);
+        assertEquals(1000, reserveScalable.scale(network, 1000, Scalable.ScalingConvention.GENERATOR), EPSILON);
         assertEquals(2600, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2400, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
     }
@@ -118,7 +118,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
 
         // 1000 MW missing for up-scaling
-        assertEquals(5000, reserveScalable.scale(network, 6000), EPSILON);
+        assertEquals(5000, reserveScalable.scale(network, 6000, Scalable.ScalingConvention.GENERATOR), EPSILON);
         assertEquals(5000, network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(4000, network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
     }
@@ -144,7 +144,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
 
-        propGskScalable.scale(network, 700.);
+        propGskScalable.scale(network, 700., Scalable.ScalingConvention.GENERATOR);
         assertEquals(2200., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2200., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3300., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
@@ -174,7 +174,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(1000., network.getLoad("FFR1AA1 _load").getP0(), EPSILON);
         assertEquals(3500., network.getLoad("FFR2AA1 _load").getP0(), EPSILON);
 
-        propGlskScalable.scale(network, 1000.);
+        propGlskScalable.scale(network, 1000., Scalable.ScalingConvention.GENERATOR);
         assertEquals(2200., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2200., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3300., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
@@ -188,9 +188,9 @@ public class CseGlskDocumentImporterTest {
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         Scalable propGlskScalable = glskDocument.getZonalScalable(network).getData("FR_PROPGLSK");
 
-        propGlskScalable.scale(network, 20000);
-        assertEquals(-333.3334, network.getLoad("FFR1AA1 _load").getP0(), EPSILON);
-        assertEquals(-1166.6667, network.getLoad("FFR2AA1 _load").getP0(), EPSILON);
+        propGlskScalable.scale(network, 20000, Scalable.ScalingConvention.GENERATOR);
+        assertEquals(0., network.getLoad("FFR1AA1 _load").getP0(), EPSILON);
+        assertEquals(0., network.getLoad("FFR2AA1 _load").getP0(), EPSILON);
     }
 
     @Test
@@ -220,7 +220,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
 
-        meritOrderGskScalable.scale(network, -4000.);
+        meritOrderGskScalable.scale(network, -4000., Scalable.ScalingConvention.GENERATOR);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(1000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(0., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
@@ -237,7 +237,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
 
-        meritOrderGskScalable.scale(network, 5000.);
+        meritOrderGskScalable.scale(network, 5000., Scalable.ScalingConvention.GENERATOR);
         assertEquals(5000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(4000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
@@ -254,7 +254,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
 
-        meritOrderGskScalable.scale(network, -4000.);
+        meritOrderGskScalable.scale(network, -4000., Scalable.ScalingConvention.GENERATOR);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(1000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(0., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
@@ -271,7 +271,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
 
-        meritOrderGskScalable.scale(network, 5000.);
+        meritOrderGskScalable.scale(network, 5000., Scalable.ScalingConvention.GENERATOR);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(4000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(6000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
@@ -288,7 +288,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
 
-        meritOrderGskScalable.scale(network, 1000.);
+        meritOrderGskScalable.scale(network, 1000., Scalable.ScalingConvention.GENERATOR);
         assertEquals(2500., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2500., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
@@ -305,7 +305,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
 
-        meritOrderGskScalable.scale(network, 1500.);
+        meritOrderGskScalable.scale(network, 1500., Scalable.ScalingConvention.GENERATOR);
         assertEquals(2500., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2500., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3500., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
@@ -322,7 +322,7 @@ public class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
 
-        meritOrderGskScalable.scale(network, -500.);
+        meritOrderGskScalable.scale(network, -500., Scalable.ScalingConvention.GENERATOR);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2500., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
@@ -338,17 +338,17 @@ public class CseGlskDocumentImporterTest {
 
         assertEquals(1500, network.getGenerator("BBE1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2500, network.getGenerator("BBE3AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(6500, glskDocument.getZonalScalable(network).getData("BE_RESERVE").scale(network, 10000), EPSILON);
+        assertEquals(6500, glskDocument.getZonalScalable(network).getData("BE_RESERVE").scale(network, 10000, Scalable.ScalingConvention.GENERATOR), EPSILON);
         assertEquals(1500, network.getGenerator("BBE1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(9000, network.getGenerator("BBE3AA1 _generator").getTargetP(), EPSILON);
 
         assertEquals(1500, network.getGenerator("NNL1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(500, network.getGenerator("NNL2AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(500, glskDocument.getZonalScalable(network).getData("NL_RESERVE").scale(network, 500), EPSILON);
+        assertEquals(500, glskDocument.getZonalScalable(network).getData("NL_RESERVE").scale(network, 500, Scalable.ScalingConvention.GENERATOR), EPSILON);
         assertEquals(1500, network.getGenerator("NNL1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(1000, network.getGenerator("NNL2AA1 _generator").getTargetP(), EPSILON);
 
-        assertEquals(0, glskDocument.getZonalScalable(network).getData("FR_RESERVE").scale(network, 6000), EPSILON);
+        assertEquals(0, glskDocument.getZonalScalable(network).getData("FR_RESERVE").scale(network, 6000, Scalable.ScalingConvention.GENERATOR), EPSILON);
     }
 
     @Test

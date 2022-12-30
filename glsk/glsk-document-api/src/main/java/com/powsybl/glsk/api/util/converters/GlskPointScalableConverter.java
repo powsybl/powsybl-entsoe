@@ -68,7 +68,9 @@ public final class GlskPointScalableConverter {
                 throw new GlskException("In convert glskShiftKey business type not supported");
             }
         }
-        return Scalable.proportional(percentages, scalables, true);
+        Scalable scalable = Scalable.proportional(percentages, scalables, true);
+        scalable.setInitialInjectionToNetworkValue(network);
+        return scalable;
     }
 
     private static void convertRemainingCapacity(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
@@ -136,7 +138,9 @@ public final class GlskPointScalableConverter {
                     GlskRegisteredResource generatorRegisteredResource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
                     return getGeneratorScalableWithLimits(network, generatorRegisteredResource);
                 }).toArray(Scalable[]::new));
-        return Scalable.upDown(upScalable, downScalable);
+        Scalable scalable = Scalable.upDown(upScalable, downScalable);
+        scalable.setInitialInjectionToNetworkValue(network);
+        return scalable;
     }
 
     /**
@@ -175,7 +179,7 @@ public final class GlskPointScalableConverter {
             loads.forEach(load -> {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / totalCountryP);
                 percentages.add(loadPercentage);
-                scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
+                scalables.add(Scalable.onLoad(load.getId()));
             });
         }
     }
@@ -205,7 +209,7 @@ public final class GlskPointScalableConverter {
                 // In case of global shift key limitation we will limit the generator proportionally to
                 // its participation in the global proportional scalable
                 double maxGeneratorValue = NetworkUtil.pseudoTargetP(generator) + factor * glskShiftKey.getMaximumShift();
-                scalables.add(Scalable.onGenerator(generator.getId(), -Double.MAX_VALUE, maxGeneratorValue));
+                scalables.add(Scalable.onGenerator(generator.getId(), -Double.MAX_VALUE, maxGeneratorValue, Scalable.ScalingConvention.GENERATOR));
             });
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
@@ -220,7 +224,7 @@ public final class GlskPointScalableConverter {
                 float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / totalP);
                 // For now glsk shift key maximum shift is not handled for loads by lack of specification
                 percentages.add(loadPercentage);
-                scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
+                scalables.add(Scalable.onLoad(load.getId()));
             });
         }
     }
@@ -286,7 +290,7 @@ public final class GlskPointScalableConverter {
                 incomingMinP = generatorTargetP;
             }
         }
-        return Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
+        return Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP, Scalable.ScalingConvention.GENERATOR);
     }
 
     private static Scalable getLoadScalableWithLimits(Network network, GlskRegisteredResource generatorRegisteredResource) {
@@ -308,6 +312,6 @@ public final class GlskPointScalableConverter {
                 incomingMinP = loadP0;
             }
         }
-        return Scalable.onLoad(loadId, incomingMinP, incomingMaxP);
+        return Scalable.onLoad(loadId, incomingMinP, incomingMaxP, Scalable.ScalingConvention.LOAD);
     }
 }

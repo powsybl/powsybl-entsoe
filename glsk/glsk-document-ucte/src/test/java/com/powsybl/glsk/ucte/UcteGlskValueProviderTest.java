@@ -98,7 +98,7 @@ public class UcteGlskValueProviderTest {
         assertEquals(2000.0, network.getGenerator("FFR1AA1 _generator").getTargetP(), 0.1);
         assertEquals(2000.0, network.getGenerator("FFR2AA1 _generator").getTargetP(), 0.1);
 
-        scalable.scale(network, 1000.0);
+        scalable.scale(network, 1000.0, Scalable.ScalingConvention.GENERATOR);
 
         double generationAfterScale = network.getGeneratorStream().mapToDouble(Generator::getTargetP).sum();
         assertEquals(25500.0, generationAfterScale, 0.1);

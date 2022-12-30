@@ -63,58 +63,58 @@ public class GlskPointScalableConverterTest {
     @Test
     public void testConvertGlskPointToScalableB45MeritOrder() {
         Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskMeritOrder);
-        double done = scalable.scale(testNetwork, 100.0);
+        double done = scalable.scale(testNetwork, 100.0, Scalable.ScalingConvention.GENERATOR);
         Assert.assertTrue(DoubleMath.fuzzyEquals(6, done, 0.0001));
         Generator generator1 = testNetwork.getGenerator("FFR1AA1 _generator");
         Generator generator2 = testNetwork.getGenerator("FFR2AA1 _generator");
         Assert.assertTrue(DoubleMath.fuzzyEquals(2001., generator1.getTargetP(), 0.0001));
         Assert.assertTrue(DoubleMath.fuzzyEquals(2002., generator2.getTargetP(), 0.0001));
-        done = scalable.scale(testNetwork, -3000.0);
+        done = scalable.scale(testNetwork, -3000.0, Scalable.ScalingConvention.GENERATOR);
         Assert.assertTrue(DoubleMath.fuzzyEquals(-3000., done, 0.0001));
         Assert.assertTrue(DoubleMath.fuzzyEquals(0., generator1.getTargetP(), 0.0001));
-        Assert.assertTrue(DoubleMath.fuzzyEquals(1003., generator2.getTargetP(), 0.0001));
+        Assert.assertTrue(DoubleMath.fuzzyEquals(1006., generator2.getTargetP(), 0.0001));
 
     }
 
     @Test
     public void testConvertGlskPointToScalableB42Country() {
         Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointCountry);
-        double done = scalable.scale(testNetwork, 100.0);
+        double done = scalable.scale(testNetwork, 100.0, Scalable.ScalingConvention.GENERATOR);
         Assert.assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42CountryGskLsk() {
         Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointCountryGskLsk);
-        double done = scalable.scale(testNetwork, 100.0);
+        double done = scalable.scale(testNetwork, 100.0, Scalable.ScalingConvention.GENERATOR);
         Assert.assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42ExplicitGskLsk() {
         Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointExplicitGskLsk);
-        double done = scalable.scale(testNetwork, 100.0);
+        double done = scalable.scale(testNetwork, 100.0, Scalable.ScalingConvention.GENERATOR);
         Assert.assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB43GskLsk() {
         Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointParticipationFactorGskLsk);
-        double done = scalable.scale(testNetwork, 100.0);
+        double done = scalable.scale(testNetwork, 100.0, Scalable.ScalingConvention.GENERATOR);
         Assert.assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB42Explicit() {
         Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointExplicit);
-        double done = scalable.scale(testNetwork, 100.0);
+        double done = scalable.scale(testNetwork, 100.0, Scalable.ScalingConvention.GENERATOR);
         Assert.assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 
     @Test
     public void testConvertGlskPointToScalableB43() {
         Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glskPointParticipationFactor);
-        double done = scalable.scale(testNetwork, 100.0);
+        double done = scalable.scale(testNetwork, 100.0, Scalable.ScalingConvention.GENERATOR);
         Assert.assertTrue(DoubleMath.fuzzyEquals(100, done, 0.0001));
     }
 }
