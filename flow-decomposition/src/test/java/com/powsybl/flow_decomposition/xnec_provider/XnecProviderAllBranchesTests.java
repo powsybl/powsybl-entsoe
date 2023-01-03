@@ -43,4 +43,14 @@ class XnecProviderAllBranchesTests {
         assertTrue(xnecProvider.getNetworkElementsPerContingency(network).isEmpty());
         assertTrue(xnecProvider.getContingencies(network).isEmpty());
     }
+
+    @Test
+    void testInterfaceDoesNotSupportContingencies() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
+        Network network = TestUtils.importNetwork(networkFileName);
+        XnecProvider xnecProvider = new XnecProviderAllBranches();
+        assertTrue(xnecProvider.getNetworkElements("contingency id", network).isEmpty());
+        assertTrue(xnecProvider.getNetworkElementsPerContingency(network).isEmpty());
+        assertTrue(xnecProvider.getContingencies(network).isEmpty());
+    }
 }
