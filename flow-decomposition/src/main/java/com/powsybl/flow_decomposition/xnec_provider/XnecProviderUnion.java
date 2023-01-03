@@ -12,7 +12,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -109,7 +108,7 @@ public class XnecProviderUnion implements XnecProvider {
     }
 
     @Override
-    public Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
         return getNetworkElementsPerContingency(network).get(contingencyId);
     }
 
