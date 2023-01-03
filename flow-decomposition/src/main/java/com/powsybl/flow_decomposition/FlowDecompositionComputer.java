@@ -15,8 +15,9 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityVariableType;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -83,7 +84,7 @@ public class FlowDecompositionComputer {
 
     private void decomposeFlowForNState(Network network,
                                         FlowDecompositionResults flowDecompositionResults,
-                                        List<Branch> xnecList,
+                                        Set<Branch> xnecList,
                                         Map<Country, Double> netPositions,
                                         Map<Country, Map<String, Double>> glsks,
                                         LoadFlowRunningService.Result loadFlowServiceAcResult) {
@@ -97,7 +98,7 @@ public class FlowDecompositionComputer {
                                                   FlowDecompositionResults flowDecompositionResults,
                                                   NetworkStateManager networkStateManager,
                                                   String contingencyId,
-                                                  List<Branch> xnecList,
+                                                  Set<Branch> xnecList,
                                                   Map<Country, Double> netPositions,
                                                   Map<Country, Map<String, Double>> glsks) {
         if (!xnecList.isEmpty()) {
@@ -109,7 +110,7 @@ public class FlowDecompositionComputer {
     }
 
     private void decomposeFlowForState(Network network,
-                                       List<Branch> xnecList,
+                                       Set<Branch> xnecList,
                                        FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder,
                                        Map<Country, Double> netPositions,
                                        Map<Country, Map<String, Double>> glsks,
@@ -118,7 +119,7 @@ public class FlowDecompositionComputer {
         compensateLosses(network);
 
         // None
-        NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
+        NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecList));
 
         runDcLoadFlow(network);
 
@@ -142,7 +143,7 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
-    private void saveAcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, List<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+    private void saveAcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         Map<String, Double> acReferenceFlows;
         if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
             acReferenceFlows = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
@@ -162,7 +163,7 @@ public class FlowDecompositionComputer {
         return netPositionComputer.run(network);
     }
 
-    private Map<String, Double> getXnecReferenceFlows(List<Branch> xnecList) {
+    private Map<String, Double> getXnecReferenceFlows(Set<Branch> xnecList) {
         ReferenceFlowComputer referenceFlowComputer = new ReferenceFlowComputer();
         return referenceFlowComputer.run(xnecList);
     }
@@ -202,7 +203,7 @@ public class FlowDecompositionComputer {
         return nodalInjectionComputer.run(network, glsks, netPositions, dcNodalInjection);
     }
 
-    private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, List<Branch> xnecList) {
+    private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList) {
         flowDecompositionResultBuilder.saveDcReferenceFlow(getXnecReferenceFlows(xnecList));
     }
 

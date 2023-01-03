@@ -17,6 +17,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -30,20 +31,20 @@ public class XnecProviderInterconnection implements XnecProvider {
     }
 
     @Override
-    public List<Branch> getNetworkElements(Network network) {
+    public Set<Branch> getNetworkElements(Network network) {
         return NetworkUtil.getAllValidBranches(network)
             .stream()
             .filter(XnecProviderInterconnection::isAnInterconnection)
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet());
     }
 
     @Override
-    public List<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
-        return Collections.emptyList();
+    public Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+        return Collections.emptySet();
     }
 
     @Override
-    public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
+    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
         return Collections.emptyMap();
     }
 
