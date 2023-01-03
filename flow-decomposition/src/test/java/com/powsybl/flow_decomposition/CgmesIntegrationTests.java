@@ -42,7 +42,8 @@ class CgmesIntegrationTests {
             ));
 
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
-        lossesCompensator.run(network);
+        LossesCompensator.addZeroMWLossesLoadsOnBuses(network);
+        lossesCompensator.compensateLossesOnBranches(network);
 
         busToLossMap.forEach((bus, losses) -> {
             Load load = network.getLoad(String.format("LOSSES %s", bus.getId()));

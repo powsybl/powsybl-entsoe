@@ -31,6 +31,7 @@ public class FlowDecompositionComputer {
     private final FlowDecompositionParameters parameters;
     private final LoadFlowRunningService loadFlowRunningService;
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
+    private final LossesCompensator lossesCompensator;
 
     public FlowDecompositionComputer() {
         this(new FlowDecompositionParameters());
@@ -43,6 +44,7 @@ public class FlowDecompositionComputer {
         this.loadFlowParameters = loadFlowParameters;
         this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
         this.sensitivityAnalysisRunner = SensitivityAnalysis.find(sensitivityAnalysisProvider);
+        this.lossesCompensator = parameters.isLossesCompensationEnabled() ? new LossesCompensator(parameters) : null;
     }
 
     public FlowDecompositionComputer(FlowDecompositionParameters flowDecompositionParameters,
@@ -56,6 +58,7 @@ public class FlowDecompositionComputer {
     }
 
     public FlowDecompositionResults run(XnecProvider xnecProvider, Network network) {
+        addZeroMWLossesLoadsOnBuses(network);
         NetworkStateManager networkStateManager = new NetworkStateManager(network, xnecProvider);
 
         LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
@@ -80,6 +83,12 @@ public class FlowDecompositionComputer {
                 glsks));
         networkStateManager.deleteAllContingencyVariants();
         return flowDecompositionResults;
+    }
+
+    private void addZeroMWLossesLoadsOnBuses(Network network) {
+        if (parameters.isLossesCompensationEnabled()) {
+            LossesCompensator.addZeroMWLossesLoadsOnBuses(network);
+        }
     }
 
     private void decomposeFlowForNState(Network network,
@@ -170,7 +179,6 @@ public class FlowDecompositionComputer {
 
     private void compensateLosses(Network network) {
         if (parameters.isLossesCompensationEnabled()) {
-            LossesCompensator lossesCompensator = new LossesCompensator(parameters);
             lossesCompensator.compensateLossesOnBranches(network);
         }
     }

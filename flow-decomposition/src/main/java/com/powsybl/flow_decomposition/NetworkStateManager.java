@@ -10,6 +10,8 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Network;
 
 /**
+ * This class handles the creation, management and destruction of network states based on a xnec provider
+ *
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class NetworkStateManager {
@@ -18,7 +20,6 @@ class NetworkStateManager {
 
     public NetworkStateManager(Network network, XnecProvider xnecProvider) {
         this.network = network;
-        LossesCompensator.addZeroMWLossesLoadsOnBuses(network);
         this.variantManager = new VariantManager(network, xnecProvider);
         variantManager.createAVariantPerContingency(network);
     }
