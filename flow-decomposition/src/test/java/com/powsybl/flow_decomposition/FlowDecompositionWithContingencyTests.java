@@ -44,7 +44,6 @@ class FlowDecompositionWithContingencyTests {
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -1269.932, -22.027);
-        // validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -1270., 61.8, EPSILON);
     }
 
     @Test
@@ -72,9 +71,6 @@ class FlowDecompositionWithContingencyTests {
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         validateFlowDecompositionOnXnec(xnecId1, branchId, contingencyId1, decomposedFlowMap.get(xnecId1), -300.420, -15.496);
         validateFlowDecompositionOnXnec(xnecId2, branchId, contingencyId2, decomposedFlowMap.get(xnecId2), -1269.932, -22.027);
-        // TODO Erase old tests
-        // validateFlowDecompositionOnXnec(xnecId1, branchId, contingencyId1, decomposedFlowMap.get(xnecId1), -300.5, 43.5, EPSILON);
-        // validateFlowDecompositionOnXnec(xnecId2, branchId, contingencyId2, decomposedFlowMap.get(xnecId2), -1270., 61.8, EPSILON);
     }
 
     @Test
@@ -100,8 +96,6 @@ class FlowDecompositionWithContingencyTests {
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -406.204, 3.329);
-        // TODO Erase old tests
-        // validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -406, 101.3, 10 * EPSILON);
     }
 
     @Test
@@ -134,10 +128,6 @@ class FlowDecompositionWithContingencyTests {
         validateFlowDecompositionOnXnec(xnecId1, branchId, contingencyId1, decomposedFlowMap.get(xnecId1), -300.420, -15.496);
         validateFlowDecompositionOnXnec(xnecId2, branchId, contingencyId2, decomposedFlowMap.get(xnecId2), -1269.932, -22.027);
         validateFlowDecompositionOnXnec(xnecId3, branchId, contingencyId3, decomposedFlowMap.get(xnecId3), -406.204, 3.329);
-        // TODO Erase old tests
-        // validateFlowDecompositionOnXnec(xnecId1, branchId, contingencyId1, decomposedFlowMap.get(xnecId1), -300.5, 43.5, EPSILON);
-        // validateFlowDecompositionOnXnec(xnecId2, branchId, contingencyId2, decomposedFlowMap.get(xnecId2), -1270., 61.8, EPSILON);
-        // validateFlowDecompositionOnXnec(xnecId3, branchId, contingencyId3, decomposedFlowMap.get(xnecId3), -406, 101.3, 10 * EPSILON);
     }
 
     private static void validateFlowDecompositionOnXnec(String xnecId,
