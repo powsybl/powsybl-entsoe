@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition.xnec_provider;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.flow_decomposition.GlskComputer;
 import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.flow_decomposition.XnecProvider;
@@ -16,6 +17,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityVariableType;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -31,8 +33,20 @@ import java.util.stream.Collectors;
 public class XnecProvider5percPtdf implements XnecProvider {
     public static final double MAX_ZONE_TO_ZONE_PTDF_THRESHOLD = 0.05;
 
-    @Override
-    public List<Branch> getNetworkElements(Network network) {
+    private static boolean isAXnec(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
+        return XnecProviderInterconnection.isAnInterconnection(branch) || hasMoreThan5PercentPtdf(getZonalPtdf(branch, zonalPtdf));
+    }
+
+    private static Collection<Double> getZonalPtdf(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
+        return zonalPtdf.getOrDefault(branch.getId(), Collections.emptyMap()).values();
+    }
+
+    private static boolean hasMoreThan5PercentPtdf(Collection<Double> countryPtdfList) {
+        return (!countryPtdfList.isEmpty())
+            && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
+    }
+
+    public static List<Branch> getBranches(Network network) {
         GlskComputer glskComputer = new GlskComputer();
         Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
         ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(LoadFlowParameters.load(), SensitivityAnalysis.find());
@@ -43,16 +57,23 @@ public class XnecProvider5percPtdf implements XnecProvider {
             .collect(Collectors.toList());
     }
 
-    private boolean isAXnec(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
-        return XnecProviderInterconnection.isAnInterconnection(branch) || hasMoreThan5PercentPtdf(getZonalPtdf(branch, zonalPtdf));
+    @Override
+    public List<Branch> getNetworkElements(Network network) {
+        return getBranches(network);
     }
 
-    private Collection<Double> getZonalPtdf(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
-        return zonalPtdf.getOrDefault(branch.getId(), Collections.emptyMap()).values();
+    @Override
+    public List<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+        return Collections.emptyList();
     }
 
-    private static boolean hasMoreThan5PercentPtdf(Collection<Double> countryPtdfList) {
-        return (!countryPtdfList.isEmpty())
-            && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
+    @Override
+    public Map<String, List<Branch>> getNetworkElementsPerContingency(Network network) {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public List<Contingency> getContingencies(Network network) {
+        return Collections.emptyList();
     }
 }

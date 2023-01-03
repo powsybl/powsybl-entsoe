@@ -86,4 +86,8 @@ public final class NetworkUtil {
     static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
+
+    static String getXnecId(String contingencyId, String branchId) {
+        return contingencyId.isEmpty() ? branchId : String.format("%s_%s", branchId, contingencyId);
+    }
 }

@@ -10,7 +10,6 @@ import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +29,7 @@ class AllocatedFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
-        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecFrBee));
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecFrBee)).build();
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(xnecProvider, network);
 
         String networkId = flowDecompositionResults.getNetworkId();
@@ -55,7 +54,7 @@ class AllocatedFlowTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
-        XnecProvider xnecProvider = new XnecProviderByIds(List.of(xnecFrBee));
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecFrBee)).build();
         FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(xnecProvider, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
