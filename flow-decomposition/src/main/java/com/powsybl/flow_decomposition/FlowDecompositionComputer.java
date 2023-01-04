@@ -14,6 +14,8 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityVariableType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class FlowDecompositionComputer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     static final String DEFAULT_LOAD_FLOW_PROVIDER = null;
     static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = null;
     private final LoadFlowParameters loadFlowParameters;
@@ -58,6 +61,7 @@ public class FlowDecompositionComputer {
     public FlowDecompositionResults run(XnecProvider xnecProvider, Network network) {
         NetworkStateManager networkStateManager = new NetworkStateManager(network, xnecProvider);
 
+        LOGGER.debug("Running AC load flow");
         LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
 
         Map<Country, Map<String, Double>> glsks = getGlsks(network);
@@ -115,12 +119,15 @@ public class FlowDecompositionComputer {
                                        Map<Country, Double> netPositions,
                                        Map<Country, Map<String, Double>> glsks,
                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
+        LOGGER.debug("Starting flow decomposition");
         saveAcReferenceFlow(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
+        LOGGER.debug("Compensating losses");
         compensateLosses(network);
 
         // None
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecList));
 
+        LOGGER.debug("Running DC load flow");
         runDcLoadFlow(network);
 
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
@@ -128,14 +135,17 @@ public class FlowDecompositionComputer {
         saveDcReferenceFlow(flowDecompositionResultsBuilder, xnecList);
 
         // DC Sensi
+        LOGGER.debug("Running DC sensitivity");
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet ptdfMatrix = getPtdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
         SparseMatrixWithIndexesTriplet psdfMatrix = getPsdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
 
         // None
+        LOGGER.debug("Computing flows for current state");
         computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);
         computePstFlows(network, flowDecompositionResultsBuilder, networkMatrixIndexes, psdfMatrix);
 
+        LOGGER.debug("Building results for current state");
         flowDecompositionResultsBuilder.build(parameters.isRescaleEnabled());
     }
 

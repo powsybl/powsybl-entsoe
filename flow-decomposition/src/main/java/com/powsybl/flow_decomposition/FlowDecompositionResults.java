@@ -6,10 +6,13 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -33,13 +36,15 @@ import static com.powsybl.flow_decomposition.NetworkUtil.LOOP_FLOWS_COLUMN_PREFI
  * @see DecomposedFlow
  */
 public class FlowDecompositionResults {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionResults.class);
     private static final String NO_CONTINGENCY_ID = "";
     private final String networkId;
     private final String id;
     private final Set<Country> zoneSet;
-    private final Map<String, DecomposedFlow> decomposedFlowMap = new HashMap<>();
+    private Map<String, DecomposedFlow> decomposedFlowMap = new HashMap<>();
 
     class PerStateBuilder {
+        private static final double EPSILON = 1e-1;
         private final Map<String, Branch> xnecMap;
         private final String contingencyId;
         private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
@@ -69,10 +74,16 @@ public class FlowDecompositionResults {
         }
 
         void build(boolean isRescaleEnable) {
+            decomposedFlowMap = new HashMap<>();
             allocatedAndLoopFlowsMatrix.toMap()
                 .forEach((branchId, decomposedFlow) -> {
                     String xnecId = NetworkUtil.getXnecId(contingencyId, branchId);
                     decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, isRescaleEnable));
+                    DecomposedFlow decomposedFlow1 = decomposedFlowMap.get(xnecId);
+                    if (((Math.abs(decomposedFlow1.getTotalFlow() - Math.abs(decomposedFlow1.getDcReferenceFlow())) > EPSILON) && !isRescaleEnable)
+                        || ((Math.abs(decomposedFlow1.getTotalFlow() - Math.abs(decomposedFlow1.getAcReferenceFlow())) > EPSILON) && isRescaleEnable)) {
+                        LOGGER.error("Coherence is not valid for xnec {}", xnecId);
+                    }
                 });
         }
 
