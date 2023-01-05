@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
@@ -22,6 +21,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.powsybl.flow_decomposition.TestUtils.getLossOnBus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -42,25 +42,13 @@ class CgmesIntegrationTests {
             ));
 
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
-        LossesCompensator.addZeroMWLossesLoadsOnBuses(network);
-        lossesCompensator.compensateLossesOnBranches(network);
+        lossesCompensator.run(network);
 
         busToLossMap.forEach((bus, losses) -> {
-            Load load = network.getLoad(String.format("LOSSES %s", bus.getId()));
+            Load load = network.getLoad(LossesCompensator.getLossesId(bus.getId()));
             assertNotNull(load);
             assertEquals(losses, load.getP0());
         });
-    }
-
-    private static double getLossOnBus(Network network, Bus bus) {
-        return network.getBranchStream()
-            .filter(branch -> terminalIsSendingPowerToBus(branch.getTerminal1(), bus) || terminalIsSendingPowerToBus(branch.getTerminal2(), bus))
-            .mapToDouble(branch -> branch.getTerminal1().getP() + branch.getTerminal2().getP())
-            .sum();
-    }
-
-    private static boolean terminalIsSendingPowerToBus(Terminal terminal, Bus bus) {
-        return terminal.getBusBreakerView().getBus() == bus && terminal.getP() > 0;
     }
 
     @Test

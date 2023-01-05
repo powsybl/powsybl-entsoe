@@ -6,7 +6,9 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 
 import java.nio.file.Paths;
 
@@ -37,5 +39,16 @@ public final class TestUtils {
                 assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
             }
         }
+    }
+
+    static double getLossOnBus(Network network, Bus bus) {
+        return network.getBranchStream()
+            .filter(branch -> terminalIsSendingPowerToBus(branch.getTerminal1(), bus) || terminalIsSendingPowerToBus(branch.getTerminal2(), bus))
+            .mapToDouble(branch -> branch.getTerminal1().getP() + branch.getTerminal2().getP())
+            .sum();
+    }
+
+    private static boolean terminalIsSendingPowerToBus(Terminal terminal, Bus bus) {
+        return terminal.getBusBreakerView().getBus() == bus && terminal.getP() > 0;
     }
 }

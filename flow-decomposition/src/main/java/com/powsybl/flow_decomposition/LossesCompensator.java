@@ -21,9 +21,11 @@ import java.util.stream.Stream;
  */
 class LossesCompensator {
     private final double epsilon;
+    private Integer networkHash;
 
     LossesCompensator(double epsilon) {
         this.epsilon = epsilon;
+        networkHash = null;
     }
 
     LossesCompensator(FlowDecompositionParameters parameters) {
@@ -34,7 +36,15 @@ class LossesCompensator {
         return String.format("LOSSES %s", id);
     }
 
-    static void addZeroMWLossesLoadsOnBuses(Network network) {
+    public void run(Network network) {
+        if (networkHash == null || networkHash != network.hashCode()) {
+            addZeroMWLossesLoadsOnBuses(network);
+            networkHash = network.hashCode();
+        }
+        compensateLossesOnBranches(network);
+    }
+
+    private void addZeroMWLossesLoadsOnBuses(Network network) {
         // We want to add a single null load per bus
         // Mapping by bus Id is important as bus are generated on-fly
         // This matters for node breaker topology
@@ -46,7 +56,7 @@ class LossesCompensator {
             .forEach(busId -> addZeroMWLossesLoad(network, busId));
     }
 
-    void compensateLossesOnBranches(Network network) {
+    private void compensateLossesOnBranches(Network network) {
         network.getBranchStream()
             .filter(this::hasBuses)
             .filter(this::hasP0s)

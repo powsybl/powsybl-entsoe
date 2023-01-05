@@ -58,7 +58,6 @@ public class FlowDecompositionComputer {
     }
 
     public FlowDecompositionResults run(XnecProvider xnecProvider, Network network) {
-        addZeroMWLossesLoadsOnBuses(network);
         NetworkStateManager networkStateManager = new NetworkStateManager(network, xnecProvider);
 
         LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
@@ -83,12 +82,6 @@ public class FlowDecompositionComputer {
                 glsks));
         networkStateManager.deleteAllContingencyVariants();
         return flowDecompositionResults;
-    }
-
-    private void addZeroMWLossesLoadsOnBuses(Network network) {
-        if (parameters.isLossesCompensationEnabled()) {
-            LossesCompensator.addZeroMWLossesLoadsOnBuses(network);
-        }
     }
 
     private void decomposeFlowForNState(Network network,
@@ -179,7 +172,7 @@ public class FlowDecompositionComputer {
 
     private void compensateLosses(Network network) {
         if (parameters.isLossesCompensationEnabled()) {
-            lossesCompensator.compensateLossesOnBranches(network);
+            lossesCompensator.run(network);
         }
     }
 
