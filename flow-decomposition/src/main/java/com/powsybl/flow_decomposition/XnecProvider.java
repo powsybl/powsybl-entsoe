@@ -28,7 +28,6 @@ public interface XnecProvider extends ContingenciesProvider {
     /**
      * Return XNEC given contingency
      *
-     *
      * @param contingencyId mandatory contingency name.
      *                      The contingencies will be provided by the contingency provider
      * @param network network used to find branches.
