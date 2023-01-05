@@ -9,7 +9,6 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,10 +28,12 @@ public interface XnecProvider extends ContingenciesProvider {
     /**
      * Return XNEC given contingency
      *
+     * @param contingencyId mandatory contingency name.
+     *                      The contingencies will be provided by the contingency provider
      * @param network network used to find branches.
      * @return a set of branches to monitor
      */
-    Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network);
+    Set<Branch> getNetworkElements(String contingencyId, Network network);
 
     /**
      * Return all XNECs mapped by contingency (basecase not included)

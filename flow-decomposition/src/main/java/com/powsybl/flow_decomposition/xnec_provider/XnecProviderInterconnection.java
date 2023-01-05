@@ -12,9 +12,8 @@ import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import java.util.Collections;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +38,7 @@ public class XnecProviderInterconnection implements XnecProvider {
     }
 
     @Override
-    public Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
         return Collections.emptySet();
     }
 
