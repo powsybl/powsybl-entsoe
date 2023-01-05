@@ -27,8 +27,6 @@ public class XnecProviderAllBranches implements XnecProvider {
     }
 
     @Override
-    public Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
-        return Collections.emptySet();
     public Set<Branch> getNetworkElements(String contingencyId, Network network) {
         return Collections.emptySet();
     }

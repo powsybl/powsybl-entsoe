@@ -34,7 +34,6 @@ public interface XnecProvider extends ContingenciesProvider {
      * @param network network used to find branches.
      * @return a set of branches to monitor
      */
-    Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network);
     Set<Branch> getNetworkElements(String contingencyId, Network network);
 
     /**

@@ -118,7 +118,6 @@ public final class XnecProviderByIds implements XnecProvider {
     }
 
     @Override
-    public Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
     public Set<Branch> getNetworkElements(String contingencyId, Network network) {
         Objects.requireNonNull(contingencyId, "Contingency Id must be specified");
         if (!contingencyIdToContingencyMap.containsKey(contingencyId)) {
