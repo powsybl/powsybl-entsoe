@@ -101,11 +101,9 @@ class NodalInjectionTests {
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
-        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer(networkMatrixIndexes);
-        Map<String, Double> dcNodalInjection = referenceNodalInjectionComputer.run();
         NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = nodalInjectionComputer.run(network,
-            glsks, netPositions, dcNodalInjection);
+            glsks, netPositions);
         return nodalInjectionsMatrix.toMap();
     }
 
@@ -117,7 +115,7 @@ class NodalInjectionTests {
         }
         List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
-        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer(networkMatrixIndexes);
-        return referenceNodalInjectionComputer.run();
+        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
+        return referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
     }
 }

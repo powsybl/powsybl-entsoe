@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Injection;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -18,14 +19,11 @@ import java.util.stream.Collectors;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class ReferenceNodalInjectionComputer {
-    private final NetworkMatrixIndexes networkMatrixIndexes;
-
-    ReferenceNodalInjectionComputer(NetworkMatrixIndexes networkMatrixIndexes) {
-        this.networkMatrixIndexes = networkMatrixIndexes;
+    ReferenceNodalInjectionComputer() {
     }
 
-    Map<String, Double> run() {
-        return networkMatrixIndexes.getNodeList().stream()
+    Map<String, Double> run(List<Injection<?>> nodeList) {
+        return nodeList.stream()
             .collect(Collectors.toMap(
                 Identifiable::getId,
                 this::getReferenceInjection
