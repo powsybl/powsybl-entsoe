@@ -13,7 +13,6 @@ import com.powsybl.contingency.ContingencyBuilder;
 import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +103,7 @@ public final class XnecProviderByIds implements XnecProvider {
         return branchSet.stream()
             .map(xnecId -> {
                 Branch branch = network.getBranch(xnecId);
-                if (Objects.isNull(branch)) {
+                if (branch == null) {
                     LOGGER.warn("Branch {} without contingency was not found in network {}", xnecId, network.getId());
                 }
                 return branch;
@@ -120,6 +119,8 @@ public final class XnecProviderByIds implements XnecProvider {
 
     @Override
     public Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
+        Objects.requireNonNull(contingencyId, "Contingency Id must be specified");
         if (!contingencyIdToContingencyMap.containsKey(contingencyId)) {
             return Collections.emptySet();
         }

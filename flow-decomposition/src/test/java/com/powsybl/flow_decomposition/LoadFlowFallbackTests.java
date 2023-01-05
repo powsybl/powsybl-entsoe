@@ -16,6 +16,7 @@ import org.junit.jupiter.api.function.Executable;
 
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,7 +37,8 @@ class LoadFlowFallbackTests {
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of("UNUSED")).build();
         Executable flowComputerExecutable = () -> flowComputer.run(xnecProvider, network);
-        assertThrows(PowsyblException.class, flowComputerExecutable, FALLBACK_MESSAGE);
+        Exception exception = assertThrows(PowsyblException.class, flowComputerExecutable, FALLBACK_MESSAGE);
+        assertEquals("AC loadfow divergence without fallback procedure enabled.", exception.getMessage());
     }
 
     @Test
@@ -79,6 +81,7 @@ class LoadFlowFallbackTests {
         LoadFlowRunningService loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find());
         Executable loadFlowRunningServiceExecutable = () -> loadFlowRunningService.runAcLoadflow(
             network, new LoadFlowParameters(), LoadFlowRunningService.FALLBACK_HAS_NOT_BEEN_ACTIVATED);
-        assertThrows(PowsyblException.class, loadFlowRunningServiceExecutable, FALLBACK_MESSAGE);
+        Exception exception = assertThrows(PowsyblException.class, loadFlowRunningServiceExecutable, FALLBACK_MESSAGE);
+        assertEquals("AC loadfow divergence without fallback procedure enabled.", exception.getMessage());
     }
 }
