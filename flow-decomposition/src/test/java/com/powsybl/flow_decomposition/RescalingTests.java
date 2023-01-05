@@ -16,7 +16,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -57,7 +59,7 @@ class RescalingTests {
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Country country1 = Country.FR;
         Country country2 = Country.FR;
-        return new DecomposedFlow("", "", loopFlows, internalFlow, allocatedFlow, pstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
+        return new DecomposedFlow("", "", country1, country2, acReferenceFlow, dcReferenceFlow, allocatedFlow, 0, pstFlow, internalFlow, loopFlows);
     }
 
     private DecomposedFlow getRescaledFlow(double acReferenceFlow, double dcReferenceFlow) {

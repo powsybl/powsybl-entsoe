@@ -17,6 +17,12 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.powsybl.flow_decomposition.DecomposedFlow.ALLOCATED_COLUMN_NAME;
+import static com.powsybl.flow_decomposition.DecomposedFlow.NO_FLOW;
+import static com.powsybl.flow_decomposition.DecomposedFlow.PST_COLUMN_NAME;
+import static com.powsybl.flow_decomposition.DecomposedFlow.XNODE_COLUMN_NAME;
+import static com.powsybl.flow_decomposition.NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX;
+
 /**
  * This class provides flow decomposition results from a network.
  * Those results are returned by a flowDecompositionComputer when run on a network.
@@ -34,7 +40,6 @@ public class FlowDecompositionResults {
     private final Map<String, DecomposedFlow> decomposedFlowMap = new HashMap<>();
 
     class PerStateBuilder {
-        private static final double NO_FLOW = 0.;
         private final Map<String, Branch> xnecMap;
         private final String contingencyId;
         private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
@@ -73,18 +78,15 @@ public class FlowDecompositionResults {
 
         private DecomposedFlow createDecomposedFlow(String branchId, Map<String, Double> allocatedAndLoopFlowMap, boolean isRescaleEnable) {
             Map<String, Double> loopFlowsMap = allocatedAndLoopFlowMap.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith(NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX))
+                .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            double allocatedFlow = allocatedAndLoopFlowMap.get(DecomposedFlow.ALLOCATED_COLUMN_NAME);
-            double pstFlow = pstFlowMap.getOrDefault(branchId, Collections.emptyMap()).getOrDefault(DecomposedFlow.PST_COLUMN_NAME, NO_FLOW);
+            double allocatedFlow = allocatedAndLoopFlowMap.get(ALLOCATED_COLUMN_NAME);
+            double pstFlow = pstFlowMap.getOrDefault(branchId, Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW);
+            double xNodeFlow = allocatedAndLoopFlowMap.getOrDefault(XNODE_COLUMN_NAME, NO_FLOW);
             Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
             Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());
             double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
-            DecomposedFlow decomposedFlow = new DecomposedFlow(branchId, contingencyId,
-                loopFlowsMap, internalFlow, allocatedFlow, pstFlow,
-                acReferenceFlow.get(branchId), dcReferenceFlow.get(branchId),
-                country1, country2
-            );
+            DecomposedFlow decomposedFlow = new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow.get(branchId), dcReferenceFlow.get(branchId), allocatedFlow, xNodeFlow, pstFlow, internalFlow, loopFlowsMap);
             if (isRescaleEnable) {
                 return DecomposedFlowsRescaler.rescale(decomposedFlow);
             }

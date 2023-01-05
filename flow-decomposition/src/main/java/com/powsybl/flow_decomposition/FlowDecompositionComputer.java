@@ -185,23 +185,7 @@ public class FlowDecompositionComputer {
                                                                     NetworkMatrixIndexes networkMatrixIndexes,
                                                                     Map<Country, Map<String, Double>> glsks) {
         NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes);
-        Map<String, Double> dcNodalInjection = getDcNodalInjection(networkMatrixIndexes);
-
-        return getNodalInjectionsMatrix(network, netPositions, glsks,
-            nodalInjectionComputer, dcNodalInjection);
-    }
-
-    private Map<String, Double> getDcNodalInjection(NetworkMatrixIndexes networkMatrixIndexes) {
-        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer(networkMatrixIndexes);
-        return referenceNodalInjectionComputer.run();
-    }
-
-    private SparseMatrixWithIndexesTriplet getNodalInjectionsMatrix(Network network,
-                                                                    Map<Country, Double> netPositions,
-                                                                    Map<Country, Map<String, Double>> glsks,
-                                                                    NodalInjectionComputer nodalInjectionComputer,
-                                                                    Map<String, Double> dcNodalInjection) {
-        return nodalInjectionComputer.run(network, glsks, netPositions, dcNodalInjection);
+        return nodalInjectionComputer.run(network, glsks, netPositions);
     }
 
     private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList) {

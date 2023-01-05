@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public final class TestUtils {
-    private static final double EPSILON = 1e-1;
+    private static final double EPSILON = 1e-6;
 
     private TestUtils() {
     }

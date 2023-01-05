@@ -30,24 +30,31 @@ final class DecomposedFlowsRescaler {
     static DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
         String branchId = decomposedFlow.getBranchId();
         String contingencyId = decomposedFlow.getContingencyId();
-        double allocatedFlow = decomposedFlow.getAllocatedFlow();
-        double pstFlow = decomposedFlow.getPstFlow();
-        Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
-        double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
-        double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
         Country country1 = decomposedFlow.getCountry1();
         Country country2 = decomposedFlow.getCountry2();
+
+        double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
+        double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
+        double allocatedFlow = decomposedFlow.getAllocatedFlow();
+        double xNodeFlow = decomposedFlow.getXNodeFlow();
+        double pstFlow = decomposedFlow.getPstFlow();
         double internalFlow = decomposedFlow.getInternalFlow();
+        Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
+
         if (Double.isNaN(acReferenceFlow)) {
             return decomposedFlow;
         }
+
         double deltaToRescale = acReferenceFlow * Math.signum(acReferenceFlow) - decomposedFlow.getTotalFlow();
-        double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + loopFlows.values().stream().mapToDouble(DecomposedFlowsRescaler::reLU).sum() + reLU(internalFlow);
-        Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
+        double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + reLU(xNodeFlow) + loopFlows.values().stream().mapToDouble(DecomposedFlowsRescaler::reLU).sum() + reLU(internalFlow);
+
         double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
+        double rescaledXNodeFlow = rescaleValue(xNodeFlow, deltaToRescale, sumOfReLUFlows);
         double rescaledPstFlow = rescaleValue(pstFlow, deltaToRescale, sumOfReLUFlows);
         double rescaleInternalFlow = rescaleValue(internalFlow, deltaToRescale, sumOfReLUFlows);
-        return new DecomposedFlow(branchId, contingencyId, rescaledLoopFlows, rescaleInternalFlow, rescaledAllocatedFlow, rescaledPstFlow, acReferenceFlow, dcReferenceFlow, country1, country2);
+        Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
+
+        return new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow, dcReferenceFlow, rescaledAllocatedFlow, rescaledXNodeFlow, rescaledPstFlow, rescaleInternalFlow, rescaledLoopFlows);
     }
 }

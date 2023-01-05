@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class FlowDecompositionWithContingencyTests {
-    private static final double EPSILON = 1e-1;
+    private static final double EPSILON = 1e-3;
 
     @Test
     void testSingleN1PostContingencyState() {
@@ -40,9 +40,10 @@ class FlowDecompositionWithContingencyTests {
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.isRescaleEnabled(), flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
-        validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -1270., 61.8, EPSILON);
+        validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -1269.932, -22.027);
     }
 
     @Test
@@ -65,10 +66,11 @@ class FlowDecompositionWithContingencyTests {
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.isRescaleEnabled(), flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
-        validateFlowDecompositionOnXnec(xnecId1, branchId, contingencyId1, decomposedFlowMap.get(xnecId1), -300.5, 43.5, EPSILON);
-        validateFlowDecompositionOnXnec(xnecId2, branchId, contingencyId2, decomposedFlowMap.get(xnecId2), -1270., 61.8, EPSILON);
+        validateFlowDecompositionOnXnec(xnecId1, branchId, contingencyId1, decomposedFlowMap.get(xnecId1), -300.420, -15.496);
+        validateFlowDecompositionOnXnec(xnecId2, branchId, contingencyId2, decomposedFlowMap.get(xnecId2), -1269.932, -22.027);
     }
 
     @Test
@@ -90,9 +92,10 @@ class FlowDecompositionWithContingencyTests {
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.isRescaleEnabled(), flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
-        validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -406, 101.3, 10 * EPSILON);
+        validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -406.204, 3.329);
     }
 
     @Test
@@ -119,11 +122,12 @@ class FlowDecompositionWithContingencyTests {
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.isRescaleEnabled(), flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
-        validateFlowDecompositionOnXnec(xnecId1, branchId, contingencyId1, decomposedFlowMap.get(xnecId1), -300.5, 43.5, EPSILON);
-        validateFlowDecompositionOnXnec(xnecId2, branchId, contingencyId2, decomposedFlowMap.get(xnecId2), -1270., 61.8, EPSILON);
-        validateFlowDecompositionOnXnec(xnecId3, branchId, contingencyId3, decomposedFlowMap.get(xnecId3), -406, 101.3, 10 * EPSILON);
+        validateFlowDecompositionOnXnec(xnecId1, branchId, contingencyId1, decomposedFlowMap.get(xnecId1), -300.420, -15.496);
+        validateFlowDecompositionOnXnec(xnecId2, branchId, contingencyId2, decomposedFlowMap.get(xnecId2), -1269.932, -22.027);
+        validateFlowDecompositionOnXnec(xnecId3, branchId, contingencyId3, decomposedFlowMap.get(xnecId3), -406.204, 3.329);
     }
 
     private static void validateFlowDecompositionOnXnec(String xnecId,
@@ -131,12 +135,11 @@ class FlowDecompositionWithContingencyTests {
                                                         String contingencyId,
                                                         DecomposedFlow decomposedFlow,
                                                         double expectedDcReferenceFlow,
-                                                        double expectedFrLoopFlow,
-                                                        double epsilonDcReference) {
+                                                        double expectedFrLoopFlow) {
         assertEquals(branchId, decomposedFlow.getBranchId());
         assertEquals(contingencyId, decomposedFlow.getContingencyId());
         assertEquals(xnecId, decomposedFlow.getId());
-        assertEquals(expectedDcReferenceFlow, decomposedFlow.getDcReferenceFlow(), epsilonDcReference);
+        assertEquals(expectedDcReferenceFlow, decomposedFlow.getDcReferenceFlow(), EPSILON);
         assertEquals(expectedFrLoopFlow, decomposedFlow.getLoopFlow(Country.FR), EPSILON);
     }
 }

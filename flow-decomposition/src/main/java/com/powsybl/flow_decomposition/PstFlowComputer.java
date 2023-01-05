@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.PhaseTapChangerStep;
 
 import java.util.Optional;
 
+import static com.powsybl.flow_decomposition.DecomposedFlow.PST_COLUMN_NAME;
+
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -27,7 +29,7 @@ class PstFlowComputer {
     private SparseMatrixWithIndexesTriplet getDeltaTapMatrix(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
         SparseMatrixWithIndexesTriplet deltaTapMatrix =
             new SparseMatrixWithIndexesTriplet(networkMatrixIndexes.getPstIndex(),
-                DecomposedFlow.PST_COLUMN_NAME, networkMatrixIndexes.getPstCount());
+                PST_COLUMN_NAME, networkMatrixIndexes.getPstCount());
         for (String pst : networkMatrixIndexes.getPstList()) {
             PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(pst).getPhaseTapChanger();
             Optional<PhaseTapChangerStep> neutralStep = phaseTapChanger.getNeutralStep();
@@ -35,7 +37,7 @@ class PstFlowComputer {
             if (neutralStep.isPresent()) {
                 deltaTap = phaseTapChanger.getCurrentStep().getAlpha() - neutralStep.get().getAlpha();
             }
-            deltaTapMatrix.addItem(pst, DecomposedFlow.PST_COLUMN_NAME, deltaTap);
+            deltaTapMatrix.addItem(pst, PST_COLUMN_NAME, deltaTap);
         }
         return deltaTapMatrix;
     }
