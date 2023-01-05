@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityVariableType;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -64,7 +63,7 @@ public class XnecProvider5percPtdf implements XnecProvider {
     }
 
     @Override
-    public Set<Branch> getNetworkElements(@NonNull String contingencyId, Network network) {
+    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
         return Collections.emptySet();
     }
 

@@ -240,7 +240,8 @@ class XnecProviderByIdsTests {
 
     @Test
     void testContingencyIdNotDefined() {
-        assertThrows(PowsyblException.class, () -> XnecProviderByIds.builder().addNetworkElementsAfterContingencies(Collections.emptySet(), Collections.singleton("NON EXISTING CONTINGENCY ID")));
+        Exception exception = assertThrows(PowsyblException.class, () -> XnecProviderByIds.builder().addNetworkElementsAfterContingencies(Collections.emptySet(), Collections.singleton("NON EXISTING CONTINGENCY ID")));
+        assertEquals("Contingency Id 'NON EXISTING CONTINGENCY ID' have not been defined. See addContingency and/or addContingencies", exception.getMessage());
     }
 
     @Test
@@ -248,5 +249,20 @@ class XnecProviderByIdsTests {
         String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES_NON_NEUTRAL.uct";
         Network network = TestUtils.importNetwork(networkFileName);
         assertTrue(XnecProviderByIds.builder().build().getNetworkElements("NON PRESENT CONTINGENCY ID", network).isEmpty());
+    }
+
+    @Test
+    void testContingencyIdNotNull() {
+        String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES_NON_NEUTRAL.uct";
+        String x1 = "FGEN  11 BLOAD 11 1";
+        String x2 = "FGEN  11 BLOAD 12 1";
+
+        Network network = TestUtils.importNetwork(networkFileName);
+        XnecProvider xnecProvider = XnecProviderByIds.builder()
+            .addContingency(x2, Set.of(x2))
+            .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
+            .build();
+        Exception exception = assertThrows(NullPointerException.class, () -> xnecProvider.getNetworkElements(null, network));
+        assertEquals("Contingency Id must be specified", exception.getMessage());
     }
 }
