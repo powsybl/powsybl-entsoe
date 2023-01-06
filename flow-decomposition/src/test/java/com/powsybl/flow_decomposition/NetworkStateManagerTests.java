@@ -8,7 +8,6 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +16,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -48,18 +46,13 @@ class NetworkStateManagerTests {
         assertTrue(variantIds.contains(contingencyId2));
         assertTrue(variantIds.contains(contingencyId3));
 
-        // Zero MW losses everywhere
+        // Change variants
         variantIds.forEach(variantId -> {
             networkStateManager.setNetworkVariant(variantId);
             assertEquals(variantId, network.getVariantManager().getWorkingVariantId());
-            network.getBusBreakerView().getBuses().forEach(bus -> {
-                Load load = network.getLoad(LossesCompensator.getLossesId(bus.getId()));
-                assertNotNull(load);
-                assertEquals(0.0, load.getP0());
-            });
         });
 
-        //Delete all variants
+        // Delete all variants
         networkStateManager.deleteAllContingencyVariants();
         assertEquals(1, variantIds.size());
         assertTrue(variantIds.contains("InitialState"));

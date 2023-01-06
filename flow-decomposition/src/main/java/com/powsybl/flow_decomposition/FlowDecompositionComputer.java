@@ -31,6 +31,7 @@ public class FlowDecompositionComputer {
     private final FlowDecompositionParameters parameters;
     private final LoadFlowRunningService loadFlowRunningService;
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
+    private final LossesCompensator lossesCompensator;
 
     public FlowDecompositionComputer() {
         this(new FlowDecompositionParameters());
@@ -43,6 +44,7 @@ public class FlowDecompositionComputer {
         this.loadFlowParameters = loadFlowParameters;
         this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
         this.sensitivityAnalysisRunner = SensitivityAnalysis.find(sensitivityAnalysisProvider);
+        this.lossesCompensator = parameters.isLossesCompensationEnabled() ? new LossesCompensator(parameters) : null;
     }
 
     public FlowDecompositionComputer(FlowDecompositionParameters flowDecompositionParameters,
@@ -170,8 +172,7 @@ public class FlowDecompositionComputer {
 
     private void compensateLosses(Network network) {
         if (parameters.isLossesCompensationEnabled()) {
-            LossesCompensator lossesCompensator = new LossesCompensator(parameters);
-            lossesCompensator.compensateLossesOnBranches(network);
+            lossesCompensator.run(network);
         }
     }
 

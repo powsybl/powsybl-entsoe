@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -14,13 +15,21 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static com.powsybl.flow_decomposition.TestUtils.getLossOnBus;
 import static com.powsybl.flow_decomposition.TestUtils.importNetwork;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class LossesCompensationTests {
     private static final double EPSILON = 1e-3;
@@ -160,5 +169,113 @@ class LossesCompensationTests {
         assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow(), EPSILON);
         assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.FR), EPSILON);
         assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.BE), EPSILON);
+    }
+
+    @Test
+    void testLossCompensationCanBeAppliedToNetworkWithVariants() {
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        loadFlowParameters.setDc(AC_LOAD_FLOW);
+
+        LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
+        Network network = importNetwork(networkFileName);
+        network.getVariantManager().cloneVariant("InitialState", "NewState");
+        int networkHash = network.hashCode();
+
+        LoadFlow.run(network, loadFlowParameters);
+        assertEquals(networkHash, network.hashCode());
+
+        Map<Bus, Double> busToLossMap = network.getBusBreakerView().getBusStream()
+            .collect(Collectors.toMap(Function.identity(), bus -> getLossOnBus(network, bus)
+            ));
+
+        lossesCompensator.run(network);
+        assertEquals(networkHash, network.hashCode());
+
+        busToLossMap.forEach((bus, losses) -> {
+            Load load = network.getLoad(LossesCompensator.getLossesId(bus.getId()));
+            assertNotNull(load);
+            assertEquals(losses, load.getP0());
+        });
+
+        network.getVariantManager().setWorkingVariant("NewState");
+        assertEquals(networkHash, network.hashCode());
+
+        // On the other variant, the loss loads are still zero MW
+        busToLossMap.keySet().forEach(bus -> {
+            Load load = network.getLoad(LossesCompensator.getLossesId(bus.getId()));
+            assertNotNull(load);
+            assertEquals(0.0, load.getP0());
+        });
+
+        LoadFlow.run(network, loadFlowParameters);
+        assertEquals(networkHash, network.hashCode());
+
+        lossesCompensator.run(network);
+        assertEquals(networkHash, network.hashCode());
+
+        // On the other variant, the loss loads are not zero MW anymore
+        busToLossMap.forEach((bus, losses) -> {
+            Load load = network.getLoad(LossesCompensator.getLossesId(bus.getId()));
+            assertEquals(losses, load.getP0());
+        });
+
+        network.getVariantManager().setWorkingVariant("InitialState");
+        assertEquals(networkHash, network.hashCode());
+
+        //But the loss loads have not been reset on the initial variant
+        busToLossMap.forEach((bus, losses) -> {
+            Load load = network.getLoad(LossesCompensator.getLossesId(bus.getId()));
+            assertEquals(losses, load.getP0());
+        });
+    }
+
+    @Test
+    void testLossCompensationComputerCanBeAppliedToMultipleNetworks() {
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        loadFlowParameters.setDc(AC_LOAD_FLOW);
+
+        LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+
+        String networkFileName1 = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
+        String networkFileName2 = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES_INVERTED.uct";
+
+        Network network1 = importNetwork(networkFileName1);
+        Network network2 = importNetwork(networkFileName2);
+
+        int hashCode1 = network1.hashCode();
+        int hashCode2 = network2.hashCode();
+        assertNotEquals(hashCode1, hashCode2);
+
+        LoadFlow.run(network1, loadFlowParameters);
+        LoadFlow.run(network2, loadFlowParameters);
+
+        assertEquals(hashCode1, network1.hashCode());
+        assertEquals(hashCode2, network2.hashCode());
+
+        Map<Bus, Double> busToLossMap1 = network1.getBusBreakerView().getBusStream()
+            .collect(Collectors.toMap(Function.identity(), bus -> getLossOnBus(network1, bus)
+            ));
+        Map<Bus, Double> busToLossMap2 = network2.getBusBreakerView().getBusStream()
+            .collect(Collectors.toMap(Function.identity(), bus -> getLossOnBus(network2, bus)
+            ));
+
+        lossesCompensator.run(network1);
+        lossesCompensator.run(network2);
+
+        assertEquals(hashCode1, network1.hashCode());
+        assertEquals(hashCode2, network2.hashCode());
+
+        busToLossMap1.forEach((bus, losses) -> {
+            Load load = network1.getLoad(LossesCompensator.getLossesId(bus.getId()));
+            assertNotNull(load);
+            assertEquals(losses, load.getP0());
+        });
+        busToLossMap2.forEach((bus, losses) -> {
+            Load load = network2.getLoad(LossesCompensator.getLossesId(bus.getId()));
+            assertNotNull(load);
+            assertEquals(losses, load.getP0());
+        });
     }
 }

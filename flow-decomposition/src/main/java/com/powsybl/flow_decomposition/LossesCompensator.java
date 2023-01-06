@@ -12,18 +12,55 @@ import com.powsybl.iidm.network.*;
 import java.util.stream.Stream;
 
 /**
+ * This class can
+ * 1- add zero MW loss loads to a network
+ * 2- set those loads to the correct AC loss
+ *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class LossesCompensator {
     private final double epsilon;
+    private Integer networkHash;
 
     LossesCompensator(double epsilon) {
         this.epsilon = epsilon;
+        networkHash = null;
     }
 
     LossesCompensator(FlowDecompositionParameters parameters) {
         this(parameters.getLossesCompensationEpsilon());
+    }
+
+    static String getLossesId(String id) {
+        return String.format("LOSSES %s", id);
+    }
+
+    public void run(Network network) {
+        if (networkHash == null || networkHash != network.hashCode()) {
+            addZeroMWLossesLoadsOnBuses(network);
+            networkHash = network.hashCode();
+        }
+        compensateLossesOnBranches(network);
+    }
+
+    private void addZeroMWLossesLoadsOnBuses(Network network) {
+        // We want to add a single null load per bus
+        // Mapping by bus Id is important as bus are generated on-fly
+        // This matters for node breaker topology
+        network.getBranchStream()
+            .flatMap(branch -> Stream.of(branch.getTerminal1(), branch.getTerminal2()))
+            .map(terminal -> terminal.getBusBreakerView().getConnectableBus())
+            .map(Identifiable::getId)
+            .distinct()
+            .forEach(busId -> addZeroMWLossesLoad(network, busId));
+    }
+
+    private void compensateLossesOnBranches(Network network) {
+        network.getBranchStream()
+            .filter(this::hasBuses)
+            .filter(this::hasP0s)
+            .forEach(branch -> compensateLossesOnBranch(network, branch));
     }
 
     private boolean hasBus(Terminal terminal) {
@@ -40,23 +77,6 @@ class LossesCompensator {
 
     private boolean hasP0s(Branch<?> branch) {
         return hasP0(branch.getTerminal1()) && hasP0(branch.getTerminal2());
-    }
-
-    void run(Network network) {
-        addZeroMWLossesLoadsOnBuses(network);
-        compensateLossesOnBranches(network);
-    }
-
-    static void addZeroMWLossesLoadsOnBuses(Network network) {
-        // We want to add a single null load per bus
-        // Mapping by bus Id is important as bus are generated on-fly
-        // This matters for node breaker topology
-        network.getBranchStream()
-            .flatMap(branch -> Stream.of(branch.getTerminal1(), branch.getTerminal2()))
-            .map(terminal -> terminal.getBusBreakerView().getConnectableBus())
-            .map(Identifiable::getId)
-            .distinct()
-            .forEach(busId -> addZeroMWLossesLoad(network, busId));
     }
 
     private static void addZeroMWLossesLoad(Network network, String busId) {
@@ -97,17 +117,6 @@ class LossesCompensator {
             .setP0(0)
             .setQ0(0)
             .add();
-    }
-
-    static String getLossesId(String id) {
-        return String.format("LOSSES %s", id);
-    }
-
-    void compensateLossesOnBranches(Network network) {
-        network.getBranchStream()
-            .filter(this::hasBuses)
-            .filter(this::hasP0s)
-            .forEach(branch -> compensateLossesOnBranch(network, branch));
     }
 
     private void compensateLossesOnBranch(Network network, Branch<?> branch) {
