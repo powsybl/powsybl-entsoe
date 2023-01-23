@@ -21,20 +21,13 @@ import org.junit.jupiter.api.Test;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class IGMmergeTests {
 
@@ -126,7 +119,7 @@ class IGMmergeTests {
     }
 
     @Test
-    void cgmToCGMES() throws IOException {
+    void cgmToCgmes() throws IOException {
         //Read resources for BE and NL, merge the resources themselves and read a network from this set of resources
         TestGridModelResources mergedResourcesBENL = new TestGridModelResources(
                 "MicroGrid-BaseCase-BE_NL_MergedResources",
@@ -163,7 +156,6 @@ class IGMmergeTests {
         Path mergedResourcesDir = Files.createDirectory(fs.getPath("/mergedResourcesExport"));
         exportNetwork(networkBENL, mergedResourcesDir, "BE_NL", Map.of("BENL", networkBENL), Set.of("EQ", "TP", "SSH", "SV"));
 
-
         //Copy the boundary set explicitly it is not serialized and is needed for reimport
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         for (String bFile : boundaries.getFileNames()) {
@@ -182,9 +174,9 @@ class IGMmergeTests {
     public void exportNetwork(Network network, Path outputDir, String baseName, Map<String, Network> validNetworks, Set<String> profilesToExport) {
         Objects.requireNonNull(network);
         Path filenameEq = outputDir.resolve(baseName + "_EQ.xml");
-        Path filenameTp = outputDir.resolve( baseName + "_TP.xml");
-        Path filenameSsh = outputDir.resolve( baseName + "_SSH.xml");
-        Path filenameSv = outputDir.resolve( baseName + "_SV.xml");
+        Path filenameTp = outputDir.resolve(baseName + "_TP.xml");
+        Path filenameSsh = outputDir.resolve(baseName + "_SSH.xml");
+        Path filenameSv = outputDir.resolve(baseName + "_SV.xml");
         CgmesExportContext context = new CgmesExportContext();
         context.setScenarioTime(network.getCaseDate());
         validNetworks.forEach((name, n) -> {
