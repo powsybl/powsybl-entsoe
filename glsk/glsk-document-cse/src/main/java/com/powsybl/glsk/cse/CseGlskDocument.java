@@ -16,26 +16,36 @@ import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBIntrospector;
+import jakarta.xml.bind.Unmarshaller;
 import org.apache.commons.lang3.NotImplementedException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public final class CseGlskDocument implements GlskDocument {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CseGlskDocument.class);
     private static final String LINEAR_GLSK_NOT_HANDLED = "CSE GLSK document does not handle Linear GLSK conversion";
 
     /**
@@ -43,36 +53,45 @@ public final class CseGlskDocument implements GlskDocument {
      */
     private final Map<String, List<GlskPoint>> cseGlskPoints = new TreeMap<>();
 
-    public static CseGlskDocument importGlsk(Document document) {
-        return new CseGlskDocument(document);
-    }
-
     public static CseGlskDocument importGlsk(InputStream inputStream) {
         try {
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-            documentBuilderFactory.setAttribute(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
-            documentBuilderFactory.setNamespaceAware(true);
+            //Get JAXBContext
+            JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
+            //Create Unmarshaller
+            Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-            Document document = documentBuilderFactory.newDocumentBuilder().parse(inputStream);
-            document.getDocumentElement().normalize();
-            return new CseGlskDocument(document);
-        } catch (IOException | SAXException | ParserConfigurationException e) {
+            //Setup schema validator
+            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            URL gskSchemaResource = CseGlskDocument.class.getResource("/xsd/gsk-document.xsd");
+            if (gskSchemaResource != null) {
+                Schema glskSchema = sf.newSchema(new File(gskSchemaResource.getFile()));
+                unmarshaller.setSchema(glskSchema);
+            } else {
+                LOGGER.warn("Unable to find GLSK Schema definition file. GLSK file will be imported without schema validation.");
+            }
+
+            //Unmarshal xml file
+            GSKDocument nativeGskDocument = (GSKDocument) JAXBIntrospector.getValue(unmarshaller.unmarshal(inputStream));
+            return new CseGlskDocument(nativeGskDocument);
+        } catch (SAXException e) {
+            throw new GlskException("Unable to import CSE GLSK file: Schema validation failed.", e);
+        } catch (JAXBException e) {
             throw new GlskException("Unable to import CSE GLSK file.", e);
         }
     }
 
-    private CseGlskDocument(Document document) {
-        NodeList timeSeriesNodeList = document.getElementsByTagName("TimeSeries");
-        for (int i = 0; i < timeSeriesNodeList.getLength(); i++) {
-            if (timeSeriesNodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                Element timeSeriesElement = (Element) timeSeriesNodeList.item(i);
-                GlskPoint glskPoint = new CseGlskPoint(timeSeriesElement);
+    private CseGlskDocument(GSKDocument nativeGskDocument) {
+        // TODO Extract CalculationDirections
+
+        // Computation of "normal" timeseries
+        nativeGskDocument.getTimeSeries().stream()
+            .map(CseGlskPoint::new)
+            .forEach(glskPoint -> {
                 cseGlskPoints.computeIfAbsent(glskPoint.getSubjectDomainmRID(), area -> new ArrayList<>());
                 cseGlskPoints.get(glskPoint.getSubjectDomainmRID()).add(glskPoint);
-            }
-        }
+            });
+
+        // TODO Extract TimeSeries and TimeSeriesExport depending on CalculationDirections
     }
 
     @Override

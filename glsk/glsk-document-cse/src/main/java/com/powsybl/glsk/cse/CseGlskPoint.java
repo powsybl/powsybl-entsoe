@@ -9,75 +9,66 @@ package com.powsybl.glsk.cse;
 import com.powsybl.glsk.api.AbstractGlskPoint;
 import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import xsd.etso_code_lists.BusinessTypeList;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-
-import static com.powsybl.glsk.api.util.Util.getUniqueNode;
+import java.util.stream.Stream;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class CseGlskPoint extends AbstractGlskPoint {
-    /**
-     * @param element Dom element
-     */
-    public CseGlskPoint(Element element) {
+
+    private static final List<Class<?>> STANDARD_BLOCK_CLASSES = List.of(ManualGSKBlockType.class, PropGSKBlockType.class, PropLSKBlockType.class, ReserveGSKBlockType.class);
+
+    public CseGlskPoint(TimeSeriesType element) {
         Objects.requireNonNull(element);
         this.position = 1;
-        this.pointInterval = Interval.parse(((Element) getUniqueNode(element, "TimeInterval")).getAttribute("v"));
-        this.subjectDomainmRID = ((Element) getUniqueNode(element, "Area")).getAttribute("v");
+        this.pointInterval = Interval.parse(element.getTimeInterval().getV());
+        this.subjectDomainmRID = element.getArea().getV();
         this.curveType = "A03";
         this.glskShiftKeys = new ArrayList<>();
 
-        String businessType = ((Element) getUniqueNode(element, "BusinessType")).getAttribute("v");
-        NodeList childNodes = element.getChildNodes();
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            Node childNode = childNodes.item(i);
-            if (childNode.getNodeType() == Node.ELEMENT_NODE) {
-                Element childElement = (Element) childNode;
-                try {
-                    switch (childElement.getNodeName()) {
-                        case "ManualGSKBlock":
-                        case "PropGSKBlock":
-                        case "PropLSKBlock":
-                        case "ReserveGSKBlock":
-                            importStandardBlock(childElement, businessType);
-                            break;
-                        case "MeritOrderGSKBlock":
-                            importMeritOrderBlock(childElement, businessType);
-                            break;
-                        default:
-                            break;
-                    }
-                } catch (GlskException e) {
-                    throw new GlskException(String.format("Impossible to import GLSK on area %s", subjectDomainmRID), e);
-                }
-            }
+        BusinessTypeList businessType = element.getBusinessType().getV();
+
+        try {
+            Stream.concat(Stream.ofNullable(element.getManusequenceSKBlockOrPropLSKBlock()),
+                            Stream.ofNullable(element.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
+                    .flatMap(List::stream)
+                    .filter(block -> STANDARD_BLOCK_CLASSES.stream().anyMatch(acceptedClass -> acceptedClass.isInstance(block)))
+                    .map(BlockWrapper::new)
+                    .forEach(block -> importStandardBlock(block, businessType));
+
+            Stream.ofNullable(element.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock())
+                    .flatMap(List::stream)
+                    .filter(MeritOrderGSKBlockType.class::isInstance)
+                    .map(BlockWrapper::new)
+                    .forEach(block -> importMeritOrderBlock(block, businessType));
+
+        } catch (GlskException e) {
+            throw new GlskException(String.format("Impossible to import GLSK on area %s", subjectDomainmRID), e);
         }
     }
 
-    private void importMeritOrderBlock(Element blockElement, String businessType) {
-        Element upBlockElement = (Element) getUniqueNode(blockElement, "Up");
-        NodeList upNodesList = upBlockElement.getElementsByTagName("Node");
-        for (int j = 0; j < upNodesList.getLength(); j++) {
+    private void importMeritOrderBlock(BlockWrapper blockWrapper, BusinessTypeList businessType) {
+        MeritOrderGSKBlockType blockElement = (MeritOrderGSKBlockType) blockWrapper.getBlock();
+        List<MeritOrderUpNodeType> upNodesList = blockElement.getUp().getNode();
+        for (int j = 0; j < upNodesList.size(); j++) {
             // Up nodes have positive merit order position
             // First is 1 last is N to be easily recognized in GLSK point conversion.
-            glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID, j + 1));
+            glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, new NodeWrapper(upNodesList.get(j)), businessType, pointInterval, subjectDomainmRID, j + 1));
         }
-        Element downBlockElement = (Element) getUniqueNode(blockElement, "Down");
-        NodeList downNodesList = downBlockElement.getElementsByTagName("Node");
-        for (int j = 0; j < downNodesList.getLength(); j++) {
+        List<MeritOrderDownNodeType> downNodesList = blockElement.getDown().getNode();
+        for (int j = 0; j < downNodesList.size(); j++) {
             // Down nodes have negative merit order position
             // First is -1 last is -N to be easily recognized in GLSK point conversion.
-            glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID, -j - 1));
+            glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, new NodeWrapper(downNodesList.get(j)), businessType, pointInterval, subjectDomainmRID, -j - 1));
         }
     }
 
-    private void importStandardBlock(Element blockElement, String businessType) {
+    private void importStandardBlock(BlockWrapper blockElement, BusinessTypeList businessType) {
         this.glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID));
     }
 }

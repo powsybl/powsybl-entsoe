@@ -10,7 +10,6 @@ import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.glsk.commons.GlskException;
-import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,10 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -157,8 +159,8 @@ class CseGlskDocumentImporterTest {
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(2, list.get(0).getGlskShiftKeys().size());
-        assertEquals(3, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
-        assertEquals(2, list.get(0).getGlskShiftKeys().get(1).getRegisteredResourceArrayList().size());
+        assertEquals(2, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
+        assertEquals(3, list.get(0).getGlskShiftKeys().get(1).getRegisteredResourceArrayList().size());
     }
 
     @Test
@@ -247,7 +249,7 @@ class CseGlskDocumentImporterTest {
     void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueDown() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
-        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER_ISSUE_PC");
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERIT_ISSUE_PC");
 
         assertNotNull(meritOrderGskScalable);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
@@ -264,7 +266,7 @@ class CseGlskDocumentImporterTest {
     void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueUp() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
-        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER_ISSUE_PC");
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERIT_ISSUE_PC");
 
         assertNotNull(meritOrderGskScalable);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);

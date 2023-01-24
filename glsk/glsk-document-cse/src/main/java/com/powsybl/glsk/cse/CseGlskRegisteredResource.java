@@ -7,12 +7,10 @@
 package com.powsybl.glsk.cse;
 
 import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
-import org.w3c.dom.Element;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
-
-import static com.powsybl.glsk.api.util.Util.getUniqueNode;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -20,26 +18,21 @@ import static com.powsybl.glsk.api.util.Util.getUniqueNode;
 public class CseGlskRegisteredResource extends AbstractGlskRegisteredResource {
     private final Double initialFactor;
 
-    public CseGlskRegisteredResource(Element element) {
+    public CseGlskRegisteredResource(NodeWrapper element) {
         Objects.requireNonNull(element);
-        this.name = ((Element) getUniqueNode(element, "Name")).getAttribute("v");
+        this.name = element.getName().orElse("");
         this.mRID = this.name;
-        this.initialFactor = getContentAsDoubleOrNull(element, "Factor");
-        this.maximumCapacity = negativeIfNotNull(getContentAsDoubleOrNull(element, "Pmax"));
-        this.minimumCapacity = negativeIfNotNull(getContentAsDoubleOrNull(element, "Pmin"));
+        this.initialFactor = element.getFactor().map(BigDecimal::doubleValue).orElse(null);
+        this.maximumCapacity = element.getPmax().map(CseGlskRegisteredResource::getNegativeDouble).orElse(null);
+        this.minimumCapacity = element.getPmin().map(CseGlskRegisteredResource::getNegativeDouble).orElse(null);
     }
 
     void setParticipationFactor(double participationFactor) {
         this.participationFactor = participationFactor;
     }
 
-    private Double getContentAsDoubleOrNull(Element baseElement, String tag) {
-        return baseElement.getElementsByTagName(tag).getLength() == 0 ? null :
-                Double.parseDouble(((Element) baseElement.getElementsByTagName(tag).item(0)).getAttribute("v"));
-    }
-
-    private Double negativeIfNotNull(Double value) {
-        return value == null ? null : -value;
+    private static Double getNegativeDouble(BigDecimal v) {
+        return v.negate().doubleValue();
     }
 
     @Override
