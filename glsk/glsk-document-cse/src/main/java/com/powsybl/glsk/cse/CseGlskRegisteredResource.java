@@ -18,21 +18,21 @@ import java.util.Optional;
 public class CseGlskRegisteredResource extends AbstractGlskRegisteredResource {
     private final Double initialFactor;
 
-    public CseGlskRegisteredResource(NodeWrapper element) {
-        Objects.requireNonNull(element);
-        this.name = element.getName().orElse("");
+    public CseGlskRegisteredResource(NodeWrapper nodeWrapper) {
+        Objects.requireNonNull(nodeWrapper);
+        this.name = nodeWrapper.getName().orElse("");
         this.mRID = this.name;
-        this.initialFactor = element.getFactor().map(BigDecimal::doubleValue).orElse(null);
-        this.maximumCapacity = element.getPmax().map(CseGlskRegisteredResource::getNegativeDouble).orElse(null);
-        this.minimumCapacity = element.getPmin().map(CseGlskRegisteredResource::getNegativeDouble).orElse(null);
-    }
-
-    void setParticipationFactor(double participationFactor) {
-        this.participationFactor = participationFactor;
+        this.initialFactor = nodeWrapper.getFactor().map(BigDecimal::doubleValue).orElse(null);
+        this.maximumCapacity = nodeWrapper.getPmax().map(CseGlskRegisteredResource::getNegativeDouble).orElse(null);
+        this.minimumCapacity = nodeWrapper.getPmin().map(CseGlskRegisteredResource::getNegativeDouble).orElse(null);
     }
 
     private static Double getNegativeDouble(BigDecimal v) {
         return v.negate().doubleValue();
+    }
+
+    void setParticipationFactor(double participationFactor) {
+        this.participationFactor = participationFactor;
     }
 
     @Override

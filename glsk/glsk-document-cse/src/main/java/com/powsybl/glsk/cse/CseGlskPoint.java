@@ -18,30 +18,31 @@ import java.util.stream.Stream;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Vincent BOCHET {@literal <vincent.bochet at rte-france.com>}
  */
 public class CseGlskPoint extends AbstractGlskPoint {
 
     private static final List<Class<?>> STANDARD_BLOCK_CLASSES = List.of(ManualGSKBlockType.class, PropGSKBlockType.class, PropLSKBlockType.class, ReserveGSKBlockType.class);
 
-    public CseGlskPoint(TimeSeriesType element) {
-        Objects.requireNonNull(element);
+    public CseGlskPoint(TimeSeriesType timeSerie) {
+        Objects.requireNonNull(timeSerie);
         this.position = 1;
-        this.pointInterval = Interval.parse(element.getTimeInterval().getV());
-        this.subjectDomainmRID = element.getArea().getV();
+        this.pointInterval = Interval.parse(timeSerie.getTimeInterval().getV());
+        this.subjectDomainmRID = timeSerie.getArea().getV();
         this.curveType = "A03";
         this.glskShiftKeys = new ArrayList<>();
 
-        BusinessTypeList businessType = element.getBusinessType().getV();
+        BusinessTypeList businessType = timeSerie.getBusinessType().getV();
 
         try {
-            Stream.concat(Stream.ofNullable(element.getManusequenceSKBlockOrPropLSKBlock()),
-                            Stream.ofNullable(element.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
+            Stream.concat(Stream.ofNullable(timeSerie.getManusequenceSKBlockOrPropLSKBlock()),
+                            Stream.ofNullable(timeSerie.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
                     .flatMap(List::stream)
                     .filter(block -> STANDARD_BLOCK_CLASSES.stream().anyMatch(acceptedClass -> acceptedClass.isInstance(block)))
                     .map(BlockWrapper::new)
                     .forEach(block -> importStandardBlock(block, businessType));
 
-            Stream.ofNullable(element.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock())
+            Stream.ofNullable(timeSerie.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock())
                     .flatMap(List::stream)
                     .filter(MeritOrderGSKBlockType.class::isInstance)
                     .map(BlockWrapper::new)
@@ -53,22 +54,22 @@ public class CseGlskPoint extends AbstractGlskPoint {
     }
 
     private void importMeritOrderBlock(BlockWrapper blockWrapper, BusinessTypeList businessType) {
-        MeritOrderGSKBlockType blockElement = (MeritOrderGSKBlockType) blockWrapper.getBlock();
-        List<MeritOrderUpNodeType> upNodesList = blockElement.getUp().getNode();
-        for (int j = 0; j < upNodesList.size(); j++) {
+        MeritOrderGSKBlockType block = (MeritOrderGSKBlockType) blockWrapper.getBlock();
+        List<MeritOrderUpNodeType> upNodes = block.getUp().getNode();
+        for (int j = 0; j < upNodes.size(); j++) {
             // Up nodes have positive merit order position
             // First is 1 last is N to be easily recognized in GLSK point conversion.
-            glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, new NodeWrapper(upNodesList.get(j)), businessType, pointInterval, subjectDomainmRID, j + 1));
+            glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, new NodeWrapper(upNodes.get(j)), businessType, pointInterval, subjectDomainmRID, j + 1));
         }
-        List<MeritOrderDownNodeType> downNodesList = blockElement.getDown().getNode();
-        for (int j = 0; j < downNodesList.size(); j++) {
+        List<MeritOrderDownNodeType> downNodes = block.getDown().getNode();
+        for (int j = 0; j < downNodes.size(); j++) {
             // Down nodes have negative merit order position
             // First is -1 last is -N to be easily recognized in GLSK point conversion.
-            glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, new NodeWrapper(downNodesList.get(j)), businessType, pointInterval, subjectDomainmRID, -j - 1));
+            glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, new NodeWrapper(downNodes.get(j)), businessType, pointInterval, subjectDomainmRID, -j - 1));
         }
     }
 
-    private void importStandardBlock(BlockWrapper blockElement, BusinessTypeList businessType) {
-        this.glskShiftKeys.add(new CseGlskShiftKey(blockElement, businessType, pointInterval, subjectDomainmRID));
+    private void importStandardBlock(BlockWrapper blockWrapper, BusinessTypeList businessType) {
+        this.glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, businessType, pointInterval, subjectDomainmRID));
     }
 }
