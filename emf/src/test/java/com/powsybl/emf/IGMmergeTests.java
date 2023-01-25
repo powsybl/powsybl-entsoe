@@ -16,6 +16,7 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.Network;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -31,10 +32,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class IGMmergeTests {
 
+    private static FileSystem fs;
+
+    @BeforeAll
+    static void setUp() {
+        fs = Jimfs.newFileSystem(Configuration.unix());
+    }
+
     @Test
     void igmsDestructiveMerge() throws IOException {
-
-        FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
 
         Set<String> branchIds = new HashSet<>();
         Set<String> generatorsId = new HashSet<>();
@@ -76,8 +82,6 @@ class IGMmergeTests {
 
     @Test
     void igmsMergeWithMergingView() throws IOException {
-
-        FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
 
         Set<String> branchIds = new HashSet<>();
         Set<String> generatorsId = new HashSet<>();
@@ -143,8 +147,6 @@ class IGMmergeTests {
                 CgmesConformity1Catalog.microGridBaseCaseBoundaries());
         Network networkBENL = Network.read(mergedResourcesBENL.dataSource());
 
-        FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
-
         Set<String> branchIds = new HashSet<>();
         Set<String> generatorsId = new HashSet<>();
         Set<String> voltageLevelIds = new HashSet<>();
@@ -165,13 +167,13 @@ class IGMmergeTests {
         validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
     }
 
-    public void validate(Network n, Set<String> branchIds, Set<String> generatorsId, Set<String> voltageLevelIds) {
+    private static void validate(Network n, Set<String> branchIds, Set<String> generatorsId, Set<String> voltageLevelIds) {
         branchIds.forEach(b -> assertNotNull(n.getBranch(b)));
         generatorsId.forEach(g -> assertNotNull(n.getGenerator(g)));
         voltageLevelIds.forEach(v -> assertNotNull(n.getVoltageLevel(v)));
     }
 
-    public void exportNetwork(Network network, Path outputDir, String baseName, Map<String, Network> validNetworks, Set<String> profilesToExport) {
+    private static void exportNetwork(Network network, Path outputDir, String baseName, Map<String, Network> validNetworks, Set<String> profilesToExport) {
         Objects.requireNonNull(network);
         Path filenameEq = outputDir.resolve(baseName + "_EQ.xml");
         Path filenameTp = outputDir.resolve(baseName + "_TP.xml");
@@ -197,7 +199,7 @@ class IGMmergeTests {
         }
     }
 
-    public void exportEquipment(Network network, CgmesExportContext context, Path file) {
+    private static void exportEquipment(Network network, CgmesExportContext context, Path file) {
         try (OutputStream out = Files.newOutputStream(file)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", out);
             EquipmentExport.write(network, writer, context);
@@ -206,7 +208,7 @@ class IGMmergeTests {
         }
     }
 
-    public void exportTopology(Network network, CgmesExportContext context, Path file) {
+    private static void exportTopology(Network network, CgmesExportContext context, Path file) {
         try (OutputStream out = Files.newOutputStream(file)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", out);
             TopologyExport.write(network, writer, context);
@@ -215,7 +217,7 @@ class IGMmergeTests {
         }
     }
 
-    public void exportSteadyStateHypothesis(Network network, CgmesExportContext context, Path file) {
+    private static void exportSteadyStateHypothesis(Network network, CgmesExportContext context, Path file) {
         try (OutputStream out = Files.newOutputStream(file)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", out);
             SteadyStateHypothesisExport.write(network, writer, context);
@@ -224,7 +226,7 @@ class IGMmergeTests {
         }
     }
 
-    public void exportStateVariable(Network network, CgmesExportContext context, Path file) {
+    private static void exportStateVariable(Network network, CgmesExportContext context, Path file) {
         try (OutputStream out = Files.newOutputStream(file)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", out);
             StateVariablesExport.write(network, writer, context);
