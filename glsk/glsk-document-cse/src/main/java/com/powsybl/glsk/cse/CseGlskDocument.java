@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,11 +9,13 @@ package com.powsybl.glsk.cse;
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
+import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataChronology;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.modification.scalable.Scalable;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import jakarta.xml.bind.JAXBContext;
@@ -43,10 +45,13 @@ import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Vincent BOCHET {@literal <vincent.bochet at rte-france.com>}
  */
 public final class CseGlskDocument implements GlskDocument {
     private static final Logger LOGGER = LoggerFactory.getLogger(CseGlskDocument.class);
     private static final String LINEAR_GLSK_NOT_HANDLED = "CSE GLSK document does not handle Linear GLSK conversion";
+    private static final String IMPORTING_COUNTRIES_KEY = "importingCountries";
+    private static final String EXPORTING_COUNTRIES_KEY = "exportingCountries";
 
     /**
      * list of GlskPoint in the given Glsk document
@@ -55,22 +60,20 @@ public final class CseGlskDocument implements GlskDocument {
 
     public static CseGlskDocument importGlsk(InputStream inputStream) {
         try {
-            //Get JAXBContext
             JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
-            //Create Unmarshaller
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-            //Setup schema validator
+            // Setup schema validator
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            URL gskSchemaResource = CseGlskDocument.class.getResource("/xsd/gsk-document.xsd");
-            if (gskSchemaResource != null) {
-                Schema glskSchema = sf.newSchema(new File(gskSchemaResource.getFile()));
+            URL glskSchemaResource = CseGlskDocument.class.getResource("/xsd/gsk-document.xsd");
+            if (glskSchemaResource != null) {
+                Schema glskSchema = sf.newSchema(new File(glskSchemaResource.getFile()));
                 unmarshaller.setSchema(glskSchema);
             } else {
                 LOGGER.warn("Unable to find GLSK Schema definition file. GLSK file will be imported without schema validation.");
             }
 
-            //Unmarshal xml file
+            // Unmarshal xml file
             GSKDocument nativeGskDocument = (GSKDocument) JAXBIntrospector.getValue(unmarshaller.unmarshal(inputStream));
             return new CseGlskDocument(nativeGskDocument);
         } catch (SAXException e) {
@@ -81,17 +84,80 @@ public final class CseGlskDocument implements GlskDocument {
     }
 
     private CseGlskDocument(GSKDocument nativeGskDocument) {
-        // TODO Extract CalculationDirections
+        // Computation of "standard" and "export" timeseries
+        Map<String, List<GlskPoint>> cseGlskPointsStandard = getGlskPointsFromTimeSeries(nativeGskDocument.getTimeSeries());
+        Map<String, List<GlskPoint>> cseGlskPointsExport = getGlskPointsFromTimeSeries(nativeGskDocument.getTimeSeriesExport());
 
-        // Computation of "normal" timeseries
-        nativeGskDocument.getTimeSeries().stream()
+        if (calculationDirectionsAbsent(nativeGskDocument)) {
+            // "default" mode : all countries are considered in full import (use TimeSeries for all)
+            this.cseGlskPoints.putAll(cseGlskPointsStandard);
+        } else {
+            // Extract CalculationDirections
+            List<CalculationDirectionType> calculationDirections = nativeGskDocument.getCalculationDirections().get(0).getCalculationDirection();
+            Map<String, List<String>> importingAndExportingCountries = getImportingAndExportingCountries(calculationDirections);
+
+            // Use data from cseGlskPointsStandard or cseGlskPointsExport depending on CalculationDirections
+            fillGlskPointsForExportCorner(cseGlskPointsStandard, cseGlskPointsExport, importingAndExportingCountries);
+        }
+    }
+
+    private static Map<String, List<GlskPoint>> getGlskPointsFromTimeSeries(List<TimeSeriesType> timeSeries) {
+        Map<String, List<GlskPoint>> cseGlskPoints = new TreeMap<>();
+        if (timeSeries == null) {
+            return cseGlskPoints;
+        }
+
+        timeSeries.stream()
             .map(CseGlskPoint::new)
             .forEach(glskPoint -> {
                 cseGlskPoints.computeIfAbsent(glskPoint.getSubjectDomainmRID(), area -> new ArrayList<>());
                 cseGlskPoints.get(glskPoint.getSubjectDomainmRID()).add(glskPoint);
             });
+        return cseGlskPoints;
+    }
 
-        // TODO Extract TimeSeries and TimeSeriesExport depending on CalculationDirections
+    private static boolean calculationDirectionsAbsent(GSKDocument nativeGskDocument) {
+        return nativeGskDocument.getCalculationDirections() == null
+            || nativeGskDocument.getCalculationDirections().isEmpty()
+            || nativeGskDocument.getCalculationDirections().get(0).getCalculationDirection() == null
+            || nativeGskDocument.getCalculationDirections().get(0).getCalculationDirection().isEmpty();
+    }
+
+    private static Map<String, List<String>> getImportingAndExportingCountries(List<CalculationDirectionType> calculationDirections) {
+        String italyEIC = new CountryEICode(Country.IT).getCode();
+        List<String> importingCountries = new ArrayList<>();
+        List<String> exportingCountries = new ArrayList<>();
+
+        calculationDirections.stream()
+            .map(cd -> cd.getOutArea().getV())
+            .filter(countryEIC -> countryEIC.equals(italyEIC))
+            .forEach(importingCountries::add);
+
+        importingCountries.add(italyEIC);
+
+        calculationDirections.stream()
+            .map(cd -> cd.getInArea().getV())
+            .filter(countryEIC -> countryEIC.equals(italyEIC))
+            .forEach(exportingCountries::add);
+
+        return Map.of(IMPORTING_COUNTRIES_KEY, importingCountries,
+            EXPORTING_COUNTRIES_KEY, exportingCountries);
+    }
+
+    private void fillGlskPointsForExportCorner(Map<String, List<GlskPoint>> cseGlskPointsStandard,
+                                               Map<String, List<GlskPoint>> cseGlskPointsExport,
+                                               Map<String, List<String>> importingAndExportingCountries) {
+        importingAndExportingCountries.get(IMPORTING_COUNTRIES_KEY).forEach(eic -> {
+            List<GlskPoint> cseGlskPoint = cseGlskPointsExport.getOrDefault(eic, cseGlskPointsStandard.get(eic));
+            this.cseGlskPoints.computeIfAbsent(eic, area -> new ArrayList<>());
+            this.cseGlskPoints.get(eic).addAll(cseGlskPoint);
+        });
+
+        importingAndExportingCountries.get(EXPORTING_COUNTRIES_KEY).forEach(eic -> {
+            List<GlskPoint> cseGlskPoint = cseGlskPointsStandard.get(eic);
+            this.cseGlskPoints.computeIfAbsent(eic, area -> new ArrayList<>());
+            this.cseGlskPoints.get(eic).addAll(cseGlskPoint);
+        });
     }
 
     @Override
