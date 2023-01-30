@@ -194,16 +194,16 @@ class IGMmergeTests {
         });
 
         if (profilesToExport.contains("EQ")) {
-            export(filenameEq, (writer) -> {EquipmentExport.write(network, writer, context);});
+            export(filenameEq, writer -> EquipmentExport.write(network, writer, context));
         }
         if (profilesToExport.contains("TP")) {
-            export(filenameTp, (writer) -> {TopologyExport.write(network, writer, context);});
+            export(filenameTp, writer -> TopologyExport.write(network, writer, context));
         }
         if (profilesToExport.contains("SSH")) {
-            export(filenameSsh, (writer) -> {SteadyStateHypothesisExport.write(network, writer, context);});
+            export(filenameSsh, writer -> SteadyStateHypothesisExport.write(network, writer, context));
         }
         if (profilesToExport.contains("SV")) {
-            export(filenameSv, (writer) -> {StateVariablesExport.write(network, writer, context);});
+            export(filenameSv, writer -> StateVariablesExport.write(network, writer, context));
         }
     }
 
