@@ -2,11 +2,11 @@
   "maxNumberIterations" : 11,
   "thresholdNetPosition" : 2.0,
   "load-flow-parameters" : {
-    "version" : "1.7",
+    "version" : "1.8",
     "voltageInitMode" : "DC_VALUES",
     "transformerVoltageControlOn" : true,
     "phaseShifterRegulationOn" : true,
-    "noGeneratorReactiveLimits" : false,
+    "useReactiveLimits" : true,
     "twtSplitShuntAdmittance" : false,
     "shuntCompensatorVoltageControlOn" : false,
     "readSlackBus" : true,
