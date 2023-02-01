@@ -12,7 +12,7 @@ import com.powsybl.tools.AbstractVersion;
 import com.powsybl.tools.Version;
 
 /**
- * @author Laurent Issertial <laurent.issertial at rte-france.com>
+ * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 @AutoService(Version.class)
 public class PowsyblEntsoeVersion extends AbstractVersion {
