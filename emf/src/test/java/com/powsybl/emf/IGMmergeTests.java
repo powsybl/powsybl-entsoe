@@ -11,7 +11,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.export.*;
-import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
@@ -59,14 +59,14 @@ class IGMmergeTests {
 
         //Load two IGMs BE and NL
         Map<String, Network> validNetworks = new HashMap<>();
-        TestGridModelResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
+        GridModelReferenceResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
         Network igmBE = Network.read(resBE.dataSource());
         validNetworks.put("BE", igmBE);
         igmBE.getBranches().forEach(b -> branchIds.add(b.getId()));
         igmBE.getGenerators().forEach(g -> generatorsId.add(g.getId()));
         igmBE.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
-        TestGridModelResources resNL = CgmesConformity1Catalog.microGridBaseCaseNL();
+        GridModelReferenceResources resNL = CgmesConformity1Catalog.microGridBaseCaseNL();
         Network igmNL = Network.read(resNL.dataSource());
         validNetworks.put("NL", igmNL);
         igmNL.getBranches().forEach(b -> branchIds.add(b.getId()));
@@ -99,14 +99,14 @@ class IGMmergeTests {
         Set<String> voltageLevelIds = new HashSet<>();
 
         Map<String, Network> validNetworks = new HashMap<>();
-        TestGridModelResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
+        GridModelReferenceResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
         Network igmBE = Network.read(resBE.dataSource());
         validNetworks.put("BE", igmBE);
         igmBE.getBranches().forEach(b -> branchIds.add(b.getId()));
         igmBE.getGenerators().forEach(g -> generatorsId.add(g.getId()));
         igmBE.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
-        TestGridModelResources resNL = CgmesConformity1Catalog.microGridBaseCaseNL();
+        GridModelReferenceResources resNL = CgmesConformity1Catalog.microGridBaseCaseNL();
         Network igmNL = Network.read(resNL.dataSource());
 
         MergingView mergingView = MergingView.create("merged", "validation");
@@ -136,7 +136,7 @@ class IGMmergeTests {
     @Test
     void cgmToCgmes() throws IOException {
         //Read resources for BE and NL, merge the resources themselves and read a network from this set of resources
-        TestGridModelResources mergedResourcesBENL = new TestGridModelResources(
+        GridModelReferenceResources mergedResourcesBENL = new GridModelReferenceResources(
                 "MicroGrid-BaseCase-BE_NL_MergedResources",
                 null,
                 new ResourceSet("/conformity/cas-1.1.3-data-4.0.3/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/",
