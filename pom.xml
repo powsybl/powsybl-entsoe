@@ -78,6 +78,7 @@
         <module>flow-decomposition</module>
         <module>glsk</module>
         <module>emf</module>
+        <module>commons</module>
     </modules>
 
     <dependencyManagement>
@@ -114,6 +115,11 @@
             <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-entsoe-cgmes-balances-adjustment</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-entsoe-commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

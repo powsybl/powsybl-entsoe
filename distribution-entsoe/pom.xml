@@ -42,6 +42,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-entsoe-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-flow-decomposition</artifactId>
         </dependency>
         <dependency>
