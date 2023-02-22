@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
@@ -58,28 +59,32 @@ public class FlowDecompositionComputer {
     }
 
     public FlowDecompositionResults run(XnecProvider xnecProvider, Network network) {
+        return run(xnecProvider, new AutoGlskProvider(), network);
+    }
+
+    public FlowDecompositionResults run(XnecProvider xnecProvider, GlskProvider glskProvider, Network network) {
         NetworkStateManager networkStateManager = new NetworkStateManager(network, xnecProvider);
 
         LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
 
-        Map<Country, Map<String, Double>> glsks = getGlsks(network);
+        Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
         Map<Country, Double> netPositions = getZonesNetPosition(network);
 
         FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
         decomposeFlowForNState(network,
-            flowDecompositionResults,
-            xnecProvider.getNetworkElements(network),
-            netPositions,
-            glsks,
-            loadFlowServiceAcResult);
-        xnecProvider.getNetworkElementsPerContingency(network)
-            .forEach((contingencyId, xnecList) -> decomposeFlowForContingencyState(network,
                 flowDecompositionResults,
-                networkStateManager,
-                contingencyId,
-                xnecList,
+                xnecProvider.getNetworkElements(network),
                 netPositions,
-                glsks));
+                glsks,
+                loadFlowServiceAcResult);
+        xnecProvider.getNetworkElementsPerContingency(network)
+                .forEach((contingencyId, xnecList) -> decomposeFlowForContingencyState(network,
+                        flowDecompositionResults,
+                        networkStateManager,
+                        contingencyId,
+                        xnecList,
+                        netPositions,
+                        glsks));
         networkStateManager.deleteAllContingencyVariants();
         return flowDecompositionResults;
     }
@@ -153,11 +158,6 @@ public class FlowDecompositionComputer {
             acReferenceFlows = getXnecReferenceFlows(xnecList);
         }
         flowDecompositionResultBuilder.saveAcReferenceFlow(acReferenceFlows);
-    }
-
-    private Map<Country, Map<String, Double>> getGlsks(Network network) {
-        GlskComputer glskComputer = new GlskComputer();
-        return glskComputer.run(network);
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network) {

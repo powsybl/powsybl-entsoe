@@ -7,10 +7,8 @@
 package com.powsybl.flow_decomposition.xnec_provider;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.flow_decomposition.GlskComputer;
-import com.powsybl.flow_decomposition.NetworkUtil;
-import com.powsybl.flow_decomposition.XnecProvider;
-import com.powsybl.flow_decomposition.ZonalSensitivityAnalyser;
+import com.powsybl.flow_decomposition.*;
+import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -32,6 +30,11 @@ import java.util.stream.Collectors;
  */
 public class XnecProvider5percPtdf implements XnecProvider {
     public static final double MAX_ZONE_TO_ZONE_PTDF_THRESHOLD = 0.05;
+    private final GlskProvider glskProvider;
+
+    public XnecProvider5percPtdf() {
+        this.glskProvider = new AutoGlskProvider();
+    }
 
     private static boolean isAXnec(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
         return XnecProviderInterconnection.isAnInterconnection(branch) || hasMoreThan5PercentPtdf(getZonalPtdf(branch, zonalPtdf));
@@ -46,9 +49,8 @@ public class XnecProvider5percPtdf implements XnecProvider {
             && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
     }
 
-    public static Set<Branch> getBranches(Network network) {
-        GlskComputer glskComputer = new GlskComputer();
-        Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
+    public Set<Branch> getBranches(Network network) {
+        Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
         ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(LoadFlowParameters.load(), SensitivityAnalysis.find());
         Map<String, Map<Country, Double>> zonalPtdf = zonalSensitivityAnalyser.run(network, glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
         return NetworkUtil.getAllValidBranches(network)

@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -96,8 +97,8 @@ class NodalInjectionTests {
         if (!loadFlowResult.isOk()) {
             LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         }
-        GlskComputer glskComputer = new GlskComputer();
-        Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
+        AutoGlskProvider glskProvider = new AutoGlskProvider();
+        Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
