@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -70,8 +71,8 @@ class SensitivityComputerTests {
         String line7 = "FGEN  11 FLOAD 11 7";
         String line8 = "FGEN  11 FLOAD 11 8";
         String line9 = "FGEN  11 FLOAD 11 9";
-        GlskComputer glskComputer = new GlskComputer();
-        Map<Country, Map<String, Double>> glsks = glskComputer.run(network);
+        AutoGlskProvider glskProvider = new AutoGlskProvider();
+        Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
         LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         SensitivityAnalysis.Runner sensitivityAnalysisRunner = SensitivityAnalysis.find();
         ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner);

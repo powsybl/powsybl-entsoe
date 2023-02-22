@@ -46,10 +46,6 @@ public final class NetworkUtil {
         return optionalCountry.get();
     }
 
-    static Country getInjectionCountry(Injection<?> injection) {
-        return getTerminalCountry(injection.getTerminal());
-    }
-
     static String getLoopFlowIdFromCountry(Network network, String identifiableId) {
         Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
         if (identifiable instanceof Injection) {
@@ -65,6 +61,10 @@ public final class NetworkUtil {
                 idList::get,
                 Function.identity()
             ));
+    }
+
+    public static Country getInjectionCountry(Injection<?> injection) {
+        return getTerminalCountry(injection.getTerminal());
     }
 
     public static List<Branch> getAllValidBranches(Network network) {
