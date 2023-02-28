@@ -102,7 +102,7 @@ class NetworkMatrixIndexes {
     }
 
     private boolean isInjectionConnected(Injection<?> injection) {
-        return injection.getTerminal().isConnected();
+        return injection.getTerminal() != null && injection.getTerminal().isConnected();
     }
 
     private boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {

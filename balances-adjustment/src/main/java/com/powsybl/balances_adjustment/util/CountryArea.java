@@ -83,6 +83,9 @@ public class CountryArea implements NetworkArea {
     }
 
     private boolean isAreaBorder(DanglingLine danglingLine) {
+        if (danglingLine.isMerged()) {
+            return false;
+        }
         Country country = danglingLine.getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null);
         return countries.contains(country);
     }

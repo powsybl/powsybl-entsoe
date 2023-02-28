@@ -28,6 +28,7 @@ class CgmesBoundariesArea implements NetworkArea {
 
     CgmesBoundariesArea(Network network, List<CgmesControlArea> areas) {
         danglingLinesCache = network.getDanglingLineStream()
+                .filter(dl -> !dl.isMerged())
                 .filter(dl -> dl.getExtension(CgmesDanglingLineBoundaryNode.class) == null || !dl.getExtension(CgmesDanglingLineBoundaryNode.class).isHvdc())
                 .filter(dl -> dl.getTerminal().getBusView().getBus() != null && dl.getTerminal().getBusView().getBus().isInMainSynchronousComponent())
                 .filter(dl -> areas.isEmpty() || areas.stream().anyMatch(area -> area.getTerminals().stream().anyMatch(t -> t.getConnectable().getId().equals(dl.getId()))

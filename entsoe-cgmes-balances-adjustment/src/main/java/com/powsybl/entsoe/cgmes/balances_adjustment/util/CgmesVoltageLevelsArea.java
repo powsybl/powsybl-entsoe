@@ -99,6 +99,9 @@ class CgmesVoltageLevelsArea implements NetworkArea {
     }
 
     private boolean isAreaBorder(DanglingLine danglingLine) {
+        if (danglingLine.isMerged()) {
+            return false;
+        }
         String voltageLevel = danglingLine.getTerminal().getVoltageLevel().getId();
         return voltageLevelIds.contains(voltageLevel);
     }
