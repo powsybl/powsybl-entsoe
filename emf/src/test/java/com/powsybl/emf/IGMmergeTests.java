@@ -16,6 +16,8 @@ import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +33,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
@@ -57,7 +59,7 @@ class IGMmergeTests {
         Set<String> generatorsId = new HashSet<>();
         Set<String> voltageLevelIds = new HashSet<>();
 
-        //Load two IGMs BE and NL
+        // load two IGMs BE and NL
         Map<String, Network> validNetworks = new HashMap<>();
         GridModelReferenceResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
         Network igmBE = Network.read(resBE.dataSource());
@@ -73,22 +75,25 @@ class IGMmergeTests {
         igmNL.getGenerators().forEach(g -> generatorsId.add(g.getId()));
         igmNL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
-        //Merge, Serialize and Deserialize the network
+        // merge, serialize and deserialize the network
         igmBE.merge(igmNL);
         validNetworks.put("Merged", igmBE);
 
         Path destructiveMergeDir = Files.createDirectory(fs.getPath("/destructiveMerge"));
         exportNetwork(igmBE, destructiveMergeDir, "BE_NL", validNetworks, Set.of("EQ", "TP", "SSH", "SV"));
 
-        //Copy the boundary set explicitly it is not serialized and is needed for reimport
+        // copy the boundary set explicitly it is not serialized and is needed for reimport
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         for (String bFile : boundaries.getFileNames()) {
             Files.copy(boundaries.newInputStream(bFile), destructiveMergeDir.resolve("BE_NL" + bFile));
         }
 
-        //Reimport and check
+        // reimport and check
         Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(destructiveMergeDir, "BE_NL"), null);
         validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
+
+        // compare
+        compareNetwork(serializedMergedNetwork, igmBE);
     }
 
     @Test
@@ -118,12 +123,12 @@ class IGMmergeTests {
         validNetworks.put("Merged", mergingView);
 
         Path mergingViewMergeDir = Files.createDirectory(fs.getPath("/mergingViewMerge"));
-        //Export to CGMES only state variable of the merged network, the rest is exported separately for each igms
+        // export to CGMES only state variable of the merged network, the rest is exported separately for each igms
         exportNetwork(mergingView, mergingViewMergeDir, "BE_NL", validNetworks, Set.of("SV"));
         exportNetwork(igmBE, mergingViewMergeDir, "BE_NL_BE", Map.of("BE", igmBE), Set.of("EQ", "TP", "SSH"));
         exportNetwork(igmNL, mergingViewMergeDir, "BE_NL_NL", Map.of("NL", igmNL), Set.of("EQ", "TP", "SSH"));
 
-        //Copy the boundary set explicitly it is not serialized and is needed for reimport
+        // copy the boundary set explicitly it is not serialized and is needed for reimport
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         for (String bFile : boundaries.getFileNames()) {
             Files.copy(boundaries.newInputStream(bFile), mergingViewMergeDir.resolve("BE_NL" + bFile));
@@ -131,38 +136,21 @@ class IGMmergeTests {
 
         Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(mergingViewMergeDir, "BE_NL"), null);
         validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
+
+        // compare
+        compareNetwork(serializedMergedNetwork, mergingView);
     }
 
     @Test
     void cgmToCgmes() throws IOException {
-        //Read resources for BE and NL, merge the resources themselves and read a network from this set of resources
-        GridModelReferenceResources mergedResourcesBENL = new GridModelReferenceResources(
-                "MicroGrid-BaseCase-BE_NL_MergedResources",
-                null,
-                new ResourceSet("/conformity/cas-1.1.3-data-4.0.3/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/",
-                        "MicroGridTestConfiguration_BC_BE_DL_V2.xml",
-                        "MicroGridTestConfiguration_BC_BE_DY_V2.xml",
-                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
-                        "MicroGridTestConfiguration_BC_BE_GL_V2.xml",
-                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
-                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
-                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
-                new ResourceSet("/conformity/cas-1.1.3-data-4.0.3/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2/",
-                        "MicroGridTestConfiguration_BC_NL_DL_V2.xml",
-                        "MicroGridTestConfiguration_BC_NL_DY_V2.xml",
-                        "MicroGridTestConfiguration_BC_NL_EQ_V2.xml",
-                        "MicroGridTestConfiguration_BC_NL_GL_V2.xml",
-                        "MicroGridTestConfiguration_BC_NL_SSH_V2.xml",
-                        "MicroGridTestConfiguration_BC_NL_SV_V2.xml",
-                        "MicroGridTestConfiguration_BC_NL_TP_V2.xml"),
-                CgmesConformity1Catalog.microGridBaseCaseBoundaries());
-        Network networkBENL = Network.read(mergedResourcesBENL.dataSource());
+        // read resources for BE and NL, merge the resources themselves and read a network from this set of resources
+        Network networkBENL = createCGM();
 
         Set<String> branchIds = new HashSet<>();
         Set<String> generatorsId = new HashSet<>();
         Set<String> voltageLevelIds = new HashSet<>();
 
-        //networkBENL.getBranches().forEach(b -> branchIds.add(b.getId()));
+        // networkBENL.getBranches().forEach(b -> branchIds.add(b.getId()));
         networkBENL.getBranches().forEach(b -> branchIds.add(b.getId().replace(" ", "%20"))); // FIXME workaround before fixing CGMES export/import
         networkBENL.getGenerators().forEach(g -> generatorsId.add(g.getId()));
         networkBENL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
@@ -177,6 +165,31 @@ class IGMmergeTests {
         }
         Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(mergedResourcesDir, "BE_NL"), null);
         validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
+
+        // compare
+        compareNetwork(serializedMergedNetwork, networkBENL);
+    }
+
+    @Test
+    void compareDestructiveMergeAndMergingView() {
+
+        GridModelReferenceResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
+        Network igmBE = Network.read(resBE.dataSource());
+        GridModelReferenceResources resNL = CgmesConformity1Catalog.microGridBaseCaseNL();
+        Network igmNL = Network.read(resNL.dataSource());
+
+        MergingView mergingView = MergingView.create("merged", "validation");
+        mergingView.merge(igmBE, igmNL);
+
+        Network igmBE2 = Network.read(resBE.dataSource());
+        Network igmNL2 = Network.read(resNL.dataSource());
+
+        igmBE2.merge(igmNL2);
+
+        Network cgm = createCGM();
+
+        compareNetwork(igmBE2, mergingView);
+        compareNetwork(cgm, igmBE2);
     }
 
     private static void validate(Network n, Set<String> branchIds, Set<String> generatorsId, Set<String> voltageLevelIds) {
@@ -218,5 +231,56 @@ class IGMmergeTests {
         } catch (IOException | XMLStreamException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static boolean checkDanglingLine(DanglingLine dl1, DanglingLine dl2) {
+        return dl1.getG() == dl2.getG() && dl1.getB() == dl1.getB() && dl1.getR() == dl2.getR()
+                && dl1.getX() == dl2.getX() && dl1.getP0() == dl2.getP0() && dl1.getQ0() == dl2.getQ0();
+    }
+
+    private static void checkLine(Line line1, Line line2) {
+        assertEquals(line1.getR(), line2.getR(), 0.0001);
+        assertEquals(line1.getX(), line2.getX(), 0.0001);
+        assertEquals(line1.getB1(), line2.getB1(), 0.0000001);
+        assertEquals(line1.getB2(), line2.getB2(), 0.0000001);
+        assertEquals(line1.getG1(), line2.getG1(), 0.0000001);
+        assertEquals(line1.getG2(), line2.getG2(), 0.0000001);
+    }
+
+    private static void compareNetwork(Network network1, Network network2) {
+        assertEquals(network1.getDanglingLineCount(), network2.getDanglingLineCount());
+        assertEquals(network1.getLineCount(), network2.getLineCount());
+        network1.getDanglingLineStream().forEach(dl1 -> {
+            DanglingLine dl2 = network2.getDanglingLine(dl1.getId());
+            assertTrue(checkDanglingLine(dl1, dl2));
+        });
+        network1.getLineStream().forEach(line1 -> {
+            Line line2 = network2.getLine(line1.getId().replace("%20", " ")); // cgm should be always at network1
+            checkLine(line1, line2);
+        });
+    }
+
+    private Network createCGM() {
+        GridModelReferenceResources mergedResourcesBENL = new GridModelReferenceResources(
+                "MicroGrid-BaseCase-BE_NL_MergedResources",
+                null,
+                new ResourceSet("/conformity/cas-1.1.3-data-4.0.3/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/",
+                        "MicroGridTestConfiguration_BC_BE_DL_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_DY_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_GL_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
+                new ResourceSet("/conformity/cas-1.1.3-data-4.0.3/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2/",
+                        "MicroGridTestConfiguration_BC_NL_DL_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_DY_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_GL_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_SSH_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_SV_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_TP_V2.xml"),
+                CgmesConformity1Catalog.microGridBaseCaseBoundaries());
+        return Network.read(mergedResourcesBENL.dataSource());
     }
 }
