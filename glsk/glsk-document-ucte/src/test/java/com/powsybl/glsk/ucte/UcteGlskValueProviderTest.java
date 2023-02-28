@@ -13,25 +13,25 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * FlowBased Glsk Values Provider Test for Ucte format
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
  */
-public class UcteGlskValueProviderTest {
+class UcteGlskValueProviderTest {
 
     private static final double EPSILON = 0.0001;
 
     @Test
-    public void testProvideOkUcteGlsk() {
+    void testProvideOkUcteGlsk() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
@@ -42,7 +42,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void testProvideUcteGlskEmptyInstant() {
+    void testProvideUcteGlskEmptyInstant() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2020-07-29T10:00:00Z");
 
@@ -53,7 +53,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void testProvideUcteGlskUnknownCountry() {
+    void testProvideUcteGlskUnknownCountry() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
 
@@ -64,7 +64,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void testProvideUcteGlskWithWrongFormat() {
+    void testProvideUcteGlskWithWrongFormat() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
         ZonalData<SensitivityVariableSet> ucteGlskProvider = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskCountry.xml"))
@@ -73,7 +73,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void testMultiGskSeries() {
+    void testMultiGskSeries() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestMultiGskSeries.xml"));
@@ -89,7 +89,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void checkConversionOfMultiGskSeriesToScalable() {
+    void checkConversionOfMultiGskSeriesToScalable() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskPoint multiGlskSeries = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/ThreeGskSeries.xml")).getGlskPoints("10YFR-RTE------C").get(0);
         Scalable scalable = GlskPointScalableConverter.convert(network, multiGlskSeries);
@@ -107,7 +107,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void testMultiShare() {
+    void testMultiShare() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestMultiShare2.xml"));
 
@@ -151,7 +151,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void testZeroGsk() {
+    void testZeroGsk() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestZeroGsk.xml"));
@@ -160,7 +160,7 @@ public class UcteGlskValueProviderTest {
     }
 
     @Test
-    public void testZeroLsk() {
+    void testZeroLsk() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestZeroLsk.xml"));

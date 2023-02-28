@@ -11,7 +11,7 @@ import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.GlskShiftKey;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
@@ -21,13 +21,13 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  */
-public class CimGlskDocumentImporterTest {
+class CimGlskDocumentImporterTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(CimGlskDocumentImporterTest.class);
 
     private static final String GLSKB42TEST = "/GlskB42test.xml";
@@ -41,7 +41,7 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testGlskDocumentImporterWithFilePathString() {
+    void testGlskDocumentImporterWithFilePathString() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
@@ -49,7 +49,7 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testGlskDocumentImporterWithFilePath() {
+    void testGlskDocumentImporterWithFilePath() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
         assertEquals("2018-08-28T22:00:00Z", cimGlskDocument.getInstantStart().toString());
         assertEquals("2018-08-29T22:00:00Z", cimGlskDocument.getInstantEnd().toString());
@@ -57,14 +57,14 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testGlskDocumentImportB45() {
+    void testGlskDocumentImportB45() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB45TEST));
         List<GlskShiftKey> glskShiftKeys = cimGlskDocument.getGlskPoints().get(0).getGlskShiftKeys();
         assertEquals(5, glskShiftKeys.size());
     }
 
     @Test
-    public void testGlskDocumentImportB45A03() {
+    void testGlskDocumentImportB45A03() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB45A03TEST));
         assertEquals(2, cimGlskDocument.getGlskPoints().size());
         assertEquals("2017-04-12T22:00:00Z/2017-04-13T07:00:00Z", cimGlskDocument.getGlskPoints().get(0).getPointInterval().toString());
@@ -72,7 +72,7 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testGlskDocumentImporterWithFileName() {
+    void testGlskDocumentImporterWithFileName() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKB42TEST));
 
         List<GlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
@@ -84,7 +84,7 @@ public class CimGlskDocumentImporterTest {
     }
 
     @Test
-    public void testGlskDocumentImporterGlskMultiPoints() {
+    void testGlskDocumentImporterGlskMultiPoints() {
         CimGlskDocument cimGlskDocument = CimGlskDocument.importGlsk(getResourceAsInputStream(GLSKMULTIPOINTSTEST));
 
         List<GlskPoint> glskPointList = cimGlskDocument.getGlskPoints();
@@ -94,31 +94,31 @@ public class CimGlskDocumentImporterTest {
         assertFalse(glskPointList.isEmpty());
     }
 
-    @Test(expected = GlskException.class)
-    public void testExceptionCases() {
+    @Test
+    void testExceptionCases() {
         byte[] nonXmlBytes = "{ should not be imported }".getBytes();
-        new CimGlskDocumentImporter().importGlsk(new ByteArrayInputStream(nonXmlBytes));
-    }
-
-    @Test(expected = FileNotFoundException.class)
-    public void testFileNotFound() throws FileNotFoundException {
-        GlskDocumentImporters.importGlsk("/nonExistingFile.xml");
+        assertThrows(GlskException.class, () -> new CimGlskDocumentImporter().importGlsk(new ByteArrayInputStream(nonXmlBytes)));
     }
 
     @Test
-    public void existsTrue() {
+    void testFileNotFound() throws FileNotFoundException {
+        assertThrows(FileNotFoundException.class, () -> GlskDocumentImporters.importGlsk("/nonExistingFile.xml"));
+    }
+
+    @Test
+    void existsTrue() {
         CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
         assertTrue(importer.canImport(getResourceAsInputStream(GLSKB45TEST)));
     }
 
     @Test
-    public void existsFalse() {
+    void existsFalse() {
         CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
         assertFalse(importer.canImport(getResourceAsInputStream("/GlskB45wrong.xml")));
     }
 
     @Test
-    public void fullImport() {
+    void fullImport() {
         GlskDocument document = GlskDocumentImporters.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
         assertEquals(1, document.getZones().size());
     }

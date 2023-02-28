@@ -11,24 +11,24 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Check cne-model module
  *
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class CneModelTest {
+class CneModelTest {
 
     @Test
-    public void baseTestMonitoredRegisteredResource() {
+    void baseTestMonitoredRegisteredResource() {
         LimitViolation current = new LimitViolation("current", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
         LimitViolation lowShortCircuitCurrent = new LimitViolation("lowShortCircuitCurrent", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
         LimitViolation highShortCircuitCurrent = new LimitViolation("highShortCircuitCurrent", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
@@ -54,7 +54,7 @@ public class CneModelTest {
     }
 
     @Test
-    public void baseTestContingencySeries() {
+    void baseTestContingencySeries() {
         Contingency contingency = Contingency.builder("contingency")
                 .addBranch("NHV1_NHV2_2", "VLNHV1")
                 .addBranch("NHV1_NHV2_1")
@@ -70,26 +70,26 @@ public class CneModelTest {
     }
 
     @Test
-    public void emptyLimitViolationNotAllowed() {
+    void emptyLimitViolationNotAllowed() {
         // Fail to create MonitoredRegisteredResource
         List<LimitViolation> violations = Collections.emptyList();
         try {
             new MonitoredRegisteredResource(violations);
-            Assert.fail("Expected an IllegalArgumentException to be thrown");
+            Assertions.fail("Expected an IllegalArgumentException to be thrown");
         } catch (IllegalArgumentException ex) {
-            Assert.assertEquals("LimitViolation list cannot be empty", ex.getMessage());
+            Assertions.assertEquals("LimitViolation list cannot be empty", ex.getMessage());
         }
     }
 
     @Test
-    public void otherLimitViolationNotAllowed() {
+    void otherLimitViolationNotAllowed() {
         // Fail to create MonitoredRegisteredResource with LimitViolation.OTHER
         List<LimitViolation> violations = Collections.singletonList(new LimitViolation("otherId", LimitViolationType.OTHER, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE));
         try {
             new MonitoredRegisteredResource(violations);
-            Assert.fail("Expected an UnsupportedOperationException to be thrown");
+            Assertions.fail("Expected an UnsupportedOperationException to be thrown");
         } catch (UnsupportedOperationException ex) {
-            Assert.assertEquals("OTHER is not managed", ex.getMessage());
+            Assertions.assertEquals("OTHER is not managed", ex.getMessage());
         }
     }
 }

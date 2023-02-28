@@ -8,23 +8,23 @@ package com.powsybl.balances_adjustment.util;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-public class NetworkAreaTest {
+class NetworkAreaTest {
 
     private Network testNetwork1;
     private NetworkAreaFactory countryAreaFR;
 
     private NetworkAreaFactory voltageLevelsArea1;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         testNetwork1 = Network.read("testCase.xiidm", NetworkAreaTest.class.getResourceAsStream("/testCase.xiidm"));
 
         voltageLevelsArea1 = new VoltageLevelsAreaFactory("FFR1AA1", "FFR3AA1");
@@ -34,7 +34,7 @@ public class NetworkAreaTest {
     }
 
     @Test
-    public void testGetNetPosition() {
+    void testGetNetPosition() {
         assertEquals(countryAreaFR.create(testNetwork1).getNetPosition(), voltageLevelsArea1.create(testNetwork1).getNetPosition(), 1e-3);
     }
 

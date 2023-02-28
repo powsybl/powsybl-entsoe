@@ -41,12 +41,12 @@ class IGMmergeTests {
     private FileSystem fs;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         fs = Jimfs.newFileSystem(Configuration.unix());
     }
 
     @AfterEach
-    public void tearDown() throws IOException {
+    void tearDown() throws IOException {
         fs.close();
     }
 

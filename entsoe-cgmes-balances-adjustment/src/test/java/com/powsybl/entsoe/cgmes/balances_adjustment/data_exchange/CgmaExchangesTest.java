@@ -7,14 +7,12 @@
 package com.powsybl.entsoe.cgmes.balances_adjustment.data_exchange;
 
 import com.powsybl.timeseries.DoubleTimeSeries;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Common Grid Model Alignment.
@@ -22,20 +20,17 @@ import static org.junit.Assert.*;
  *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-public class CgmaExchangesTest {
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+class CgmaExchangesTest {
 
     private DataExchanges exchanges;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         exchanges = DataExchangesXml.parse(getClass().getResourceAsStream("/testCGMAMarketDocument_2-0.xml"));
     }
 
     @Test
-    public void baseTests() {
+    void baseTests() {
         // Getters
         assertEquals(StandardProcessType.A45, exchanges.getProcessType());
         assertEquals(Optional.of("OptimisationArea"), exchanges.getDomainId());
@@ -44,7 +39,7 @@ public class CgmaExchangesTest {
     }
 
     @Test
-    public void timeSeriesTests() {
+    void timeSeriesTests() {
         // Time Series
         DoubleTimeSeries timeSeries1 = exchanges.getTimeSeries("TimeSeries1");
         // TimeSeries1 : Check metadata
@@ -54,7 +49,7 @@ public class CgmaExchangesTest {
     }
 
     @Test
-    public void coverageTests() {
+    void coverageTests() {
         // StandardProcessType
         assertEquals("Two days ahead", StandardProcessType.A45.getDescription());
         // StandardRoleType

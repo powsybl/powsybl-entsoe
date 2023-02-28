@@ -8,21 +8,21 @@ package com.powsybl.glsk.commons;
 
 import com.powsybl.glsk.commons.chronology.Chronology;
 import com.powsybl.glsk.commons.chronology.ChronologyImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class ChronologyImplTest {
+class ChronologyImplTest {
     @Test
-    public void testStoringByInstant() {
+    void testStoringByInstant() {
         Chronology<Integer> dataChronology = ChronologyImpl.create();
         String instantAsString = "2007-12-03T10:15:30.00Z";
         String instantInHourAsString = "2007-12-03T10:45:30.00Z";
@@ -36,7 +36,7 @@ public class ChronologyImplTest {
     }
 
     @Test
-    public void testStoringByInstantAndPeriod() {
+    void testStoringByInstantAndPeriod() {
         Chronology<Integer> dataChronology = ChronologyImpl.create();
         String instantAsString = "2007-12-03T10:15:30.00Z";
         String otherInstantWithinPeriodAsString = "2008-12-03T10:15:30.00Z";
@@ -50,7 +50,7 @@ public class ChronologyImplTest {
     }
 
     @Test
-    public void testStoringByInterval() {
+    void testStoringByInterval() {
         Chronology<Integer> dataChronology = ChronologyImpl.create();
         String intervalAsString = "2009-12-03T10:15:30.00Z/2010-12-03T10:15:30.00Z";
         String instantInsidePeriod = "2010-03-03T10:15:30.00Z";
@@ -62,7 +62,7 @@ public class ChronologyImplTest {
     }
 
     @Test
-    public void testStoringByBeginningAndEndInstants() {
+    void testStoringByBeginningAndEndInstants() {
         Chronology<Integer> dataChronology = ChronologyImpl.create();
         String beginningInstantAsString = "2009-12-03T10:15:30.00Z";
         String endInstantAsString = "2010-12-03T10:15:30.00Z";
@@ -75,7 +75,7 @@ public class ChronologyImplTest {
     }
 
     @Test
-    public void testWithReplacementStrategyGet() {
+    void testWithReplacementStrategyGet() {
         Chronology<Integer> dataChronology = ChronologyImpl.create();
         String instant1 = "2010-01-01T10:15:30.00Z";
         String instant2 = "2011-01-01T10:15:30.00Z";
@@ -105,43 +105,63 @@ public class ChronologyImplTest {
         assertNull(dataChronology.selectInstant(Instant.parse(instantAfter), Chronology.ReplacementStrategy.DATA_AT_NEXT_INSTANT));
     }
 
-    @Test(expected = GlskException.class)
-    public void testErrorWhenAddingInstantInAlreadyCreatedInstant() {
-        Chronology<Integer> dataChronology = ChronologyImpl.create();
-        String instant = "2010-03-03T10:15:30.00Z";
-        dataChronology.storeDataAtInstant(2, Instant.parse(instant));
-        dataChronology.storeDataAtInstant(2, Instant.parse(instant));
-    }
-
-    @Test(expected = GlskException.class)
-    public void testErrorWhenAddingInstantInValidityPeriodOfAnotherInstant() {
-        Chronology<Integer> dataChronology = ChronologyImpl.create();
-        String instant = "2010-03-03T10:15:30.00Z";
-        String instantPlus59Min = "2010-03-03T10:16:29.00Z";
-        dataChronology.storeDataAtInstant(2, Instant.parse(instant));
-        dataChronology.storeDataAtInstant(2, Instant.parse(instantPlus59Min));
-    }
-
-    @Test(expected = GlskException.class)
-    public void testErrorWhenAddingInstantInAlreadyCreatedPeriod() {
-        Chronology<Integer> dataChronology = ChronologyImpl.create();
-        String interval = "2010-01-01T10:15:30.00Z/2011-01-01T10:15:30.00Z";
-        String instantInside = "2010-03-03T10:15:30.00Z";
-        dataChronology.storeDataOnInterval(1, Interval.parse(interval));
-        dataChronology.storeDataAtInstant(2, Instant.parse(instantInside));
-    }
-
-    @Test(expected = GlskException.class)
-    public void testErrorWhenIntervalsOverlaps() {
-        Chronology<Integer> dataChronology = ChronologyImpl.create();
-        String interval1 = "2010-01-01T10:15:30.00Z/2011-01-01T10:15:30.00Z";
-        String interval2 = "2010-05-01T10:15:30.00Z/2011-05-01T10:15:30.00Z";
-        dataChronology.storeDataOnInterval(1, Interval.parse(interval1));
-        dataChronology.storeDataOnInterval(2, Interval.parse(interval2));
+    @Test
+    void testErrorWhenAddingInstantInAlreadyCreatedInstant() {
+        try {
+            Chronology<Integer> dataChronology = ChronologyImpl.create();
+            String instant = "2010-03-03T10:15:30.00Z";
+            dataChronology.storeDataAtInstant(2, Instant.parse(instant));
+            dataChronology.storeDataAtInstant(2, Instant.parse(instant));
+            fail();
+        } catch (GlskException e) {
+            // do nothing
+        }
     }
 
     @Test
-    public void testLimitsOfIntervals() {
+    void testErrorWhenAddingInstantInValidityPeriodOfAnotherInstant() {
+        try {
+            Chronology<Integer> dataChronology = ChronologyImpl.create();
+            String instant = "2010-03-03T10:15:30.00Z";
+            String instantPlus59Min = "2010-03-03T10:16:29.00Z";
+            dataChronology.storeDataAtInstant(2, Instant.parse(instant));
+            dataChronology.storeDataAtInstant(2, Instant.parse(instantPlus59Min));
+            fail();
+        } catch (GlskException e) {
+            // do nothing
+        }
+    }
+
+    @Test
+    void testErrorWhenAddingInstantInAlreadyCreatedPeriod() {
+        try {
+            Chronology<Integer> dataChronology = ChronologyImpl.create();
+            String interval = "2010-01-01T10:15:30.00Z/2011-01-01T10:15:30.00Z";
+            String instantInside = "2010-03-03T10:15:30.00Z";
+            dataChronology.storeDataOnInterval(1, Interval.parse(interval));
+            dataChronology.storeDataAtInstant(2, Instant.parse(instantInside));
+            fail();
+        } catch (GlskException e) {
+            // do nothing
+        }
+    }
+
+    @Test
+    void testErrorWhenIntervalsOverlaps() {
+        try {
+            Chronology<Integer> dataChronology = ChronologyImpl.create();
+            String interval1 = "2010-01-01T10:15:30.00Z/2011-01-01T10:15:30.00Z";
+            String interval2 = "2010-05-01T10:15:30.00Z/2011-05-01T10:15:30.00Z";
+            dataChronology.storeDataOnInterval(1, Interval.parse(interval1));
+            dataChronology.storeDataOnInterval(2, Interval.parse(interval2));
+            fail();
+        } catch (GlskException e) {
+            // do nothing
+        }
+    }
+
+    @Test
+    void testLimitsOfIntervals() {
         Chronology<Integer> dataChronology = ChronologyImpl.create();
         Instant instant = Instant.parse("2010-03-03T10:15:30.00Z");
         Instant instantPlus1Hour = Instant.parse("2010-03-03T11:15:30.00Z");

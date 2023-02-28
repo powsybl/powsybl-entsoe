@@ -20,10 +20,10 @@ import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.results.PostContingencyResult;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,23 +39,23 @@ import java.util.Properties;
  *
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class CneExporterTest extends AbstractConverterTest {
+class CneExporterTest extends AbstractConverterTest {
 
     private FileSystem fileSystem;
     private Path workingDir;
 
-    @Before
-    public void createFileSystem() {
+    @BeforeEach
+    void createFileSystem() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         workingDir = fileSystem.getPath("/work");
     }
 
-    @After
-    public void closeFileSystem() throws IOException {
+    @AfterEach
+    void closeFileSystem() throws IOException {
         fileSystem.close();
     }
 
-    public void exporterTest(SecurityAnalysisResult resultToExport, Properties parameters) throws IOException {
+    void exporterTest(SecurityAnalysisResult resultToExport, Properties parameters) throws IOException {
         // Target export file
         Path actualPath = workingDir.resolve("result.xml");
         // Try to export
@@ -64,12 +64,12 @@ public class CneExporterTest extends AbstractConverterTest {
         try (InputStream is = Files.newInputStream(actualPath)) {
             ComparisonUtils.compareXml(getClass().getResourceAsStream("/cne.xml"), is);
         } catch (IOException e) {
-            Assert.fail(e.getMessage());
+            Assertions.fail(e.getMessage());
         }
     }
 
     @Test
-    public void exportTest() throws IOException {
+    void exportTest() throws IOException {
         // mRID key is missing in config.yml file
         // Add mRID property because it is required to export
         Properties parameters = new Properties();
@@ -78,26 +78,26 @@ public class CneExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void exportTestWithoutMRID() throws IOException {
+    void exportTestWithoutMRID() throws IOException {
         // Empty properties
         final Properties parameters = new Properties();
         final SecurityAnalysisResult result = create();
         // Fail to export without mRID
         try {
             exporterTest(result, parameters);
-            Assert.fail("Expected an NullPointerException to be thrown");
+            Assertions.fail("Expected an NullPointerException to be thrown");
         } catch (NullPointerException ex) {
-            Assert.assertEquals("mRID is missing", ex.getMessage());
+            Assertions.assertEquals("mRID is missing", ex.getMessage());
         }
     }
 
     @Test
-    public void baseTest() {
+    void baseTest() {
         // Check getters / setters
         SecurityAnalysisResultExporter cneExporter = SecurityAnalysisResultExporters.getExporter("CNE-XML");
-        Assert.assertNotNull(cneExporter);
-        Assert.assertFalse(cneExporter.getComment().isEmpty());
-        Assert.assertEquals("CNE-XML", cneExporter.getFormat());
+        Assertions.assertNotNull(cneExporter);
+        Assertions.assertFalse(cneExporter.getComment().isEmpty());
+        Assertions.assertEquals("CNE-XML", cneExporter.getFormat());
     }
 
     private static SecurityAnalysisResult create() {

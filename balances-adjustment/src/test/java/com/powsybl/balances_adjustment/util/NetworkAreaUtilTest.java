@@ -13,19 +13,19 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class NetworkAreaUtilTest {
+class NetworkAreaUtilTest {
 
     @Test
-    public void testConformLoadsScalables() {
+    void testConformLoadsScalables() {
         Network network = EurostagTutorialExample1Factory.create();
         NetworkAreaFactory factory = new VoltageLevelsAreaFactory(network.getVoltageLevelStream().map(Identifiable::getId).toArray(String[]::new));
         NetworkArea area = factory.create(network);
@@ -38,7 +38,7 @@ public class NetworkAreaUtilTest {
     }
 
     @Test
-    public void testNoLoadScalables() {
+    void testNoLoadScalables() {
         Network network = EurostagTutorialExample1Factory.create();
         NetworkAreaFactory factory = new VoltageLevelsAreaFactory("VLGEN");
         NetworkArea area = factory.create(network);
@@ -51,7 +51,7 @@ public class NetworkAreaUtilTest {
     }
 
     @Test
-    public void testNullLoadScalables() {
+    void testNullLoadScalables() {
         Network network = EurostagTutorialExample1Factory.create();
         network.getLoad("LOAD").setP0(0.0);
         NetworkAreaFactory factory = new VoltageLevelsAreaFactory(network.getVoltageLevelStream().map(Identifiable::getId).toArray(String[]::new));

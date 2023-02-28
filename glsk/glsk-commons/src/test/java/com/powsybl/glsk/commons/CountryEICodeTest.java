@@ -7,17 +7,17 @@
 package com.powsybl.glsk.commons;
 
 import com.powsybl.iidm.network.Country;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
  * @author Amira Kahya {@literal <amira.kahya@rte-france.com>}
  */
-public class CountryEICodeTest {
+class CountryEICodeTest {
     @Test
-    public void testEicCodeConvergence() {
+    void testEicCodeConvergence() {
         assertEquals(Country.AT, new CountryEICode("10YAT-APG------L").getCountry());
         assertEquals(Country.BE, new CountryEICode("10YBE----------2").getCountry());
         assertEquals(Country.CZ, new CountryEICode("10YCZ-CEPS-----N").getCountry());
@@ -46,7 +46,7 @@ public class CountryEICodeTest {
     }
 
     @Test
-    public void testEicCodeFromCountry() {
+    void testEicCodeFromCountry() {
         assertEquals("10YAT-APG------L", new CountryEICode(Country.AT).getCode());
         assertEquals("10YBE----------2", new CountryEICode(Country.BE).getCode());
         assertEquals("10YCZ-CEPS-----N", new CountryEICode(Country.CZ).getCode());
