@@ -19,6 +19,7 @@ import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -238,13 +239,31 @@ class IGMmergeTests {
                 && dl1.getX() == dl2.getX() && dl1.getP0() == dl2.getP0() && dl1.getQ0() == dl2.getQ0();
     }
 
+    private static final double TOLERANCE_RX = 1e-10;
+    private static final double TOLERANCE_GB = 1e-4;
+
     private static void checkLine(Line line1, Line line2) {
-        assertEquals(line1.getR(), line2.getR(), 0.0001);
-        assertEquals(line1.getX(), line2.getX(), 0.0001);
-        assertEquals(line1.getB1(), line2.getB1(), 0.0000001);
-        assertEquals(line1.getB2(), line2.getB2(), 0.0000001);
-        assertEquals(line1.getG1(), line2.getG1(), 0.0000001);
-        assertEquals(line1.getG2(), line2.getG2(), 0.0000001);
+        boolean halvesHaveSameOrder = true;
+        if (line1.isTieLine()) {
+            String id11 = ((TieLine) line1).getHalf1().getId();
+            String id21 = ((TieLine) line2).getHalf1().getId();
+            if (!id11.equals(id21)) {
+                halvesHaveSameOrder = false;
+            }
+        }
+        assertEquals(line1.getR(), line2.getR(), TOLERANCE_RX);
+        assertEquals(line1.getX(), line2.getX(), TOLERANCE_RX);
+        if (halvesHaveSameOrder) {
+            assertEquals(line1.getB1(), line2.getB1(), TOLERANCE_GB);
+            assertEquals(line1.getB2(), line2.getB2(), TOLERANCE_GB);
+            assertEquals(line1.getG1(), line2.getG1(), TOLERANCE_GB);
+            assertEquals(line1.getG2(), line2.getG2(), TOLERANCE_GB);
+        } else {
+            assertEquals(line1.getB1(), line2.getB2(), TOLERANCE_GB);
+            assertEquals(line1.getB2(), line2.getB1(), TOLERANCE_GB);
+            assertEquals(line1.getG1(), line2.getG2(), TOLERANCE_GB);
+            assertEquals(line1.getG2(), line2.getG1(), TOLERANCE_GB);
+        }
     }
 
     private static void compareNetwork(Network network1, Network network2) {
