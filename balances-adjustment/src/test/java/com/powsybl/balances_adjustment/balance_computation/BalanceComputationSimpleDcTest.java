@@ -7,14 +7,13 @@
 package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
-import com.powsybl.balances_adjustment.util.CountryAreaTest;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.*;
-import com.powsybl.openloadflow.OpenLoadFlowProvider;
 import com.powsybl.math.matrix.DenseMatrixFactory;
+import com.powsybl.openloadflow.OpenLoadFlowProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -49,7 +48,7 @@ class BalanceComputationSimpleDcTest {
 
     @BeforeEach
     void setUp() {
-        simpleNetwork = Network.read("testSimpleNetwork.xiidm", CountryAreaTest.class.getResourceAsStream("/testSimpleNetwork.xiidm"));
+        simpleNetwork = Network.read("testSimpleNetwork.xiidm", getClass().getResourceAsStream("/testSimpleNetwork.xiidm"));
 
         countryAreaFR = new CountryAreaFactory(Country.FR);
         countryAreaBE = new CountryAreaFactory(Country.BE);

@@ -7,19 +7,21 @@
 package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
-import com.powsybl.balances_adjustment.util.CountryAreaTest;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.openloadflow.OpenLoadFlowProvider;
 import com.powsybl.math.matrix.DenseMatrixFactory;
+import com.powsybl.openloadflow.OpenLoadFlowProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -41,7 +43,7 @@ class BalanceComputationImplDcTest {
 
     @BeforeEach
     void setUp() {
-        testNetwork1 = Network.read("testCase.xiidm", CountryAreaTest.class.getResourceAsStream("/testCase.xiidm"));
+        testNetwork1 = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
 
         countryAreaFR = new CountryAreaFactory(Country.FR);
         countryAreaBE = new CountryAreaFactory(Country.BE);
