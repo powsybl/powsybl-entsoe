@@ -9,8 +9,8 @@ package com.powsybl.glsk.cim;
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.GlskShiftKey;
-import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
+import com.powsybl.glsk.commons.GlskException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,9 @@ class CimGlskDocumentImporterTest {
     @Test
     void testExceptionCases() {
         byte[] nonXmlBytes = "{ should not be imported }".getBytes();
-        assertThrows(GlskException.class, () -> new CimGlskDocumentImporter().importGlsk(new ByteArrayInputStream(nonXmlBytes)));
+        CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
+        InputStream inputStream = new ByteArrayInputStream(nonXmlBytes);
+        assertThrows(GlskException.class, () -> importer.importGlsk(inputStream));
     }
 
     @Test

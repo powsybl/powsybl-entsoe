@@ -6,16 +6,16 @@
  */
 package com.powsybl.glsk.ucte;
 
+import com.google.common.math.DoubleMath;
 import com.powsybl.glsk.api.GlskRegisteredResource;
 import com.powsybl.glsk.api.GlskShiftKey;
-import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
-import com.google.common.math.DoubleMath;
+import com.powsybl.glsk.commons.GlskException;
 import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
-import java.io.*;
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.List;
@@ -93,7 +93,8 @@ class UcteGlskDocumentImporterTest {
     @Test
     void testExceptionCases() {
         byte[] nonXmlBytes = "{ should not be imported }".getBytes();
-        assertThrows(GlskException.class, () -> UcteGlskDocument.importGlsk(new ByteArrayInputStream(nonXmlBytes)));
+        InputStream inputStream = new ByteArrayInputStream(nonXmlBytes);
+        assertThrows(GlskException.class, () -> UcteGlskDocument.importGlsk(inputStream));
     }
 
     @Test

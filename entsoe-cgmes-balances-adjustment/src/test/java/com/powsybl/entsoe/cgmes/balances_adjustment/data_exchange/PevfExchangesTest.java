@@ -151,22 +151,25 @@ class PevfExchangesTest {
 
     @Test
     void timeSeriesEndTest() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> exchanges.getValueAt("TimeSeries5", Instant.parse("2019-06-18T22:00:00.000Z")));
+        Instant instant = Instant.parse("2019-06-18T22:00:00.000Z");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> exchanges.getValueAt("TimeSeries5", instant));
         assertTrue(e.getMessage().contains("TimeSeries5 '2019-06-18T22:00:00Z' is out of bound [2020-04-05T22:00:00Z, 2020-04-06T22:00:00Z["));
     }
 
     @Test
     void timeSeriesAfterEndTest() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> exchanges.getValueAt("TimeSeries5", Instant.parse("2019-06-19T00:00:00.000Z")));
+        Instant instant = Instant.parse("2019-06-19T00:00:00.000Z");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> exchanges.getValueAt("TimeSeries5", instant));
         assertTrue(e.getMessage().contains("TimeSeries5 '2019-06-19T00:00:00Z' is out of bound [2020-04-05T22:00:00Z, 2020-04-06T22:00:00Z["));
     }
 
     @Test
     void invalidRevisionNumberTest() {
+        DateTime dateTime = DateTime.now();
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new DataExchanges("", -1, StandardMessageType.B19, StandardProcessType.A01,
                 "", StandardCodingSchemeType.A01, StandardRoleType.A32,
                 "", StandardCodingSchemeType.A02, StandardRoleType.A33,
-                DateTime.now(), null, "", StandardStatusType.A01, null,
+                dateTime, null, "", StandardStatusType.A01, null,
                 null, null));
         assertTrue(e.getMessage().contains("Bad revision number value -1"));
     }

@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-public class CountryAreaTest {
+class CountryAreaTest {
 
     private Network testNetwork1;
     private Network testNetwork2;

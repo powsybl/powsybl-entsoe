@@ -107,57 +107,41 @@ class ChronologyImplTest {
 
     @Test
     void testErrorWhenAddingInstantInAlreadyCreatedInstant() {
-        try {
-            Chronology<Integer> dataChronology = ChronologyImpl.create();
-            String instant = "2010-03-03T10:15:30.00Z";
-            dataChronology.storeDataAtInstant(2, Instant.parse(instant));
-            dataChronology.storeDataAtInstant(2, Instant.parse(instant));
-            fail();
-        } catch (GlskException e) {
-            // do nothing
-        }
+        Chronology<Integer> dataChronology = ChronologyImpl.create();
+        Instant instant = Instant.parse("2010-03-03T10:15:30.00Z");
+        dataChronology.storeDataAtInstant(2, instant);
+        GlskException e = assertThrows(GlskException.class, () -> dataChronology.storeDataAtInstant(2, instant));
+        assertEquals("A data is already provided for some instant of the interval", e.getMessage());
     }
 
     @Test
     void testErrorWhenAddingInstantInValidityPeriodOfAnotherInstant() {
-        try {
-            Chronology<Integer> dataChronology = ChronologyImpl.create();
-            String instant = "2010-03-03T10:15:30.00Z";
-            String instantPlus59Min = "2010-03-03T10:16:29.00Z";
-            dataChronology.storeDataAtInstant(2, Instant.parse(instant));
-            dataChronology.storeDataAtInstant(2, Instant.parse(instantPlus59Min));
-            fail();
-        } catch (GlskException e) {
-            // do nothing
-        }
+        Chronology<Integer> dataChronology = ChronologyImpl.create();
+        Instant instant = Instant.parse("2010-03-03T10:15:30.00Z");
+        Instant instantPlus59Min = Instant.parse("2010-03-03T10:16:29.00Z");
+        dataChronology.storeDataAtInstant(2, instant);
+        GlskException e = assertThrows(GlskException.class, () -> dataChronology.storeDataAtInstant(2, instantPlus59Min));
+        assertEquals("A data is already provided for some instant of the interval", e.getMessage());
     }
 
     @Test
     void testErrorWhenAddingInstantInAlreadyCreatedPeriod() {
-        try {
-            Chronology<Integer> dataChronology = ChronologyImpl.create();
-            String interval = "2010-01-01T10:15:30.00Z/2011-01-01T10:15:30.00Z";
-            String instantInside = "2010-03-03T10:15:30.00Z";
-            dataChronology.storeDataOnInterval(1, Interval.parse(interval));
-            dataChronology.storeDataAtInstant(2, Instant.parse(instantInside));
-            fail();
-        } catch (GlskException e) {
-            // do nothing
-        }
+        Chronology<Integer> dataChronology = ChronologyImpl.create();
+        Interval interval = Interval.parse("2010-01-01T10:15:30.00Z/2011-01-01T10:15:30.00Z");
+        Instant instantInside = Instant.parse("2010-03-03T10:15:30.00Z");
+        dataChronology.storeDataOnInterval(1, interval);
+        GlskException e = assertThrows(GlskException.class, () -> dataChronology.storeDataAtInstant(2, instantInside));
+        assertEquals("A data is already provided for some instant of the interval", e.getMessage());
     }
 
     @Test
     void testErrorWhenIntervalsOverlaps() {
-        try {
-            Chronology<Integer> dataChronology = ChronologyImpl.create();
-            String interval1 = "2010-01-01T10:15:30.00Z/2011-01-01T10:15:30.00Z";
-            String interval2 = "2010-05-01T10:15:30.00Z/2011-05-01T10:15:30.00Z";
-            dataChronology.storeDataOnInterval(1, Interval.parse(interval1));
-            dataChronology.storeDataOnInterval(2, Interval.parse(interval2));
-            fail();
-        } catch (GlskException e) {
-            // do nothing
-        }
+        Chronology<Integer> dataChronology = ChronologyImpl.create();
+        Interval interval1 = Interval.parse("2010-01-01T10:15:30.00Z/2011-01-01T10:15:30.00Z");
+        Interval interval2 = Interval.parse("2010-05-01T10:15:30.00Z/2011-05-01T10:15:30.00Z");
+        dataChronology.storeDataOnInterval(1, interval1);
+        GlskException e = assertThrows(GlskException.class, () -> dataChronology.storeDataOnInterval(2, interval2));
+        assertEquals("A data is already provided for some instant of the interval", e.getMessage());
     }
 
     @Test
