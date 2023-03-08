@@ -7,29 +7,28 @@
 package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
-import com.powsybl.balances_adjustment.util.CountryAreaTest;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.*;
-import com.powsybl.openloadflow.OpenLoadFlowProvider;
 import com.powsybl.math.matrix.DenseMatrixFactory;
-import org.junit.Before;
-import org.junit.Test;
+import com.powsybl.openloadflow.OpenLoadFlowProvider;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-public class BalanceComputationSimpleDcTest {
+class BalanceComputationSimpleDcTest {
     private Network simpleNetwork;
     private ComputationManager computationManager;
     private CountryAreaFactory countryAreaFR;
@@ -47,9 +46,9 @@ public class BalanceComputationSimpleDcTest {
     private String initialState = "InitialState";
     private String initialVariantNew = "InitialVariantNew";
 
-    @Before
-    public void setUp() {
-        simpleNetwork = Network.read("testSimpleNetwork.xiidm", CountryAreaTest.class.getResourceAsStream("/testSimpleNetwork.xiidm"));
+    @BeforeEach
+    void setUp() {
+        simpleNetwork = Network.read("testSimpleNetwork.xiidm", getClass().getResourceAsStream("/testSimpleNetwork.xiidm"));
 
         countryAreaFR = new CountryAreaFactory(Country.FR);
         countryAreaBE = new CountryAreaFactory(Country.BE);
@@ -76,7 +75,7 @@ public class BalanceComputationSimpleDcTest {
     }
 
     @Test
-    public void testDivergentLoadFLow() {
+    void testDivergentLoadFLow() {
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1200.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1200.));
@@ -94,7 +93,7 @@ public class BalanceComputationSimpleDcTest {
     }
 
     @Test
-    public void testBalancedNetworkMockito() {
+    void testBalancedNetworkMockito() {
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1199.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1199.));
@@ -135,7 +134,7 @@ public class BalanceComputationSimpleDcTest {
     }
 
     @Test
-    public void testUnBalancedNetworkMockito() {
+    void testUnBalancedNetworkMockito() {
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1400.));
@@ -177,7 +176,7 @@ public class BalanceComputationSimpleDcTest {
     }
 
     @Test
-    public void testBalancedNetworkAfter1Scaling() {
+    void testBalancedNetworkAfter1Scaling() {
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1300.));
@@ -191,7 +190,7 @@ public class BalanceComputationSimpleDcTest {
     }
 
     @Test
-    public void testUnBalancedNetwork() {
+    void testUnBalancedNetwork() {
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1400.));
@@ -207,7 +206,7 @@ public class BalanceComputationSimpleDcTest {
     }
 
     @Test
-    public void testDifferentStateId() {
+    void testDifferentStateId() {
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1300.));
@@ -232,7 +231,7 @@ public class BalanceComputationSimpleDcTest {
     }
 
     @Test
-    public void testUnBalancedNetworkDifferentState() {
+    void testUnBalancedNetworkDifferentState() {
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1400.));

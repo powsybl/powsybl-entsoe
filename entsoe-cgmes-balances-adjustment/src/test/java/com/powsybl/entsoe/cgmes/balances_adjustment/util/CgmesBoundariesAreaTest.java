@@ -11,23 +11,23 @@ import com.powsybl.balances_adjustment.util.NetworkAreaFactory;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CgmesBoundariesAreaTest {
+class CgmesBoundariesAreaTest {
 
-    public static double DELTA_POWER = 1e-5;
+    static double DELTA_POWER = 1e-5;
 
     @Test
-    public void testWithNoArea() {
+    void testWithNoArea() {
         Network network = DanglingLineNetworkFactory.create();
         NetworkAreaFactory factory = new CgmesBoundariesAreaFactory();
         NetworkArea area = factory.create(network);
@@ -36,7 +36,7 @@ public class CgmesBoundariesAreaTest {
     }
 
     @Test
-    public void testWithArea() {
+    void testWithArea() {
         Network network = Network.read("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
         NetworkAreaFactory factory = new CgmesBoundariesAreaFactory(new ArrayList<>(network.getExtension(CgmesControlAreas.class).getCgmesControlAreas()));
         NetworkArea area = factory.create(network);

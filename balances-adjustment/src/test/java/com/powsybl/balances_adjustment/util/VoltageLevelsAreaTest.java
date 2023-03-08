@@ -7,24 +7,24 @@
 package com.powsybl.balances_adjustment.util;
 
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-public class VoltageLevelsAreaTest {
+class VoltageLevelsAreaTest {
 
     private Network testNetwork;
     private VoltageLevelsAreaFactory voltageLevelsArea;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         testNetwork = Network.read("testCase.xiidm", VoltageLevelsAreaTest.class.getResourceAsStream("/testCase.xiidm"));
 
         voltageLevelsArea = new VoltageLevelsAreaFactory("FFR1AA1", "DDE3AA1");
@@ -32,7 +32,7 @@ public class VoltageLevelsAreaTest {
     }
 
     @Test
-    public void testGetNetPosition() {
+    void testGetNetPosition() {
         List<Double> flows = new ArrayList<>();
         flows.add(testNetwork.getBranch("FFR1AA1  FFR3AA1  1").getTerminal1().getP());
         flows.add(testNetwork.getBranch("FFR2AA1  FFR3AA1  1").getTerminal1().getP());
@@ -43,7 +43,7 @@ public class VoltageLevelsAreaTest {
     }
 
     @Test
-    public void testSpecialDevices() {
+    void testSpecialDevices() {
         Network network = Network.read("testCaseSpecialDevices.xiidm", getClass().getResourceAsStream("/testCaseSpecialDevices.xiidm"));
 
         NetworkAreaFactory test3wtFactory = new VoltageLevelsAreaFactory("VOLTAGE_LEVEL_FR_225KV");

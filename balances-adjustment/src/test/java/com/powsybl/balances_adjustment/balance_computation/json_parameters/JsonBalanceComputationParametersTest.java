@@ -16,20 +16,20 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.loadflow.LoadFlowParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.benrejeb at rte-france.com>}
  */
-public class JsonBalanceComputationParametersTest extends AbstractConverterTest {
+class JsonBalanceComputationParametersTest extends AbstractConverterTest {
 
     @Test
-    public void testDefaultBalanceComputationConfig() {
+    void testDefaultBalanceComputationConfig() {
         BalanceComputationParameters parameters = new BalanceComputationParameters();
         BalanceComputationParameters.load();
         assertEquals(BalanceComputationParameters.DEFAULT_MAX_NUMBER_ITERATIONS, parameters.getMaxNumberIterations());
@@ -37,13 +37,13 @@ public class JsonBalanceComputationParametersTest extends AbstractConverterTest 
     }
 
     @Test
-    public void readError() {
+    void readError() {
         InputStream is = getClass().getResourceAsStream("/balanceComputationParametersError.json");
         assertThrows(AssertionError.class, () -> JsonBalanceComputationParameters.read(is));
     }
 
     @Test
-    public void readSuccessful() {
+    void readSuccessful() {
         BalanceComputationParameters parameters = JsonBalanceComputationParameters.read(getClass().getResourceAsStream("/balanceComputationParameters.json"));
         assertEquals(11, parameters.getMaxNumberIterations());
         assertEquals(2, parameters.getThresholdNetPosition(), .01);
@@ -55,7 +55,7 @@ public class JsonBalanceComputationParametersTest extends AbstractConverterTest 
     }
 
     @Test
-    public void readExtension() throws IOException {
+    void readExtension() throws IOException {
         BalanceComputationParameters parameters = JsonBalanceComputationParameters.read(getClass().getResourceAsStream("/balanceComputationParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
@@ -63,20 +63,20 @@ public class JsonBalanceComputationParametersTest extends AbstractConverterTest 
     }
 
     @Test
-    public void roundTrip() throws IOException {
+    void roundTrip() throws IOException {
         BalanceComputationParameters parameters = JsonBalanceComputationParameters.read(getClass().getResourceAsStream("/balanceComputationParameters.json"));
         roundTripTest(parameters, JsonBalanceComputationParameters::write, JsonBalanceComputationParameters::read, "/balanceComputationParameters.json");
     }
 
     @Test
-    public void writeExtension() throws IOException {
+    void writeExtension() throws IOException {
         BalanceComputationParameters parameters = new BalanceComputationParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonBalanceComputationParameters::write, ComparisonUtils::compareTxt, "/balanceComputationParametersWithExtension.json");
     }
 
     @Test
-    public void updateLoadFlowParameters() {
+    void updateLoadFlowParameters() {
         BalanceComputationParameters parameters = new BalanceComputationParameters();
         JsonBalanceComputationParameters.update(parameters, getClass().getResourceAsStream("/balanceComputationParameters.json"));
 

@@ -10,13 +10,13 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-public final class NetworkTestFactory {
+final class NetworkTestFactory {
 
     private NetworkTestFactory() {
         throw new AssertionError("No default constructor in utility class");
     }
 
-    public static Network createNetwork() {
+    static Network createNetwork() {
         Network network = NetworkFactory.findDefault().createNetwork("test", "test");
         Substation substationFr1 = network.newSubstation()
                 .setId("subFr1")

@@ -9,17 +9,15 @@ package com.powsybl.entsoe.cgmes.balances_adjustment.data_exchange;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.DoubleTimeSeries;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Pan European Verification Function.
@@ -27,20 +25,17 @@ import static org.junit.Assert.*;
  *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-public class PevfExchangesTest {
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+class PevfExchangesTest {
 
     private DataExchanges exchanges;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         exchanges = DataExchangesXml.parse(getClass().getResourceAsStream("/testPEVFMarketDocument_2-0.xml"));
     }
 
     @Test
-    public void baseTests() {
+    void baseTests() {
         // Getters
         assertEquals("MarketDocument_MRID", exchanges.getMRId());
         assertEquals(1, exchanges.getRevisionNumber());
@@ -63,7 +58,7 @@ public class PevfExchangesTest {
     }
 
     @Test
-    public void timeSeriesTests() {
+    void timeSeriesTests() {
         // Time Series
         DoubleTimeSeries timeSeries1 = exchanges.getTimeSeries("TimeSeries1");
         // TimeSeries1 : Check metadata
@@ -99,7 +94,7 @@ public class PevfExchangesTest {
     }
 
     @Test
-    public void utilitiesTests() {
+    void utilitiesTests() {
         assertEquals(5, exchanges.getTimeSeries().size());
 
         assertEquals("TimeSeries1", exchanges.getTimeSeries("TimeSeries1").getMetadata().getName());
@@ -125,7 +120,7 @@ public class PevfExchangesTest {
     }
 
     @Test
-    public void searchTimeSeriesByDomainIdTest() {
+    void searchTimeSeriesByDomainIdTest() {
         assertEquals(0, exchanges.getTimeSeries("Sender1", "Invalid").size());
         assertEquals(0, exchanges.getTimeSeries("Invalid", "Receiver1").size());
         assertEquals(1, exchanges.getTimeSeries("Sender1", "Receiver1").size());
@@ -149,40 +144,38 @@ public class PevfExchangesTest {
     }
 
     @Test
-    public void timeSeriesNotFoundTest() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("TimeSeries 'Unknown' not found");
-        exchanges.getTimeSeries("Unknown");
+    void timeSeriesNotFoundTest() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> exchanges.getTimeSeries("Unknown"));
+        assertTrue(e.getMessage().contains("TimeSeries 'Unknown' not found"));
     }
 
     @Test
-    public void timeSeriesEndTest() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("TimeSeries5 '2019-06-18T22:00:00Z' is out of bound [2020-04-05T22:00:00Z, 2020-04-06T22:00:00Z[");
-        exchanges.getValueAt("TimeSeries5", Instant.parse("2019-06-18T22:00:00.000Z"));
+    void timeSeriesEndTest() {
+        Instant instant = Instant.parse("2019-06-18T22:00:00.000Z");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> exchanges.getValueAt("TimeSeries5", instant));
+        assertTrue(e.getMessage().contains("TimeSeries5 '2019-06-18T22:00:00Z' is out of bound [2020-04-05T22:00:00Z, 2020-04-06T22:00:00Z["));
     }
 
     @Test
-    public void timeSeriesAfterEndTest() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("TimeSeries5 '2019-06-19T00:00:00Z' is out of bound [2020-04-05T22:00:00Z, 2020-04-06T22:00:00Z[");
-        exchanges.getValueAt("TimeSeries5", Instant.parse("2019-06-19T00:00:00.000Z"));
+    void timeSeriesAfterEndTest() {
+        Instant instant = Instant.parse("2019-06-19T00:00:00.000Z");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> exchanges.getValueAt("TimeSeries5", instant));
+        assertTrue(e.getMessage().contains("TimeSeries5 '2019-06-19T00:00:00Z' is out of bound [2020-04-05T22:00:00Z, 2020-04-06T22:00:00Z["));
     }
 
     @Test
-    public void invalidRevisionNumberTest() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Bad revision number value -1");
-
-        new DataExchanges("", -1, StandardMessageType.B19, StandardProcessType.A01,
+    void invalidRevisionNumberTest() {
+        DateTime dateTime = DateTime.now();
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new DataExchanges("", -1, StandardMessageType.B19, StandardProcessType.A01,
                 "", StandardCodingSchemeType.A01, StandardRoleType.A32,
                 "", StandardCodingSchemeType.A02, StandardRoleType.A33,
-                DateTime.now(), null, "", StandardStatusType.A01, null,
-                null, null);
+                dateTime, null, "", StandardStatusType.A01, null,
+                null, null));
+        assertTrue(e.getMessage().contains("Bad revision number value -1"));
     }
 
     @Test
-    public void coverageTests() {
+    void coverageTests() {
         // StandardCodingSchemeType
         assertEquals("EIC", StandardCodingSchemeType.A01.getDescription());
         assertEquals("CGM", StandardCodingSchemeType.A02.getDescription());

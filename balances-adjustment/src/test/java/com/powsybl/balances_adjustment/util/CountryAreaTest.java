@@ -7,20 +7,24 @@
 package com.powsybl.balances_adjustment.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
-import org.junit.Before;
-import org.junit.Test;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-public class CountryAreaTest {
+class CountryAreaTest {
 
     private Network testNetwork1;
     private Network testNetwork2;
@@ -29,8 +33,8 @@ public class CountryAreaTest {
     private CountryAreaFactory countryAreaES;
     private CountryAreaFactory countryAreaBE;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         testNetwork1 = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         testNetwork2 = NetworkTestFactory.createNetwork();
 
@@ -59,7 +63,7 @@ public class CountryAreaTest {
     }
 
     @Test
-    public void testGetNetPosition() {
+    void testGetNetPosition() {
         //Test network with BranchBorder
         assertEquals(0, countryAreaES.create(testNetwork1).getNetPosition(), 1e-3);
 
@@ -71,14 +75,14 @@ public class CountryAreaTest {
     }
 
     @Test
-    public void testSpecialDevices() {
+    void testSpecialDevices() {
         Network network = Network.read("testCaseSpecialDevices.xiidm", getClass().getResourceAsStream("/testCaseSpecialDevices.xiidm"));
         assertEquals(100, countryAreaFR.create(network).getNetPosition(), 1e-3);
         assertEquals(-100, countryAreaES.create(network).getNetPosition(), 1e-3);
     }
 
     @Test
-    public void testGetLeavingFlowToCountry() {
+    void testGetLeavingFlowToCountry() {
         CountryArea countryAreaFR2 = countryAreaFR.create(testNetwork2);
         CountryArea countryAreaES2 = countryAreaES.create(testNetwork2);
         CountryArea countryAreaFR1 = countryAreaFR.create(testNetwork1);
