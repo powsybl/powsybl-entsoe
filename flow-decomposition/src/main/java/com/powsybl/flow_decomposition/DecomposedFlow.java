@@ -117,6 +117,23 @@ public class DecomposedFlow {
         return String.format("branchId: %s, contingencyId: %s, decomposition: %s", branchId, contingencyId, getAllKeyMap());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DecomposedFlow that = (DecomposedFlow) o;
+        return Double.compare(that.acReferenceFlow, acReferenceFlow) == 0 && Double.compare(that.dcReferenceFlow, dcReferenceFlow) == 0 && Double.compare(that.allocatedFlow, allocatedFlow) == 0 && Double.compare(that.xNodeFlow, xNodeFlow) == 0 && Double.compare(that.pstFlow, pstFlow) == 0 && Double.compare(that.internalFlow, internalFlow) == 0 && branchId.equals(that.branchId) && contingencyId.equals(that.contingencyId) && country1 == that.country1 && country2 == that.country2 && loopFlowsMap.equals(that.loopFlowsMap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(branchId, contingencyId, country1, country2, acReferenceFlow, dcReferenceFlow, allocatedFlow, xNodeFlow, pstFlow, internalFlow, loopFlowsMap);
+    }
+
     private TreeMap<String, Double> getAllKeyMap() {
         TreeMap<String, Double> localDecomposedFlowMap = new TreeMap<>();
         localDecomposedFlowMap.put(AC_REFERENCE_FLOW_COLUMN_NAME, getAcReferenceFlow());

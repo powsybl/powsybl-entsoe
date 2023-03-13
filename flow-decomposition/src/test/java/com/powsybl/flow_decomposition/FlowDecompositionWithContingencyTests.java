@@ -7,15 +7,21 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
+import com.powsybl.flow_decomposition.xnec_provider.XnecProviderInterconnection;
+import com.powsybl.flow_decomposition.xnec_provider.XnecProviderUnion;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -141,5 +147,71 @@ class FlowDecompositionWithContingencyTests {
         assertEquals(xnecId, decomposedFlow.getId());
         assertEquals(expectedDcReferenceFlow, decomposedFlow.getDcReferenceFlow(), EPSILON);
         assertEquals(expectedFrLoopFlow, decomposedFlow.getLoopFlow(Country.FR), EPSILON);
+    }
+
+    @Test
+    void testFullIntegrationWithRescaling() {
+        String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
+        String x1 = "FGEN  11 BLOAD 11 1";
+        String x2 = "FGEN  11 BLOAD 12 1";
+        String pst = "BLOAD 11 BLOAD 12 2";
+        String contingencyId = x1 + "_" + pst;
+
+        Network network = TestUtils.importNetwork(networkFileName);
+        FlowDecompositionParameters parameters = new FlowDecompositionParameters()
+            .setRescaleEnabled(true);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(parameters);
+        XnecProviderByIds xnecProviderByIds = XnecProviderByIds.builder()
+            .addContingency(x1, Set.of(x1))
+            .addNetworkElementsAfterContingencies(Set.of(x1, x2, pst), Set.of(x1))
+            .addContingency(contingencyId, Set.of(x1, pst))
+            .addNetworkElementsAfterContingencies(Set.of(x1, x2, pst), Set.of(contingencyId))
+            .build();
+        XnecProviderInterconnection xnecProviderInterconnection = new XnecProviderInterconnection();
+        XnecProviderAllBranches xnecProviderAllBranches = new XnecProviderAllBranches();
+        XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderByIds, xnecProviderAllBranches, xnecProviderInterconnection));
+        FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
+        assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x1));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pst));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2 + "_" + x1));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pst + "_" + x1));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2 + "_" + contingencyId));
+        assertEquals(new DecomposedFlow(x1, "", Country.FR, Country.BE, 29.003009422979176, 24.999999999999993, 33.002024914534545, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -1.9995077457776844, "Loop Flow from FR", -1.9995077457776862)), flowDecompositionResults.getDecomposedFlowMap().get(x1));
+        assertEquals(new DecomposedFlow(pst, x1, Country.BE, Country.BE, 31.99999999999722, -0.0, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(pst + "_" + x1));
+    }
+
+    @Test
+    void testFullIntegrationWithoutRescaling() {
+        String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
+        String x1 = "FGEN  11 BLOAD 11 1";
+        String x2 = "FGEN  11 BLOAD 12 1";
+        String pst = "BLOAD 11 BLOAD 12 2";
+        String contingencyId = x1 + "_" + pst;
+
+        Network network = TestUtils.importNetwork(networkFileName);
+        FlowDecompositionParameters parameters = new FlowDecompositionParameters()
+            .setRescaleEnabled(false);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(parameters);
+        XnecProviderByIds xnecProviderByIds = XnecProviderByIds.builder()
+            .addContingency(x1, Set.of(x1))
+            .addNetworkElementsAfterContingencies(Set.of(x1, x2, pst), Set.of(x1))
+            .addContingency(contingencyId, Set.of(x1, pst))
+            .addNetworkElementsAfterContingencies(Set.of(x1, x2, pst), Set.of(contingencyId))
+            .build();
+        XnecProviderInterconnection xnecProviderInterconnection = new XnecProviderInterconnection();
+        XnecProviderAllBranches xnecProviderAllBranches = new XnecProviderAllBranches();
+        XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderByIds, xnecProviderAllBranches, xnecProviderInterconnection));
+        FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
+        assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x1));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pst));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2 + "_" + x1));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pst + "_" + x1));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2 + "_" + contingencyId));
+        assertEquals(new DecomposedFlow(x1, "", Country.FR, Country.BE, 29.003009422979176, 24.999999999999993, 28.999015491555372, 0.0, -0.0, 0.0, Map.of("Loop Flow from BE", -1.9995077457776844, "Loop Flow from FR", -1.9995077457776862)), flowDecompositionResults.getDecomposedFlowMap().get(x1));
+        assertEquals(new DecomposedFlow(pst, x1, Country.BE, Country.BE, 31.99999999999722, -0.0, 0.0, 0.0, 0.0, -0.0, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(pst + "_" + x1));
     }
 }
