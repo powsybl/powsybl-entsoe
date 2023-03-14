@@ -69,6 +69,6 @@ class DecomposedFlowTests {
 
     @Test
     void checkToString() {
-        assertEquals("branchId: dummy branch id, contingencyId: dummy contingency id, decomposition: {Allocated Flow=33.0, Internal Flow=58.0, Loop Flow from BE=-1.0, Loop Flow from FR=-9.0, PST Flow=26.0, Reference AC Flow=29.0, Reference DC Flow=24.0, Xnode Flow=25.0}", DECOMPOSED_FLOW.toString());
+        assertEquals("branchId: dummy branch id, contingencyId: dummy contingency id, country1: FR, country2: BE, decomposition: {Allocated Flow=33.0, Internal Flow=58.0, Loop Flow from BE=-1.0, Loop Flow from FR=-9.0, PST Flow=26.0, Reference AC Flow=29.0, Reference DC Flow=24.0, Xnode Flow=25.0}", DECOMPOSED_FLOW.toString());
     }
 }

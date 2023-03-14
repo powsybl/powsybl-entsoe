@@ -114,7 +114,7 @@ public class DecomposedFlow {
 
     @Override
     public String toString() {
-        return String.format("branchId: %s, contingencyId: %s, decomposition: %s", branchId, contingencyId, getAllKeyMap());
+        return String.format("branchId: %s, contingencyId: %s, country1: %s, country2: %s, decomposition: %s", branchId, contingencyId, country1, country2, getAllKeyMap());
     }
 
     @Override

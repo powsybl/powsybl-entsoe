@@ -156,10 +156,14 @@ class FlowDecompositionWithContingencyTests {
         String x2 = "FGEN  11 BLOAD 12 1";
         String pst = "BLOAD 11 BLOAD 12 2";
         String contingencyId = x1 + "_" + pst;
+        String x2Withx1Contingency = x2 + "_" + x1;
+        String pstWithx1Contingency = pst + "_" + x1;
+        String x2WithN2Contingency = x2 + "_" + contingencyId;
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionParameters parameters = new FlowDecompositionParameters()
-            .setRescaleEnabled(true);
+            .setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
+            .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(parameters);
         XnecProviderByIds xnecProviderByIds = XnecProviderByIds.builder()
             .addContingency(x1, Set.of(x1))
@@ -175,11 +179,15 @@ class FlowDecompositionWithContingencyTests {
         assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x1));
         assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2));
         assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pst));
-        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2 + "_" + x1));
-        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pst + "_" + x1));
-        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2 + "_" + contingencyId));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2Withx1Contingency));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pstWithx1Contingency));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2WithN2Contingency));
         assertEquals(new DecomposedFlow(x1, "", Country.FR, Country.BE, 29.003009422979176, 24.999999999999993, 33.002024914534545, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -1.9995077457776844, "Loop Flow from FR", -1.9995077457776862)), flowDecompositionResults.getDecomposedFlowMap().get(x1));
-        assertEquals(new DecomposedFlow(pst, x1, Country.BE, Country.BE, 31.99999999999722, -0.0, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(pst + "_" + x1));
+        assertEquals(new DecomposedFlow(x2, "", Country.FR, Country.BE, 87.00911182341697, 74.99999999999999, 99.00615829808308, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -5.998523237333046, "Loop Flow from FR", -5.998523237333059)), flowDecompositionResults.getDecomposedFlowMap().get(x2));
+        assertEquals(new DecomposedFlow(pst, "", Country.BE, Country.BE, 3.0056664783579006, -25.0, 7.004681969913275, 0.0, -0.0, -1.9995077457776844, Map.of("Loop Flow from FR", -1.9995077457776862)), flowDecompositionResults.getDecomposedFlowMap().get(pst));
+        assertEquals(new DecomposedFlow(x2, x1, Country.FR, Country.BE, 116.01617882330939, 100.0, 132.0122407895309, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -7.998030983110738, "Loop Flow from FR", -7.998030983110745)), flowDecompositionResults.getDecomposedFlowMap().get(x2Withx1Contingency));
+        assertEquals(new DecomposedFlow(pst, x1, Country.BE, Country.BE, 31.99999999999722, -0.0, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(pstWithx1Contingency));
+        assertEquals(new DecomposedFlow(x2, contingencyId, Country.FR, Country.BE, 100.03453149519564, 100.0, 116.03059346141713, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -7.998030983110738, "Loop Flow from FR", -7.998030983110745)), flowDecompositionResults.getDecomposedFlowMap().get(x2WithN2Contingency));
     }
 
     @Test
@@ -189,10 +197,14 @@ class FlowDecompositionWithContingencyTests {
         String x2 = "FGEN  11 BLOAD 12 1";
         String pst = "BLOAD 11 BLOAD 12 2";
         String contingencyId = x1 + "_" + pst;
+        String x2Withx1Contingency = x2 + "_" + x1;
+        String pstWithx1Contingency = pst + "_" + x1;
+        String x2WithN2Contingency = x2 + "_" + contingencyId;
 
         Network network = TestUtils.importNetwork(networkFileName);
         FlowDecompositionParameters parameters = new FlowDecompositionParameters()
-            .setRescaleEnabled(false);
+            .setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
+            .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(parameters);
         XnecProviderByIds xnecProviderByIds = XnecProviderByIds.builder()
             .addContingency(x1, Set.of(x1))
@@ -208,10 +220,98 @@ class FlowDecompositionWithContingencyTests {
         assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x1));
         assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2));
         assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pst));
-        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2 + "_" + x1));
-        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pst + "_" + x1));
-        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2 + "_" + contingencyId));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2Withx1Contingency));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pstWithx1Contingency));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2WithN2Contingency));
         assertEquals(new DecomposedFlow(x1, "", Country.FR, Country.BE, 29.003009422979176, 24.999999999999993, 28.999015491555372, 0.0, -0.0, 0.0, Map.of("Loop Flow from BE", -1.9995077457776844, "Loop Flow from FR", -1.9995077457776862)), flowDecompositionResults.getDecomposedFlowMap().get(x1));
-        assertEquals(new DecomposedFlow(pst, x1, Country.BE, Country.BE, 31.99999999999722, -0.0, 0.0, 0.0, 0.0, -0.0, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(pst + "_" + x1));
+        assertEquals(new DecomposedFlow(x2, "", Country.FR, Country.BE, 87.00911182341697, 74.99999999999999, 86.99704647466612, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -5.998523237333046, "Loop Flow from FR", -5.998523237333059)), flowDecompositionResults.getDecomposedFlowMap().get(x2));
+        assertEquals(new DecomposedFlow(pst, "", Country.BE, Country.BE, 3.0056664783579006, -25.0, 28.999015491555372, 0.0, -0.0, -1.9995077457776844, Map.of("Loop Flow from FR", -1.9995077457776862)), flowDecompositionResults.getDecomposedFlowMap().get(pst));
+        assertEquals(new DecomposedFlow(x2, x1, Country.FR, Country.BE, 116.01617882330939, 100.0, 115.99606196622149, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -7.998030983110738, "Loop Flow from FR", -7.998030983110745)), flowDecompositionResults.getDecomposedFlowMap().get(x2Withx1Contingency));
+        assertEquals(new DecomposedFlow(pst, x1, Country.BE, Country.BE, 31.99999999999722, -0.0, 0.0, 0.0, 0.0, -0.0, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(pstWithx1Contingency));
+        assertEquals(new DecomposedFlow(x2, contingencyId, Country.FR, Country.BE, 100.03453149519564, 100.0, 115.99606196622149, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -7.998030983110738, "Loop Flow from FR", -7.998030983110745)), flowDecompositionResults.getDecomposedFlowMap().get(x2WithN2Contingency));
+    }
+
+    @Test
+    void testFullIntegrationWithRescalingWithLossCompensation() {
+        String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
+        String x1 = "FGEN  11 BLOAD 11 1";
+        String x2 = "FGEN  11 BLOAD 12 1";
+        String pst = "BLOAD 11 BLOAD 12 2";
+        String contingencyId = x1 + "_" + pst;
+        String x2Withx1Contingency = x2 + "_" + x1;
+        String pstWithx1Contingency = pst + "_" + x1;
+        String x2WithN2Contingency = x2 + "_" + contingencyId;
+
+        Network network = TestUtils.importNetwork(networkFileName);
+        FlowDecompositionParameters parameters = new FlowDecompositionParameters()
+            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+            .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(parameters);
+        XnecProviderByIds xnecProviderByIds = XnecProviderByIds.builder()
+            .addContingency(x1, Set.of(x1))
+            .addNetworkElementsAfterContingencies(Set.of(x1, x2, pst), Set.of(x1))
+            .addContingency(contingencyId, Set.of(x1, pst))
+            .addNetworkElementsAfterContingencies(Set.of(x1, x2, pst), Set.of(contingencyId))
+            .build();
+        XnecProviderInterconnection xnecProviderInterconnection = new XnecProviderInterconnection();
+        XnecProviderAllBranches xnecProviderAllBranches = new XnecProviderAllBranches();
+        XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderByIds, xnecProviderAllBranches, xnecProviderInterconnection));
+        FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
+        assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x1));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pst));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2Withx1Contingency));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pstWithx1Contingency));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2WithN2Contingency));
+        assertEquals(new DecomposedFlow(x1, "", Country.FR, Country.BE, 29.003009422979176, 28.996350163597047, 29.00567475093749, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.0013326639791566564, "Loop Flow from FR", -0.0013326639791579886)), flowDecompositionResults.getDecomposedFlowMap().get(x1));
+        assertEquals(new DecomposedFlow(x2, "", Country.FR, Country.BE, 87.00911182341697, 86.98905049079114, 87.01710780729192, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.003997991937470857, "Loop Flow from FR", -0.003997991937473966)), flowDecompositionResults.getDecomposedFlowMap().get(x2));
+        assertEquals(new DecomposedFlow(pst, "", Country.BE, Country.BE, 3.0056664783579006, -28.99635016359705, 3.0083318063162174, 0.0, -0.0, -0.0013326639791566564, Map.of("Loop Flow from FR", -0.0013326639791579886)), flowDecompositionResults.getDecomposedFlowMap().get(pst));
+        assertEquals(new DecomposedFlow(x2, x1, Country.FR, Country.BE, 116.01617882330939, 115.97664177197838, 116.03559901755251, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.009710097121567784, "Loop Flow from FR", -0.00971009712155535)), flowDecompositionResults.getDecomposedFlowMap().get(x2Withx1Contingency));
+        assertEquals(new DecomposedFlow(pst, x1, Country.BE, Country.BE, 31.99999999999722, -0.0, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(pstWithx1Contingency));
+        assertEquals(new DecomposedFlow(x2, contingencyId, Country.FR, Country.BE, 100.03453149519564, 99.9826329237988, 116.04796053761832, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -8.006714521211336, "Loop Flow from FR", -8.006714521211343)), flowDecompositionResults.getDecomposedFlowMap().get(x2WithN2Contingency));
+    }
+
+    @Test
+    void testFullIntegrationWithoutRescalingWithLossCompensation() {
+        String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
+        String x1 = "FGEN  11 BLOAD 11 1";
+        String x2 = "FGEN  11 BLOAD 12 1";
+        String pst = "BLOAD 11 BLOAD 12 2";
+        String contingencyId = x1 + "_" + pst;
+        String x2Withx1Contingency = x2 + "_" + x1;
+        String pstWithx1Contingency = pst + "_" + x1;
+        String x2WithN2Contingency = x2 + "_" + contingencyId;
+
+        Network network = TestUtils.importNetwork(networkFileName);
+        FlowDecompositionParameters parameters = new FlowDecompositionParameters()
+            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+            .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(parameters);
+        XnecProviderByIds xnecProviderByIds = XnecProviderByIds.builder()
+            .addContingency(x1, Set.of(x1))
+            .addNetworkElementsAfterContingencies(Set.of(x1, x2, pst), Set.of(x1))
+            .addContingency(contingencyId, Set.of(x1, pst))
+            .addNetworkElementsAfterContingencies(Set.of(x1, x2, pst), Set.of(contingencyId))
+            .build();
+        XnecProviderInterconnection xnecProviderInterconnection = new XnecProviderInterconnection();
+        XnecProviderAllBranches xnecProviderAllBranches = new XnecProviderAllBranches();
+        XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderByIds, xnecProviderAllBranches, xnecProviderInterconnection));
+        FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
+        assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x1));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pst));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2Withx1Contingency));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(pstWithx1Contingency));
+        assertTrue(flowDecompositionResults.getDecomposedFlowMap().containsKey(x2WithN2Contingency));
+        assertEquals(new DecomposedFlow(x1, "", Country.FR, Country.BE, 29.003009422979176, 28.996350163597047, 28.999015491555372, 0.0, -0.0, 0.0, Map.of("Loop Flow from BE", -0.0013326639791566564, "Loop Flow from FR", -0.0013326639791579886)), flowDecompositionResults.getDecomposedFlowMap().get(x1));
+        assertEquals(new DecomposedFlow(x2, "", Country.FR, Country.BE, 87.00911182341697, 86.98905049079114, 86.99704647466612, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.003997991937470857, "Loop Flow from FR", -0.003997991937473966)), flowDecompositionResults.getDecomposedFlowMap().get(x2));
+        assertEquals(new DecomposedFlow(pst, "", Country.BE, Country.BE, 3.0056664783579006, -28.99635016359705, 28.999015491555372, 0.0, -0.0, -0.0013326639791566564, Map.of("Loop Flow from FR", -0.0013326639791579886)), flowDecompositionResults.getDecomposedFlowMap().get(pst));
+        assertEquals(new DecomposedFlow(x2, x1, Country.FR, Country.BE, 116.01617882330939, 115.97664177197838, 115.99606196622149, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.009710097121567784, "Loop Flow from FR", -0.00971009712155535)), flowDecompositionResults.getDecomposedFlowMap().get(x2Withx1Contingency));
+        assertEquals(new DecomposedFlow(pst, x1, Country.BE, Country.BE, 31.99999999999722, -0.0, 0.0, 0.0, 0.0, -0.0, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(pstWithx1Contingency));
+        assertEquals(new DecomposedFlow(x2, contingencyId, Country.FR, Country.BE, 100.03453149519564, 99.9826329237988, 115.99606196622149, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -8.006714521211336, "Loop Flow from FR", -8.006714521211343)), flowDecompositionResults.getDecomposedFlowMap().get(x2WithN2Contingency));
     }
 }
