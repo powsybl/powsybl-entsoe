@@ -15,6 +15,7 @@ import java.util.*;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class DecomposedFlow {
+    public static final double EPSILON = 1e-13;
     private final String branchId;
     private final String contingencyId;
     private final Country country1;
@@ -114,7 +115,7 @@ public class DecomposedFlow {
 
     @Override
     public String toString() {
-        return String.format("branchId: %s, contingencyId: %s, country1: %s, country2: %s, decomposition: %s", branchId, contingencyId, country1, country2, getAllKeyMap());
+        return String.format("branchId: %s, contingencyId: %s, country1: %s, country2: %s, decomposition: %s", branchId, contingencyId, country1, country2, getAllDecompositionMap());
     }
 
     @Override
@@ -125,8 +126,15 @@ public class DecomposedFlow {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DecomposedFlow that = (DecomposedFlow) o;
-        return Double.compare(that.acReferenceFlow, acReferenceFlow) == 0 && Double.compare(that.dcReferenceFlow, dcReferenceFlow) == 0 && Double.compare(that.allocatedFlow, allocatedFlow) == 0 && Double.compare(that.xNodeFlow, xNodeFlow) == 0 && Double.compare(that.pstFlow, pstFlow) == 0 && Double.compare(that.internalFlow, internalFlow) == 0 && branchId.equals(that.branchId) && contingencyId.equals(that.contingencyId) && country1 == that.country1 && country2 == that.country2 && loopFlowsMap.equals(that.loopFlowsMap);
+        DecomposedFlow other = (DecomposedFlow) o;
+        TreeMap<String, Double> localMap = getAllDecompositionMap();
+        TreeMap<String, Double> otherMap = other.getAllDecompositionMap();
+        if (!localMap.keySet().equals(otherMap.keySet()))
+            return false;
+        for (Map.Entry<String, Double> entry: localMap.entrySet())
+            if (Math.abs(entry.getValue() - otherMap.get(entry.getKey())) > EPSILON)
+                return false;
+        return branchId.equals(other.branchId) && contingencyId.equals(other.contingencyId) && country1 == other.country1 && country2 == other.country2;
     }
 
     @Override
@@ -134,7 +142,7 @@ public class DecomposedFlow {
         return Objects.hash(branchId, contingencyId, country1, country2, acReferenceFlow, dcReferenceFlow, allocatedFlow, xNodeFlow, pstFlow, internalFlow, loopFlowsMap);
     }
 
-    private TreeMap<String, Double> getAllKeyMap() {
+    private TreeMap<String, Double> getAllDecompositionMap() {
         TreeMap<String, Double> localDecomposedFlowMap = new TreeMap<>();
         localDecomposedFlowMap.put(AC_REFERENCE_FLOW_COLUMN_NAME, getAcReferenceFlow());
         localDecomposedFlowMap.put(DC_REFERENCE_FLOW_COLUMN_NAME, getDcReferenceFlow());
