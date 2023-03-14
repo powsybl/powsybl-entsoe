@@ -59,6 +59,7 @@ class DecomposedFlowTests {
         assertNotEquals(DECOMPOSED_FLOW, differentDecomposedFlow14);
         assertNotEquals(DECOMPOSED_FLOW, differentDecomposedFlow15);
         assertNotEquals(1, DECOMPOSED_FLOW);
+        assertNotEquals(null, DECOMPOSED_FLOW);
     }
 
     @Test
