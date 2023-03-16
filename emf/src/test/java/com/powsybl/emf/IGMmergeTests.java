@@ -152,7 +152,7 @@ class IGMmergeTests {
         Set<String> voltageLevelIds = new HashSet<>();
 
         // networkBENL.getBranches().forEach(b -> branchIds.add(b.getId()));
-        networkBENL.getBranches().forEach(b -> branchIds.add(b.getId().replace(" ", "%20"))); // FIXME workaround before fixing CGMES export/import
+        networkBENL.getBranches().forEach(b -> branchIds.add(b.getId()));
         networkBENL.getGenerators().forEach(g -> generatorsId.add(g.getId()));
         networkBENL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
@@ -274,7 +274,7 @@ class IGMmergeTests {
             assertTrue(checkDanglingLine(dl1, dl2));
         });
         network1.getLineStream().forEach(line1 -> {
-            Line line2 = network2.getLine(line1.getId().replace("%20", " ")); // cgm should be always at network1
+            Line line2 = network2.getLine(line1.getId()); // cgm should be always at network1
             checkLine(line1, line2);
         });
     }
