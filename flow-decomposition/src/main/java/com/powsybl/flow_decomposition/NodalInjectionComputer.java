@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,17 +27,20 @@ class NodalInjectionComputer {
     private static final double DEFAULT_GLSK_FACTOR = 0.0;
     public static final double DEFAULT_NET_POSITION = 0.0;
     private final NetworkMatrixIndexes networkMatrixIndexes;
+    private final Map<String, Map<String, Double>> allNodalInjectionDcReference;
+    private final Map<String, Map<String, Double>> allNodalInjectionForXNodeFlow;
 
-    NodalInjectionComputer(NetworkMatrixIndexes networkMatrixIndexes) {
+    NodalInjectionComputer(NetworkMatrixIndexes networkMatrixIndexes, Map<String, Map<String, Double>> allNodalInjectionDcReference, Map<String, Map<String, Double>> allNodalInjectionForXNodeFlow) {
         this.networkMatrixIndexes = networkMatrixIndexes;
+        this.allNodalInjectionDcReference = allNodalInjectionDcReference;
+        this.allNodalInjectionForXNodeFlow = allNodalInjectionForXNodeFlow;
     }
 
     SparseMatrixWithIndexesTriplet run(Network network,
                                        Map<Country, Map<String, Double>> glsks,
                                        Map<Country, Double> netPositions) {
-        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
-        Map<String, Double> nodalInjectionDcReference = referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
-        Map<String, Double> nodalInjectionForXNodeFlow = referenceNodalInjectionComputer.run(networkMatrixIndexes.getUnmergedXNodeList());
+        Map<String, Double> nodalInjectionDcReference = allNodalInjectionDcReference.get(network.getVariantManager().getWorkingVariantId());
+        Map<String, Double> nodalInjectionForXNodeFlow = allNodalInjectionForXNodeFlow.getOrDefault(network.getVariantManager().getWorkingVariantId(), Collections.emptyMap());
         Map<String, Double> nodalInjectionsForAllocatedFlow = getNodalInjectionsForAllocatedFlows(glsks, netPositions);
 
         SparseMatrixWithIndexesTriplet nodalInjectionMatrix = getEmptyNodalInjectionMatrix(glsks,
