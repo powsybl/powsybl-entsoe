@@ -44,6 +44,7 @@ public class BalanceComputationImpl implements BalanceComputation {
 
     private final ComputationManager computationManager;
     private final LoadFlow.Runner loadFlowRunner;
+    private int iterationCounter;
 
     public BalanceComputationImpl(List<BalanceComputationArea> areas, ComputationManager computationManager, LoadFlow.Runner loadFlowRunner) {
         this.areas = Objects.requireNonNull(areas);
@@ -61,7 +62,7 @@ public class BalanceComputationImpl implements BalanceComputation {
         Objects.requireNonNull(parameters);
 
         BalanceComputationResult result;
-        int iterationCounter = 0;
+        iterationCounter = 0;
 
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
         String workingVariantCopyId = workingStateId + " COPY";
@@ -81,7 +82,7 @@ public class BalanceComputationImpl implements BalanceComputation {
                 double asked = entry.getValue();
 
                 Scalable scalable = area.getScalable();
-                double done = 0;
+                double done;
                 if (parameters.isLoadPowerFactorConstant()) {
                     done = scalable.scaleWithConstantPowerFactor(network, balanceOffsets.get(area));
                 } else {
@@ -92,28 +93,17 @@ public class BalanceComputationImpl implements BalanceComputation {
 
             // Step 2: compute Loadflow
             LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters());
-            if (!loadFlowResult.isOk()) {
+            if (!isLoadFlowResultOk(network, loadFlowResult)) {
                 LOGGER.error("Loadflow on network {} does not converge", network.getId());
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, iterationCounter);
                 return CompletableFuture.completedFuture(result);
             }
 
             // Step 3: Compute balance and mismatch for each area
-            double mismatchesNorm = 0.0;
-            for (BalanceComputationArea area : areas) {
-                NetworkArea na = networkAreas.get(area);
-                double target = area.getTargetNetPosition();
-                double balance = na.getNetPosition();
-                double oldMismatch = balanceOffsets.computeIfAbsent(area, k -> 0.0);
-                double mismatch = target - balance;
-                balanceOffsets.put(area, oldMismatch + mismatch);
-                LOGGER.info("Mismatch for area {}: {} (target={}, balance={})", area.getName(), mismatch, target, balance);
-
-                mismatchesNorm += mismatch * mismatch;
-            }
+            double totalMismatch = computeTotalMismatch(balanceOffsets, networkAreas);
 
             // Step 4: Checks balance adjustment results
-            if (mismatchesNorm < parameters.getThresholdNetPosition()) {
+            if (totalMismatch < parameters.getThresholdNetPosition()) {
                 result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, ++iterationCounter, balanceOffsets);
                 network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
             } else {
@@ -136,5 +126,40 @@ public class BalanceComputationImpl implements BalanceComputation {
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
         return CompletableFuture.completedFuture(result);
+    }
+
+    /**
+     * @param balanceOffsets old balance offsets
+     * @param networkAreas network areas
+     * @return total mismatch to compare with balance computation threshold
+     */
+    protected double computeTotalMismatch(final Map<BalanceComputationArea, Double> balanceOffsets, final Map<BalanceComputationArea, NetworkArea> networkAreas) {
+        double totalMismatch = 0.0;
+        for (BalanceComputationArea area : areas) {
+            NetworkArea na = networkAreas.get(area);
+            double target = area.getTargetNetPosition();
+            double balance = na.getNetPosition();
+            double oldMismatch = balanceOffsets.computeIfAbsent(area, k -> 0.0);
+            double mismatch = target - balance;
+            balanceOffsets.put(area, oldMismatch + mismatch);
+            LOGGER.info("Mismatch for area {}: {} (target={}, balance={})", area.getName(), mismatch, target, balance);
+
+            totalMismatch += mismatch * mismatch;
+        }
+        return totalMismatch;
+    }
+
+    /**
+     * default implementation considers LF result OK if at least one synchronous component has converged
+     * @param network network
+     * @param loadFlowResult LF result
+     * @return true if the loadFlowResult is to be considered successful
+     */
+    protected boolean isLoadFlowResultOk(Network network, final LoadFlowResult loadFlowResult) {
+        return loadFlowResult.isOk();
+    }
+
+    protected final int getIterationCounter() {
+        return iterationCounter;
     }
 }
