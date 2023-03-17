@@ -9,6 +9,8 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Network;
 
+import java.util.List;
+
 /**
  * This class handles the creation, management and destruction of network states based on a xnec provider
  *
@@ -30,5 +32,18 @@ class NetworkStateManager {
 
     public void deleteAllContingencyVariants() {
         variantManager.deleteAllContingencyVariants(network);
+    }
+
+    public List<String> getNetworkVariants() {
+        return variantManager.getVariants();
+    }
+
+    void setDefaultNetworkVariant() {
+        variantManager.setDefaultNetworkVariant(network);
+    }
+
+
+    public String getContingencyId(String variantId) {
+        return variantManager.getContingencyId(variantId);
     }
 }

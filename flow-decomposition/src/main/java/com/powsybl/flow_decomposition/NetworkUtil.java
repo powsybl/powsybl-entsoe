@@ -87,7 +87,7 @@ public final class NetworkUtil {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
-    static String getXnecId(String contingencyId, String branchId) {
-        return contingencyId.isEmpty() ? branchId : String.format("%s_%s", branchId, contingencyId);
+    static String getIdWithContingency(String elementId, String contingencyId) {
+        return contingencyId.isEmpty() ? elementId : String.format("%s_%s", elementId, contingencyId);
     }
 }

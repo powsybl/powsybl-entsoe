@@ -35,6 +35,6 @@ class Xnec {
     }
 
     public String getId() {
-        return NetworkUtil.getXnecId(contingencyId, branch.getId());
+        return NetworkUtil.getIdWithContingency(branch.getId(), contingencyId);
     }
 }

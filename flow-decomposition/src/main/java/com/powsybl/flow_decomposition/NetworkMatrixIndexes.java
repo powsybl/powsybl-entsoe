@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -29,22 +31,63 @@ import java.util.stream.Stream;
 class NetworkMatrixIndexes {
     private final List<Branch> xnecList;
     private final List<Injection<?>> nodeList;
+    private final List<Injection<?>> xnodeList;
     private final List<String> nodeIdList;
     private final List<String> pstList;
     private final Map<String, Integer> xnecIndex;
     private final Map<String, Integer> nodeIndex;
     private final Map<String, Integer> pstIndex;
-    private final List<Injection<?>> xnodeList;
 
     NetworkMatrixIndexes(Network network, List<Branch> xnecList) {
-        this.xnecList = xnecList;
+        this.xnecList = xnecList; // ok
         nodeList = getNodeList(network);
         nodeIdList = getNodeIdList(nodeList);
         pstList = getPstIdList(network);
-        xnecIndex = getXnecIndex(this.xnecList);
+        xnecIndex = getXnecIndex(this.xnecList); // ok
         nodeIndex = NetworkUtil.getIndex(nodeIdList);
         pstIndex = NetworkUtil.getIndex(pstList);
         xnodeList = getXNodeList(network);
+    }
+
+    public NetworkMatrixIndexes(Network network, XnecProvider xnecProvider, NetworkStateManager networkStateManager) {
+        xnecList = new ArrayList<>(xnecProvider.getNetworkElements(network));
+        xnecIndex = getXnecIndex(this.xnecList);
+        xnecProvider.getNetworkElementsPerContingency(network).forEach((contingencyId, xnecSet) -> {
+            List<Branch> newXnecList = new ArrayList<>(xnecSet);
+            IntStream.range(0, newXnecList.size()).boxed().forEach(integer -> {
+                Branch branch = newXnecList.get(integer);
+                String branchId = NetworkUtil.getIdWithContingency(branch.getId(), contingencyId);
+                xnecIndex.put(branchId, xnecList.size());
+                xnecList.add(branch);
+            });
+        });
+        nodeList = new ArrayList<>();
+        nodeIndex = new HashMap<>();
+        nodeIdList = new ArrayList<>();
+        pstList = new ArrayList<>();
+        pstIndex = new HashMap<>();
+        xnodeList = new ArrayList<>();
+        networkStateManager.getNetworkVariants().forEach(variantId -> {
+            networkStateManager.setNetworkVariant(variantId);
+            String contingencyId = networkStateManager.getContingencyId(variantId);
+            List<Injection<?>> newNodeList = getNodeList(network);
+            List<String> newPstList = getPstIdList(network);
+            IntStream.range(0, newNodeList.size()).boxed().forEach(integer -> {
+                Injection<?> node = newNodeList.get(integer);
+                String nodeId = NetworkUtil.getIdWithContingency(node.getId(), contingencyId);
+                nodeIndex.put(nodeId, nodeList.size());
+                nodeList.add(node);
+                nodeIdList.add(nodeId);
+            });
+            IntStream.range(0, newPstList.size()).boxed().forEach(integer -> {
+                String pst = newPstList.get(integer);
+                String pstId = NetworkUtil.getIdWithContingency(pst, contingencyId);
+                pstIndex.put(pstId, pstList.size());
+                pstList.add(pst);
+            });
+            xnodeList.addAll(getXNodeList(network));
+        });
+        networkStateManager.setDefaultNetworkVariant();
     }
 
     List<Branch> getXnecList() {

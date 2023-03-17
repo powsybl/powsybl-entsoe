@@ -68,7 +68,11 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
         this.functionIndex = functionIndex;
     }
 
-    SensitivityAnalyser(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters, SensitivityAnalysis.Runner runner, Network network, NetworkMatrixIndexes networkMatrixIndexes) {
+    SensitivityAnalyser(LoadFlowParameters loadFlowParameters,
+                        FlowDecompositionParameters parameters,
+                        SensitivityAnalysis.Runner runner,
+                        Network network,
+                        NetworkMatrixIndexes networkMatrixIndexes) {
         this(loadFlowParameters, parameters, runner, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
     }
 

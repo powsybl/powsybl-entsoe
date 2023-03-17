@@ -11,12 +11,14 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class VariantManager {
+    private static final String NO_CONTINGENCY_ID = "";
     private final String defaultVariantId;
     private final List<Contingency> contingencies;
 
@@ -47,5 +49,15 @@ class VariantManager {
 
     void deleteAllContingencyVariants(Network network) {
         contingencies.forEach(contingency -> network.getVariantManager().removeVariant(contingency.getId()));
+    }
+
+    public List<String> getVariants() {
+        List<String> variants = contingencies.stream().map(Contingency::getId).collect(Collectors.toList());
+        variants.add(defaultVariantId);
+        return variants;
+    }
+
+    public String getContingencyId(String variantId) {
+        return (Objects.equals(variantId, defaultVariantId)) ? NO_CONTINGENCY_ID : variantId;
     }
 }

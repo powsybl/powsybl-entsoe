@@ -58,7 +58,7 @@ public class DecomposedFlow {
     }
 
     public String getId() {
-        return NetworkUtil.getXnecId(contingencyId, branchId);
+        return NetworkUtil.getIdWithContingency(branchId, contingencyId);
     }
 
     public Country getCountry1() {
