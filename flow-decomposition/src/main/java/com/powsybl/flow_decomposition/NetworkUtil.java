@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -62,6 +63,14 @@ public final class NetworkUtil {
                 idList::get,
                 Function.identity()
             ));
+    }
+
+    static Map<String, Integer> getIndexFromInjections(List<Injection<?>> identifiableList) {
+        return getIndex(identifiableList.stream().map(Identifiable::getId).collect(Collectors.toList()));
+    }
+
+    static Map<String, Integer> getIndexFromBranches(Set<Branch> identifiableList) {
+        return getIndex(identifiableList.stream().map(Identifiable::getId).collect(Collectors.toList()));
     }
 
     public static Country getInjectionCountry(Injection<?> injection) {
