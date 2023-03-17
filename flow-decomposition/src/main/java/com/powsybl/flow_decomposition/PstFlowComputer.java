@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.powsybl.flow_decomposition.DecomposedFlow.PST_COLUMN_NAME;
@@ -20,17 +22,19 @@ import static com.powsybl.flow_decomposition.DecomposedFlow.PST_COLUMN_NAME;
  */
 class PstFlowComputer {
     SparseMatrixWithIndexesCSC run(Network network,
-                                   NetworkMatrixIndexes networkMatrixIndexes,
+                                   List<String> pstList,
+                                   Map<String, Integer> pstIndex,
                                    SparseMatrixWithIndexesTriplet psdfMatrix) {
-        SparseMatrixWithIndexesTriplet deltaTapMatrix = getDeltaTapMatrix(network, networkMatrixIndexes);
+        SparseMatrixWithIndexesTriplet deltaTapMatrix = getDeltaTapMatrix(network, pstList, pstIndex);
         return SparseMatrixWithIndexesCSC.mult(psdfMatrix.toCSCMatrix(), deltaTapMatrix.toCSCMatrix());
     }
 
-    private SparseMatrixWithIndexesTriplet getDeltaTapMatrix(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
+    private SparseMatrixWithIndexesTriplet getDeltaTapMatrix(Network network,
+                                                             List<String> pstList,
+                                                             Map<String, Integer> pstIndex) {
         SparseMatrixWithIndexesTriplet deltaTapMatrix =
-            new SparseMatrixWithIndexesTriplet(networkMatrixIndexes.getPstIndex(),
-                PST_COLUMN_NAME, networkMatrixIndexes.getPstCount());
-        for (String pst : networkMatrixIndexes.getPstList()) {
+            new SparseMatrixWithIndexesTriplet(pstIndex, PST_COLUMN_NAME, pstList.size());
+        for (String pst : pstList) {
             PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(pst).getPhaseTapChanger();
             Optional<PhaseTapChangerStep> neutralStep = phaseTapChanger.getNeutralStep();
             double deltaTap = 0.0;

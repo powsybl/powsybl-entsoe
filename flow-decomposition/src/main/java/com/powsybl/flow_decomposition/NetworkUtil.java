@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
@@ -89,5 +90,39 @@ public final class NetworkUtil {
 
     static String getIdWithContingency(String elementId, String contingencyId) {
         return contingencyId.isEmpty() ? elementId : String.format("%s_%s", elementId, contingencyId);
+    }
+
+    static List<Injection<?>> getNodeList(Network network) {
+        return getAllNetworkInjections(network)
+            .filter(NetworkUtil::isInjectionConnected)
+            .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
+            .filter(NetworkUtil::managedInjectionTypes)
+            .collect(Collectors.toList());
+    }
+
+    static List<Injection<?>> getXNodeList(Network network) {
+        return network.getDanglingLineStream()
+            .filter(NetworkUtil::isInjectionConnected)
+            .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
+            .map(danglingLine -> (Injection<?>) danglingLine)
+            .collect(Collectors.toList());
+    }
+
+    private static Stream<Injection<?>> getAllNetworkInjections(Network network) {
+        return network.getConnectableStream()
+            .filter(Injection.class::isInstance)
+            .map(connectable -> (Injection<?>) connectable);
+    }
+
+    private static boolean isInjectionConnected(Injection<?> injection) {
+        return injection.getTerminal().isConnected();
+    }
+
+    private static boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {
+        return NetworkUtil.isTerminalInMainSynchronousComponent(injection.getTerminal());
+    }
+
+    private static boolean managedInjectionTypes(Injection<?> injection) {
+        return !(injection instanceof BusbarSection || injection instanceof ShuntCompensator || injection instanceof StaticVarCompensator); // TODO Remove this fix once the active power computation after a DC load flow is fixed in OLF
     }
 }

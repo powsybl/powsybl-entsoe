@@ -7,22 +7,16 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
@@ -31,7 +25,6 @@ import java.util.stream.Stream;
 class NetworkMatrixIndexes {
     private final List<Branch> xnecList;
     private final List<Injection<?>> nodeList;
-    private final List<Injection<?>> xnodeList;
     private final List<String> nodeIdList;
     private final List<String> pstList;
     private final Map<String, Integer> xnecIndex;
@@ -39,55 +32,13 @@ class NetworkMatrixIndexes {
     private final Map<String, Integer> pstIndex;
 
     NetworkMatrixIndexes(Network network, List<Branch> xnecList) {
-        this.xnecList = xnecList; // ok
-        nodeList = getNodeList(network);
+        this.xnecList = xnecList;
+        xnecIndex = getXnecIndex(xnecList);
+        nodeList = NetworkUtil.getNodeList(network);
         nodeIdList = getNodeIdList(nodeList);
-        pstList = getPstIdList(network);
-        xnecIndex = getXnecIndex(this.xnecList); // ok
         nodeIndex = NetworkUtil.getIndex(nodeIdList);
+        pstList = getPstIdList(network);
         pstIndex = NetworkUtil.getIndex(pstList);
-        xnodeList = getXNodeList(network);
-    }
-
-    public NetworkMatrixIndexes(Network network, XnecProvider xnecProvider, NetworkStateManager networkStateManager) {
-        xnecList = new ArrayList<>(xnecProvider.getNetworkElements(network));
-        xnecIndex = getXnecIndex(this.xnecList);
-        xnecProvider.getNetworkElementsPerContingency(network).forEach((contingencyId, xnecSet) -> {
-            List<Branch> newXnecList = new ArrayList<>(xnecSet);
-            IntStream.range(0, newXnecList.size()).boxed().forEach(integer -> {
-                Branch branch = newXnecList.get(integer);
-                String branchId = NetworkUtil.getIdWithContingency(branch.getId(), contingencyId);
-                xnecIndex.put(branchId, xnecList.size());
-                xnecList.add(branch);
-            });
-        });
-        nodeList = new ArrayList<>();
-        nodeIndex = new HashMap<>();
-        nodeIdList = new ArrayList<>();
-        pstList = new ArrayList<>();
-        pstIndex = new HashMap<>();
-        xnodeList = new ArrayList<>();
-        networkStateManager.getNetworkVariants().forEach(variantId -> {
-            networkStateManager.setNetworkVariant(variantId);
-            String contingencyId = networkStateManager.getContingencyId(variantId);
-            List<Injection<?>> newNodeList = getNodeList(network);
-            List<String> newPstList = getPstIdList(network);
-            IntStream.range(0, newNodeList.size()).boxed().forEach(integer -> {
-                Injection<?> node = newNodeList.get(integer);
-                String nodeId = NetworkUtil.getIdWithContingency(node.getId(), contingencyId);
-                nodeIndex.put(nodeId, nodeList.size());
-                nodeList.add(node);
-                nodeIdList.add(nodeId);
-            });
-            IntStream.range(0, newPstList.size()).boxed().forEach(integer -> {
-                String pst = newPstList.get(integer);
-                String pstId = NetworkUtil.getIdWithContingency(pst, contingencyId);
-                pstIndex.put(pstId, pstList.size());
-                pstList.add(pst);
-            });
-            xnodeList.addAll(getXNodeList(network));
-        });
-        networkStateManager.setDefaultNetworkVariant();
     }
 
     List<Branch> getXnecList() {
@@ -116,40 +67,6 @@ class NetworkMatrixIndexes {
 
     Map<String, Integer> getPstIndex() {
         return pstIndex;
-    }
-
-    int getPstCount() {
-        return xnecList.size();
-    }
-
-    public List<Injection<?>> getUnmergedXNodeList() {
-        return xnodeList;
-    }
-
-    private List<Injection<?>> getNodeList(Network network) {
-        return getAllNetworkInjections(network)
-            .filter(this::isInjectionConnected)
-            .filter(this::isInjectionInMainSynchronousComponent)
-            .filter(this::managedInjectionTypes)
-            .collect(Collectors.toList());
-    }
-
-    private boolean managedInjectionTypes(Injection<?> injection) {
-        return !(injection instanceof BusbarSection || injection instanceof ShuntCompensator || injection instanceof StaticVarCompensator); // TODO Remove this fix once the active power computation after a DC load flow is fixed in OLF
-    }
-
-    private Stream<Injection<?>> getAllNetworkInjections(Network network) {
-        return network.getConnectableStream()
-            .filter(Injection.class::isInstance)
-            .map(connectable -> (Injection<?>) connectable);
-    }
-
-    private boolean isInjectionConnected(Injection<?> injection) {
-        return injection.getTerminal().isConnected();
-    }
-
-    private boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {
-        return NetworkUtil.isTerminalInMainSynchronousComponent(injection.getTerminal());
     }
 
     private List<String> getNodeIdList(List<Injection<?>> nodeList) {
@@ -181,13 +98,5 @@ class NetworkMatrixIndexes {
                 i -> xnecList.get(i).getId(),
                 Function.identity()
             ));
-    }
-
-    private List<Injection<?>> getXNodeList(Network network) {
-        return network.getDanglingLineStream()
-            .filter(this::isInjectionConnected)
-            .filter(this::isInjectionInMainSynchronousComponent)
-            .map(danglingLine -> (Injection<?>) danglingLine)
-            .collect(Collectors.toList());
     }
 }

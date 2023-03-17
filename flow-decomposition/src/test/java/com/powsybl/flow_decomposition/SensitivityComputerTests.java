@@ -42,7 +42,7 @@ class SensitivityComputerTests {
         SensitivityAnalysis.Runner sensitivityAnalysisRunner = SensitivityAnalysis.find();
         List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
-        SensitivityAnalyser sensitivityAnalyser = new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
+        SensitivityAnalyser sensitivityAnalyser = new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
         SparseMatrixWithIndexesTriplet ptdfMatrix =
             sensitivityAnalyser.run(networkMatrixIndexes.getNodeIdList(),
                 networkMatrixIndexes.getNodeIndex(),
@@ -114,7 +114,7 @@ class SensitivityComputerTests {
         SensitivityAnalysis.Runner sensitivityAnalysisRunner = SensitivityAnalysis.find();
         List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
-        SensitivityAnalyser sensitivityAnalyser = new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
+        SensitivityAnalyser sensitivityAnalyser = new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
         SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.run(networkMatrixIndexes.getPstList(),
             networkMatrixIndexes.getPstIndex(), SensitivityVariableType.TRANSFORMER_PHASE).getSensitivityMatrixTriplet();
         Map<String, Map<String, Double>> psdf = psdfMatrix.toMap();

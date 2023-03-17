@@ -129,11 +129,14 @@ public class DecomposedFlow {
         DecomposedFlow other = (DecomposedFlow) o;
         TreeMap<String, Double> localMap = getAllDecompositionMap();
         TreeMap<String, Double> otherMap = other.getAllDecompositionMap();
-        if (!localMap.keySet().equals(otherMap.keySet()))
+        if (!localMap.keySet().equals(otherMap.keySet())) {
             return false;
-        for (Map.Entry<String, Double> entry: localMap.entrySet())
-            if (Math.abs(entry.getValue() - otherMap.get(entry.getKey())) > EPSILON)
+        }
+        for (Map.Entry<String, Double> entry : localMap.entrySet()) {
+            if (Math.abs(entry.getValue() - otherMap.get(entry.getKey())) > EPSILON) {
                 return false;
+            }
+        }
         return branchId.equals(other.branchId) && contingencyId.equals(other.contingencyId) && country1 == other.country1 && country2 == other.country2;
     }
 

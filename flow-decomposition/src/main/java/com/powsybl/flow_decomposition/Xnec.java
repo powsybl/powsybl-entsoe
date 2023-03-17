@@ -21,6 +21,7 @@ class Xnec {
         this.branch = branch;
         this.contingencyId = NO_CONTINGENCY_ID;
     }
+
     public Xnec(Branch branch, String contingencyId) {
         this.branch = branch;
         this.contingencyId = contingencyId;

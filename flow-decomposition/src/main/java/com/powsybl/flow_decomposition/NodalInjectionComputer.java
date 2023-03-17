@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,21 +25,21 @@ import static com.powsybl.flow_decomposition.DecomposedFlow.XNODE_COLUMN_NAME;
 class NodalInjectionComputer {
     private static final double DEFAULT_GLSK_FACTOR = 0.0;
     public static final double DEFAULT_NET_POSITION = 0.0;
-    private final NetworkMatrixIndexes networkMatrixIndexes;
-    private final Map<String, Map<String, Double>> allNodalInjectionDcReference;
-    private final Map<String, Map<String, Double>> allNodalInjectionForXNodeFlow;
+    private final List<Injection<?>> nodeList;
+    private final Map<String, Integer> nodeIndex;
+    private final Map<String, Double> nodalInjectionDcReference;
+    private final Map<String, Double> nodalInjectionForXNodeFlow;
 
-    NodalInjectionComputer(NetworkMatrixIndexes networkMatrixIndexes, Map<String, Map<String, Double>> allNodalInjectionDcReference, Map<String, Map<String, Double>> allNodalInjectionForXNodeFlow) {
-        this.networkMatrixIndexes = networkMatrixIndexes;
-        this.allNodalInjectionDcReference = allNodalInjectionDcReference;
-        this.allNodalInjectionForXNodeFlow = allNodalInjectionForXNodeFlow;
+    public NodalInjectionComputer(List<Injection<?>> nodeList, Map<String, Integer> nodeIndex, Map<String, Double> nodalInjectionDcReference, Map<String, Double> nodalInjectionForXNodeFlow) {
+        this.nodeList = nodeList;
+        this.nodeIndex = nodeIndex;
+        this.nodalInjectionDcReference = nodalInjectionDcReference;
+        this.nodalInjectionForXNodeFlow = nodalInjectionForXNodeFlow;
     }
 
     SparseMatrixWithIndexesTriplet run(Network network,
                                        Map<Country, Map<String, Double>> glsks,
                                        Map<Country, Double> netPositions) {
-        Map<String, Double> nodalInjectionDcReference = allNodalInjectionDcReference.get(network.getVariantManager().getWorkingVariantId());
-        Map<String, Double> nodalInjectionForXNodeFlow = allNodalInjectionForXNodeFlow.getOrDefault(network.getVariantManager().getWorkingVariantId(), Collections.emptyMap());
         Map<String, Double> nodalInjectionsForAllocatedFlow = getNodalInjectionsForAllocatedFlows(glsks, netPositions);
 
         SparseMatrixWithIndexesTriplet nodalInjectionMatrix = getEmptyNodalInjectionMatrix(glsks,
@@ -53,7 +52,7 @@ class NodalInjectionComputer {
 
     private Map<String, Double> getNodalInjectionsForAllocatedFlows(Map<Country, Map<String, Double>> glsks,
                                                                     Map<Country, Double> netPositions) {
-        return networkMatrixIndexes.getNodeList().stream()
+        return nodeList.stream()
             .collect(Collectors.toMap(
                     Injection::getId,
                     injection -> getIndividualNodalInjectionForAllocatedFlows(injection, glsks, netPositions)
@@ -76,7 +75,7 @@ class NodalInjectionComputer {
         columns.add(ALLOCATED_COLUMN_NAME);
         columns.add(XNODE_COLUMN_NAME);
         return new SparseMatrixWithIndexesTriplet(
-            networkMatrixIndexes.getNodeIndex(), NetworkUtil.getIndex(columns), size);
+            nodeIndex, NetworkUtil.getIndex(columns), size);
     }
 
     private void fillNodalInjectionsWithAllocatedFlow(Map<String, Double> nodalInjectionsForAllocatedFlow,
@@ -100,7 +99,7 @@ class NodalInjectionComputer {
                                                  Map<String, Double> nodalInjectionsForXNodeFlow,
                                                  Map<String, Double> nodalInjectionDcReference,
                                                  SparseMatrixWithIndexesTriplet nodalInjectionMatrix) {
-        networkMatrixIndexes.getNodeList().forEach(
+        nodeList.forEach(
             node -> {
                 String nodeId = node.getId();
                 nodalInjectionMatrix.addItem(

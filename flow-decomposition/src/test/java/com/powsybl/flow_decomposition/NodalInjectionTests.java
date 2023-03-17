@@ -16,7 +16,6 @@ import com.powsybl.loadflow.LoadFlowResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -106,9 +105,8 @@ class NodalInjectionTests {
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         String defaultVariantId = network.getVariantManager().getWorkingVariantId();
         ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
-        Map<String, Map<String, Double>> allNodalInjectionDcReference = new HashMap<>();
-        allNodalInjectionDcReference.put(defaultVariantId, referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList()));
-        NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes, allNodalInjectionDcReference, Collections.emptyMap());
+        Map<String, Double> nodalInjectionDcReference = referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
+        NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes.getNodeList(), networkMatrixIndexes.getNodeIndex(), nodalInjectionDcReference, Collections.emptyMap());
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = nodalInjectionComputer.run(network,
             glsks, netPositions);
         return nodalInjectionsMatrix.toMap();
