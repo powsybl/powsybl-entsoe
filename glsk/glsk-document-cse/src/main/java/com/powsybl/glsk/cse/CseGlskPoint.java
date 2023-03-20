@@ -35,7 +35,7 @@ public class CseGlskPoint extends AbstractGlskPoint {
         BusinessTypeList businessType = timeSerie.getBusinessType().getV();
 
         try {
-            Stream.concat(Stream.ofNullable(timeSerie.getManusequenceSKBlockOrPropLSKBlock()),
+            Stream.concat(Stream.ofNullable(timeSerie.getManualLSKBlockOrPropLSKBlock()),
                             Stream.ofNullable(timeSerie.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
                     .flatMap(List::stream)
                     .filter(block -> STANDARD_BLOCK_CLASSES.stream().anyMatch(acceptedClass -> acceptedClass.isInstance(block)))
