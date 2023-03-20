@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.math.matrix.DenseMatrixFactory;
 import com.powsybl.openloadflow.OpenLoadFlowProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -149,5 +151,67 @@ class BalanceComputationImplDcTest {
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
         assertEquals(2, result.getIterationCount());
 
+    }
+
+    /**
+     * an example extending default BalanceComputationImpl
+     */
+    private static class ExtendedBalanceComputationImpl extends BalanceComputationImpl {
+
+        private final List<LoadFlowResult> loadFlowResultsPerIteration = new ArrayList<>();
+        private final List<Double> totalMismatchesPerIteration = new ArrayList<>();
+        public ExtendedBalanceComputationImpl(List<BalanceComputationArea> areas, ComputationManager computationManager, LoadFlow.Runner loadFlowRunner) {
+            super(areas, computationManager, loadFlowRunner);
+        }
+
+        public List<LoadFlowResult> getLoadFlowResultsPerIteration() {
+            return List.copyOf(loadFlowResultsPerIteration);
+        }
+
+        public List<Double> getTotalMismatchesPerIteration() {
+            return List.copyOf(totalMismatchesPerIteration);
+        }
+
+        @Override
+        public CompletableFuture<BalanceComputationResult> run(Network network, String workingStateId, BalanceComputationParameters parameters) {
+            loadFlowResultsPerIteration.clear();
+            totalMismatchesPerIteration.clear();
+            return super.run(network, workingStateId, parameters);
+        }
+
+        @Override
+        protected boolean isLoadFlowResultOk(BalanceComputationRunningContext context, Network network, LoadFlowResult loadFlowResult) {
+            loadFlowResultsPerIteration.add(loadFlowResult);
+            // example override requiring all components to be converged (just for testing - this is not a practical use case)
+            return loadFlowResult.getComponentResults().stream()
+                    .map(LoadFlowResult.ComponentResult::getStatus)
+                    .allMatch(LoadFlowResult.ComponentResult.Status.CONVERGED::equals);
+        }
+
+        @Override
+        protected double computeTotalMismatch(BalanceComputationRunningContext context) {
+            // example override using max mismatch
+            final double totalMismatch = context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
+            totalMismatchesPerIteration.add(totalMismatch);
+            return totalMismatch;
+        }
+    }
+
+    @Test
+    void testWithExtendedBalanceComputationImpl() {
+        parameters.setLoadPowerFactorConstant(true);
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1200.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, 1300.));
+
+        ExtendedBalanceComputationImpl balanceComputation = new ExtendedBalanceComputationImpl(areas, computationManager, loadFlowRunner);
+
+        BalanceComputationResult result = balanceComputation.run(testNetwork1, testNetwork1.getVariantManager().getWorkingVariantId(), parameters).join();
+
+        assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
+        assertEquals(2, balanceComputation.getLoadFlowResultsPerIteration().size());
+        assertEquals(2, balanceComputation.getTotalMismatchesPerIteration().size());
+        assertEquals(200.0, balanceComputation.getTotalMismatchesPerIteration().get(0), 1e-2);
+        assertEquals(0.0, balanceComputation.getTotalMismatchesPerIteration().get(1), 1e-2);
     }
 }

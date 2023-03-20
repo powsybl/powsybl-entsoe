@@ -44,7 +44,6 @@ public class BalanceComputationImpl implements BalanceComputation {
 
     private final ComputationManager computationManager;
     private final LoadFlow.Runner loadFlowRunner;
-    private int iterationCounter;
 
     public BalanceComputationImpl(List<BalanceComputationArea> areas, ComputationManager computationManager, LoadFlow.Runner loadFlowRunner) {
         this.areas = Objects.requireNonNull(areas);
@@ -61,65 +60,63 @@ public class BalanceComputationImpl implements BalanceComputation {
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(parameters);
 
+        BalanceComputationRunningContext context = new BalanceComputationRunningContext(areas, network);
         BalanceComputationResult result;
-        iterationCounter = 0;
 
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
         String workingVariantCopyId = workingStateId + " COPY";
         network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId);
         network.getVariantManager().setWorkingVariant(workingVariantCopyId);
 
-        Map<BalanceComputationArea, Double> balanceOffsets = new HashMap<>();
-
-        // Step 0: reset all network areas cache
-        Map<BalanceComputationArea, NetworkArea> networkAreas = areas.stream()
-                .collect(Collectors.toMap(Function.identity(), ba -> ba.getNetworkAreaFactory().create(network)));
-
         do {
             // Step 1: Perform the scaling
-            for (Map.Entry<BalanceComputationArea, Double> entry : balanceOffsets.entrySet()) {
-                BalanceComputationArea area = entry.getKey();
-                double asked = entry.getValue();
-
+            context.getBalanceOffsets().forEach((area, offset) -> {
                 Scalable scalable = area.getScalable();
                 double done;
                 if (parameters.isLoadPowerFactorConstant()) {
-                    done = scalable.scaleWithConstantPowerFactor(network, balanceOffsets.get(area));
+                    done = scalable.scaleWithConstantPowerFactor(network, offset);
                 } else {
-                    done = scalable.scale(network, balanceOffsets.get(area));
+                    done = scalable.scale(network, offset);
                 }
-                LOGGER.info("Scaling for area {}: asked={}, done={}", area.getName(), asked, done);
-            }
+                LOGGER.info("Iteration={}, Scaling for area {}: offset={}, done={}", context.getIterationNum(), area.getName(), offset, done);
+            });
 
-            // Step 2: compute Loadflow
+            // Step 2: compute Load Flow
             LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters());
-            if (!isLoadFlowResultOk(network, loadFlowResult)) {
-                LOGGER.error("Loadflow on network {} does not converge", network.getId());
-                result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, iterationCounter);
+            if (!isLoadFlowResultOk(context, network, loadFlowResult)) {
+                LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
+                result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
                 return CompletableFuture.completedFuture(result);
             }
 
             // Step 3: Compute balance and mismatch for each area
-            double totalMismatch = computeTotalMismatch(balanceOffsets, networkAreas);
+            for (BalanceComputationArea area : areas) {
+                NetworkArea na = context.getNetworkArea(area);
+                double target = area.getTargetNetPosition();
+                double balance = na.getNetPosition();
+                double mismatch = target - balance;
+                LOGGER.info("Iteration={}, Mismatch for area {}: {} (target={}, balance={})", context.getIterationNum(), area.getName(), mismatch, target, balance);
+                context.updateAreaOffsetAndMismatch(area, mismatch);
+            }
 
             // Step 4: Checks balance adjustment results
-            if (totalMismatch < parameters.getThresholdNetPosition()) {
-                result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, ++iterationCounter, balanceOffsets);
+            if (computeTotalMismatch(context) < parameters.getThresholdNetPosition()) {
+                result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, context.nextIteration(), context.getBalanceOffsets());
                 network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
             } else {
                 // Reset current variant with initial state
                 network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId, true);
-                result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, ++iterationCounter, balanceOffsets);
+                result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.nextIteration(), context.getBalanceOffsets());
             }
-        } while (iterationCounter < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
+        } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
 
         if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
             List<String> networkAreasName = areas.stream()
                     .map(BalanceComputationArea::getName).collect(Collectors.toList());
-            LOGGER.info(" Areas : {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
+            LOGGER.info("Areas {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
 
         } else {
-            LOGGER.error(" Areas are unbalanced after {} iterations", iterationCounter);
+            LOGGER.error("Areas are unbalanced after {} iterations", context.getIterationNum());
         }
 
         network.getVariantManager().removeVariant(workingVariantCopyId);
@@ -129,37 +126,64 @@ public class BalanceComputationImpl implements BalanceComputation {
     }
 
     /**
-     * @param balanceOffsets old balance offsets
-     * @param networkAreas network areas
-     * @return total mismatch to compare with balance computation threshold
+     * default implementation is sum of squared mismatches
+     * @return total mismatch to compare with balance computation net position threshold
      */
-    protected double computeTotalMismatch(final Map<BalanceComputationArea, Double> balanceOffsets, final Map<BalanceComputationArea, NetworkArea> networkAreas) {
-        double totalMismatch = 0.0;
-        for (BalanceComputationArea area : areas) {
-            NetworkArea na = networkAreas.get(area);
-            double target = area.getTargetNetPosition();
-            double balance = na.getNetPosition();
-            double oldMismatch = balanceOffsets.computeIfAbsent(area, k -> 0.0);
-            double mismatch = target - balance;
-            balanceOffsets.put(area, oldMismatch + mismatch);
-            LOGGER.info("Mismatch for area {}: {} (target={}, balance={})", area.getName(), mismatch, target, balance);
-
-            totalMismatch += mismatch * mismatch;
-        }
-        return totalMismatch;
+    protected double computeTotalMismatch(BalanceComputationRunningContext context) {
+        return context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue)
+                .map(v -> v * v)
+                .sum();
     }
 
     /**
-     * default implementation considers LF result OK if at least one synchronous component has converged
-     * @param network network
+     * default implementation considers LF result OK if at least one synchronous component converged
+     *
+     * @param context        balance computation context
+     * @param network        network
      * @param loadFlowResult LF result
      * @return true if the loadFlowResult is to be considered successful
      */
-    protected boolean isLoadFlowResultOk(Network network, final LoadFlowResult loadFlowResult) {
+    protected boolean isLoadFlowResultOk(BalanceComputationRunningContext context, Network network, final LoadFlowResult loadFlowResult) {
         return loadFlowResult.isOk();
     }
 
-    protected final int getIterationCounter() {
-        return iterationCounter;
+    protected static class BalanceComputationRunningContext {
+        private int iterationNum;
+        private final Map<BalanceComputationArea, NetworkArea> networkAreas;
+        private final Map<BalanceComputationArea, Double> balanceOffsets = new HashMap<>();
+        private final Map<BalanceComputationArea, Double> balanceMismatches = new HashMap<>();
+
+        public BalanceComputationRunningContext(List<BalanceComputationArea> areas, Network network) {
+            this.iterationNum = 0;
+            networkAreas = areas.stream().collect(Collectors.toMap(Function.identity(), ba -> ba.getNetworkAreaFactory().create(network)));
+            balanceOffsets.clear();
+            balanceMismatches.clear();
+        }
+
+        public int getIterationNum() {
+            return iterationNum;
+        }
+
+        public int nextIteration() {
+            return ++iterationNum;
+        }
+
+        public NetworkArea getNetworkArea(BalanceComputationArea area) {
+            return networkAreas.get(area);
+        }
+
+        public Map<BalanceComputationArea, Double> getBalanceOffsets() {
+            return Map.copyOf(balanceOffsets);
+        }
+
+        public Map<BalanceComputationArea, Double> getBalanceMismatches() {
+            return Map.copyOf(balanceMismatches);
+        }
+
+        public void updateAreaOffsetAndMismatch(BalanceComputationArea area, double mismatch) {
+            double oldMismatch = balanceOffsets.computeIfAbsent(area, k -> 0.0);
+            balanceOffsets.put(area, oldMismatch + mismatch);
+            balanceMismatches.put(area, mismatch);
+        }
     }
 }
