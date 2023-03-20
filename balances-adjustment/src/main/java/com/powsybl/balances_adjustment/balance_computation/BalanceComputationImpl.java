@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
+ * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
+ * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public class BalanceComputationImpl implements BalanceComputation {
 

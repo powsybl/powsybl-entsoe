@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2023, Coreso SA (https://www.coreso.eu/) and TSCNET Services GmbH (https://www.tscnet.eu/)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.balances_adjustment.balance_computation.extension;
 
 import com.powsybl.balances_adjustment.balance_computation.BalanceComputationArea;
@@ -10,6 +16,8 @@ import java.util.List;
 
 /**
  * an example extending default BalanceComputationImpl
+ * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
+ * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 class ExtendedBalanceComputationImpl extends BalanceComputationImpl {
 
@@ -19,6 +27,7 @@ class ExtendedBalanceComputationImpl extends BalanceComputationImpl {
 
     @Override
     protected boolean isLoadFlowResultOk(BalanceComputationRunningContext context, LoadFlowResult loadFlowResult) {
+        // example storing results in extension
         context.getParameters().getExtension(BalanceComputationParametersExtension.class).addLoadFlowResults(loadFlowResult);
         // example override requiring all components to be converged (just for testing - this is not a practical use case)
         return loadFlowResult.getComponentResults().stream()
@@ -32,6 +41,7 @@ class ExtendedBalanceComputationImpl extends BalanceComputationImpl {
         final double totalMismatch = context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue)
                 .map(Math::abs).max()
                 .orElse(0.0);
+        // example storing results in extension
         context.getParameters().getExtension(BalanceComputationParametersExtension.class).addTotalMismatchResult(totalMismatch);
         return totalMismatch;
     }

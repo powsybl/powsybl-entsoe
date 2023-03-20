@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+/**
+ * Copyright (c) 2023, Coreso SA (https://www.coreso.eu/) and TSCNET Services GmbH (https://www.tscnet.eu/)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -15,11 +15,8 @@ import com.powsybl.loadflow.LoadFlow;
 import java.util.List;
 
 /**
- * Balance computation factory to create <code>BalanceComputationImpl</code> class
- *
- * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
- * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
+ * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
+ * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
 public class ExtendedBalanceComputationFactoryImpl implements BalanceComputationFactory {
 
