@@ -60,7 +60,7 @@ public class BalanceComputationImpl implements BalanceComputation {
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(parameters);
 
-        BalanceComputationRunningContext context = new BalanceComputationRunningContext(areas, network);
+        BalanceComputationRunningContext context = new BalanceComputationRunningContext(areas, network, parameters);
         BalanceComputationResult result;
 
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
@@ -83,7 +83,7 @@ public class BalanceComputationImpl implements BalanceComputation {
 
             // Step 2: compute Load Flow
             LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters());
-            if (!isLoadFlowResultOk(context, network, loadFlowResult)) {
+            if (!isLoadFlowResultOk(context, loadFlowResult)) {
                 LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
                 return CompletableFuture.completedFuture(result);
@@ -139,25 +139,36 @@ public class BalanceComputationImpl implements BalanceComputation {
      * default implementation considers LF result OK if at least one synchronous component converged
      *
      * @param context        balance computation context
-     * @param network        network
      * @param loadFlowResult LF result
      * @return true if the loadFlowResult is to be considered successful
      */
-    protected boolean isLoadFlowResultOk(BalanceComputationRunningContext context, Network network, final LoadFlowResult loadFlowResult) {
+    protected boolean isLoadFlowResultOk(BalanceComputationRunningContext context, final LoadFlowResult loadFlowResult) {
         return loadFlowResult.isOk();
     }
 
     protected static class BalanceComputationRunningContext {
+        Network network;
+        BalanceComputationParameters parameters;
         private int iterationNum;
         private final Map<BalanceComputationArea, NetworkArea> networkAreas;
         private final Map<BalanceComputationArea, Double> balanceOffsets = new HashMap<>();
         private final Map<BalanceComputationArea, Double> balanceMismatches = new HashMap<>();
 
-        public BalanceComputationRunningContext(List<BalanceComputationArea> areas, Network network) {
+        public BalanceComputationRunningContext(List<BalanceComputationArea> areas, Network network, BalanceComputationParameters parameters) {
             this.iterationNum = 0;
+            this.network = network;
+            this.parameters = parameters;
             networkAreas = areas.stream().collect(Collectors.toMap(Function.identity(), ba -> ba.getNetworkAreaFactory().create(network)));
             balanceOffsets.clear();
             balanceMismatches.clear();
+        }
+
+        public BalanceComputationParameters getParameters() {
+            return parameters;
+        }
+
+        public Network getNetwork() {
+            return network;
         }
 
         public int getIterationNum() {
