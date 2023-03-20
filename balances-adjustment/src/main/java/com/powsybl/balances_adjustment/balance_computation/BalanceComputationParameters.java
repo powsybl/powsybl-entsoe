@@ -61,14 +61,14 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
         this.loadPowerFactorConstant = loadPowerFactorConstant;
     }
 
-    private static final double checkThresholdNetPosition(double threshold) {
+    private static double checkThresholdNetPosition(double threshold) {
         if (threshold < 0) {
             throw new IllegalArgumentException("Threshold must be positive");
         }
         return threshold;
     }
 
-    private static final int checkMaxNumberIterations(int maxNumberIterations) {
+    private static int checkMaxNumberIterations(int maxNumberIterations) {
         if (maxNumberIterations < 0) {
             throw new IllegalArgumentException("The maximum number of iterations must be positive");
         }
@@ -79,8 +79,9 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
         return loadPowerFactorConstant;
     }
 
-    public void setLoadPowerFactorConstant(boolean loadPowerFactorConstant) {
+    public BalanceComputationParameters setLoadPowerFactorConstant(boolean loadPowerFactorConstant) {
         this.loadPowerFactorConstant = loadPowerFactorConstant;
+        return this;
     }
 
     /**
