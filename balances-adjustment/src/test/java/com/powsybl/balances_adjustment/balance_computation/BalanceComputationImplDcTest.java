@@ -191,7 +191,9 @@ class BalanceComputationImplDcTest {
         @Override
         protected double computeTotalMismatch(BalanceComputationRunningContext context) {
             // example override using max mismatch
-            final double totalMismatch = context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
+            final double totalMismatch = context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue)
+                    .map(Math::abs).max()
+                    .orElse(0.0);
             totalMismatchesPerIteration.add(totalMismatch);
             return totalMismatch;
         }
