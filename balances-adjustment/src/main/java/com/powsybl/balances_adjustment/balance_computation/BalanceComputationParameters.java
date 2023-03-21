@@ -6,13 +6,17 @@
  */
 package com.powsybl.balances_adjustment.balance_computation;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.*;
+import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionConfigLoader;
+import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * parameters for balance computation.
@@ -22,9 +26,10 @@ import java.util.Objects;
  */
 public class BalanceComputationParameters extends AbstractExtendable<BalanceComputationParameters> {
 
+    public static final String VERSION = "1.1";
+
     public static final double DEFAULT_THRESHOLD_NET_POSITION = 1;
     public static final int DEFAULT_MAX_NUMBER_ITERATIONS = 5;
-    public static final boolean DEFAULT_LOAD_POWER_FACTOR_CONSTANT = false;
 
     /**
      * Threshold for comparing net positions (given in MW).
@@ -37,13 +42,11 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      */
     private int maxNumberIterations;
 
-    private boolean loadPowerFactorConstant;
-
     /**
      * Constructor with default parameters
      */
     public BalanceComputationParameters() {
-        this(DEFAULT_THRESHOLD_NET_POSITION, DEFAULT_MAX_NUMBER_ITERATIONS, DEFAULT_LOAD_POWER_FACTOR_CONSTANT);
+        this(DEFAULT_THRESHOLD_NET_POSITION, DEFAULT_MAX_NUMBER_ITERATIONS);
     }
 
     /**
@@ -52,35 +55,56 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      * @param maxNumberIterations Maximum iteration number for balances adjustment
      */
     public BalanceComputationParameters(double threshold, int maxNumberIterations) {
-        this(threshold, maxNumberIterations, DEFAULT_LOAD_POWER_FACTOR_CONSTANT);
-    }
-
-    public BalanceComputationParameters(double threshold, int maxNumberIterations, boolean loadPowerFactorConstant) {
         this.thresholdNetPosition = checkThresholdNetPosition(threshold);
         this.maxNumberIterations = checkMaxNumberIterations(maxNumberIterations);
-        this.loadPowerFactorConstant = loadPowerFactorConstant;
     }
 
-    private static final double checkThresholdNetPosition(double threshold) {
+    /**
+     * @deprecated Use {@link #BalanceComputationParameters()} or {@link #BalanceComputationParameters(double, int)} instead.
+     */
+    @Deprecated
+    public BalanceComputationParameters(double threshold, int maxNumberIterations, boolean loadPowerFactorConstant) {
+        this(threshold, maxNumberIterations);
+        scalingParameters.setConstantPowerFactor(loadPowerFactorConstant);
+    }
+
+    private static double checkThresholdNetPosition(double threshold) {
         if (threshold < 0) {
             throw new IllegalArgumentException("Threshold must be positive");
         }
         return threshold;
     }
 
-    private static final int checkMaxNumberIterations(int maxNumberIterations) {
+    private static int checkMaxNumberIterations(int maxNumberIterations) {
         if (maxNumberIterations < 0) {
             throw new IllegalArgumentException("The maximum number of iterations must be positive");
         }
         return maxNumberIterations;
     }
 
-    public boolean isLoadPowerFactorConstant() {
-        return loadPowerFactorConstant;
+    public ScalingParameters getScalingParameters() {
+        return scalingParameters;
     }
 
+    public BalanceComputationParameters setScalingParameters(ScalingParameters scalingParameters) {
+        this.scalingParameters = Objects.requireNonNull(scalingParameters);
+        return this;
+    }
+
+    /**
+     * @deprecated Use {@link #getScalingParameters()} and {@link ScalingParameters#isConstantPowerFactor()} instead.
+     */
+    @Deprecated
+    public boolean isLoadPowerFactorConstant() {
+        return scalingParameters.isConstantPowerFactor();
+    }
+
+    /**
+     * @deprecated Use {@link #getScalingParameters()} and {@link ScalingParameters#setConstantPowerFactor(boolean)} instead.
+     */
+    @Deprecated
     public void setLoadPowerFactorConstant(boolean loadPowerFactorConstant) {
-        this.loadPowerFactorConstant = loadPowerFactorConstant;
+        this.scalingParameters.setConstantPowerFactor(loadPowerFactorConstant);
     }
 
     /**
@@ -96,6 +120,8 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
+    private ScalingParameters scalingParameters = new ScalingParameters();
+
     /**
      * Load parameters from platform default config.
      */
@@ -110,14 +136,17 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
         Objects.requireNonNull(platformConfig);
 
         BalanceComputationParameters parameters = new BalanceComputationParameters();
+        platformConfig.getOptionalModuleConfig("balance-computation-parameters").ifPresent(config -> parameters.setMaxNumberIterations(config.getIntProperty("maxNumberIterations", DEFAULT_MAX_NUMBER_ITERATIONS))
+                .setThresholdNetPosition(config.getDoubleProperty("thresholdNetPosition", DEFAULT_THRESHOLD_NET_POSITION)));
         parameters.readExtensions(platformConfig);
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
+        parameters.setScalingParameters(ScalingParameters.load(platformConfig));
         return parameters;
     }
 
     private void readExtensions(PlatformConfig platformConfig) {
-        for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
+        for (ConfigLoader provider : SUPPLIER.get().getProviders()) {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
     }
