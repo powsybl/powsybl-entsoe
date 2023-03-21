@@ -50,8 +50,8 @@ import java.util.stream.Collectors;
 public final class CseGlskDocument implements GlskDocument {
     private static final Logger LOGGER = LoggerFactory.getLogger(CseGlskDocument.class);
     private static final String LINEAR_GLSK_NOT_HANDLED = "CSE GLSK document does not handle Linear GLSK conversion";
-    private static final String IMPORTING_COUNTRIES_KEY = "importingCountries";
-    private static final String EXPORTING_COUNTRIES_KEY = "exportingCountries";
+    private static final String COUNTRIES_IN_AREA_KEY = "countriesInArea";
+    private static final String COUNTRIES_OUT_AREA_KEY = "countriesOutArea";
 
     /**
      * list of GlskPoint in the given Glsk document
@@ -94,10 +94,10 @@ public final class CseGlskDocument implements GlskDocument {
         } else {
             // Extract CalculationDirections
             List<CalculationDirectionType> calculationDirections = nativeGskDocument.getCalculationDirections().get(0).getCalculationDirection();
-            Map<String, List<String>> importingAndExportingCountries = getImportingAndExportingCountries(calculationDirections);
+            Map<String, List<String>> countriesInAndOutArea = getCountriesInAndOutArea(calculationDirections);
 
             // Use data from cseGlskPointsStandard or cseGlskPointsExport depending on CalculationDirections
-            fillGlskPointsForExportCorner(cseGlskPointsStandard, cseGlskPointsExport, importingAndExportingCountries);
+            fillGlskPointsForExportCorner(cseGlskPointsStandard, cseGlskPointsExport, countriesInAndOutArea);
         }
     }
 
@@ -123,37 +123,37 @@ public final class CseGlskDocument implements GlskDocument {
             || nativeGskDocument.getCalculationDirections().get(0).getCalculationDirection().isEmpty();
     }
 
-    private static Map<String, List<String>> getImportingAndExportingCountries(List<CalculationDirectionType> calculationDirections) {
+    private static Map<String, List<String>> getCountriesInAndOutArea(List<CalculationDirectionType> calculationDirections) {
         String italyEIC = new CountryEICode(Country.IT).getCode();
-        List<String> importingCountries = new ArrayList<>();
-        List<String> exportingCountries = new ArrayList<>();
-
-        calculationDirections.stream()
-            .map(cd -> cd.getOutArea().getV())
-            .filter(countryEIC -> countryEIC.equals(italyEIC))
-            .forEach(importingCountries::add);
-
-        importingCountries.add(italyEIC);
+        List<String> countriesInArea = new ArrayList<>();
+        List<String> countriesOutArea = new ArrayList<>();
 
         calculationDirections.stream()
             .map(cd -> cd.getInArea().getV())
-            .filter(countryEIC -> countryEIC.equals(italyEIC))
-            .forEach(exportingCountries::add);
+            .filter(countryEIC -> !countryEIC.equals(italyEIC))
+            .forEach(countriesInArea::add);
 
-        return Map.of(IMPORTING_COUNTRIES_KEY, importingCountries,
-            EXPORTING_COUNTRIES_KEY, exportingCountries);
+        countriesInArea.add(italyEIC);
+
+        calculationDirections.stream()
+            .map(cd -> cd.getOutArea().getV())
+            .filter(countryEIC -> !countryEIC.equals(italyEIC))
+            .forEach(countriesOutArea::add);
+
+        return Map.of(COUNTRIES_IN_AREA_KEY, countriesInArea,
+            COUNTRIES_OUT_AREA_KEY, countriesOutArea);
     }
 
     private void fillGlskPointsForExportCorner(Map<String, List<GlskPoint>> cseGlskPointsStandard,
                                                Map<String, List<GlskPoint>> cseGlskPointsExport,
-                                               Map<String, List<String>> importingAndExportingCountries) {
-        importingAndExportingCountries.get(IMPORTING_COUNTRIES_KEY).forEach(eic -> {
+                                               Map<String, List<String>> countriesInAndOutArea) {
+        countriesInAndOutArea.get(COUNTRIES_IN_AREA_KEY).forEach(eic -> {
             List<GlskPoint> cseGlskPoint = cseGlskPointsExport.getOrDefault(eic, cseGlskPointsStandard.get(eic));
             this.cseGlskPoints.computeIfAbsent(eic, area -> new ArrayList<>());
             this.cseGlskPoints.get(eic).addAll(cseGlskPoint);
         });
 
-        importingAndExportingCountries.get(EXPORTING_COUNTRIES_KEY).forEach(eic -> {
+        countriesInAndOutArea.get(COUNTRIES_OUT_AREA_KEY).forEach(eic -> {
             List<GlskPoint> cseGlskPoint = cseGlskPointsStandard.get(eic);
             this.cseGlskPoints.computeIfAbsent(eic, area -> new ArrayList<>());
             this.cseGlskPoints.get(eic).addAll(cseGlskPoint);
