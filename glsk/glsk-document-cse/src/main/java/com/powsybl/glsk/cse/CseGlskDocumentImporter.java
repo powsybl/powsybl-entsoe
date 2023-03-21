@@ -29,7 +29,6 @@ public class CseGlskDocumentImporter extends AbstractGlskDocumentImporter implem
 
     @Override
     public boolean canImport(InputStream inputStream) {
-        // TODO Change this methods behaviour according to the new import mechanism
         if (!setDocument(inputStream)) {
             return false;
         }
