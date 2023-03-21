@@ -62,7 +62,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
     /**
      * @deprecated Use {@link #BalanceComputationParameters()} or {@link #BalanceComputationParameters(double, int)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.3.0")
     public BalanceComputationParameters(double threshold, int maxNumberIterations, boolean loadPowerFactorConstant) {
         this(threshold, maxNumberIterations);
         scalingParameters.setConstantPowerFactor(loadPowerFactorConstant);
@@ -94,7 +94,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
     /**
      * @deprecated Use {@link #getScalingParameters()} and {@link ScalingParameters#isConstantPowerFactor()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.3.0")
     public boolean isLoadPowerFactorConstant() {
         return scalingParameters.isConstantPowerFactor();
     }
@@ -102,7 +102,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
     /**
      * @deprecated Use {@link #getScalingParameters()} and {@link ScalingParameters#setConstantPowerFactor(boolean)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.3.0")
     public void setLoadPowerFactorConstant(boolean loadPowerFactorConstant) {
         this.scalingParameters.setConstantPowerFactor(loadPowerFactorConstant);
     }
