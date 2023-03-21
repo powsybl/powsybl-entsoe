@@ -162,8 +162,7 @@ class IGMmergeTests {
         Set<String> generatorsId = new HashSet<>();
         Set<String> voltageLevelIds = new HashSet<>();
 
-        //networkBENL.getBranches().forEach(b -> branchIds.add(b.getId()));
-        networkBENL.getBranches().forEach(b -> branchIds.add(b.getId().replace(" ", "%20"))); // FIXME workaround before fixing CGMES export/import
+        networkBENL.getBranches().forEach(b -> branchIds.add(b.getId()));
         networkBENL.getGenerators().forEach(g -> generatorsId.add(g.getId()));
         networkBENL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
