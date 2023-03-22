@@ -37,7 +37,7 @@ class XnodeFlowTests {
             .addNetworkElementsOnBasecase(Set.of(branchId1, branchId2, branchId3, branchId4, branchId5, branchId6))
             .build();
         FlowDecompositionParameters flowDecompositionParameters = FlowDecompositionParameters.load()
-            .setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);

@@ -149,7 +149,7 @@ class RescalingTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
-            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.PER_STATE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
             .setRescaleEnabled(enableRescaledResults);
@@ -168,7 +168,7 @@ class RescalingTests {
         String xnecId = "BLOAD 11 FLOAD 11 1";
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
-            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.PER_STATE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
             .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);

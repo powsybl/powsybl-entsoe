@@ -49,7 +49,7 @@ class FlowDecompositionIntegrationTests {
             .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId))
             .build();
         FlowDecompositionParameters flowDecompositionParameters = FlowDecompositionParameters.load()
-            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.PER_STATE_LOSSES_COMPENSATION)
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
@@ -75,7 +75,7 @@ class FlowDecompositionIntegrationTests {
             .addNetworkElementsOnBasecase(Set.of(branchId))
             .build();
         FlowDecompositionParameters flowDecompositionParameters = FlowDecompositionParameters.load()
-            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.PER_STATE_LOSSES_COMPENSATION)
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
@@ -101,7 +101,7 @@ class FlowDecompositionIntegrationTests {
             .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId))
             .build();
         FlowDecompositionParameters flowDecompositionParameters = FlowDecompositionParameters.load()
-            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.PER_STATE_LOSSES_COMPENSATION)
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
@@ -131,7 +131,7 @@ class FlowDecompositionIntegrationTests {
             .addNetworkElementsOnBasecase(Set.of(branchId))
             .build();
         FlowDecompositionParameters flowDecompositionParameters = FlowDecompositionParameters.load()
-            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.PER_STATE_LOSSES_COMPENSATION)
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
@@ -159,7 +159,7 @@ class FlowDecompositionIntegrationTests {
     @Test
     void testIntegrationWithRescaling() {
         FlowDecompositionParameters parameters = new FlowDecompositionParameters()
-            .setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
             .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsOnPSTNetwork(parameters);
         assertEquals(new DecomposedFlow(X1, "", Country.FR, Country.BE, 29.003009422979176, 24.999999999999993, 33.002024914534545, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -1.9995077457776844, "Loop Flow from FR", -1.9995077457776862)), flowDecompositionResults.getDecomposedFlowMap().get(X1));
@@ -173,7 +173,7 @@ class FlowDecompositionIntegrationTests {
     @Test
     void testIntegrationWithoutRescaling() {
         FlowDecompositionParameters parameters = new FlowDecompositionParameters()
-            .setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsOnPSTNetwork(parameters);
         assertEquals(new DecomposedFlow(X1, "", Country.FR, Country.BE, 29.003009422979176, 24.999999999999993, 28.999015491555372, 0.0, -0.0, 0.0, Map.of("Loop Flow from BE", -1.9995077457776844, "Loop Flow from FR", -1.9995077457776862)), flowDecompositionResults.getDecomposedFlowMap().get(X1));
@@ -187,7 +187,7 @@ class FlowDecompositionIntegrationTests {
     @Test
     void testIntegrationWithRescalingWithLossCompensation() {
         FlowDecompositionParameters parameters = new FlowDecompositionParameters()
-            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.PER_STATE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsOnPSTNetwork(parameters);
@@ -202,7 +202,7 @@ class FlowDecompositionIntegrationTests {
     @Test
     void testIntegrationWithoutRescalingWithLossCompensation() {
         FlowDecompositionParameters parameters = new FlowDecompositionParameters()
-            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+            .setLossesCompensationMode(FlowDecompositionParameters.PER_STATE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
         FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsOnPSTNetwork(parameters);
@@ -212,6 +212,36 @@ class FlowDecompositionIntegrationTests {
         assertEquals(new DecomposedFlow(X2, X1, Country.FR, Country.BE, 116.01617882330939, 115.97664177197838, 115.99606196622149, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.009710097121567784, "Loop Flow from FR", -0.00971009712155535)), flowDecompositionResults.getDecomposedFlowMap().get(X2_WITH_X1_CONTINGENCY));
         assertEquals(new DecomposedFlow(PST, X1, Country.BE, Country.BE, 31.99999999999722, -0.0, 0.0, 0.0, 0.0, -0.0, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(PST_WITH_X1_CONTINGENCY));
         assertEquals(new DecomposedFlow(X2, N2_CONTINGENCY_ID, Country.FR, Country.BE, 100.03453149519564, 99.9826329237988, 115.99606196622149, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -8.006714521211336, "Loop Flow from FR", -8.006714521211343)), flowDecompositionResults.getDecomposedFlowMap().get(X2_WITH_N2_CONTINGENCY));
+    }
+
+    @Test
+    void testIntegrationWithRescalingWithSharedLossCompensation() {
+        FlowDecompositionParameters parameters = new FlowDecompositionParameters()
+            .setLossesCompensationMode(FlowDecompositionParameters.SHARED_LOSSES_COMPENSATION)
+            .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+            .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
+        FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsOnPSTNetwork(parameters);
+        assertEquals(new DecomposedFlow(X1, "", Country.FR, Country.BE, 29.003009422979176, 28.996350163597047, 29.00567475093749, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.0013326639791566564, "Loop Flow from FR", -0.0013326639791579886)), flowDecompositionResults.getDecomposedFlowMap().get(X1));
+        assertEquals(new DecomposedFlow(X2, "", Country.FR, Country.BE, 87.00911182341697, 86.98905049079114, 87.01710780729192, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.003997991937470857, "Loop Flow from FR", -0.003997991937473966)), flowDecompositionResults.getDecomposedFlowMap().get(X2));
+        assertEquals(new DecomposedFlow(PST, "", Country.BE, Country.BE, 3.0056664783579006, -28.99635016359705, 3.0083318063162174, 0.0, -0.0, -0.0013326639791566564, Map.of("Loop Flow from FR", -0.0013326639791579886)), flowDecompositionResults.getDecomposedFlowMap().get(PST));
+        assertEquals(new DecomposedFlow(X2, X1, Country.FR, Country.BE, 131.99762275305721, 115.98540065438823, 132.00828406489046, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.005330655916626625, "Loop Flow from FR", -0.0053306559166319545)), flowDecompositionResults.getDecomposedFlowMap().get(X2_WITH_X1_CONTINGENCY));
+        assertEquals(new DecomposedFlow(PST, X1, Country.BE, Country.BE, 31.99999999999722, -0.0, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(PST_WITH_X1_CONTINGENCY));
+        assertEquals(new DecomposedFlow(X2, N2_CONTINGENCY_ID, Country.FR, Country.BE, 116.00156759752616, 115.98540065438823, 116.01222890935942, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.005330655916626625, "Loop Flow from FR", -0.0053306559166319545)), flowDecompositionResults.getDecomposedFlowMap().get(X2_WITH_N2_CONTINGENCY));
+    }
+
+    @Test
+    void testIntegrationWithoutRescalingWithSharedLossCompensation() {
+        FlowDecompositionParameters parameters = new FlowDecompositionParameters()
+            .setLossesCompensationMode(FlowDecompositionParameters.SHARED_LOSSES_COMPENSATION)
+            .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+            .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
+        FlowDecompositionResults flowDecompositionResults = getFlowDecompositionResultsOnPSTNetwork(parameters);
+        assertEquals(new DecomposedFlow(X1, "", Country.FR, Country.BE, 29.003009422979176, 28.996350163597047, 28.999015491555372, 0.0, -0.0, 0.0, Map.of("Loop Flow from BE", -0.0013326639791566564, "Loop Flow from FR", -0.0013326639791579886)), flowDecompositionResults.getDecomposedFlowMap().get(X1));
+        assertEquals(new DecomposedFlow(X2, "", Country.FR, Country.BE, 87.00911182341697, 86.98905049079114, 86.99704647466612, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.003997991937470857, "Loop Flow from FR", -0.003997991937473966)), flowDecompositionResults.getDecomposedFlowMap().get(X2));
+        assertEquals(new DecomposedFlow(PST, "", Country.BE, Country.BE, 3.0056664783579006, -28.99635016359705, 28.999015491555372, 0.0, -0.0, -0.0013326639791566564, Map.of("Loop Flow from FR", -0.0013326639791579886)), flowDecompositionResults.getDecomposedFlowMap().get(PST));
+        assertEquals(new DecomposedFlow(X2, X1, Country.FR, Country.BE, 131.99762275305721, 115.98540065438823, 115.99606196622149, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.005330655916626625, "Loop Flow from FR", -0.0053306559166319545)), flowDecompositionResults.getDecomposedFlowMap().get(X2_WITH_X1_CONTINGENCY));
+        assertEquals(new DecomposedFlow(PST, X1, Country.BE, Country.BE, 31.99999999999722, -0.0, 0.0, 0.0, 0.0, -0.0, Collections.emptyMap()), flowDecompositionResults.getDecomposedFlowMap().get(PST_WITH_X1_CONTINGENCY));
+        assertEquals(new DecomposedFlow(X2, N2_CONTINGENCY_ID, Country.FR, Country.BE, 116.00156759752616, 115.98540065438823, 115.99606196622149, 0.0, 0.0, 0.0, Map.of("Loop Flow from BE", -0.005330655916626625, "Loop Flow from FR", -0.0053306559166319545)), flowDecompositionResults.getDecomposedFlowMap().get(X2_WITH_N2_CONTINGENCY));
     }
 
     private static FlowDecompositionResults getFlowDecompositionResultsOnPSTNetwork(FlowDecompositionParameters parameters) {

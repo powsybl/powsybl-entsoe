@@ -47,7 +47,7 @@ class FlowDecompositionParametersTests {
     @Test
     void checkDefaultParameters() {
         FlowDecompositionParameters parameters = FlowDecompositionParameters.load();
-        assertFalse(parameters.isLossesCompensationEnabled());
+        assertEquals(FlowDecompositionParameters.LossCompensationMode.NONE, parameters.getLossesCompensationMode());
         assertEquals(1e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(1e-5, parameters.getSensitivityEpsilon(), EPSILON);
         assertFalse(parameters.isRescaleEnabled());
@@ -58,7 +58,7 @@ class FlowDecompositionParametersTests {
     @Test
     void checkCompleteConfigurationOfParameters() {
         MapModuleConfig mapModuleConfig = platformConfig.createModuleConfig("flow-decomposition-default-parameters");
-        mapModuleConfig.setStringProperty("enable-losses-compensation", Boolean.toString(true));
+        mapModuleConfig.setStringProperty("enable-losses-compensation", "PER_STATE");
         mapModuleConfig.setStringProperty("losses-compensation-epsilon", Double.toString(2e-5));
         mapModuleConfig.setStringProperty("sensitivity-epsilon", Double.toString(3e-3));
         mapModuleConfig.setStringProperty("rescale-enabled", Boolean.toString(true));
@@ -66,7 +66,7 @@ class FlowDecompositionParametersTests {
         mapModuleConfig.setStringProperty("sensitivity-variable-batch-size", Integer.toString(1234));
 
         FlowDecompositionParameters parameters = FlowDecompositionParameters.load(platformConfig);
-        assertTrue(parameters.isLossesCompensationEnabled());
+        assertEquals(FlowDecompositionParameters.LossCompensationMode.PER_STATE, parameters.getLossesCompensationMode());
         assertEquals(2e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(3e-3, parameters.getSensitivityEpsilon(), EPSILON);
         assertTrue(parameters.isRescaleEnabled());
@@ -80,7 +80,7 @@ class FlowDecompositionParametersTests {
         mapModuleConfig.setStringProperty("losses-compensation-epsilon", Double.toString(2e-5));
 
         FlowDecompositionParameters parameters = FlowDecompositionParameters.load(platformConfig);
-        assertFalse(parameters.isLossesCompensationEnabled());
+        assertEquals(FlowDecompositionParameters.LossCompensationMode.NONE, parameters.getLossesCompensationMode());
         assertEquals(2e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(1e-5, parameters.getSensitivityEpsilon(), EPSILON);
         assertFalse(parameters.isRescaleEnabled());

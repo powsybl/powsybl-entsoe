@@ -33,7 +33,7 @@ class InternalFlowTests {
         Network network = TestUtils.importNetwork(NETWORK_FILE_NAME);
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
-            .setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION);
+            .setLossesCompensationMode(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         XnecProvider xnecProvider = new XnecProviderAllBranches();
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);

@@ -144,7 +144,7 @@ class LossesCompensationTests {
         String xnecId = "FLOAD 11 BLOAD 11 1";
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION);
+        flowDecompositionParameters.setLossesCompensationMode(FlowDecompositionParameters.PER_STATE_LOSSES_COMPENSATION);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
@@ -161,7 +161,7 @@ class LossesCompensationTests {
         String xnecId = "FLOAD 11 BLOAD 11 1";
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
-        flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION);
+        flowDecompositionParameters.setLossesCompensationMode(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);

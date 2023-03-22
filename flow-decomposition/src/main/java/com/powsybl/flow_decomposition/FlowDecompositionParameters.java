@@ -15,13 +15,19 @@ import java.util.Objects;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class FlowDecompositionParameters {
+    public enum LossCompensationMode {
+        NONE,
+        SHARED,
+        PER_STATE
+    }
     public static final boolean ENABLE_RESCALED_RESULTS = true;
     public static final boolean DISABLE_RESCALED_RESULTS = false;
     public static final double DISABLE_SENSITIVITY_EPSILON = -1;
-    public static final boolean DISABLE_LOSSES_COMPENSATION = false;
-    public static final boolean ENABLE_LOSSES_COMPENSATION = true;
+    public static final LossCompensationMode DISABLE_LOSSES_COMPENSATION = LossCompensationMode.NONE;
+    public static final LossCompensationMode PER_STATE_LOSSES_COMPENSATION = LossCompensationMode.PER_STATE;
+    public static final LossCompensationMode SHARED_LOSSES_COMPENSATION = LossCompensationMode.SHARED;
     public static final double DISABLE_LOSSES_COMPENSATION_EPSILON = -1;
-    public static final boolean DEFAULT_ENABLE_LOSSES_COMPENSATION = DISABLE_LOSSES_COMPENSATION;
+    public static final LossCompensationMode DEFAULT_ENABLE_LOSSES_COMPENSATION = DISABLE_LOSSES_COMPENSATION;
     public static final double DEFAULT_LOSSES_COMPENSATION_EPSILON = 1e-5;
     public static final double DEFAULT_SENSITIVITY_EPSILON = 1e-5;
     public static final boolean DEFAULT_RESCALE_ENABLED = DISABLE_RESCALED_RESULTS;
@@ -29,7 +35,7 @@ public class FlowDecompositionParameters {
     public static final boolean ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE = true;
     public static final boolean DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE = ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE;
     private static final int DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE = 15000;
-    private boolean enableLossesCompensation;
+    private LossCompensationMode lossesCompensationMode;
     private double lossesCompensationEpsilon;
     private double sensitivityEpsilon;
     private boolean rescaleEnabled;
@@ -50,7 +56,7 @@ public class FlowDecompositionParameters {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(platformConfig);
         platformConfig.getOptionalModuleConfig("flow-decomposition-default-parameters").ifPresent(moduleConfig -> {
-            parameters.setEnableLossesCompensation(moduleConfig.getBooleanProperty("enable-losses-compensation", DEFAULT_ENABLE_LOSSES_COMPENSATION));
+            parameters.setLossesCompensationMode(moduleConfig.getEnumProperty("enable-losses-compensation", LossCompensationMode.class, DEFAULT_ENABLE_LOSSES_COMPENSATION));
             parameters.setLossesCompensationEpsilon(moduleConfig.getDoubleProperty("losses-compensation-epsilon", DEFAULT_LOSSES_COMPENSATION_EPSILON));
             parameters.setSensitivityEpsilon(moduleConfig.getDoubleProperty("sensitivity-epsilon", DEFAULT_SENSITIVITY_EPSILON));
             parameters.setRescaleEnabled(moduleConfig.getBooleanProperty("rescale-enabled", DEFAULT_RESCALE_ENABLED));
@@ -60,7 +66,7 @@ public class FlowDecompositionParameters {
     }
 
     public FlowDecompositionParameters() {
-        this.enableLossesCompensation = DEFAULT_ENABLE_LOSSES_COMPENSATION;
+        this.lossesCompensationMode = DEFAULT_ENABLE_LOSSES_COMPENSATION;
         this.lossesCompensationEpsilon = DEFAULT_LOSSES_COMPENSATION_EPSILON;
         this.sensitivityEpsilon = DEFAULT_SENSITIVITY_EPSILON;
         this.rescaleEnabled = DEFAULT_RESCALE_ENABLED;
@@ -68,13 +74,13 @@ public class FlowDecompositionParameters {
         this.sensitivityVariableBatchSize = DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE;
     }
 
-    public FlowDecompositionParameters setEnableLossesCompensation(boolean enableLossesCompensation) {
-        this.enableLossesCompensation = enableLossesCompensation;
+    public FlowDecompositionParameters setLossesCompensationMode(LossCompensationMode lossesCompensationMode) {
+        this.lossesCompensationMode = lossesCompensationMode;
         return this;
     }
 
-    public boolean isLossesCompensationEnabled() {
-        return enableLossesCompensation;
+    public LossCompensationMode getLossesCompensationMode() {
+        return lossesCompensationMode;
     }
 
     public double getLossesCompensationEpsilon() {
