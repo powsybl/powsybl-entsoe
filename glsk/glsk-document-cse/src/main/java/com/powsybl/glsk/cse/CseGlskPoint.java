@@ -24,25 +24,25 @@ public class CseGlskPoint extends AbstractGlskPoint {
 
     private static final List<Class<?>> STANDARD_BLOCK_CLASSES = List.of(ManualGSKBlockType.class, PropGSKBlockType.class, PropLSKBlockType.class, ReserveGSKBlockType.class);
 
-    public CseGlskPoint(TimeSeriesType timeSerie) {
-        Objects.requireNonNull(timeSerie);
+    public CseGlskPoint(TimeSeriesType timeSeries) {
+        Objects.requireNonNull(timeSeries);
         this.position = 1;
-        this.pointInterval = Interval.parse(timeSerie.getTimeInterval().getV());
-        this.subjectDomainmRID = timeSerie.getArea().getV();
+        this.pointInterval = Interval.parse(timeSeries.getTimeInterval().getV());
+        this.subjectDomainmRID = timeSeries.getArea().getV();
         this.curveType = "A03";
         this.glskShiftKeys = new ArrayList<>();
 
-        BusinessTypeList businessType = timeSerie.getBusinessType().getV();
+        BusinessTypeList businessType = timeSeries.getBusinessType().getV();
 
         try {
-            Stream.concat(Stream.ofNullable(timeSerie.getManualLSKBlockOrPropLSKBlock()),
-                            Stream.ofNullable(timeSerie.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
+            Stream.concat(Stream.ofNullable(timeSeries.getManualLSKBlockOrPropLSKBlock()),
+                            Stream.ofNullable(timeSeries.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
                     .flatMap(List::stream)
                     .filter(block -> STANDARD_BLOCK_CLASSES.stream().anyMatch(acceptedClass -> acceptedClass.isInstance(block)))
                     .map(BlockWrapper::new)
                     .forEach(block -> importStandardBlock(block, businessType));
 
-            Stream.ofNullable(timeSerie.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock())
+            Stream.ofNullable(timeSeries.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock())
                     .flatMap(List::stream)
                     .filter(MeritOrderGSKBlockType.class::isInstance)
                     .map(BlockWrapper::new)

@@ -101,18 +101,18 @@ public final class CseGlskDocument implements GlskDocument {
     }
 
     private static Map<String, List<GlskPoint>> getGlskPointsFromTimeSeries(List<TimeSeriesType> timeSeries) {
-        Map<String, List<GlskPoint>> cseGlskPoints = new TreeMap<>();
+        Map<String, List<GlskPoint>> cseGlskPointsPerArea = new TreeMap<>();
         if (timeSeries == null) {
-            return cseGlskPoints;
+            return cseGlskPointsPerArea;
         }
 
         timeSeries.stream()
             .map(CseGlskPoint::new)
             .forEach(glskPoint -> {
-                cseGlskPoints.computeIfAbsent(glskPoint.getSubjectDomainmRID(), area -> new ArrayList<>());
-                cseGlskPoints.get(glskPoint.getSubjectDomainmRID()).add(glskPoint);
+                cseGlskPointsPerArea.computeIfAbsent(glskPoint.getSubjectDomainmRID(), area -> new ArrayList<>());
+                cseGlskPointsPerArea.get(glskPoint.getSubjectDomainmRID()).add(glskPoint);
             });
-        return cseGlskPoints;
+        return cseGlskPointsPerArea;
     }
 
     private static boolean calculationDirectionsAbsent(GSKDocument nativeGskDocument) {
