@@ -30,7 +30,6 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
@@ -67,7 +66,7 @@ public final class CseGlskDocument implements GlskDocument {
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             URL glskSchemaResource = CseGlskDocument.class.getResource("/xsd/gsk-document.xsd");
             if (glskSchemaResource != null) {
-                Schema glskSchema = sf.newSchema(new File(glskSchemaResource.getFile()));
+                Schema glskSchema = sf.newSchema(glskSchemaResource);
                 unmarshaller.setSchema(glskSchema);
             } else {
                 LOGGER.warn("Unable to find GLSK Schema definition file. GLSK file will be imported without schema validation.");
