@@ -57,7 +57,7 @@ public final class CseGlskDocument implements GlskDocument {
      */
     private final Map<String, List<GlskPoint>> cseGlskPoints = new TreeMap<>();
 
-    public static CseGlskDocument importGlsk(InputStream inputStream) {
+    public static CseGlskDocument importGlsk(InputStream inputStream, boolean useCalculationDirections) {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -74,7 +74,7 @@ public final class CseGlskDocument implements GlskDocument {
 
             // Unmarshal xml file
             GSKDocument nativeGskDocument = (GSKDocument) JAXBIntrospector.getValue(unmarshaller.unmarshal(inputStream));
-            return new CseGlskDocument(nativeGskDocument);
+            return new CseGlskDocument(nativeGskDocument, useCalculationDirections);
         } catch (SAXException e) {
             throw new GlskException("Unable to import CSE GLSK file: Schema validation failed.", e);
         } catch (JAXBException e) {
@@ -82,12 +82,12 @@ public final class CseGlskDocument implements GlskDocument {
         }
     }
 
-    private CseGlskDocument(GSKDocument nativeGskDocument) {
+    private CseGlskDocument(GSKDocument nativeGskDocument, boolean useCalculationDirections) {
         // Computation of "standard" and "export" timeseries
         Map<String, List<GlskPoint>> cseGlskPointsStandard = getGlskPointsFromTimeSeries(nativeGskDocument.getTimeSeries());
         Map<String, List<GlskPoint>> cseGlskPointsExport = getGlskPointsFromTimeSeries(nativeGskDocument.getTimeSeriesExport());
 
-        if (calculationDirectionsAbsent(nativeGskDocument)) {
+        if (!useCalculationDirections || calculationDirectionsAbsent(nativeGskDocument)) {
             // "default" mode : all countries are considered in full import (use TimeSeries for all)
             this.cseGlskPoints.putAll(cseGlskPointsStandard);
         } else {

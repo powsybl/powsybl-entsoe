@@ -33,7 +33,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportManualGskBlocks() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MANUAL");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
@@ -58,7 +58,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportReserveGskBlocks() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_RESERVE");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
@@ -130,7 +130,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportPropGskBlocks() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGSK");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
@@ -157,7 +157,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportPropGlskBlocks() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGLSK");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
@@ -200,7 +200,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportMeritOrderGskBlocks() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MERITORDER");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
@@ -360,7 +360,7 @@ class CseGlskDocumentImporterTest {
     void checkFactorTagIsOptional() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         InputStream is = getClass().getResourceAsStream("/testGlskWithMissingFactorTag.xml");
-        ZonalData<Scalable> zs = CseGlskDocument.importGlsk(is).getZonalScalable(network);
+        ZonalData<Scalable> zs = CseGlskDocument.importGlsk(is, false).getZonalScalable(network);
 
         assertEquals(4, zs.getDataPerZone().size());
     }
@@ -368,12 +368,12 @@ class CseGlskDocumentImporterTest {
     @Test
     void checkGlskExceptionWhenMissingTag() {
         InputStream is = getClass().getResourceAsStream("/testGlskMissingTag.xml");
-        assertThrows(GlskException.class, () -> CseGlskDocument.importGlsk(is));
+        assertThrows(GlskException.class, () -> CseGlskDocument.importGlsk(is, false));
     }
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportMergedGlsk() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskMerged.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskMerged.xml"), true);
         assertNotNull(cseGlskDocument);
         assertEquals(5, cseGlskDocument.getZones().size());
 
