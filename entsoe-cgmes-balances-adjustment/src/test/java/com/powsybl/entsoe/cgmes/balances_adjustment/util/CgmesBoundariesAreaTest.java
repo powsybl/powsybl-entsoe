@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,6 +42,28 @@ class CgmesBoundariesAreaTest {
         Network network = Network.read("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
         NetworkAreaFactory factory = new CgmesBoundariesAreaFactory(new ArrayList<>(network.getExtension(CgmesControlAreas.class).getCgmesControlAreas()));
         NetworkArea area = factory.create(network);
+
+        // XXX(Luma) Now TieLines are not Lines
+        // XXX(Luma) review failing test
+        List<Double> ps = Stream.of(
+                    network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6"),
+                    network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da"),
+                    network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006"))
+                .map(dl -> dl.getBoundary().getP()).collect(Collectors.toList());
+        double sum = ps.stream().mapToDouble(n -> n).sum();
+        System.out.println(sum);
+        System.out.println(ps);
+        // XXX(Luma) area net position is NaN because there is a dangling line
+        // from the tie line for which getBoundary().getP() is calculated as
+        //        Terminal t = parent.getTerminal();
+        //        Bus b = t.getBusView().getBus();
+        //        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideP(parent, true);
+        // and the boundary terminal P, Q = NaN (is a bus terminal)
+        // the bus terminal corresponds to the configured bus
+        // _f70f6bad-eb8d-4b8f-8431-4ab93581514e
+        double anp = area.getNetPosition();
+        System.out.println(anp);
+
         assertEquals(Stream.of(network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6"),
                 network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da"),
                 network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006"))
