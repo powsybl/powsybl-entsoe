@@ -67,6 +67,9 @@
         </sonar.coverage.jacoco.xmlReportPaths>
         <ejml.version>0.41</ejml.version>
         <commonscsv.version>1.9.0</commonscsv.version>
+        <maven.jaxb2.version>3.1.0</maven.jaxb2.version>
+        <jakarta.xml.bind.version>4.0.0</jakarta.xml.bind.version>
+        <jaxb.impl.version>4.0.0</jaxb.impl.version>
     </properties>
 
     <modules>
@@ -79,6 +82,18 @@
         <module>emf</module>
         <module>commons</module>
     </modules>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>jaxb2-maven-plugin</artifactId>
+                    <version>${maven.jaxb2.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <dependencyManagement>
         <dependencies>
@@ -160,6 +175,17 @@
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-glsk-quality-check-ucte</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jakarta.xml.bind.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${jaxb.impl.version}</version>
+                <scope>runtime</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

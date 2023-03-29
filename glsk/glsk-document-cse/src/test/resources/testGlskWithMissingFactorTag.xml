@@ -75,7 +75,7 @@
         <Name v="FR_MERITORDER"/>
         <TimeInterval v="2020-09-16T22:00Z/2020-09-16T22:59Z"/>
         <MeritOrderGSKBlock>
-            <!-- <Factor v="1"/> No Factor, this should be handled with default value to 1 -->
+            <Factor v="2"/> <!-- No Factor, this should be handled with default value to 1 -->
             <Up>
                 <!-- <Factor v="1"/> No Factor, this should be handled with default value to 1 -->
                 <Node>
@@ -96,7 +96,7 @@
                 </Node>
             </Up>
             <Down>
-                <!-- <Factor v="1"/> No Factor, this should be handled with default value to 1 -->
+                <Factor v="3"/> <!-- No Factor, this should be handled with default value to 1 -->
                 <Node>
                     <Name v="FFR3AA1 "/>
                     <Pmin v="0"/>
