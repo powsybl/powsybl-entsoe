@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.balances_adjustment.balance_computation.BalanceComputationParameters;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.modification.scalable.json.JsonScalingParameters;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 
 import java.io.IOException;
@@ -23,6 +24,8 @@ import java.util.List;
  * @author Mohamed Ben Rejeb {@literal <mohamed.benrejeb at rte-france.com>}
  */
 public class BalanceComputationParametersDeserializer extends StdDeserializer<BalanceComputationParameters> {
+
+    private static final String CONTEXT_NAME = "BalanceComputationParameters";
 
     BalanceComputationParametersDeserializer() {
         super(BalanceComputationParameters.class);
@@ -35,10 +38,15 @@ public class BalanceComputationParametersDeserializer extends StdDeserializer<Ba
 
     @Override
     public BalanceComputationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, BalanceComputationParameters parameters) throws IOException {
-
+        String version = "1.0"; // when no version specified, considered 1.0 (version was not serialized in 1.0)
         List<Extension<BalanceComputationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
+                case "version":
+                    parser.nextToken();
+                    version = parser.getValueAsString();
+                    break;
+
                 case "maxNumberIterations":
                     parser.nextToken();
                     parameters.setMaxNumberIterations(parser.readValueAs(int.class));
@@ -52,6 +60,12 @@ public class BalanceComputationParametersDeserializer extends StdDeserializer<Ba
                 case "load-flow-parameters":
                     parser.nextToken();
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
+                    break;
+
+                case "scaling-parameters":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: scaling-parameters", version, "1.1");
+                    parser.nextToken();
+                    JsonScalingParameters.deserialize(parser, deserializationContext, parameters.getScalingParameters());
                     break;
 
                 case "extensions":

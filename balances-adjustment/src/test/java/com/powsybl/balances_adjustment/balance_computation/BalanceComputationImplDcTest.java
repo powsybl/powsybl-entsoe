@@ -137,7 +137,7 @@ class BalanceComputationImplDcTest {
 
     @Test
     void testConstantPowerFactor() {
-        parameters.setLoadPowerFactorConstant(true);
+        parameters.getScalingParameters().setConstantPowerFactor(true);
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1200.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, 1300.));
