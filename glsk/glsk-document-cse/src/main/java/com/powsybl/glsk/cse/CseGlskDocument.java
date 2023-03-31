@@ -8,6 +8,7 @@ package com.powsybl.glsk.cse;
 
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.GlskPoint;
+import com.powsybl.glsk.api.util.converters.GlskPointLinearGlskConverter;
 import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.glsk.commons.GlskException;
@@ -48,7 +49,7 @@ import java.util.stream.Collectors;
  */
 public final class CseGlskDocument implements GlskDocument {
     private static final Logger LOGGER = LoggerFactory.getLogger(CseGlskDocument.class);
-    private static final String LINEAR_GLSK_NOT_HANDLED = "CSE GLSK document does not handle Linear GLSK conversion";
+    private static final String DATA_CHRONOLOGY_NOT_HANDLED = "CSE GLSK document does only support hourly data";
     private static final String COUNTRIES_IN_AREA_KEY = "countriesInArea";
     private static final String COUNTRIES_OUT_AREA_KEY = "countriesOutArea";
 
@@ -171,17 +172,28 @@ public final class CseGlskDocument implements GlskDocument {
 
     @Override
     public ZonalData<SensitivityVariableSet> getZonalGlsks(Network network) {
-        throw new NotImplementedException(LINEAR_GLSK_NOT_HANDLED);
+        Map<String, SensitivityVariableSet> zonalData = new HashMap<>();
+        for (Map.Entry<String, List<GlskPoint>> entry : cseGlskPoints.entrySet()) {
+            String area = entry.getKey();
+            // There is always only one GlskPoint for a zone
+            GlskPoint zonalGlskPoint = entry.getValue().get(0);
+            try {
+                zonalData.put(area, GlskPointLinearGlskConverter.convert(network, zonalGlskPoint));
+            } catch (GlskException e) {
+                throw new NotImplementedException("Non linear GLSK cannot be converted to linear GLSK", e);
+            }
+        }
+        return new ZonalDataImpl<>(zonalData);
     }
 
     @Override
     public ZonalData<SensitivityVariableSet> getZonalGlsks(Network network, Instant instant) {
-        throw new NotImplementedException(LINEAR_GLSK_NOT_HANDLED);
+        throw new NotImplementedException(DATA_CHRONOLOGY_NOT_HANDLED);
     }
 
     @Override
     public ZonalDataChronology<SensitivityVariableSet> getZonalGlsksChronology(Network network) {
-        throw new NotImplementedException(LINEAR_GLSK_NOT_HANDLED);
+        throw new NotImplementedException(DATA_CHRONOLOGY_NOT_HANDLED);
     }
 
     @Override
@@ -213,11 +225,11 @@ public final class CseGlskDocument implements GlskDocument {
 
     @Override
     public ZonalData<Scalable> getZonalScalable(Network network, Instant instant) {
-        throw new NotImplementedException("CSE GLSK document does only support hourly data");
+        throw new NotImplementedException(DATA_CHRONOLOGY_NOT_HANDLED);
     }
 
     @Override
     public ZonalDataChronology<Scalable> getZonalScalableChronology(Network network) {
-        throw new NotImplementedException("CSE GLSK document does only support hourly data");
+        throw new NotImplementedException(DATA_CHRONOLOGY_NOT_HANDLED);
     }
 }
