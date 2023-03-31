@@ -8,6 +8,8 @@ package com.powsybl.glsk.cse;
 
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.GlskPoint;
+import com.powsybl.glsk.api.GlskRegisteredResource;
+import com.powsybl.glsk.api.GlskShiftKey;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.commons.ZonalData;
@@ -18,7 +20,10 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -28,7 +33,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportManualGskBlocks() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MANUAL");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
@@ -53,7 +58,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportReserveGskBlocks() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_RESERVE");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
@@ -125,7 +130,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportPropGskBlocks() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGSK");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
@@ -152,13 +157,13 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportPropGlskBlocks() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGLSK");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(2, list.get(0).getGlskShiftKeys().size());
-        assertEquals(3, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
-        assertEquals(2, list.get(0).getGlskShiftKeys().get(1).getRegisteredResourceArrayList().size());
+        assertEquals(2, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
+        assertEquals(3, list.get(0).getGlskShiftKeys().get(1).getRegisteredResourceArrayList().size());
     }
 
     @Test
@@ -195,7 +200,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportMeritOrderGskBlocks() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MERITORDER");
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
@@ -247,7 +252,7 @@ class CseGlskDocumentImporterTest {
     void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueDown() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
-        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER_ISSUE_PC");
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERIT_ISSUE_PC");
 
         assertNotNull(meritOrderGskScalable);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
@@ -264,7 +269,7 @@ class CseGlskDocumentImporterTest {
     void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueUp() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
-        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER_ISSUE_PC");
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERIT_ISSUE_PC");
 
         assertNotNull(meritOrderGskScalable);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
@@ -355,7 +360,7 @@ class CseGlskDocumentImporterTest {
     void checkFactorTagIsOptional() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         InputStream is = getClass().getResourceAsStream("/testGlskWithMissingFactorTag.xml");
-        ZonalData<Scalable> zs = CseGlskDocument.importGlsk(is).getZonalScalable(network);
+        ZonalData<Scalable> zs = CseGlskDocument.importGlsk(is, false).getZonalScalable(network);
 
         assertEquals(4, zs.getDataPerZone().size());
     }
@@ -363,6 +368,78 @@ class CseGlskDocumentImporterTest {
     @Test
     void checkGlskExceptionWhenMissingTag() {
         InputStream is = getClass().getResourceAsStream("/testGlskMissingTag.xml");
-        assertThrows(GlskException.class, () -> CseGlskDocument.importGlsk(is));
+        assertThrows(GlskException.class, () -> CseGlskDocument.importGlsk(is, false));
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyImportMergedGlsk() {
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskMerged.xml"), true);
+        assertNotNull(cseGlskDocument);
+        assertEquals(5, cseGlskDocument.getZones().size());
+
+        List<GlskPoint> atPoints = cseGlskDocument.getGlskPoints("10YAT-APG------L");
+        assertEquals(1, atPoints.size());
+        List<GlskShiftKey> atGlskShiftKeys = atPoints.get(0).getGlskShiftKeys();
+        assertEquals(1, atGlskShiftKeys.size());
+        assertEquals(0.95, atGlskShiftKeys.get(0).getQuantity());
+        List<GlskRegisteredResource> atRegisteredResources = atGlskShiftKeys.get(0).getRegisteredResourceArrayList();
+        assertEquals(2, atRegisteredResources.size());
+        assertEquals("AT01AA01", atRegisteredResources.get(0).getName());
+        assertEquals(0.7, atRegisteredResources.get(0).getParticipationFactor());
+        assertEquals("AT02AA01", atRegisteredResources.get(1).getName());
+        assertEquals(0.3, atRegisteredResources.get(1).getParticipationFactor());
+
+        List<GlskPoint> chPoints = cseGlskDocument.getGlskPoints("10YCH-SWISSGRIDZ");
+        assertEquals(1, chPoints.size());
+        List<GlskShiftKey> chGlskShiftKeys = chPoints.get(0).getGlskShiftKeys();
+        assertEquals(1, chGlskShiftKeys.size());
+        assertEquals(1.2, chGlskShiftKeys.get(0).getQuantity());
+        List<GlskRegisteredResource> chRegisteredResources = chGlskShiftKeys.get(0).getRegisteredResourceArrayList();
+        assertEquals(1, chRegisteredResources.size());
+        assertEquals("CH01AA01", chRegisteredResources.get(0).getName());
+        assertEquals(200.0, chRegisteredResources.get(0).getMaximumCapacity().get());
+        assertEquals(-10.0, chRegisteredResources.get(0).getMinimumCapacity().get());
+
+        List<GlskPoint> frPoints = cseGlskDocument.getGlskPoints("10YFR-RTE------C");
+        assertEquals(1, frPoints.size());
+        List<GlskShiftKey> frGlskShiftKeys = frPoints.get(0).getGlskShiftKeys();
+        assertEquals(1, frGlskShiftKeys.size());
+        assertEquals(1.05, frGlskShiftKeys.get(0).getQuantity());
+        List<GlskRegisteredResource> frRegisteredResources = frGlskShiftKeys.get(0).getRegisteredResourceArrayList();
+        assertEquals(3, frRegisteredResources.size());
+        assertEquals("FR01AA01", frRegisteredResources.get(0).getName());
+        assertEquals("FR02AA01", frRegisteredResources.get(1).getName());
+        assertEquals("FR03AA01", frRegisteredResources.get(2).getName());
+
+        List<GlskPoint> itPoints = cseGlskDocument.getGlskPoints("10YIT-GRTN-----B");
+        assertEquals(1, itPoints.size());
+        List<GlskShiftKey> itGlskShiftKeys = itPoints.get(0).getGlskShiftKeys();
+        assertEquals(2, itGlskShiftKeys.size());
+        assertEquals(1.15, itGlskShiftKeys.get(0).getQuantity());
+        assertEquals(1, itGlskShiftKeys.get(0).getMeritOrderPosition());
+        List<GlskRegisteredResource> itFirstRegisteredResources = itGlskShiftKeys.get(0).getRegisteredResourceArrayList();
+        assertEquals(1, itFirstRegisteredResources.size());
+        assertEquals("IT01AA01", itFirstRegisteredResources.get(0).getName());
+        assertEquals(1000, itFirstRegisteredResources.get(0).getMaximumCapacity().get());
+        assertEquals(1.15, itGlskShiftKeys.get(1).getQuantity());
+        assertEquals(-1, itGlskShiftKeys.get(1).getMeritOrderPosition());
+        List<GlskRegisteredResource> itSecondRegisteredResources = itGlskShiftKeys.get(1).getRegisteredResourceArrayList();
+        assertEquals(1, itSecondRegisteredResources.size());
+        assertEquals("IT01AA02", itSecondRegisteredResources.get(0).getName());
+        assertEquals(0, itSecondRegisteredResources.get(0).getMinimumCapacity().get());
+
+        List<GlskPoint> siPoints = cseGlskDocument.getGlskPoints("10YSI-ELES-----O");
+        assertEquals(1, siPoints.size());
+        List<GlskShiftKey> siGlskShiftKeys = siPoints.get(0).getGlskShiftKeys();
+        assertEquals(2, siGlskShiftKeys.size());
+        assertEquals(0.3, siGlskShiftKeys.get(0).getQuantity());
+        List<GlskRegisteredResource> siFirstRegisteredResources = siGlskShiftKeys.get(0).getRegisteredResourceArrayList();
+        assertEquals(2, siFirstRegisteredResources.size());
+        assertEquals("SI02AA01", siFirstRegisteredResources.get(0).getName());
+        assertEquals("SI02AA02", siFirstRegisteredResources.get(1).getName());
+        assertEquals(0.7, siGlskShiftKeys.get(1).getQuantity());
+        List<GlskRegisteredResource> siSecondRegisteredResources = siGlskShiftKeys.get(1).getRegisteredResourceArrayList();
+        assertEquals(1, siSecondRegisteredResources.size());
+        assertEquals("SI01AA01", siSecondRegisteredResources.get(0).getName());
     }
 }

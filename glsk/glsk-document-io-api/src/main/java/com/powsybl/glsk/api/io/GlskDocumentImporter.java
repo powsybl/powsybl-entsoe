@@ -8,6 +8,7 @@
 package com.powsybl.glsk.api.io;
 
 import com.powsybl.glsk.api.GlskDocument;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.InputStream;
 
@@ -20,6 +21,10 @@ import java.io.InputStream;
 public interface GlskDocumentImporter {
 
     GlskDocument importGlsk(InputStream inputStream);
+
+    default GlskDocument importGlsk(InputStream inputStream, boolean useCalculationDirections) {
+        throw new NotImplementedException("This importer does not handle CalculationDirections");
+    }
 
     boolean canImport(InputStream inputStream);
 }

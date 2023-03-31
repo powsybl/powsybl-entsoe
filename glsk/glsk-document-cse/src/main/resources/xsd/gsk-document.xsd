@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 2 (http://www.altova.com) by RTE (RTE) -->
+<!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by baracchini (RTE) -->
+<xsd:schema xmlns:ecc="etso-core-cmpts.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<xsd:import namespace="etso-core-cmpts.xsd" schemaLocation="etso-core-cmpts.xsd"/>
+	<!--__________________________________________________-->
+	<!--        GSK Document updated on 2023-03-17        -->
+	<!--       based on  GSK Document Version V7 R0       -->
+	<!--__________________________________________________-->
+	<xsd:element name="GSKDocument">
+		<xsd:complexType>
+			<xsd:annotation>
+				<xsd:documentation/>
+			</xsd:annotation>
+			<xsd:sequence>
+				<xsd:element name="DocumentIdentification" type="ecc:LongIdentificationType"/>
+				<xsd:element name="DocumentVersion" type="ecc:VersionType"/>
+				<xsd:element name="DocumentScenario" type="T_DocumentScenario" minOccurs="0" maxOccurs="1"/>
+				<xsd:element name="DocumentType" type="ecc:MessageType"/>
+				<xsd:element name="ProcessType" type="ecc:ProcessType"/>
+				<xsd:element name="SenderIdentification" type="ecc:PartyType"/>
+				<xsd:element name="SenderRole" type="ecc:RoleType"/>
+				<xsd:element name="ReceiverIdentification" type="ecc:PartyType"/>
+				<xsd:element name="ReceiverRole" type="ecc:RoleType"/>
+				<xsd:element name="CreationDateTime" type="ecc:MessageDateTimeType"/>
+				<xsd:element name="GSKTimeInterval" type="ecc:TimeIntervalType"/>
+				<xsd:element name="Domain" type="ecc:AreaType"/>
+				<xsd:element name="CalculationDirections" type="CalculationDirectionsType" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element name="TimeSeries" type="TimeSeriesType" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element name="TimeSeriesExport" type="TimeSeriesType" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="DtdRelease" type="xsd:string" use="optional"/>
+			<xsd:attribute name="DtdVersion" type="xsd:string" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<!-- Document scenario ______________________________-->
+	<xsd:complexType name="T_DocumentScenario">
+		<xsd:attribute name="v" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="Transit"/> 
+					<xsd:enumeration value="Import"/>
+					<xsd:enumeration value="Export"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<!-- Calculation directions _________________________-->
+	<xsd:complexType name="CalculationDirectionsType">
+		<xsd:sequence>
+			<xsd:element name="CalculationDirection" type="CalculationDirectionType" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="CalculationDirectionType">
+		<xsd:sequence>
+			<xsd:element name="Direction" type="T_Direction" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="Country" type="ecc:IdentificationType" minOccurs="1" maxOccurs="unbounded"/>
+			<xsd:element name="InArea" type="ecc:AreaType"/>
+			<xsd:element name="OutArea" type="ecc:AreaType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="T_Direction">
+		<xsd:attribute name="v" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="Import"/>
+					<xsd:enumeration value="Export"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+	
+	<!-- Timeseries ____________________________________-->
+	<xsd:complexType name="TimeSeriesType">
+		<xsd:sequence>
+			<xsd:element name="TimeSeriesIdentification" type="ecc:IdentificationType"/>
+			<xsd:element name="BusinessType" type="ecc:BusinessType"/>
+			<xsd:element name="Area" type="ecc:AreaType"/>
+			<xsd:element name="Name" type="ecc:IdentificationType"/>
+			<xsd:element name="TimeInterval" type="ecc:TimeIntervalType"/>
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:element name="PropGSKBlock" type="PropGSKBlockType"/>
+				<xsd:element name="ReserveGSKBlock" type="ReserveGSKBlockType"/>
+				<xsd:element name="MeritOrderGSKBlock" type="MeritOrderGSKBlockType"/>
+				<xsd:element name="ManualGSKBlock" type="ManualGSKBlockType"/>
+				<xsd:element name="ReferenceGSKBlock" type="ReferenceGSKBlockType"/>
+			</xsd:choice>
+			<xsd:choice minOccurs="0" maxOccurs="unbounded">
+				<xsd:element name="ManualLSKBlock" type="ManualLSKBlockType"/>
+				<xsd:element name="PropLSKBlock" type="PropLSKBlockType"/>
+			</xsd:choice>
+			<xsd:element name="Reason" type="ReasonType" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<!-- GSK block types ________________________________-->
+	<xsd:complexType name="PropGSKBlockType">
+		<xsd:sequence>
+			<xsd:element name="Order" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Factor" type="ecc:QuantityType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="MaximumShift" type="ecc:QuantityType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Node" type="PropGSKNodeType" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="PropGSKNodeType">
+		<xsd:sequence>
+			<xsd:element name="Name" type="NodeNameType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="ReserveGSKBlockType">
+		<xsd:sequence>
+			<xsd:element name="Order" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Factor" type="ecc:QuantityType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="MaximumShift" type="ecc:QuantityType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Node" type="ReserveGSKNodeType" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="ReserveGSKNodeType">
+		<xsd:sequence>
+			<xsd:element name="Name" type="NodeNameType"/>
+			<xsd:element name="Pmin" type="ecc:QuantityType"/>
+			<xsd:element name="Pmax" type="ecc:QuantityType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="MeritOrderGSKBlockType">
+		<xsd:sequence>
+			<xsd:element name="Order" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Factor" type="ecc:QuantityType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Up" type="MeritOrderUpGSKBlockType"/>
+			<xsd:element name="Down" type="MeritOrderDownGSKBlockType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="MeritOrderUpGSKBlockType">
+		<xsd:sequence>
+			<xsd:element name="Order" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Factor" type="MeritOrderFactorType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Node" type="MeritOrderUpNodeType" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="MeritOrderUpNodeType">
+		<xsd:sequence>
+			<xsd:element name="Name" type="NodeNameType"/>
+			<xsd:element name="Pmin" type="ecc:QuantityType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Pmax" type="ecc:QuantityType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="MeritOrderDownGSKBlockType">
+		<xsd:sequence>
+			<xsd:element name="Order" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Factor" type="MeritOrderFactorType"/>
+			<xsd:element name="Node" type="MeritOrderDownNodeType" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="MeritOrderDownNodeType">
+		<xsd:sequence>
+			<xsd:element name="Name" type="NodeNameType"/>
+			<xsd:element name="Pmin" type="ecc:QuantityType"/>
+			<xsd:element name="Pmax" type="ecc:QuantityType" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="MeritOrderFactorType">
+		<xsd:attribute name="v" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:integer">
+					<xsd:minInclusive value="1"/>
+					<xsd:maxInclusive value="999"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="ManualGSKBlockType">
+		<xsd:sequence>
+			<xsd:element name="Order" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Factor" type="ecc:QuantityType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Node" type="ManualGSKNodeType" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="ManualGSKNodeType">
+		<xsd:sequence>
+			<xsd:element name="Name" type="NodeNameType"/>
+			<xsd:element name="Factor" type="ecc:QuantityType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="ReferenceGSKBlockType">
+		<xsd:sequence>
+			<xsd:element name="Order" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="MaximumShift" type="ecc:QuantityType"/>
+			<xsd:element name="Area" type="ecc:AreaType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<!-- LSK block types ________________________________-->
+	<xsd:complexType name="ManualLSKBlockType">
+		<xsd:sequence>
+			<xsd:element name="Order" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Factor" type="ecc:QuantityType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Node" type="ManualLSKNodeType" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="ManualLSKNodeType">
+		<xsd:sequence>
+			<xsd:element name="Name" type="NodeNameType"/>
+			<xsd:element name="Factor" type="ecc:QuantityType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="PropLSKBlockType">
+		<xsd:sequence>
+			<xsd:element name="Order" type="xsd:integer" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Factor" type="ecc:QuantityType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="Node" type="PropLSKNodeType" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="PropLSKNodeType">
+		<xsd:sequence>
+			<xsd:element name="Name" type="NodeNameType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<!-- Common blocks __________________________________-->
+	<xsd:complexType name="NodeNameType">
+		<xsd:attribute name="v" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:pattern value=".{6}\d[' '-~]"/>
+					<!-- the last character can be any ASCII + <blank> +  -->
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:complexType name="ReasonType">
+		<xsd:sequence>
+			<xsd:element name="ReasonCode" type="ecc:ReasonCodeType"/>
+			<xsd:element name="ReasonText" type="ecc:ReasonTextType" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>

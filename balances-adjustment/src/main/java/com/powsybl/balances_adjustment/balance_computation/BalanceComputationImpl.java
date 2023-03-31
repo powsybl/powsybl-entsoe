@@ -74,12 +74,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             // Step 1: Perform the scaling
             context.getBalanceOffsets().forEach((area, offset) -> {
                 Scalable scalable = area.getScalable();
-                double done;
-                if (parameters.isLoadPowerFactorConstant()) {
-                    done = scalable.scaleWithConstantPowerFactor(network, offset);
-                } else {
-                    done = scalable.scale(network, offset);
-                }
+                double done = scalable.scale(network, offset, parameters.getScalingParameters());
                 LOGGER.info("Iteration={}, Scaling for area {}: offset={}, done={}", context.getIterationNum(), area.getName(), offset, done);
             });
 
