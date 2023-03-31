@@ -66,7 +66,7 @@ class ExtendedBalanceComputationTest {
 
     @Test
     void testWithExtendedBalanceComputationImpl() {
-        parameters.setLoadPowerFactorConstant(true);
+        parameters.getScalingParameters().setConstantPowerFactor(true);
         BalanceComputationParametersExtension balanceComputationParametersExtension = new BalanceComputationParametersExtension();
         parameters.addExtension(BalanceComputationParametersExtension.class, balanceComputationParametersExtension);
         List<BalanceComputationArea> areas = new ArrayList<>();
