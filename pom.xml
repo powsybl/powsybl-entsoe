@@ -58,7 +58,7 @@
 
     <properties>
         <java.version>11</java.version>
-        <powsyblcore.version>5.2.0-alpha-1</powsyblcore.version>
+        <powsyblcore.version>5.2.0</powsyblcore.version>
         <powsyblopenloadflow.version>1.0.0</powsyblopenloadflow.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml,
