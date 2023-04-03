@@ -9,6 +9,7 @@ package com.powsybl.balances_adjustment.balance_computation;
 import com.powsybl.balances_adjustment.util.NetworkArea;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
+import com.powsybl.iidm.network.ComponentConstants;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -133,14 +134,26 @@ public class BalanceComputationImpl implements BalanceComputation {
     }
 
     /**
-     * default implementation considers LF result OK if at least one synchronous component converged
+     * default implementation considers LF result OK if the largest synchronous component converged
      *
      * @param context        balance computation context
      * @param loadFlowResult LF result
      * @return true if the loadFlowResult is to be considered successful
      */
     protected boolean isLoadFlowResultOk(BalanceComputationRunningContext context, final LoadFlowResult loadFlowResult) {
-        return loadFlowResult.isOk();
+        return loadFlowResult.getComponentResults().stream()
+            .filter(cr -> ComponentConstants.MAIN_NUM == cr.getSynchronousComponentNum())
+            .collect(Collectors.collectingAndThen(
+                Collectors.toList(),
+                list -> {
+                    if (list.size() > 1) {
+                        throw new IllegalStateException("Expecting no more than 1 main synchronous component in LoadFlowResult");
+                    } else if (list.isEmpty()) {
+                        return false;
+                    }
+                    return list.get(0).getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED;
+                })
+            );
     }
 
     protected static class BalanceComputationRunningContext {
