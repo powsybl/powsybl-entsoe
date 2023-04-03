@@ -15,9 +15,11 @@ import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -441,5 +443,15 @@ class CseGlskDocumentImporterTest {
         List<GlskRegisteredResource> siSecondRegisteredResources = siGlskShiftKeys.get(1).getRegisteredResourceArrayList();
         assertEquals(1, siSecondRegisteredResources.size());
         assertEquals("SI01AA01", siSecondRegisteredResources.get(0).getName());
+    }
+
+    @Test
+    void checkExceptionWhenCallingNotImplementedFeatures() {
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
+        assertThrows(NotImplementedException.class, () -> glskDocument.getZonalScalableChronology(network));
+        assertThrows(NotImplementedException.class, () -> glskDocument.getZonalGlsksChronology(network));
+        assertThrows(NotImplementedException.class, () -> glskDocument.getZonalScalable(network, Instant.now()));
+        assertThrows(NotImplementedException.class, () -> glskDocument.getZonalGlsks(network, Instant.now()));
     }
 }
