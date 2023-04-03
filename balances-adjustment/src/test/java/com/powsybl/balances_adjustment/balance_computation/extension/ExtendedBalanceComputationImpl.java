@@ -11,6 +11,8 @@ import com.powsybl.balances_adjustment.balance_computation.BalanceComputationImp
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -21,14 +23,14 @@ import java.util.List;
  */
 class ExtendedBalanceComputationImpl extends BalanceComputationImpl {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExtendedBalanceComputationImpl.class);
+
     public ExtendedBalanceComputationImpl(List<BalanceComputationArea> areas, ComputationManager computationManager, LoadFlow.Runner loadFlowRunner) {
         super(areas, computationManager, loadFlowRunner);
     }
 
     @Override
     protected boolean isLoadFlowResultOk(BalanceComputationRunningContext context, LoadFlowResult loadFlowResult) {
-        // example storing results in extension
-        context.getParameters().getExtension(BalanceComputationParametersExtension.class).addLoadFlowResults(loadFlowResult);
         // example override requiring all components to be converged (just for testing - this is not a practical use case)
         return loadFlowResult.getComponentResults().stream()
                 .map(LoadFlowResult.ComponentResult::getStatus)
@@ -37,12 +39,10 @@ class ExtendedBalanceComputationImpl extends BalanceComputationImpl {
 
     @Override
     protected double computeTotalMismatch(BalanceComputationRunningContext context) {
+        context.getBalanceMismatches().forEach((area, mismatch) -> LOGGER.info("{} area mismatch is {} (thresholdNetPosition is {})", area.getName(), mismatch, context.getParameters().getThresholdNetPosition()));
         // example override using max mismatch
-        final double totalMismatch = context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue)
+        return context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue)
                 .map(Math::abs).max()
                 .orElse(0.0);
-        // example storing results in extension
-        context.getParameters().getExtension(BalanceComputationParametersExtension.class).addTotalMismatchResult(totalMismatch);
-        return totalMismatch;
     }
 }

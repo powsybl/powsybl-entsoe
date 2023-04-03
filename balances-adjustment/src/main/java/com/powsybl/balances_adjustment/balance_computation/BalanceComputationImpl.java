@@ -189,8 +189,8 @@ public class BalanceComputationImpl implements BalanceComputation {
         }
 
         public void updateAreaOffsetAndMismatch(BalanceComputationArea area, double mismatch) {
-            double oldMismatch = balanceOffsets.computeIfAbsent(area, k -> 0.0);
-            balanceOffsets.put(area, oldMismatch + mismatch);
+            double oldBalanceOffset = balanceOffsets.computeIfAbsent(area, k -> 0.0);
+            balanceOffsets.put(area, oldBalanceOffset + mismatch);
             balanceMismatches.put(area, mismatch);
         }
     }

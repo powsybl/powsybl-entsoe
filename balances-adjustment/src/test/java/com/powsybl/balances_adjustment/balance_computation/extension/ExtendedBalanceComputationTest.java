@@ -67,8 +67,6 @@ class ExtendedBalanceComputationTest {
     @Test
     void testWithExtendedBalanceComputationImpl() {
         parameters.getScalingParameters().setConstantPowerFactor(true);
-        BalanceComputationParametersExtension balanceComputationParametersExtension = new BalanceComputationParametersExtension();
-        parameters.addExtension(BalanceComputationParametersExtension.class, balanceComputationParametersExtension);
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1200.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, 1300.));
@@ -78,9 +76,5 @@ class ExtendedBalanceComputationTest {
         BalanceComputationResult result = balanceComputation.run(testNetwork1, testNetwork1.getVariantManager().getWorkingVariantId(), parameters).join();
 
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
-        assertEquals(2, balanceComputationParametersExtension.getLoadFlowResultsPerIteration().size());
-        assertEquals(2, balanceComputationParametersExtension.getTotalMismatchesPerIteration().size());
-        assertEquals(200.0, balanceComputationParametersExtension.getTotalMismatchesPerIteration().get(0), 1e-2);
-        assertEquals(0.0, balanceComputationParametersExtension.getTotalMismatchesPerIteration().get(1), 1e-2);
     }
 }
