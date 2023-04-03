@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class ZonalGlsksTest {
+class ZonalGlsksTest {
     private static final double EPSILON = 1e-3;
 
     @Test

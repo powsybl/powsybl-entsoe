@@ -451,7 +451,8 @@ class CseGlskDocumentImporterTest {
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"));
         assertThrows(NotImplementedException.class, () -> glskDocument.getZonalScalableChronology(network));
         assertThrows(NotImplementedException.class, () -> glskDocument.getZonalGlsksChronology(network));
-        assertThrows(NotImplementedException.class, () -> glskDocument.getZonalScalable(network, Instant.now()));
-        assertThrows(NotImplementedException.class, () -> glskDocument.getZonalGlsks(network, Instant.now()));
+        Instant testInstant = Instant.now();
+        assertThrows(NotImplementedException.class, () -> glskDocument.getZonalScalable(network, testInstant));
+        assertThrows(NotImplementedException.class, () -> glskDocument.getZonalGlsks(network, testInstant));
     }
 }
