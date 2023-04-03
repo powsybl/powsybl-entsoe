@@ -128,9 +128,15 @@ public class BalanceComputationImpl implements BalanceComputation {
      * @return total mismatch to compare with balance computation net position threshold
      */
     protected double computeTotalMismatch(BalanceComputationRunningContext context) {
-        return context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue)
-                .map(v -> v * v)
-                .sum();
+        if (context.parameters.getMismatchMode() == BalanceComputationParameters.MismatchMode.SQUARED) {
+            return context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue)
+                    .map(v -> v * v)
+                    .sum();
+        } else {
+            return context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue)
+                    .map(Math::abs).max()
+                    .orElse(0.0);
+        }
     }
 
     /**
