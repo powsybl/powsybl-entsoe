@@ -57,6 +57,12 @@ public class BalanceComputationParametersDeserializer extends StdDeserializer<Ba
                     parameters.setThresholdNetPosition(parser.readValueAs(double.class));
                     break;
 
+                case "mismatchMode":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: mismatchMode", version, "1.1");
+                    parser.nextToken();
+                    parameters.setMismatchMode(JsonUtil.readValue(deserializationContext, parser, BalanceComputationParameters.MismatchMode.class));
+                    break;
+
                 case "load-flow-parameters":
                     parser.nextToken();
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
