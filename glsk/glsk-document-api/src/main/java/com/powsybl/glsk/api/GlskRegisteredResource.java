@@ -6,6 +6,8 @@
  */
 package com.powsybl.glsk.api;
 
+import com.powsybl.iidm.network.Network;
+
 import java.util.Optional;
 
 /**
@@ -50,7 +52,7 @@ public interface GlskRegisteredResource {
     Optional<Double> getMinimumCapacity();
 
     /**
-     * @return the genrator Id according to type of Glsk File
+     * @return the generator Id according to type of Glsk File
      */
     String getGeneratorId();
 
@@ -58,4 +60,9 @@ public interface GlskRegisteredResource {
      * @return the load Id according to the type of Glsk File
      */
     String getLoadId();
+
+    /**
+     * @return the dangling line Id according to the type of Glsk File
+     */
+    String getDanglingLineId(Network network);
 }

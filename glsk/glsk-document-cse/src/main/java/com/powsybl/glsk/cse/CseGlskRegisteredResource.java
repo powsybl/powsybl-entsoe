@@ -7,10 +7,14 @@
 package com.powsybl.glsk.cse;
 
 import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -43,6 +47,19 @@ public class CseGlskRegisteredResource extends AbstractGlskRegisteredResource {
     @Override
     public String getLoadId() {
         return mRID + "_load";
+    }
+
+    @Override
+    public String getDanglingLineId(Network network) {
+        Set<String> danglingLines = network.getDanglingLineStream()
+            .filter(dl -> dl.getUcteXnodeCode().equals(mRID))
+            .map(Identifiable::getId)
+            .collect(Collectors.toSet());
+        if (danglingLines.size() != 1) {
+            // No or multiple dangling lines found for Xnode
+            return null;
+        }
+        return danglingLines.iterator().next();
     }
 
     Optional<Double> getInitialFactor() {

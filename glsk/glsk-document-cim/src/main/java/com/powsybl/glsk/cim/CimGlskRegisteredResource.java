@@ -8,6 +8,7 @@
 package com.powsybl.glsk.cim;
 
 import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
+import com.powsybl.iidm.network.Network;
 import org.w3c.dom.Element;
 
 import java.util.Objects;
@@ -38,6 +39,11 @@ public class CimGlskRegisteredResource extends AbstractGlskRegisteredResource {
 
     @Override
     public String getLoadId() {
+        return mRID;
+    }
+
+    @Override
+    public String getDanglingLineId(Network network) {
         return mRID;
     }
 }
