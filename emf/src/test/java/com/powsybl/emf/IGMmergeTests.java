@@ -16,10 +16,7 @@ import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.mergingview.MergingView;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -241,9 +238,9 @@ class IGMmergeTests {
     private static final double TOLERANCE_RX = 1e-10;
     private static final double TOLERANCE_GB = 1e-4;
 
-    private static void checkLine(Line line1, Line line2) {
+    private static void checkLineCharacteristics(LineCharacteristicsGetters line1, LineCharacteristicsGetters line2) {
         boolean halvesHaveSameOrder = true;
-        if (line1.isTieLine()) {
+        if (line1 instanceof TieLine) {
             String id11 = ((TieLine) line1).getHalf1().getId();
             String id21 = ((TieLine) line2).getHalf1().getId();
             if (!id11.equals(id21)) {
@@ -274,7 +271,11 @@ class IGMmergeTests {
         });
         network1.getLineStream().forEach(line1 -> {
             Line line2 = network2.getLine(line1.getId()); // cgm should be always at network1
-            checkLine(line1, line2);
+            checkLineCharacteristics(line1, line2);
+        });
+        network1.getTieLineStream().forEach(tieLine1 -> {
+            TieLine tieLine2 = network2.getTieLine(tieLine1.getId());
+            checkLineCharacteristics(tieLine1, tieLine2);
         });
     }
 

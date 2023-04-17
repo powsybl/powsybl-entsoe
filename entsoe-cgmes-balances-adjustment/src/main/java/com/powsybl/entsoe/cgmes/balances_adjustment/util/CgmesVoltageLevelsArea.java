@@ -9,7 +9,6 @@ package com.powsybl.entsoe.cgmes.balances_adjustment.util;
 import com.powsybl.balances_adjustment.util.NetworkArea;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNode;
-import com.powsybl.cgmes.extensions.CgmesLineBoundaryNode;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
@@ -46,7 +45,7 @@ class CgmesVoltageLevelsArea implements NetworkArea {
                 .filter(dl -> dl.getExtension(CgmesDanglingLineBoundaryNode.class) == null || !dl.getExtension(CgmesDanglingLineBoundaryNode.class).isHvdc()) // Dangling lines connected to DC boundary points are disregarded
                 .filter(dl -> {
                     if (area != null && (!area.getTerminals().isEmpty() || !area.getBoundaries().isEmpty())) { // if CgmesControlArea is defined, dangling lines with no associated tie flows are disregarded
-                        return area.getTerminals().stream().anyMatch(t -> t.getConnectable().getId().equals(dl.getId())) || area.getBoundaries().stream().anyMatch(bd -> bd.getConnectable().getId().equals(dl.getId()));
+                        return area.getTerminals().stream().anyMatch(t -> t.getConnectable().getId().equals(dl.getId())) || area.getBoundaries().stream().anyMatch(bd -> bd.getDanglingLine().getId().equals(dl.getId()));
                     }
                     return true;
                 })
@@ -75,7 +74,7 @@ class CgmesVoltageLevelsArea implements NetworkArea {
                         //    return area.getTerminals().stream().anyMatch(t -> b.getId().contains(t.getConnectable().getId()))
                         //            || area.getBoundaries().stream().anyMatch(bd -> b.getId().contains(bd.getConnectable().getId()));
                         //} else {
-                            return area.getTerminals().stream().anyMatch(t -> b.getId().contains(t.getConnectable().getId()));
+                        return area.getTerminals().stream().anyMatch(t -> b.getId().contains(t.getConnectable().getId()));
                         //}
                     }
                     return true;

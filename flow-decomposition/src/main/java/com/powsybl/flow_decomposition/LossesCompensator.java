@@ -61,6 +61,10 @@ class LossesCompensator {
             .filter(this::hasBuses)
             .filter(this::hasP0s)
             .forEach(branch -> compensateLossesOnBranch(network, branch));
+        network.getTieLineStream()
+            .filter(this::hasBuses)
+            .filter(this::hasP0s)
+            .forEach(tieLine -> compensateLossesOnTieLine(network, tieLine));
     }
 
     private boolean hasBus(Terminal terminal) {
@@ -71,12 +75,20 @@ class LossesCompensator {
         return hasBus(branch.getTerminal1()) && hasBus(branch.getTerminal2());
     }
 
+    private boolean hasBuses(TieLine tieLine) {
+        return hasBus(tieLine.getHalf1().getTerminal()) && hasBus(tieLine.getHalf2().getTerminal());
+    }
+
     private boolean hasP0(Terminal terminal) {
         return !Double.isNaN(terminal.getP());
     }
 
     private boolean hasP0s(Branch<?> branch) {
         return hasP0(branch.getTerminal1()) && hasP0(branch.getTerminal2());
+    }
+
+    private boolean hasP0s(TieLine tieLine) {
+        return hasP0(tieLine.getHalf1().getTerminal()) && hasP0(tieLine.getHalf2().getTerminal());
     }
 
     private static void addZeroMWLossesLoad(Network network, String busId) {
@@ -120,21 +132,17 @@ class LossesCompensator {
     }
 
     private void compensateLossesOnBranch(Network network, Branch<?> branch) {
-        if (branch instanceof TieLine) {
-            compensateLossesOnTieLine(network, (TieLine) branch);
-        } else {
-            Terminal sendingTerminal = getSendingTerminal(branch);
-            double losses = branch.getTerminal1().getP() + branch.getTerminal2().getP();
-            updateLoadForLossesOnTerminal(network, sendingTerminal, losses);
-        }
+        Terminal sendingTerminal = getSendingTerminal(branch);
+        double losses = branch.getTerminal1().getP() + branch.getTerminal2().getP();
+        updateLoadForLossesOnTerminal(network, sendingTerminal, losses);
     }
 
     private void compensateLossesOnTieLine(Network network, TieLine tieLine) {
         double r1 = tieLine.getHalf1().getR();
         double r2 = tieLine.getHalf2().getR();
         double r = r1 + r2;
-        Terminal terminal1 = tieLine.getTerminal1();
-        Terminal terminal2 = tieLine.getTerminal2();
+        Terminal terminal1 = tieLine.getHalf1().getTerminal();
+        Terminal terminal2 = tieLine.getHalf2().getTerminal();
         double losses = terminal1.getP() + terminal2.getP();
         double lossesSide1 = losses * r1 / r;
         double lossesSide2 = losses * r2 / r;
