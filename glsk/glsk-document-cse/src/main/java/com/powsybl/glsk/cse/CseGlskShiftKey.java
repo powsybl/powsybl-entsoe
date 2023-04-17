@@ -10,163 +10,111 @@ import com.powsybl.glsk.api.AbstractGlskShiftKey;
 import com.powsybl.glsk.api.GlskRegisteredResource;
 import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import xsd.etso_code_lists.BusinessTypeList;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.OptionalDouble;
-
-import static com.powsybl.glsk.api.util.Util.getUniqueNode;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Vincent BOCHET {@literal <vincent.bochet at rte-france.com>}
  */
 public class CseGlskShiftKey extends AbstractGlskShiftKey {
-    private static final int DEFAULT_ORDER = 0;
+    private int order = 0;
 
-    private int order = DEFAULT_ORDER;
+    public CseGlskShiftKey(BlockWrapper blockWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID) {
+        initCommonMemberVariables(blockWrapper, businessType, pointInterval, subjectDomainmRID);
 
-    public CseGlskShiftKey(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID) {
-        initCommonMemberVariables(glskBlockElement, businessType, pointInterval, subjectDomainmRID);
-
-        switch (glskBlockElement.getTagName()) {
-            case "ManualGSKBlock":
-                this.businessType = "B43";
-                NodeList nodesList = glskBlockElement.getElementsByTagName("Node");
-                double currentFactorsSum = 0;
-                for (int i = 0; i < nodesList.getLength(); i++) {
-                    Element nodeElement = (Element) nodesList.item(i);
-                    CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
-                    registeredResourceArrayList.add(cseRegisteredResource);
-                    Optional<Double> initialFactor = cseRegisteredResource.getInitialFactor();
-                    if (initialFactor.isPresent()) {
-                        currentFactorsSum += initialFactor.get();
-                    }
-                }
-
-                if (currentFactorsSum == 0) {
-                    throw new GlskException("Factors sum should not be 0");
-                }
-
-                for (GlskRegisteredResource registeredResource : registeredResourceArrayList) {
-                    CseGlskRegisteredResource cseRegisteredResource = (CseGlskRegisteredResource) registeredResource;
-                    Optional<Double> initialFactor = cseRegisteredResource.getInitialFactor();
-                    if (initialFactor.isPresent()) {
-                        cseRegisteredResource.setParticipationFactor(initialFactor.get() / currentFactorsSum);
-                    }
-                }
-                break;
-            case "PropGSKBlock":
-                importImplicitProportionalBlock(glskBlockElement, "B42");
-                break;
-            case "PropLSKBlock":
-                this.psrType = "A05"; // Enforce psrType that does not respect "official" format specification
-                importImplicitProportionalBlock(glskBlockElement, "B42");
-                break;
-            case "ReserveGSKBlock":
-                importImplicitProportionalBlock(glskBlockElement, "B44");
-                break;
-            default:
-                throw new GlskException("Unknown UCTE Block type");
-        }
-    }
-
-    public CseGlskShiftKey(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID, int position) {
-        initCommonMemberVariables(glskBlockElement, businessType, pointInterval, subjectDomainmRID);
-        this.meritOrderPosition = position;
-
-        if ("MeritOrderGSKBlock".equals(glskBlockElement.getTagName())) {
-            this.businessType = "B45";
-            Element nodeElement = getNodeElement(glskBlockElement, position);
-            CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
-            registeredResourceArrayList.add(cseRegisteredResource);
+        if (blockWrapper.getBlock() instanceof ManualGSKBlockType) {
+            this.businessType = "B43";
+            handleManualGskBlock(blockWrapper);
+        } else if (blockWrapper.getBlock() instanceof PropGSKBlockType) {
+            importImplicitProportionalBlock(blockWrapper, "B42");
+        } else if (blockWrapper.getBlock() instanceof PropLSKBlockType) {
+            this.psrType = "A05"; // Enforce psrType that does not respect "official" format specification
+            importImplicitProportionalBlock(blockWrapper, "B42");
+        } else if (blockWrapper.getBlock() instanceof ReserveGSKBlockType) {
+            importImplicitProportionalBlock(blockWrapper, "B44");
         } else {
             throw new GlskException("Unknown UCTE Block type");
         }
     }
 
-    private Element getNodeElement(Element glskBlockElement, int position) {
-        if (position > 0) {
-            // Up scalable element
-            // Position is 1 to N for up scalable
-            // Though, in XML file, we have to get child position - 1
-            Element upBlockElement = (Element) getUniqueNode(glskBlockElement, "Up");
-            return (Element) upBlockElement.getElementsByTagName("Node").item(position - 1);
-        } else {
-            // Down scalable element
-            // Position is -1 to -N for down scalable
-            // Though, in XML file, we have to get child -position - 1
-            Element downBlockElement = (Element) getUniqueNode(glskBlockElement, "Down");
-            return (Element) downBlockElement.getElementsByTagName("Node").item(-position - 1);
+    private void handleManualGskBlock(BlockWrapper blockWrapper) {
+        double factorsSum = 0;
+        Optional<List<NodeWrapper>> nodeList = blockWrapper.getNodeList();
+
+        if (nodeList.isPresent()) {
+            for (NodeWrapper nodeWrapper : nodeList.get()) {
+                CseGlskRegisteredResource cseGlskRegisteredResource = new CseGlskRegisteredResource(nodeWrapper);
+                registeredResourceArrayList.add(cseGlskRegisteredResource);
+                Optional<Double> initialFactor = cseGlskRegisteredResource.getInitialFactor();
+                if (initialFactor.isPresent()) {
+                    factorsSum += initialFactor.get();
+                }
+            }
+        }
+
+        if (factorsSum == 0) {
+            throw new GlskException("Factors sum should not be 0");
+        }
+
+        for (GlskRegisteredResource registeredResource : registeredResourceArrayList) {
+            CseGlskRegisteredResource cseRegisteredResource = (CseGlskRegisteredResource) registeredResource;
+            Optional<Double> initialFactor = cseRegisteredResource.getInitialFactor();
+            if (initialFactor.isPresent()) {
+                cseRegisteredResource.setParticipationFactor(initialFactor.get() / factorsSum);
+            }
         }
     }
 
-    private void initCommonMemberVariables(Element glskBlockElement, String businessType, Interval pointInterval, String subjectDomainmRID) {
-        if (businessType.equals("Z02")) {
+    public CseGlskShiftKey(BlockWrapper blockWrapper, NodeWrapper nodeWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID, int position) {
+        initCommonMemberVariables(blockWrapper, businessType, pointInterval, subjectDomainmRID);
+        this.meritOrderPosition = position;
+
+        this.businessType = "B45";
+        CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeWrapper);
+        registeredResourceArrayList.add(cseRegisteredResource);
+    }
+
+    private void initCommonMemberVariables(BlockWrapper blockWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID) {
+        if (businessType.equals(BusinessTypeList.Z_02)) {
             this.psrType = "A04";
-        } else if (businessType.equals("Z05")) {
+        } else if (businessType.equals(BusinessTypeList.Z_05)) {
             this.psrType = "A05";
         } else {
             throw new GlskException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + businessType);
         }
+
         this.glskShiftKeyInterval = pointInterval;
         this.subjectDomainmRID = subjectDomainmRID;
         this.registeredResourceArrayList = new ArrayList<>();
-        if (isPartOfHybridShiftKey(glskBlockElement)) {
-            this.order = getOrder(glskBlockElement);
-            if (hasMaximumShift(glskBlockElement)) {
-                this.maximumShift = getMaximumShift(glskBlockElement);
-            }
+
+        if (isPartOfHybridShiftKey(blockWrapper)) {
+            blockWrapper.getOrder().map(BigInteger::intValue)
+                .ifPresent(o -> this.order = o);
+            blockWrapper.getMaximumShift().map(BigDecimal::doubleValue)
+                .ifPresent(ms -> this.maximumShift = ms);
         } else {
-            getFactor(glskBlockElement).ifPresent(factor -> this.quantity = factor);
+            blockWrapper.getFactor().map(BigDecimal::doubleValue)
+                .ifPresent(q -> this.quantity = q);
         }
     }
 
-    private static boolean isPartOfHybridShiftKey(Element glskBlockElement) {
-        return glskBlockElement.getElementsByTagName("Order").getLength() != 0;
+    private static boolean isPartOfHybridShiftKey(BlockWrapper blockWrapper) {
+        return blockWrapper.getOrder().isPresent();
     }
 
-    private static int getOrder(Element glskBlockElement) {
-        return Integer.parseInt(getUniqueNode(glskBlockElement, "Order").getTextContent());
-    }
-
-    private static boolean hasMaximumShift(Element glskBlockElement) {
-        return glskBlockElement.getElementsByTagName("MaximumShift").getLength() != 0;
-    }
-
-    private static double getMaximumShift(Element glskBlockElement) {
-        //maximum shift in hybrid cse glsk
-        return Double.parseDouble(((Element) getUniqueNode(glskBlockElement, "MaximumShift")).getAttribute("v"));
-    }
-
-    /*
-    Here we should only retrieve the <Factor> tag at the level of the GlskShiftKey. So we cannot use the method
-    getElementsByTagName because it returns all the elements of the hierarchy -- with child tags.
-     */
-    private static OptionalDouble getFactor(Element glskBlockElement) {
-        NodeList nodeList = glskBlockElement.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-                Element element = (Element) nodeList.item(i);
-                if ("Factor".equals(element.getTagName())) {
-                    return OptionalDouble.of(Double.parseDouble(element.getAttribute("v")));
-                }
-            }
-        }
-        return OptionalDouble.empty();
-    }
-
-    private void importImplicitProportionalBlock(Element glskBlockElement, String businessType) {
+    private void importImplicitProportionalBlock(BlockWrapper blockWrapper, String businessType) {
         this.businessType = businessType;
 
-        NodeList nodesList = glskBlockElement.getElementsByTagName("Node");
-        for (int i = 0; i < nodesList.getLength(); i++) {
-            Element nodeElement = (Element) nodesList.item(i);
-            CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeElement);
-            registeredResourceArrayList.add(cseRegisteredResource);
-        }
+        blockWrapper.getNodeList().ifPresent(
+            nodeList -> nodeList.stream()
+                .map(CseGlskRegisteredResource::new)
+                .forEach(registeredResourceArrayList::add));
     }
 
     public int getOrder() {

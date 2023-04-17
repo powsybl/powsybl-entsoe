@@ -2,6 +2,7 @@
   "version" : "1.1",
   "maxNumberIterations" : 11,
   "thresholdNetPosition" : 2.0,
+  "mismatchMode" : "MAX",
   "load-flow-parameters" : {
     "version" : "1.9",
     "voltageInitMode" : "DC_VALUES",

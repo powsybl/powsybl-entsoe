@@ -30,6 +30,21 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
 
     public static final double DEFAULT_THRESHOLD_NET_POSITION = 1;
     public static final int DEFAULT_MAX_NUMBER_ITERATIONS = 5;
+    public static final MismatchMode DEFAULT_MISMATCH_MODE = MismatchMode.SQUARED;
+
+    /**
+     * how overall mismatch is to be computed from individual area mismatches
+     */
+    public enum MismatchMode {
+        /**
+         * overall mismatch computed as sum of squared individual area mismatches
+         */
+        SQUARED,
+        /**
+         * overall mismatch computed as worst individual area mismatches (in absolute value)
+         */
+        MAX,
+    }
 
     /**
      * Threshold for comparing net positions (given in MW).
@@ -43,10 +58,27 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
     private int maxNumberIterations;
 
     /**
+     * Mode for overall mismatch calculation
+     */
+    private MismatchMode mismatchMode;
+
+    /**
      * Constructor with default parameters
      */
     public BalanceComputationParameters() {
-        this(DEFAULT_THRESHOLD_NET_POSITION, DEFAULT_MAX_NUMBER_ITERATIONS);
+        this(DEFAULT_THRESHOLD_NET_POSITION, DEFAULT_MAX_NUMBER_ITERATIONS, DEFAULT_MISMATCH_MODE);
+    }
+
+    /**
+     * Constructor with given parameters
+     * @param threshold Threshold for comparing net positions (given in MW)
+     * @param maxNumberIterations Maximum iteration number for balances adjustment
+     * @param mismatchMode How overall mismatch is to be computed from individual area mismatches
+     */
+    public BalanceComputationParameters(double threshold, int maxNumberIterations, MismatchMode mismatchMode) {
+        this.thresholdNetPosition = checkThresholdNetPosition(threshold);
+        this.maxNumberIterations = checkMaxNumberIterations(maxNumberIterations);
+        this.mismatchMode = mismatchMode;
     }
 
     /**
@@ -55,8 +87,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      * @param maxNumberIterations Maximum iteration number for balances adjustment
      */
     public BalanceComputationParameters(double threshold, int maxNumberIterations) {
-        this.thresholdNetPosition = checkThresholdNetPosition(threshold);
-        this.maxNumberIterations = checkMaxNumberIterations(maxNumberIterations);
+        this(threshold, maxNumberIterations, DEFAULT_MISMATCH_MODE);
     }
 
     /**
@@ -64,7 +95,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      */
     @Deprecated(since = "2.3.0")
     public BalanceComputationParameters(double threshold, int maxNumberIterations, boolean loadPowerFactorConstant) {
-        this(threshold, maxNumberIterations);
+        this(threshold, maxNumberIterations, DEFAULT_MISMATCH_MODE);
         scalingParameters.setConstantPowerFactor(loadPowerFactorConstant);
     }
 
@@ -91,6 +122,15 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
         return this;
     }
 
+    public MismatchMode getMismatchMode() {
+        return mismatchMode;
+    }
+
+    public BalanceComputationParameters setMismatchMode(MismatchMode mismatchMode) {
+        this.mismatchMode = mismatchMode;
+        return this;
+    }
+
     /**
      * @deprecated Use {@link #getScalingParameters()} and {@link ScalingParameters#isConstantPowerFactor()} instead.
      */
@@ -103,8 +143,9 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      * @deprecated Use {@link #getScalingParameters()} and {@link ScalingParameters#setConstantPowerFactor(boolean)} instead.
      */
     @Deprecated(since = "2.3.0")
-    public void setLoadPowerFactorConstant(boolean loadPowerFactorConstant) {
+    public BalanceComputationParameters setLoadPowerFactorConstant(boolean loadPowerFactorConstant) {
         this.scalingParameters.setConstantPowerFactor(loadPowerFactorConstant);
+        return this;
     }
 
     /**
@@ -112,7 +153,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      *
      * @param <E> The extension class
      */
-    public static interface ConfigLoader<E extends Extension<BalanceComputationParameters>> extends ExtensionConfigLoader<BalanceComputationParameters, E> {
+    public interface ConfigLoader<E extends Extension<BalanceComputationParameters>> extends ExtensionConfigLoader<BalanceComputationParameters, E> {
     }
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
@@ -136,8 +177,10 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
         Objects.requireNonNull(platformConfig);
 
         BalanceComputationParameters parameters = new BalanceComputationParameters();
-        platformConfig.getOptionalModuleConfig("balance-computation-parameters").ifPresent(config -> parameters.setMaxNumberIterations(config.getIntProperty("maxNumberIterations", DEFAULT_MAX_NUMBER_ITERATIONS))
-                .setThresholdNetPosition(config.getDoubleProperty("thresholdNetPosition", DEFAULT_THRESHOLD_NET_POSITION)));
+        platformConfig.getOptionalModuleConfig("balance-computation-parameters").ifPresent(config -> parameters
+                .setMaxNumberIterations(config.getIntProperty("maxNumberIterations", DEFAULT_MAX_NUMBER_ITERATIONS))
+                .setThresholdNetPosition(config.getDoubleProperty("thresholdNetPosition", DEFAULT_THRESHOLD_NET_POSITION))
+                .setMismatchMode(config.getEnumProperty("mismatchMode", MismatchMode.class, DEFAULT_MISMATCH_MODE)));
         parameters.readExtensions(platformConfig);
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
