@@ -225,9 +225,9 @@ public final class GlskPointScalableConverter {
                     .collect(Collectors.toList());
             totalP += loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
 
-            double finalTotalP1 = totalP;
+            double finalTotalP = totalP;
             loads.forEach(load -> {
-                float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / finalTotalP1);
+                float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / finalTotalP);
                 // For now glsk shift key maximum shift is not handled for loads by lack of specification
                 percentages.add(loadPercentage);
                 scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
