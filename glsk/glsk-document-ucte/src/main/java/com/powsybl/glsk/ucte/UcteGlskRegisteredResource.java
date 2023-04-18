@@ -8,13 +8,11 @@
 package com.powsybl.glsk.ucte;
 
 import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.glsk.api.util.Util;
 import com.powsybl.iidm.network.Network;
 import org.w3c.dom.Element;
 
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -46,14 +44,6 @@ public class UcteGlskRegisteredResource extends AbstractGlskRegisteredResource {
 
     @Override
     public String getDanglingLineId(Network network) {
-        Set<String> danglingLines = network.getDanglingLineStream()
-            .filter(dl -> dl.getUcteXnodeCode().equals(mRID))
-            .map(Identifiable::getId)
-            .collect(Collectors.toSet());
-        if (danglingLines.size() != 1) {
-            // No or multiple dangling lines found for Xnode
-            return null;
-        }
-        return danglingLines.iterator().next();
+        return Util.findDanglingLineIdForXndoe(network, mRID);
     }
 }
