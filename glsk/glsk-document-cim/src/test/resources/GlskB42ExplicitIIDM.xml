@@ -36,10 +36,6 @@
             <mRID codingScheme="A02">FFR1AA1 _generator</mRID>
             <name>FFR1AA1 _generator</name>
           </RegisteredResource>
-          <!--<RegisteredResource>-->
-            <!--<mRID codingScheme="A02">FFR2AA1 _generator</mRID>-->
-            <!--<name>FFR2AA1 _generator</name>-->
-          <!--</RegisteredResource>-->
           <RegisteredResource>
             <mRID codingScheme="A02">FFR3AA1 _generator</mRID>
             <name>FFR3AA1 _generator</name>

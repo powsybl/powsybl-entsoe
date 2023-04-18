@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri@rte-france.com>}
  */
 public class CseGlskRegisteredResource extends AbstractGlskRegisteredResource {
     private final Double initialFactor;

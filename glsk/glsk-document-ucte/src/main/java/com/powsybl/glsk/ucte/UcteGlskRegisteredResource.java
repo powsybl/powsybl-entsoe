@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri@rte-france.com>}
  */
 public class UcteGlskRegisteredResource extends AbstractGlskRegisteredResource {
 

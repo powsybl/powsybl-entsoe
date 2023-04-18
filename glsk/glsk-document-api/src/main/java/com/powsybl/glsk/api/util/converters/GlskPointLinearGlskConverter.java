@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 /**
  * Convert a single GlskPoint to LinearGlsk
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
+ * @author Peter Mitri {@literal <peter.mitri@rte-france.com>}
  */
 public final class GlskPointLinearGlskConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointLinearGlskConverter.class);
@@ -121,6 +122,7 @@ public final class GlskPointLinearGlskConverter {
     private static void convertExplicitProportional(Network network, GlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
         List<DanglingLine> danglingLines = glskShiftKey.getRegisteredResourceArrayList().stream()
             .map(rr -> rr.getDanglingLineId(network))
+            .filter(Objects::nonNull)
             .map(network::getDanglingLine)
             .filter(NetworkUtil::isCorrect)
             .collect(Collectors.toList());
@@ -165,7 +167,8 @@ public final class GlskPointLinearGlskConverter {
     private static void convertParticipationFactor(Network network, GlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
         //Generator A04 or Load A05
         List<GlskRegisteredResource> danglingLineResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-            .filter(danglingLineResource -> NetworkUtil.isCorrect(network.getDanglingLine(danglingLineResource.getDanglingLineId(network))))
+            .filter(danglingLineResource -> danglingLineResource.getDanglingLineId(network) != null &&
+                NetworkUtil.isCorrect(network.getDanglingLine(danglingLineResource.getDanglingLineId(network))))
             .collect(Collectors.toList());
         double totalFactor = danglingLineResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
         if (glskShiftKey.getPsrType().equals("A04")) {
@@ -198,8 +201,8 @@ public final class GlskPointLinearGlskConverter {
             //unknown PsrType
             throw new GlskException("convertParticipationFactor PsrType not supported");
         }
-        double finalTotalFactor1 = totalFactor;
+        double finalTotalFactor = totalFactor;
         danglingLineResources.forEach(danglingLineResource -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(danglingLineResource.getDanglingLineId(network),
-            glskShiftKey.getQuantity().floatValue() * (float) danglingLineResource.getParticipationFactor() / (float) finalTotalFactor1)));
+            glskShiftKey.getQuantity().floatValue() * (float) danglingLineResource.getParticipationFactor() / (float) finalTotalFactor)));
     }
 }

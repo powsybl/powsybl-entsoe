@@ -125,16 +125,16 @@ public final class GlskPointScalableConverter {
                 .filter(glskShiftKey -> glskShiftKey.getMeritOrderPosition() > 0)
                 .sorted(Comparator.comparingInt(GlskShiftKey::getMeritOrderPosition))
                 .map(glskShiftKey -> {
-                    GlskRegisteredResource generatorRegisteredResource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
-                    return getGeneratorScalableWithLimits(network, generatorRegisteredResource);
+                    GlskRegisteredResource resource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
+                    return isGenerator(network, resource) ? getGeneratorScalableWithLimits(network, resource) : getDanglingLineScalableWithLimits(network, resource);
                 }).toArray(Scalable[]::new));
 
         Scalable downScalable = Scalable.stack(glskPoint.getGlskShiftKeys().stream()
                 .filter(glskShiftKey -> glskShiftKey.getMeritOrderPosition() < 0)
                 .sorted(Comparator.comparingInt(GlskShiftKey::getMeritOrderPosition).reversed())
                 .map(glskShiftKey -> {
-                    GlskRegisteredResource generatorRegisteredResource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
-                    return getGeneratorScalableWithLimits(network, generatorRegisteredResource);
+                    GlskRegisteredResource resource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
+                    return isGenerator(network, resource) ? getGeneratorScalableWithLimits(network, resource) : getDanglingLineScalableWithLimits(network, resource);
                 }).toArray(Scalable[]::new));
         return Scalable.upDown(upScalable, downScalable);
     }
@@ -188,6 +188,14 @@ public final class GlskPointScalableConverter {
      * @param scalables list of scalable
      */
     private static void convertExplicitProportional(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
+        List<DanglingLine> danglingLines = glskShiftKey.getRegisteredResourceArrayList().stream()
+            .map(rr -> rr.getDanglingLineId(network))
+            .filter(Objects::nonNull)
+            .map(network::getDanglingLine)
+            .filter(NetworkUtil::isCorrect)
+            .collect(Collectors.toList());
+        double totalP = danglingLines.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
+
         if (glskShiftKey.getPsrType().equals("A04")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
 
@@ -196,11 +204,12 @@ public final class GlskPointScalableConverter {
                     .map(network::getGenerator)
                     .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
-            double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
+            totalP += generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
 
+            double finalTotalP = totalP;
             generators.forEach(generator -> {
                 // Calculate factor of each generator
-                float factor = (float) (glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoTargetP(generator) / totalP);
+                float factor = (float) (glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoTargetP(generator) / finalTotalP);
                 percentages.add(100 * factor);
                 // In case of global shift key limitation we will limit the generator proportionally to
                 // its participation in the global proportional scalable
@@ -214,15 +223,23 @@ public final class GlskPointScalableConverter {
                     .map(network::getLoad)
                     .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
-            double totalP = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
+            totalP += loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
 
+            double finalTotalP1 = totalP;
             loads.forEach(load -> {
-                float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / totalP);
+                float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / finalTotalP1);
                 // For now glsk shift key maximum shift is not handled for loads by lack of specification
                 percentages.add(loadPercentage);
                 scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
             });
         }
+        double finalTotalP = totalP;
+        danglingLines.forEach(danglingLine -> {
+            float danglingLinePercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(danglingLine) / finalTotalP);
+            // For now glsk shift key maximum shift is not handled for dangling lines by lack of specification
+            percentages.add(danglingLinePercentage);
+            scalables.add(Scalable.onDanglingLine(danglingLine.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
+        });
     }
 
     /**
@@ -233,6 +250,12 @@ public final class GlskPointScalableConverter {
      * @param scalables list of scalable
      */
     private static void convertParticipationFactor(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
+        List<GlskRegisteredResource> danglingLineResources = glskShiftKey.getRegisteredResourceArrayList().stream()
+            .filter(danglingLineResource -> danglingLineResource.getDanglingLineId(network) != null &&
+                NetworkUtil.isCorrect(network.getDanglingLine(danglingLineResource.getDanglingLineId(network))))
+            .collect(Collectors.toList());
+        double totalFactor = danglingLineResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
+
         if (glskShiftKey.getPsrType().equals("A04")) {
             LOGGER.debug("GLSK Type B43 GSK");
 
@@ -240,10 +263,11 @@ public final class GlskPointScalableConverter {
                     .filter(generatorResource -> NetworkUtil.isCorrect(network.getGenerator(generatorResource.getGeneratorId())))
                     .collect(Collectors.toList());
 
-            double totalFactor = generatorResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
+            totalFactor += generatorResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
 
+            double finalTotalFactor = totalFactor;
             generatorResources.forEach(generatorResource -> {
-                float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * generatorResource.getParticipationFactor() / totalFactor);
+                float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * generatorResource.getParticipationFactor() / finalTotalFactor);
                 percentages.add(generatorPercentage);
                 scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
             });
@@ -253,18 +277,29 @@ public final class GlskPointScalableConverter {
                     .filter(loadResource -> NetworkUtil.isCorrect(network.getLoad(loadResource.getLoadId())))
                     .collect(Collectors.toList());
 
-            double totalFactor = loadResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
+            totalFactor += loadResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
 
+            double finalTotalFactor = totalFactor;
             loadResources.forEach(loadResource -> {
-                float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * loadResource.getParticipationFactor() / totalFactor);
+                float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * loadResource.getParticipationFactor() / finalTotalFactor);
                 percentages.add(loadPercentage);
                 scalables.add(getLoadScalableWithLimits(network, loadResource));
             });
         }
+        double finalTotalFactor = totalFactor;
+        danglingLineResources.forEach(danglingLineResource -> {
+            float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * danglingLineResource.getParticipationFactor() / finalTotalFactor);
+            percentages.add(loadPercentage);
+            scalables.add(getDanglingLineScalableWithLimits(network, danglingLineResource));
+        });
     }
 
     private static Country getSubstationNullableCountry(Optional<Substation> substation) {
         return substation.map(Substation::getNullableCountry).orElse(null);
+    }
+
+    private static boolean isGenerator(Network network, GlskRegisteredResource glskRegisteredResource) {
+        return network.getGenerator(glskRegisteredResource.getGeneratorId()) != null;
     }
 
     private static Scalable getGeneratorScalableWithLimits(Network network, GlskRegisteredResource generatorRegisteredResource) {
@@ -289,10 +324,10 @@ public final class GlskPointScalableConverter {
         return Scalable.onGenerator(generatorId, incomingMinP, incomingMaxP);
     }
 
-    private static Scalable getLoadScalableWithLimits(Network network, GlskRegisteredResource generatorRegisteredResource) {
-        String loadId = generatorRegisteredResource.getLoadId();
-        double incomingMaxP = generatorRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
-        double incomingMinP = generatorRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
+    private static Scalable getLoadScalableWithLimits(Network network, GlskRegisteredResource loadRegisteredResource) {
+        String loadId = loadRegisteredResource.getLoadId();
+        double incomingMaxP = loadRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
+        double incomingMinP = loadRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
         // Fixes some inconsistencies between GLSK and network that may raise an exception in
         // PowSyBl when actually scaling the network.
         // TODO: Solve this issue in PowSyBl framework.
@@ -304,10 +339,33 @@ public final class GlskPointScalableConverter {
                 incomingMaxP = loadP0;
             }
             if (!Double.isNaN(incomingMinP) && incomingMinP > loadP0) {
-                LOGGER.warn("load '{}' has initial P0 that is above GLSK min P. Extending GLSK min P from {} to {}.", loadId, incomingMinP, loadP0);
+                LOGGER.warn("Load '{}' has initial P0 that is above GLSK min P. Extending GLSK min P from {} to {}.", loadId, incomingMinP, loadP0);
                 incomingMinP = loadP0;
             }
         }
         return Scalable.onLoad(loadId, incomingMinP, incomingMaxP);
+    }
+
+    private static Scalable getDanglingLineScalableWithLimits(Network network, GlskRegisteredResource danglingLineRegisteredResource) {
+        String danglingLineId = danglingLineRegisteredResource.getDanglingLineId(network);
+        // We have to invert min and max because dangling lines act like loads but are scaled but in generator convention
+        double incomingMinP = -danglingLineRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
+        double incomingMaxP = -danglingLineRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
+        // Fixes some inconsistencies between GLSK and network that may raise an exception in
+        // PowSyBl when actually scaling the network.
+        // TODO: Solve this issue in PowSyBl framework.
+        DanglingLine danglingLine = network.getDanglingLine(danglingLineId);
+        if (danglingLine != null) {
+            double danglingLineP0 = danglingLine.getP0();
+            if (!Double.isNaN(incomingMaxP) && incomingMaxP < danglingLineP0) {
+                LOGGER.warn("Dangling line '{}' has initial P0 that is above GLSK max P. Extending GLSK max P from {} to {}.", danglingLineId, incomingMaxP, danglingLineP0);
+                incomingMaxP = danglingLineP0;
+            }
+            if (!Double.isNaN(incomingMinP) && incomingMinP > danglingLineP0) {
+                LOGGER.warn("Dangling line '{}' has initial P0 that is above GLSK min P. Extending GLSK min P from {} to {}.", danglingLineId, incomingMinP, danglingLineP0);
+                incomingMinP = danglingLineP0;
+            }
+        }
+        return Scalable.onDanglingLine(danglingLineId, incomingMinP, incomingMaxP);
     }
 }

@@ -20,13 +20,11 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri@rte-france.com>}
  */
 class CseGlskDocumentImporterTest {
     private static final double EPSILON = 1e-3;
@@ -35,7 +33,6 @@ class CseGlskDocumentImporterTest {
     void checkCseGlskDocumentImporterCorrectlyImportManualGskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MANUAL");
-        assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(1, list.get(0).getGlskShiftKeys().size());
         assertEquals(2, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
@@ -60,7 +57,6 @@ class CseGlskDocumentImporterTest {
     void checkCseGlskDocumentImporterCorrectlyImportReserveGskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_RESERVE");
-        assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(1, list.get(0).getGlskShiftKeys().size());
         assertEquals(2, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
@@ -132,7 +128,6 @@ class CseGlskDocumentImporterTest {
     void checkCseGlskDocumentImporterCorrectlyImportPropGskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGSK");
-        assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(1, list.get(0).getGlskShiftKeys().size());
         assertEquals(3, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
@@ -159,7 +154,6 @@ class CseGlskDocumentImporterTest {
     void checkCseGlskDocumentImporterCorrectlyImportPropGlskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGLSK");
-        assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(2, list.get(0).getGlskShiftKeys().size());
         assertEquals(2, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
@@ -202,7 +196,6 @@ class CseGlskDocumentImporterTest {
     void checkCseGlskDocumentImporterCorrectlyImportMeritOrderGskBlocks() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MERITORDER");
-        assertFalse(list.isEmpty());
         assertEquals(1, list.size());
         assertEquals(7, list.get(0).getGlskShiftKeys().size());
         assertEquals(1, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
@@ -441,5 +434,172 @@ class CseGlskDocumentImporterTest {
         List<GlskRegisteredResource> siSecondRegisteredResources = siGlskShiftKeys.get(1).getRegisteredResourceArrayList();
         assertEquals(1, siSecondRegisteredResources.size());
         assertEquals("SI01AA01", siSecondRegisteredResources.get(0).getName());
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyImportManualGskBlocksWithDanglingLines() {
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false);
+        List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MANUAL");
+        assertEquals(1, list.size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().size());
+        assertEquals(2, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyConvertManualGskBlocksWithDanglingLines() {
+        Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
+        Scalable manualScalable = glskDocument.getZonalScalable(network).getData("FR_MANUAL");
+
+        assertNotNull(manualScalable);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+
+        manualScalable.scale(network, 1000.);
+        assertEquals(2700., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(700., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyImportPropGskBlocksWithDanglingLines() {
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false);
+        List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGSK");
+        assertEquals(1, list.size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().size());
+        assertEquals(3, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyConvertPropGskBlocksWithDanglingLines() {
+        Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
+        Scalable propGskScalable = glskDocument.getZonalScalable(network).getData("FR_PROPGSK");
+
+        assertNotNull(propGskScalable);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(1000, network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+
+        propGskScalable.scale(network, 400.);
+        assertEquals(2200., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(-1100., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(900., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyImportPropGlskBlocksWithDanglingLines() {
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false);
+        List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGLSK");
+        assertEquals(1, list.size());
+        assertEquals(2, list.get(0).getGlskShiftKeys().size());
+        assertEquals(2, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
+        assertEquals(3, list.get(0).getGlskShiftKeys().get(1).getRegisteredResourceArrayList().size());
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyConvertPropGlskBlocksWithDanglingLines() {
+        Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
+        Scalable propGlskScalable = glskDocument.getZonalScalable(network).getData("FR_PROPGLSK");
+
+        assertNotNull(propGlskScalable);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(1000., network.getLoad("FFR1AA1 _load").getP0(), EPSILON);
+        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+
+        propGlskScalable.scale(network, -1000.);
+        assertEquals(1720., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // 28 %
+        assertEquals(1720., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON); // 28 %
+        assertEquals(1140., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // 14 %
+        assertEquals(1150., network.getLoad("FFR1AA1 _load").getP0(), EPSILON); // 15 %
+        assertEquals(-850., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // 15 %
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyImportMeritOrderGskBlocksWithDanglingLines() {
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false);
+        List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MERITORDER");
+        assertEquals(1, list.size());
+        assertEquals(7, list.get(0).getGlskShiftKeys().size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().get(0).getRegisteredResourceArrayList().size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().get(1).getRegisteredResourceArrayList().size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().get(2).getRegisteredResourceArrayList().size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().get(3).getRegisteredResourceArrayList().size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().get(1).getRegisteredResourceArrayList().size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().get(2).getRegisteredResourceArrayList().size());
+        assertEquals(1, list.get(0).getGlskShiftKeys().get(3).getRegisteredResourceArrayList().size());
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksDownWithDanglingLines() {
+        Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER");
+
+        assertNotNull(meritOrderGskScalable);
+        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+
+        meritOrderGskScalable.scale(network, -4500.);
+        assertEquals(2000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // -1000
+        assertEquals(2000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // -3000
+        assertEquals(1500., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // -500
+
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksUpWithDanglingLines() {
+        Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER");
+
+        assertNotNull(meritOrderGskScalable);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+
+        meritOrderGskScalable.scale(network, 6500.);
+        assertEquals(6000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // +4000
+        assertEquals(-2000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // +1000
+        assertEquals(-500., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // +1500
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueDownWithDanglingLines() {
+        Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERIT_ISSUE_PC");
+
+        assertNotNull(meritOrderGskScalable);
+        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+
+        double done = meritOrderGskScalable.scale(network, -4500.);
+        assertEquals(-3500., done, EPSILON);
+        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // -0
+        assertEquals(500., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // -1500
+        assertEquals(0., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // -2000
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueUpWithDanglingLines() {
+        Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERIT_ISSUE_PC");
+
+        assertNotNull(meritOrderGskScalable);
+        assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+
+        double done = meritOrderGskScalable.scale(network, 6500.);
+        assertEquals(5500., done, EPSILON);
+        assertEquals(6000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // +4000
+        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // +0
+        assertEquals(-500., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // +1500
     }
 }
