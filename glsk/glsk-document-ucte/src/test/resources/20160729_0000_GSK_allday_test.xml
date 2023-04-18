@@ -19,13 +19,13 @@
 			<GSK_Name v="HU"/>
 			<TimeInterval v="2016-07-28T22:00Z/2016-07-29T22:00Z"/>
 			<AutoNodes>
-				<NodeName v="MAJKA 42"/>
+				<NodeName v="ET5E9YAE"/>
 			</AutoNodes>
 			<AutoNodes>
-				<NodeName v="MAJKA 43"/>
+				<NodeName v="19XL1U4F"/>
 			</AutoNodes>
 			<AutoNodes>
-				<NodeName v="MCSPG 41"/>
+				<NodeName v="9TNZJACS"/>
 			</AutoNodes>
 		</AutoGSK_Block>
 	</GSKSeries>
@@ -37,16 +37,16 @@
 			<GSK_Name v="HU"/>
 			<TimeInterval v="2016-07-28T22:00Z/2016-07-29T22:00Z"/>
 			<AutoNodes>
-				<NodeName v="MAJKA 41"/>
+				<NodeName v="LIOVBIED"/>
 			</AutoNodes>
 			<AutoNodes>
-				<NodeName v="MAJKA 42"/>
+				<NodeName v="ET5E9YAE"/>
 			</AutoNodes>
 			<AutoNodes>
-				<NodeName v="MAJKA 43"/>
+				<NodeName v="19XL1U4F"/>
 			</AutoNodes>
 			<AutoNodes>
-				<NodeName v="MALBF 41"/>
+				<NodeName v="ACK44D8J"/>
 			</AutoNodes>
 		</AutoGSK_Block>
 	</GSKSeries>
