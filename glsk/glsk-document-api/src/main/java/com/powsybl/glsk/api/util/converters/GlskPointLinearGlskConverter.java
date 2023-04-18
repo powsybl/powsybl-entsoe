@@ -186,9 +186,7 @@ public final class GlskPointLinearGlskConverter {
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<GlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                .filter(loadResource ->
-                    loadResource.getmRID().contains("XLI_OB1") ||
-                        NetworkUtil.isCorrect(network.getLoad(loadResource.getLoadId())))
+                .filter(loadResource -> NetworkUtil.isCorrect(network.getLoad(loadResource.getLoadId())))
                 .collect(Collectors.toList());
             totalFactor += loadResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
             if (totalFactor < 1e-10) {
