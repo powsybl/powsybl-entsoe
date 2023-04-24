@@ -29,7 +29,6 @@
             </Node>
         </PropGSKBlock>
         <ReserveGSKBlock>
-            <Order>2</Order>
 <!--            <Factor v="1"/>-->
             <Node>
                 <Name v="FFR3AA1 "/>
