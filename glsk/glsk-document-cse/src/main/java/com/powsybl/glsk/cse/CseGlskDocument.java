@@ -192,8 +192,9 @@ public final class CseGlskDocument implements GlskDocument {
             // There is always only one GlskPoint for a zone
             GlskPoint zonalGlskPoint = entry.getValue().get(0);
             if (isHybridCseGlskPoint(zonalGlskPoint)) {
+                //if we are here then there are two glskPoints, and we want to order them by putting the one with "order = 1" first
                 List<Scalable> scalables = zonalGlskPoint.getGlskShiftKeys().stream()
-                    .sorted(Comparator.comparingInt(sk -> ((CseGlskShiftKey) sk).getOrder() == 1 ? 1 : 2))
+                    .sorted(Comparator.comparingInt(sk -> ((CseGlskShiftKey) sk).getOrder() == 1 ? 0 : 1))
                     .map(sk -> GlskPointScalableConverter.convert(network, List.of(sk)))
                     .collect(Collectors.toList());
                 zonalData.put(area, Scalable.upDown(Scalable.stack(scalables.get(0), scalables.get(1)), scalables.get(1)));
