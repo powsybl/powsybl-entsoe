@@ -192,8 +192,9 @@ public final class CseGlskDocument implements GlskDocument {
             // There is always only one GlskPoint for a zone
             GlskPoint zonalGlskPoint = entry.getValue().get(0);
             if (isHybridCseGlskPoint(zonalGlskPoint)) {
+                //if we are here then there are two glskPoints, and we want to order them by putting the one with "order = 1" first
                 List<Scalable> scalables = zonalGlskPoint.getGlskShiftKeys().stream()
-                    .sorted(Comparator.comparingInt(sk -> ((CseGlskShiftKey) sk).getOrder()))
+                    .sorted(Comparator.comparingInt(sk -> ((CseGlskShiftKey) sk).getOrder() == 1 ? 0 : 1))
                     .map(sk -> GlskPointScalableConverter.convert(network, List.of(sk)))
                     .collect(Collectors.toList());
                 zonalData.put(area, Scalable.upDown(Scalable.stack(scalables.get(0), scalables.get(1)), scalables.get(1)));
@@ -205,10 +206,9 @@ public final class CseGlskDocument implements GlskDocument {
     }
 
     private boolean isHybridCseGlskPoint(GlskPoint zonalGlskPoint) {
-        // If 2 shift keys have different orders, this is a hybrid glsk for Swiss's ID CSE GSK.
-        return zonalGlskPoint.getGlskShiftKeys().size() == 2 &&
-            ((CseGlskShiftKey) zonalGlskPoint.getGlskShiftKeys().get(0)).getOrder() !=
-                ((CseGlskShiftKey) zonalGlskPoint.getGlskShiftKeys().get(1)).getOrder();
+        // If 2 shift are present, and one has order 1 and a maximum shift and is of type PropGlsk
+        return zonalGlskPoint.getGlskShiftKeys().size() == 2 && zonalGlskPoint.getGlskShiftKeys().stream().filter(CseGlskShiftKey.class::isInstance).map(CseGlskShiftKey.class::cast)
+                .anyMatch(cseGlskShiftKey -> cseGlskShiftKey.getOrder() == 1 && !Double.isNaN(cseGlskShiftKey.getMaximumShift()) && cseGlskShiftKey.getBusinessType().equals("B42"));
     }
 
     @Override
