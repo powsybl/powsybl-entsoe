@@ -381,7 +381,8 @@ class CseGlskDocumentImporterTest {
         assertEquals(1, atPoints.size());
         List<GlskShiftKey> atGlskShiftKeys = atPoints.get(0).getGlskShiftKeys();
         assertEquals(1, atGlskShiftKeys.size());
-        assertEquals(0.95, atGlskShiftKeys.get(0).getQuantity());
+        //in file is 0.95, should be now 1
+        assertEquals(1., atGlskShiftKeys.get(0).getQuantity());
         List<GlskRegisteredResource> atRegisteredResources = atGlskShiftKeys.get(0).getRegisteredResourceArrayList();
         assertEquals(2, atRegisteredResources.size());
         assertEquals("AT01AA01", atRegisteredResources.get(0).getName());
@@ -393,7 +394,8 @@ class CseGlskDocumentImporterTest {
         assertEquals(1, chPoints.size());
         List<GlskShiftKey> chGlskShiftKeys = chPoints.get(0).getGlskShiftKeys();
         assertEquals(1, chGlskShiftKeys.size());
-        assertEquals(1.2, chGlskShiftKeys.get(0).getQuantity());
+        //in file is 1.2, should be now 1
+        assertEquals(1., chGlskShiftKeys.get(0).getQuantity());
         List<GlskRegisteredResource> chRegisteredResources = chGlskShiftKeys.get(0).getRegisteredResourceArrayList();
         assertEquals(1, chRegisteredResources.size());
         assertEquals("CH01AA01", chRegisteredResources.get(0).getName());
@@ -404,7 +406,8 @@ class CseGlskDocumentImporterTest {
         assertEquals(1, frPoints.size());
         List<GlskShiftKey> frGlskShiftKeys = frPoints.get(0).getGlskShiftKeys();
         assertEquals(1, frGlskShiftKeys.size());
-        assertEquals(1.05, frGlskShiftKeys.get(0).getQuantity());
+        //in file is 1.05, should be now 1
+        assertEquals(1., frGlskShiftKeys.get(0).getQuantity());
         List<GlskRegisteredResource> frRegisteredResources = frGlskShiftKeys.get(0).getRegisteredResourceArrayList();
         assertEquals(3, frRegisteredResources.size());
         assertEquals("FR01AA01", frRegisteredResources.get(0).getName());
@@ -415,13 +418,15 @@ class CseGlskDocumentImporterTest {
         assertEquals(1, itPoints.size());
         List<GlskShiftKey> itGlskShiftKeys = itPoints.get(0).getGlskShiftKeys();
         assertEquals(2, itGlskShiftKeys.size());
-        assertEquals(1.15, itGlskShiftKeys.get(0).getQuantity());
+        //in file is 1.15, should be now 1
+        assertEquals(1, itGlskShiftKeys.get(0).getQuantity());
         assertEquals(1, itGlskShiftKeys.get(0).getMeritOrderPosition());
         List<GlskRegisteredResource> itFirstRegisteredResources = itGlskShiftKeys.get(0).getRegisteredResourceArrayList();
         assertEquals(1, itFirstRegisteredResources.size());
         assertEquals("IT01AA01", itFirstRegisteredResources.get(0).getName());
         assertEquals(1000, itFirstRegisteredResources.get(0).getMaximumCapacity().get());
-        assertEquals(1.15, itGlskShiftKeys.get(1).getQuantity());
+        //in file is 1.15, should be now 1
+        assertEquals(1, itGlskShiftKeys.get(1).getQuantity());
         assertEquals(-1, itGlskShiftKeys.get(1).getMeritOrderPosition());
         List<GlskRegisteredResource> itSecondRegisteredResources = itGlskShiftKeys.get(1).getRegisteredResourceArrayList();
         assertEquals(1, itSecondRegisteredResources.size());
@@ -432,11 +437,13 @@ class CseGlskDocumentImporterTest {
         assertEquals(1, siPoints.size());
         List<GlskShiftKey> siGlskShiftKeys = siPoints.get(0).getGlskShiftKeys();
         assertEquals(2, siGlskShiftKeys.size());
+        //in file is 0.3, should be now 0.3
         assertEquals(0.3, siGlskShiftKeys.get(0).getQuantity());
         List<GlskRegisteredResource> siFirstRegisteredResources = siGlskShiftKeys.get(0).getRegisteredResourceArrayList();
         assertEquals(2, siFirstRegisteredResources.size());
         assertEquals("SI02AA01", siFirstRegisteredResources.get(0).getName());
         assertEquals("SI02AA02", siFirstRegisteredResources.get(1).getName());
+        //in file is 0.7, should be now 0.7
         assertEquals(0.7, siGlskShiftKeys.get(1).getQuantity());
         List<GlskRegisteredResource> siSecondRegisteredResources = siGlskShiftKeys.get(1).getRegisteredResourceArrayList();
         assertEquals(1, siSecondRegisteredResources.size());
