@@ -11,6 +11,7 @@ import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.GlskShiftKey;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.glsk.commons.GlskException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,5 +124,12 @@ class CimGlskDocumentImporterTest {
     void fullImport() {
         GlskDocument document = GlskDocumentImporters.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY));
         assertEquals(1, document.getZones().size());
+    }
+
+    @Test
+    void checkUnimplemented() {
+        CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
+        assertThrows(NotImplementedException.class, () -> importer.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY), false));
+        assertThrows(NotImplementedException.class, () -> importer.importAndValidateGlsk(getResourceAsInputStream(GLSKB42COUNTRY), true));
     }
 }

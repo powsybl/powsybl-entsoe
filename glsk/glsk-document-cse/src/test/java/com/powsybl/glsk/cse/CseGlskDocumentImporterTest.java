@@ -534,4 +534,15 @@ class CseGlskDocumentImporterTest {
         assertEquals(1, siSecondRegisteredResources.size());
         assertEquals("SI01AA01", siSecondRegisteredResources.get(0).getName());
     }
+
+    @Test
+    void checkNewMethodsExist() {
+
+        GlskDocument glskDocument = GlskDocumentImporters.importGlskWithCalculationDirections(getClass().getResourceAsStream("/testGlskMergedNotValidByXsd.xml"));
+        assertNotNull(glskDocument);
+        glskDocument = GlskDocumentImporters.importAndValidateGlskWithCalculationDirections(getClass().getResourceAsStream("/testGlskMerged.xml"));
+        assertNotNull(glskDocument);
+        glskDocument = GlskDocumentImporters.importAndValidateGlsk(getClass().getResourceAsStream("/testGlskMerged.xml"));
+        assertNotNull(glskDocument);
+    }
 }
