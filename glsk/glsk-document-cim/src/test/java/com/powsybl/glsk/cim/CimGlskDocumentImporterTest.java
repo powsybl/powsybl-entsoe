@@ -129,7 +129,8 @@ class CimGlskDocumentImporterTest {
     @Test
     void checkUnimplemented() {
         CimGlskDocumentImporter importer = new CimGlskDocumentImporter();
-        assertThrows(NotImplementedException.class, () -> importer.importGlsk(getResourceAsInputStream(GLSKB42COUNTRY), false));
-        assertThrows(NotImplementedException.class, () -> importer.importAndValidateGlsk(getResourceAsInputStream(GLSKB42COUNTRY), true));
+        InputStream input = getResourceAsInputStream(GLSKB42COUNTRY);
+        assertThrows(NotImplementedException.class, () -> importer.importGlsk(input, false));
+        assertThrows(NotImplementedException.class, () -> importer.importAndValidateGlsk(input, true));
     }
 }
