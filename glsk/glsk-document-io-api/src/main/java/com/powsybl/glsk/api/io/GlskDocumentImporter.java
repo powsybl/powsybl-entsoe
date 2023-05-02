@@ -27,7 +27,7 @@ public interface GlskDocumentImporter {
     }
 
     default GlskDocument importAndValidateGlsk(InputStream inputStream, boolean useCalculationDirections) {
-        throw new NotImplementedException("This importer does not handle CalculationDirections");
+        throw new NotImplementedException("This importer does not handle schema validation");
     }
 
     boolean canImport(InputStream inputStream);

@@ -69,6 +69,26 @@ public final class GlskDocumentImporters {
         return importer.importGlsk(new ByteArrayInputStream(bytes), true);
     }
 
+    public static GlskDocument importAndValidateGlsk(InputStream inputStream) {
+        byte[] bytes = getBytesFromInputStream(inputStream);
+
+        GlskDocumentImporter importer = findImporter(new ByteArrayInputStream(bytes));
+        if (importer == null) {
+            throw new GlskException("No importer found for this file");
+        }
+        return importer.importAndValidateGlsk(new ByteArrayInputStream(bytes), false);
+    }
+
+    public static GlskDocument importAndValidateGlskWithCalculationDirections(InputStream inputStream) {
+        byte[] bytes = getBytesFromInputStream(inputStream);
+
+        GlskDocumentImporter importer = findImporter(new ByteArrayInputStream(bytes));
+        if (importer == null) {
+            throw new GlskException("No importer found for this file");
+        }
+        return importer.importAndValidateGlsk(new ByteArrayInputStream(bytes), true);
+    }
+
     public static GlskDocumentImporter findImporter(InputStream inputStream) {
         byte[] bytes = getBytesFromInputStream(inputStream);
 

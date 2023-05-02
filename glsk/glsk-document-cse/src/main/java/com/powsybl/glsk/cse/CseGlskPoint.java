@@ -36,17 +36,7 @@ public class CseGlskPoint extends AbstractGlskPoint {
         BusinessTypeList businessType = timeSeries.getBusinessType().getV();
 
         try {
-            //pretreatment to set sum of participation factors of all blocks to 1 (100%)
-
-            //calculate sum of block factors
-            BigDecimal sumBlockFactors = Stream.concat(Stream.ofNullable(timeSeries.getManualLSKBlockOrPropLSKBlock()),
-                            Stream.ofNullable(timeSeries.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
-                            .flatMap(List::stream)
-                    .map(BlockWrapper::new)
-                    .filter(blockWrapper -> blockWrapper.getFactor().isPresent())
-                    .map(blockWrapper -> blockWrapper.getFactor().get())
-                            .reduce(BigDecimal::add)
-                                    .orElse(BigDecimal.ZERO);
+            BigDecimal sumBlockFactors = getSumBlockFactors(timeSeries);
 
             Stream.concat(Stream.ofNullable(timeSeries.getManualLSKBlockOrPropLSKBlock()),
                             Stream.ofNullable(timeSeries.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
@@ -64,6 +54,17 @@ public class CseGlskPoint extends AbstractGlskPoint {
         } catch (GlskException e) {
             throw new GlskException(String.format("Impossible to import GLSK on area %s", subjectDomainmRID), e);
         }
+    }
+
+    private BigDecimal getSumBlockFactors(TimeSeriesType timeSeries) {
+        return Stream.concat(Stream.ofNullable(timeSeries.getManualLSKBlockOrPropLSKBlock()),
+                        Stream.ofNullable(timeSeries.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
+                .flatMap(List::stream)
+                .map(BlockWrapper::new)
+                .filter(blockWrapper -> blockWrapper.getFactor().isPresent())
+                .map(blockWrapper -> blockWrapper.getFactor().get())
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
     }
 
     private void importMeritOrderBlock(BlockWrapper blockWrapper, BusinessTypeList businessType, BigDecimal sumBlockFactors) {

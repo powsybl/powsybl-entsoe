@@ -101,14 +101,18 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         } else {
             blockWrapper.getFactor()
                 .ifPresent(q -> {
-                    if (BigDecimal.ONE.compareTo(sumBlockFactors) == 0
-                            || BigDecimal.ZERO.compareTo(sumBlockFactors) == 0) {
+                    if (sumIsZeroOrOne(sumBlockFactors)) {
                         this.quantity = q.doubleValue();
                     } else {
                         this.quantity = q.divide(sumBlockFactors).doubleValue();
                     }
                 });
         }
+    }
+
+    private static boolean sumIsZeroOrOne(BigDecimal sumBlockFactors) {
+        return BigDecimal.ONE.compareTo(sumBlockFactors) == 0
+                || BigDecimal.ZERO.compareTo(sumBlockFactors) == 0;
     }
 
     private static boolean isPartOfHybridShiftKey(BlockWrapper blockWrapper) {
