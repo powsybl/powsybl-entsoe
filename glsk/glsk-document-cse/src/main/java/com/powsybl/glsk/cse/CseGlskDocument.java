@@ -57,21 +57,22 @@ public final class CseGlskDocument implements GlskDocument {
      */
     private final Map<String, List<GlskPoint>> cseGlskPoints = new TreeMap<>();
 
-    public static CseGlskDocument importGlsk(InputStream inputStream, boolean useCalculationDirections) {
+    public static CseGlskDocument importGlsk(InputStream inputStream, boolean useCalculationDirections, boolean validateSchema) {
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 
-            // Setup schema validator
-            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            URL glskSchemaResource = CseGlskDocument.class.getResource("/xsd/gsk-document.xsd");
-            if (glskSchemaResource != null) {
-                Schema glskSchema = sf.newSchema(glskSchemaResource);
-                unmarshaller.setSchema(glskSchema);
-            } else {
-                LOGGER.warn("Unable to find GLSK Schema definition file. GLSK file will be imported without schema validation.");
+            if (validateSchema) {
+                // Setup schema validator
+                SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                URL glskSchemaResource = CseGlskDocument.class.getResource("/xsd/gsk-document.xsd");
+                if (glskSchemaResource != null) {
+                    Schema glskSchema = sf.newSchema(glskSchemaResource);
+                    unmarshaller.setSchema(glskSchema);
+                } else {
+                    LOGGER.warn("Unable to find GLSK Schema definition file. GLSK file will be imported without schema validation.");
+                }
             }
-
             // Unmarshal xml file
             GSKDocument nativeGskDocument = (GSKDocument) JAXBIntrospector.getValue(unmarshaller.unmarshal(inputStream));
             return new CseGlskDocument(nativeGskDocument, useCalculationDirections);
