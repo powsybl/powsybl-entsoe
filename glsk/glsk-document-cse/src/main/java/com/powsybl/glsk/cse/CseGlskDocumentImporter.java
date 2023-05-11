@@ -29,7 +29,12 @@ public class CseGlskDocumentImporter extends AbstractGlskDocumentImporter implem
 
     @Override
     public GlskDocument importGlsk(InputStream inputStream, boolean useCalculationDirections) {
-        return CseGlskDocument.importGlsk(inputStream, useCalculationDirections);
+        return CseGlskDocument.importGlsk(inputStream, useCalculationDirections, false);
+    }
+
+    @Override
+    public GlskDocument importAndValidateGlsk(InputStream inputStream, boolean useCalculationDirections) {
+        return CseGlskDocument.importGlsk(inputStream, useCalculationDirections, true);
     }
 
     @Override

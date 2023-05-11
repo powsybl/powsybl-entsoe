@@ -24,6 +24,7 @@ import static org.apache.commons.io.IOUtils.copy;
  */
 public final class GlskDocumentImporters {
 
+    public static final String NO_IMPORTER_FOUND_FOR_THIS_FILE = "No importer found for this file";
     private static final Supplier<List<GlskDocumentImporter>> GLSK_IMPORTERS
         = Suppliers.memoize(() -> new ServiceLoaderCache<>(GlskDocumentImporter.class).getServices());
 
@@ -54,7 +55,7 @@ public final class GlskDocumentImporters {
 
         GlskDocumentImporter importer = findImporter(new ByteArrayInputStream(bytes));
         if (importer == null) {
-            throw new GlskException("No importer found for this file");
+            throw new GlskException(NO_IMPORTER_FOUND_FOR_THIS_FILE);
         }
         return importer.importGlsk(new ByteArrayInputStream(bytes));
     }
@@ -64,9 +65,30 @@ public final class GlskDocumentImporters {
 
         GlskDocumentImporter importer = findImporter(new ByteArrayInputStream(bytes));
         if (importer == null) {
-            throw new GlskException("No importer found for this file");
+            throw new GlskException(NO_IMPORTER_FOUND_FOR_THIS_FILE);
         }
         return importer.importGlsk(new ByteArrayInputStream(bytes), true);
+    }
+
+    public static GlskDocument importAndValidateGlsk(InputStream inputStream) {
+        byte[] bytes = getBytesFromInputStream(inputStream);
+
+        GlskDocumentImporter importer = findImporter(new ByteArrayInputStream(bytes));
+        if (importer == null) {
+
+            throw new GlskException(NO_IMPORTER_FOUND_FOR_THIS_FILE);
+        }
+        return importer.importAndValidateGlsk(new ByteArrayInputStream(bytes), false);
+    }
+
+    public static GlskDocument importAndValidateGlskWithCalculationDirections(InputStream inputStream) {
+        byte[] bytes = getBytesFromInputStream(inputStream);
+
+        GlskDocumentImporter importer = findImporter(new ByteArrayInputStream(bytes));
+        if (importer == null) {
+            throw new GlskException(NO_IMPORTER_FOUND_FOR_THIS_FILE);
+        }
+        return importer.importAndValidateGlsk(new ByteArrayInputStream(bytes), true);
     }
 
     public static GlskDocumentImporter findImporter(InputStream inputStream) {

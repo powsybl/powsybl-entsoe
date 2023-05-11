@@ -11,6 +11,7 @@ import com.powsybl.glsk.commons.GlskException;
 import org.threeten.extra.Interval;
 import xsd.etso_code_lists.BusinessTypeList;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,41 +36,54 @@ public class CseGlskPoint extends AbstractGlskPoint {
         BusinessTypeList businessType = timeSeries.getBusinessType().getV();
 
         try {
+            BigDecimal sumBlockFactors = getSumBlockFactors(timeSeries);
+
             Stream.concat(Stream.ofNullable(timeSeries.getManualLSKBlockOrPropLSKBlock()),
                             Stream.ofNullable(timeSeries.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
                     .flatMap(List::stream)
                     .filter(block -> STANDARD_BLOCK_CLASSES.stream().anyMatch(acceptedClass -> acceptedClass.isInstance(block)))
                     .map(BlockWrapper::new)
-                    .forEach(block -> importStandardBlock(block, businessType));
+                    .forEach(block -> importStandardBlock(block, businessType, sumBlockFactors));
 
             Stream.ofNullable(timeSeries.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock())
                     .flatMap(List::stream)
                     .filter(MeritOrderGSKBlockType.class::isInstance)
                     .map(BlockWrapper::new)
-                    .forEach(block -> importMeritOrderBlock(block, businessType));
+                    .forEach(block -> importMeritOrderBlock(block, businessType, sumBlockFactors));
 
         } catch (GlskException e) {
             throw new GlskException(String.format("Impossible to import GLSK on area %s", subjectDomainmRID), e);
         }
     }
 
-    private void importMeritOrderBlock(BlockWrapper blockWrapper, BusinessTypeList businessType) {
+    private BigDecimal getSumBlockFactors(TimeSeriesType timeSeries) {
+        return Stream.concat(Stream.ofNullable(timeSeries.getManualLSKBlockOrPropLSKBlock()),
+                        Stream.ofNullable(timeSeries.getPropGSKBlockOrReserveGSKBlockOrMeritOrderGSKBlock()))
+                .flatMap(List::stream)
+                .map(BlockWrapper::new)
+                .filter(blockWrapper -> blockWrapper.getFactor().isPresent())
+                .map(blockWrapper -> blockWrapper.getFactor().get())
+                .reduce(BigDecimal::add)
+                .orElse(BigDecimal.ZERO);
+    }
+
+    private void importMeritOrderBlock(BlockWrapper blockWrapper, BusinessTypeList businessType, BigDecimal sumBlockFactors) {
         MeritOrderGSKBlockType block = (MeritOrderGSKBlockType) blockWrapper.getBlock();
         List<MeritOrderUpNodeType> upNodes = block.getUp().getNode();
         for (int j = 0; j < upNodes.size(); j++) {
             // Up nodes have positive merit order position
             // First is 1 last is N to be easily recognized in GLSK point conversion.
-            glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, new NodeWrapper(upNodes.get(j)), businessType, pointInterval, subjectDomainmRID, j + 1));
+            glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, new NodeWrapper(upNodes.get(j)), businessType, pointInterval, subjectDomainmRID, j + 1, sumBlockFactors));
         }
         List<MeritOrderDownNodeType> downNodes = block.getDown().getNode();
         for (int j = 0; j < downNodes.size(); j++) {
             // Down nodes have negative merit order position
             // First is -1 last is -N to be easily recognized in GLSK point conversion.
-            glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, new NodeWrapper(downNodes.get(j)), businessType, pointInterval, subjectDomainmRID, -j - 1));
+            glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, new NodeWrapper(downNodes.get(j)), businessType, pointInterval, subjectDomainmRID, -j - 1, sumBlockFactors));
         }
     }
 
-    private void importStandardBlock(BlockWrapper blockWrapper, BusinessTypeList businessType) {
-        this.glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, businessType, pointInterval, subjectDomainmRID));
+    private void importStandardBlock(BlockWrapper blockWrapper, BusinessTypeList businessType, BigDecimal sumBlockFactors) {
+        this.glskShiftKeys.add(new CseGlskShiftKey(blockWrapper, businessType, pointInterval, subjectDomainmRID, sumBlockFactors));
     }
 }
