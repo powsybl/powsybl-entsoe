@@ -40,7 +40,7 @@ class CgmesVoltageLevelsAreaTest {
         double lineFlow = (line.getTerminal2().getP() - line.getTerminal1().getP()) / 2;
         assertFalse(Double.isNaN(lineFlow));
         TieLine tieLine = network.getTieLine("TL_fict");
-        double tieLineFlow = (tieLine.getHalf2().getBoundary().getP() - tieLine.getHalf1().getBoundary().getP()) / 2;
+        double tieLineFlow = (tieLine.getDanglingLine2().getBoundary().getP() - tieLine.getDanglingLine1().getBoundary().getP()) / 2;
         assertFalse(Double.isNaN(tieLineFlow));
 
         double realNetPosition = -network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6").getBoundary().getP()
