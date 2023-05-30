@@ -10,6 +10,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -56,6 +57,9 @@ class FlowDecompositionWithContingencyTests {
         String xnecId2 = "DB000011 DF000011 1_DD000011 DF000011 1";
 
         Network network = TestUtils.importNetwork(networkFileName);
+        for (TwoWindingsTransformer branch : network.getTwoWindingsTransformers()) {
+            System.out.println(branch.getId());
+        }
         XnecProvider xnecProvider = XnecProviderByIds.builder()
             .addContingency(contingencyId2, Set.of(contingencyId2))
             .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId2))

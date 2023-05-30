@@ -61,10 +61,6 @@ class LossesCompensator {
             .filter(this::hasBuses)
             .filter(this::hasP0s)
             .forEach(branch -> compensateLossesOnBranch(network, branch));
-        network.getTieLineStream()
-            .filter(this::hasBuses)
-            .filter(this::hasP0s)
-            .forEach(tieLine -> compensateLossesOnTieLine(network, tieLine));
     }
 
     private boolean hasBus(Terminal terminal) {
@@ -132,9 +128,13 @@ class LossesCompensator {
     }
 
     private void compensateLossesOnBranch(Network network, Branch<?> branch) {
-        Terminal sendingTerminal = getSendingTerminal(branch);
-        double losses = branch.getTerminal1().getP() + branch.getTerminal2().getP();
-        updateLoadForLossesOnTerminal(network, sendingTerminal, losses);
+        if (branch instanceof TieLine) {
+            compensateLossesOnTieLine(network, (TieLine) branch);
+        } else {
+            Terminal sendingTerminal = getSendingTerminal(branch);
+            double losses = branch.getTerminal1().getP() + branch.getTerminal2().getP();
+            updateLoadForLossesOnTerminal(network, sendingTerminal, losses);
+        }
     }
 
     private void compensateLossesOnTieLine(Network network, TieLine tieLine) {

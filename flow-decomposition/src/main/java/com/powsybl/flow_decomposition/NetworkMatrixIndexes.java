@@ -78,10 +78,11 @@ class NetworkMatrixIndexes {
 
     private List<Injection<?>> getNodeList(Network network) {
         return getAllNetworkInjections(network)
-            .filter(this::isInjectionConnected)
-            .filter(this::isInjectionInMainSynchronousComponent)
-            .filter(this::managedInjectionTypes)
-            .collect(Collectors.toList());
+                .filter(this::isNotPairedDanglingLine)
+                .filter(this::isInjectionConnected)
+                .filter(this::isInjectionInMainSynchronousComponent)
+                .filter(this::managedInjectionTypes)
+                .collect(Collectors.toList());
     }
 
     private boolean managedInjectionTypes(Injection<?> injection) {
@@ -91,12 +92,15 @@ class NetworkMatrixIndexes {
     private Stream<Injection<?>> getAllNetworkInjections(Network network) {
         return network.getConnectableStream()
             .filter(Injection.class::isInstance)
-            .filter(inj -> inj instanceof DanglingLine && !((DanglingLine) inj).isPaired())
             .map(connectable -> (Injection<?>) connectable);
     }
 
     private boolean isInjectionConnected(Injection<?> injection) {
         return injection.getTerminal().isConnected();
+    }
+
+    private boolean isNotPairedDanglingLine(Injection<?> injection) {
+        return !(injection instanceof DanglingLine && ((DanglingLine) injection).isPaired());
     }
 
     private boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {
