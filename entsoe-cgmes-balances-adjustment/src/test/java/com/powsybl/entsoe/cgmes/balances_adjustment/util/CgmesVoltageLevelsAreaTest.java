@@ -13,6 +13,8 @@ import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -35,12 +37,13 @@ class CgmesVoltageLevelsAreaTest {
         CgmesControlArea cgmesArea = network.getExtension(CgmesControlAreas.class).getCgmesControlArea("_BECONTROLAREA");
         NetworkAreaFactory factory = new CgmesVoltageLevelsAreaFactory(cgmesArea, voltageLevelsIds);
         NetworkArea area = factory.create(network);
+        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
         assertEquals(5, area.getContainedBusViewBuses().size());
         Line line = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_2");
         double lineFlow = (line.getTerminal2().getP() - line.getTerminal1().getP()) / 2;
         assertFalse(Double.isNaN(lineFlow));
         TieLine tieLine = network.getTieLine("TL_fict");
-        double tieLineFlow = (tieLine.getDanglingLine2().getBoundary().getP() - tieLine.getDanglingLine1().getBoundary().getP()) / 2;
+        double tieLineFlow = (tieLine.getDanglingLine1().getTerminal().getP() - tieLine.getDanglingLine2().getTerminal().getP()) / 2;
         assertFalse(Double.isNaN(tieLineFlow));
 
         double realNetPosition = -network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6").getBoundary().getP()

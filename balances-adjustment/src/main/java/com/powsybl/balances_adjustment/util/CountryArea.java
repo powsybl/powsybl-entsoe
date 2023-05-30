@@ -24,6 +24,7 @@ public class CountryArea implements NetworkArea {
     private final List<DanglingLine> danglingLineBordersCache;
     private final List<Line> lineBordersCache;
     private final List<HvdcLine> hvdcLineBordersCache;
+    private final List<TieLine> tieLineBordersCache;
 
     private final Set<Bus> busesCache;
 
@@ -31,12 +32,16 @@ public class CountryArea implements NetworkArea {
         this.countries.addAll(countries);
 
         danglingLineBordersCache = network.getDanglingLineStream()
+                .filter(dl -> !dl.isPaired())
                 .filter(this::isAreaBorder)
                 .collect(Collectors.toList());
         lineBordersCache = network.getLineStream()
                 .filter(this::isAreaBorder)
                 .collect(Collectors.toList());
         hvdcLineBordersCache = network.getHvdcLineStream()
+                .filter(this::isAreaBorder)
+                .collect(Collectors.toList());
+        tieLineBordersCache = network.getTieLineStream()
                 .filter(this::isAreaBorder)
                 .collect(Collectors.toList());
 
@@ -53,7 +58,8 @@ public class CountryArea implements NetworkArea {
     public double getNetPosition() {
         return danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + lineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
-                + hvdcLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
+                + hvdcLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
+                + tieLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
     }
 
     @Override
@@ -75,6 +81,11 @@ public class CountryArea implements NetworkArea {
             }
         }
         for (HvdcLine line : hvdcLineBordersCache) {
+            if (countryArea.isAreaBorder(line)) {
+                sum += getLeavingFlow(line);
+            }
+        }
+        for (TieLine line : tieLineBordersCache) {
             if (countryArea.isAreaBorder(line)) {
                 sum += getLeavingFlow(line);
             }
@@ -107,6 +118,16 @@ public class CountryArea implements NetworkArea {
                 !countries.contains(countrySide1) && countries.contains(countrySide2);
     }
 
+    private boolean isAreaBorder(TieLine line) {
+        Country countrySide1 = line.getDanglingLine1().getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null);
+        Country countrySide2 = line.getDanglingLine2().getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null);
+        if (countrySide1 == null || countrySide2 == null) {
+            return false;
+        }
+        return countries.contains(countrySide1) && !countries.contains(countrySide2) ||
+                !countries.contains(countrySide1) && countries.contains(countrySide2);
+    }
+
     private double getLeavingFlow(DanglingLine danglingLine) {
         return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getTerminal().getP()) ? danglingLine.getTerminal().getP() : 0;
     }
@@ -123,5 +144,12 @@ public class CountryArea implements NetworkArea {
         double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation2().getTerminal().getP()) ? hvdcLine.getConverterStation2().getTerminal().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
         return countries.contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null)) ? directFlow : -directFlow;
+    }
+
+    private double getLeavingFlow(TieLine line) {
+        double flowSide1 = line.getDanglingLine1().getTerminal().isConnected() && !Double.isNaN(line.getDanglingLine1().getTerminal().getP()) ? line.getDanglingLine1().getTerminal().getP() : 0;
+        double flowSide2 = line.getDanglingLine2().getTerminal().isConnected() && !Double.isNaN(line.getDanglingLine2().getTerminal().getP()) ? line.getDanglingLine2().getTerminal().getP() : 0;
+        double directFlow = (flowSide1 - flowSide2) / 2;
+        return countries.contains(line.getDanglingLine1().getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null)) ? directFlow : -directFlow;
     }
 }
