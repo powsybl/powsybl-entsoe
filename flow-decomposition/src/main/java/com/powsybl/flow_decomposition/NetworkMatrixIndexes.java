@@ -6,14 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Map;
@@ -98,6 +91,7 @@ class NetworkMatrixIndexes {
     private Stream<Injection<?>> getAllNetworkInjections(Network network) {
         return network.getConnectableStream()
             .filter(Injection.class::isInstance)
+            .filter(inj -> inj instanceof DanglingLine && !((DanglingLine) inj).isPaired())
             .map(connectable -> (Injection<?>) connectable);
     }
 
@@ -142,9 +136,10 @@ class NetworkMatrixIndexes {
 
     private List<Injection<?>> getXNodeList(Network network) {
         return network.getDanglingLineStream()
-            .filter(this::isInjectionConnected)
-            .filter(this::isInjectionInMainSynchronousComponent)
-            .map(danglingLine -> (Injection<?>) danglingLine)
-            .collect(Collectors.toList());
+                .filter(dl -> !dl.isPaired())
+                .filter(this::isInjectionConnected)
+                .filter(this::isInjectionInMainSynchronousComponent)
+                .map(danglingLine -> (Injection<?>) danglingLine)
+                .collect(Collectors.toList());
     }
 }
