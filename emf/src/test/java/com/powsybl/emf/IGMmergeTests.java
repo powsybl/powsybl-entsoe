@@ -16,7 +16,10 @@ import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.mergingview.MergingView;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.LineCharacteristics;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,9 +28,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -39,10 +40,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class IGMmergeTests {
 
     private FileSystem fs;
+    private Path tmpDir;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         fs = Jimfs.newFileSystem(Configuration.unix());
+        tmpDir = Files.createDirectory(fs.getPath("/tmp"));
     }
 
     @AfterEach
@@ -77,13 +80,13 @@ class IGMmergeTests {
         igmBE.merge(igmNL);
         validNetworks.put("Merged", igmBE);
 
-        Path destructiveMergeDir = Files.createDirectory(fs.getPath("/destructiveMerge"));
+        Path destructiveMergeDir = Files.createDirectories(tmpDir.resolve("destructiveMerge"));
         exportNetwork(igmBE, destructiveMergeDir, "BE_NL", validNetworks, Set.of("EQ", "TP", "SSH", "SV"));
 
         // copy the boundary set explicitly it is not serialized and is needed for reimport
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         for (String bFile : boundaries.getFileNames()) {
-            Files.copy(boundaries.newInputStream(bFile), destructiveMergeDir.resolve("BE_NL" + bFile));
+            Files.copy(boundaries.newInputStream(bFile), destructiveMergeDir.resolve("BE_NL" + bFile), StandardCopyOption.REPLACE_EXISTING);
         }
 
         // reimport and check
@@ -120,7 +123,7 @@ class IGMmergeTests {
         igmNL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
         validNetworks.put("Merged", mergingView);
 
-        Path mergingViewMergeDir = Files.createDirectory(fs.getPath("/mergingViewMerge"));
+        Path mergingViewMergeDir = Files.createDirectories(tmpDir.resolve("mergingViewMerge"));
         // export to CGMES only state variable of the merged network, the rest is exported separately for each igms
         exportNetwork(mergingView, mergingViewMergeDir, "BE_NL", validNetworks, Set.of("SV"));
         exportNetwork(igmBE, mergingViewMergeDir, "BE_NL_BE", Map.of("BE", igmBE), Set.of("EQ", "TP", "SSH"));
@@ -129,7 +132,7 @@ class IGMmergeTests {
         // copy the boundary set explicitly it is not serialized and is needed for reimport
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         for (String bFile : boundaries.getFileNames()) {
-            Files.copy(boundaries.newInputStream(bFile), mergingViewMergeDir.resolve("BE_NL" + bFile));
+            Files.copy(boundaries.newInputStream(bFile), mergingViewMergeDir.resolve("BE_NL" + bFile), StandardCopyOption.REPLACE_EXISTING);
         }
 
         Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(mergingViewMergeDir, "BE_NL"), null);
@@ -152,13 +155,13 @@ class IGMmergeTests {
         networkBENL.getGenerators().forEach(g -> generatorsId.add(g.getId()));
         networkBENL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
-        Path mergedResourcesDir = Files.createDirectory(fs.getPath("/mergedResourcesExport"));
+        Path mergedResourcesDir = Files.createDirectories(tmpDir.resolve("mergedResourcesExport"));
         exportNetwork(networkBENL, mergedResourcesDir, "BE_NL", Map.of("BENL", networkBENL), Set.of("EQ", "TP", "SSH", "SV"));
 
         //Copy the boundary set explicitly it is not serialized and is needed for reimport
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         for (String bFile : boundaries.getFileNames()) {
-            Files.copy(boundaries.newInputStream(bFile), mergedResourcesDir.resolve("BE_NL" + bFile));
+            Files.copy(boundaries.newInputStream(bFile), mergedResourcesDir.resolve("BE_NL" + bFile), StandardCopyOption.REPLACE_EXISTING);
         }
         Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(mergedResourcesDir, "BE_NL"), null);
         validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
@@ -203,9 +206,7 @@ class IGMmergeTests {
         Path filenameSv = outputDir.resolve(baseName + "_SV.xml");
         CgmesExportContext context = new CgmesExportContext();
         context.setScenarioTime(network.getCaseDate());
-        validNetworks.forEach((name, n) -> {
-            context.addIidmMappings(n);
-        });
+        validNetworks.forEach((name, n) -> context.addIidmMappings(n));
 
         if (profilesToExport.contains("EQ")) {
             export(filenameEq, writer -> EquipmentExport.write(network, writer, context));
@@ -238,11 +239,11 @@ class IGMmergeTests {
     private static final double TOLERANCE_RX = 1e-10;
     private static final double TOLERANCE_GB = 1e-4;
 
-    private static void checkLineCharacteristics(LineCharacteristicsGetters line1, LineCharacteristicsGetters line2) {
+    private static void checkLineCharacteristics(LineCharacteristics line1, LineCharacteristics line2) {
         boolean halvesHaveSameOrder = true;
         if (line1 instanceof TieLine) {
-            String id11 = ((TieLine) line1).getHalf1().getId();
-            String id21 = ((TieLine) line2).getHalf1().getId();
+            String id11 = ((TieLine) line1).getDanglingLine1().getId();
+            String id21 = ((TieLine) line2).getDanglingLine1().getId();
             if (!id11.equals(id21)) {
                 halvesHaveSameOrder = false;
             }
@@ -270,7 +271,7 @@ class IGMmergeTests {
             assertTrue(checkDanglingLine(dl1, dl2));
         });
         network1.getLineStream().forEach(line1 -> {
-            Line line2 = network2.getLine(line1.getId()); // cgm should be always at network1
+            LineCharacteristics line2 = network2.getLine(line1.getId()); // cgm should be always at network1
             checkLineCharacteristics(line1, line2);
         });
         network1.getTieLineStream().forEach(tieLine1 -> {
