@@ -71,20 +71,12 @@ class LossesCompensator {
         return hasBus(branch.getTerminal1()) && hasBus(branch.getTerminal2());
     }
 
-    private boolean hasBuses(TieLine tieLine) {
-        return hasBus(tieLine.getDanglingLine1().getTerminal()) && hasBus(tieLine.getDanglingLine2().getTerminal());
-    }
-
     private boolean hasP0(Terminal terminal) {
         return !Double.isNaN(terminal.getP());
     }
 
     private boolean hasP0s(Branch<?> branch) {
         return hasP0(branch.getTerminal1()) && hasP0(branch.getTerminal2());
-    }
-
-    private boolean hasP0s(TieLine tieLine) {
-        return hasP0(tieLine.getDanglingLine1().getTerminal()) && hasP0(tieLine.getDanglingLine2().getTerminal());
     }
 
     private static void addZeroMWLossesLoad(Network network, String busId) {
