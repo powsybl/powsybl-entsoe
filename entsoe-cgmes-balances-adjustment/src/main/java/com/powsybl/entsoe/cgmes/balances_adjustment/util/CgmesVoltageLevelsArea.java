@@ -30,7 +30,7 @@ class CgmesVoltageLevelsArea implements NetworkArea {
         this.voltageLevelIds.addAll(voltageLevelIds);
 
         danglingLineBordersCache = createDanglingLinesCache(network, area, excludedXnodes);
-        branchBordersCache = createBranchesCache(network, area, excludedXnodes);
+        branchBordersCache = createBranchesCache(network, area);
 
         busesCache = network.getBusView().getBusStream()
                 .filter(bus -> voltageLevelIds.contains(bus.getVoltageLevel().getId()))
@@ -58,7 +58,7 @@ class CgmesVoltageLevelsArea implements NetworkArea {
                 .collect(Collectors.toList());
     }
 
-    private List<Branch<?>> createBranchesCache(Network network, CgmesControlArea area, List<String> excludedXnodes) {
+    private List<Branch<?>> createBranchesCache(Network network, CgmesControlArea area) {
         return network.getLineStream()
                 .filter(this::isAreaBorder)
                 .filter(b -> b.getTerminal1().getBusView().getBus() != null && b.getTerminal1().getBusView().getBus().isInMainSynchronousComponent()
