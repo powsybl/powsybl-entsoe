@@ -16,6 +16,7 @@ import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.modification.ReplaceTieLinesByLines;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.LineCharacteristics;
 import com.powsybl.iidm.network.Network;
@@ -28,7 +29,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -94,6 +98,13 @@ class IGMmergeTests {
         validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
 
         // compare
+        // FIXME(Luma) CGMES Export: tie lines as two separate equipment instead of a single ACLS
+        // Right now in CGMES we are exporting tie lines as regular lines,
+        // instead of two separate equipment.
+        // Before comparing, perform the same modification on the original network
+        // so that both networks are comparable
+        // This should be removed when we export tie lines as two separate equipment
+        new ReplaceTieLinesByLines().apply(igmBE);
         compareNetwork(serializedMergedNetwork, igmBE);
     }
 
@@ -139,6 +150,8 @@ class IGMmergeTests {
         validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
 
         // compare
+        resetDanglineLinesP0Q0(serializedMergedNetwork);
+        resetDanglineLinesP0Q0(mergingView);
         compareNetwork(serializedMergedNetwork, mergingView);
     }
 
@@ -167,6 +180,13 @@ class IGMmergeTests {
         validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
 
         // compare
+        // FIXME(Luma) CGMES Export: tie lines as two separate equipment instead of a single ACLS
+        // Right now in CGMES we are exporting tie lines as regular lines,
+        // instead of two separate equipment.
+        // Before comparing, perform the same modification on the original network
+        // so that both networks are comparable
+        // This should be removed when we export tie lines as two separate equipment
+        new ReplaceTieLinesByLines().apply(networkBENL);
         compareNetwork(serializedMergedNetwork, networkBENL);
     }
 
@@ -189,7 +209,26 @@ class IGMmergeTests {
         Network cgm = createCGM();
 
         compareNetwork(igmBE2, mergingView);
+
+        resetDanglineLinesP0Q0(cgm);
+        resetDanglineLinesP0Q0(igmBE2);
         compareNetwork(cgm, igmBE2);
+    }
+
+    private static void resetDanglineLinesP0Q0(Network network) {
+        // FIXME(Luma) CGMES Importer: consider keeping p0, q0 also for assembled (CGM) imports
+        // Adaptations to be able to compare assembled and merged networks
+        // If a dangling line is paired (is part of a tie line)
+        // we should not use p0, q0 anymore,
+        // so it doesn't matter what values they have
+        // Tie lines from CGM do not have p0, q0 set,
+        // and Tie lines from merged networks keep their original p0, q0 values
+        network.getTieLineStream().forEach(tl -> {
+            tl.getDanglingLine1().setP0(0);
+            tl.getDanglingLine1().setQ0(0);
+            tl.getDanglingLine2().setP0(0);
+            tl.getDanglingLine2().setQ0(0);
+        });
     }
 
     private static void validate(Network n, Set<String> branchIds, Set<String> generatorsId, Set<String> voltageLevelIds) {
@@ -268,6 +307,9 @@ class IGMmergeTests {
         assertEquals(network1.getLineCount(), network2.getLineCount());
         network1.getDanglingLineStream().forEach(dl1 -> {
             DanglingLine dl2 = network2.getDanglingLine(dl1.getId());
+            if (!checkDanglingLine(dl1, dl2)) {
+                System.err.println("error");
+            }
             assertTrue(checkDanglingLine(dl1, dl2));
         });
         network1.getLineStream().forEach(line1 -> {
