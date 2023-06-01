@@ -101,4 +101,11 @@ class CountryAreaTest {
             assertEquals("The leaving flow to the country area cannot be computed. The country FRANCE is contained in both control areas.", e.getMessage());
         }
     }
+
+    @Test
+    void testWithTieLine() {
+        Network network = Network.read("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
+        countryAreaBE = new CountryAreaFactory(Country.BE);
+        assertEquals(-261.858, countryAreaBE.create(network).getNetPosition(), 1e-3);
+    }
 }
