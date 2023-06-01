@@ -114,7 +114,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             LOGGER.info("Areas {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
 
         } else {
-            LOGGER.error("Areas are unbalanced after {} iterations", context.getIterationNum());
+            LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), String.format("%.2f", computeTotalMismatch(context)));
         }
 
         network.getVariantManager().removeVariant(workingVariantCopyId);
