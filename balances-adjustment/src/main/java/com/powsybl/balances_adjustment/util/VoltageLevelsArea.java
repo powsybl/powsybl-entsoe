@@ -20,11 +20,13 @@ public class VoltageLevelsArea implements NetworkArea {
 
     private final List<String> voltageLevelIds = new ArrayList<>();
 
+    // We should consider all dangling lines now, either paired or unpaired.
+    // The computation is more clean because we have the real value at boundary
+    // for a tie line now.
     private final List<DanglingLine> danglingLineBordersCache;
     private final List<Branch> branchBordersCache;
     private final List<ThreeWindingsTransformer> threeWindingsTransformerBordersCache;
     private final List<HvdcLine> hvdcLineBordersCache;
-    private final List<TieLine> tieLineBordersCache;
 
     private final Set<Bus> busesCache;
 
@@ -43,9 +45,6 @@ public class VoltageLevelsArea implements NetworkArea {
         hvdcLineBordersCache = network.getHvdcLineStream()
                 .filter(this::isAreaBorder)
                 .collect(Collectors.toList());
-        tieLineBordersCache = network.getTieLineStream()
-                .filter(this::isAreaBorder)
-                .collect(Collectors.toList());
 
         busesCache = network.getBusView().getBusStream()
                 .filter(bus -> voltageLevelIds.contains(bus.getVoltageLevel().getId()))
@@ -57,8 +56,7 @@ public class VoltageLevelsArea implements NetworkArea {
         return danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + branchBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + threeWindingsTransformerBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
-                + hvdcLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
-                + tieLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
+                + hvdcLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
     }
 
     @Override
@@ -98,15 +96,12 @@ public class VoltageLevelsArea implements NetworkArea {
                 !voltageLevelIds.contains(voltageLevelSide1) && voltageLevelIds.contains(voltageLevelSide2);
     }
 
-    private boolean isAreaBorder(TieLine line) {
-        String voltageLevelSide1 = line.getDanglingLine1().getTerminal().getVoltageLevel().getId();
-        String voltageLevelSide2 = line.getDanglingLine2().getTerminal().getVoltageLevel().getId();
-        return voltageLevelIds.contains(voltageLevelSide1) && !voltageLevelIds.contains(voltageLevelSide2) ||
-                !voltageLevelIds.contains(voltageLevelSide1) && voltageLevelIds.contains(voltageLevelSide2);
-    }
-
     private double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() ? danglingLine.getTerminal().getP() : 0;
+        double boundaryP = 0.0;
+        if (danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getTerminal().getP())) {
+            boundaryP = !Double.isNaN(danglingLine.getBoundary().getP()) ? -danglingLine.getBoundary().getP() : danglingLine.getTerminal().getP();
+        }
+        return boundaryP;
     }
 
     private double getLeavingFlow(Branch<?> branch) {
@@ -121,13 +116,6 @@ public class VoltageLevelsArea implements NetworkArea {
         double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() ? hvdcLine.getConverterStation2().getTerminal().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
         return voltageLevelIds.contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getId()) ? directFlow : -directFlow;
-    }
-
-    private double getLeavingFlow(TieLine line) {
-        double flowSide1 = line.getDanglingLine1().getTerminal().isConnected() ? line.getDanglingLine1().getTerminal().getP() : 0;
-        double flowSide2 = line.getDanglingLine2().getTerminal().isConnected() ? line.getDanglingLine2().getTerminal().getP() : 0;
-        double directFlow = (flowSide1 - flowSide2) / 2;
-        return voltageLevelIds.contains(line.getDanglingLine1().getTerminal().getVoltageLevel().getId()) ? directFlow : -directFlow;
     }
 
     private double getLeavingFlow(ThreeWindingsTransformer threeWindingsTransformer) {

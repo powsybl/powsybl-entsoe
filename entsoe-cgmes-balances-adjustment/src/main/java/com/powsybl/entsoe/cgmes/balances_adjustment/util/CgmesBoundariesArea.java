@@ -40,7 +40,7 @@ class CgmesBoundariesArea implements NetworkArea {
         return danglingLinesCache.parallelStream().mapToDouble(dl -> {
             double boundaryP = 0.0;
             if (dl.getTerminal().isConnected()) {
-                boundaryP = !Double.isNaN(dl.getBoundary().getP()) ? dl.getBoundary().getP() : -dl.getTerminal().getP();
+                boundaryP = !Double.isNaN(dl.getBoundary().getP()) ? -dl.getBoundary().getP() : dl.getTerminal().getP();
             }
             return boundaryP;
         }).sum();

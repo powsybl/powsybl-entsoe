@@ -11,8 +11,6 @@ import com.powsybl.balances_adjustment.util.NetworkAreaFactory;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -35,7 +33,7 @@ class CgmesBoundariesAreaTest {
         Network network = DanglingLineNetworkFactory.create();
         NetworkAreaFactory factory = new CgmesBoundariesAreaFactory();
         NetworkArea area = factory.create(network);
-        assertEquals(network.getDanglingLine("DL").getBoundary().getP(), area.getNetPosition(), DELTA_POWER);
+        assertEquals(-network.getDanglingLine("DL").getBoundary().getP(), area.getNetPosition(), DELTA_POWER);
         assertTrue(area.getContainedBusViewBuses().isEmpty());
     }
 
@@ -45,25 +43,16 @@ class CgmesBoundariesAreaTest {
         NetworkAreaFactory factory = new CgmesBoundariesAreaFactory(new ArrayList<>(network.getExtension(CgmesControlAreas.class).getCgmesControlAreas()));
         NetworkArea area = factory.create(network);
 
-        // we must run a DC load flow to have P at the tie line terminals
-        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
-
         List<Double> ps = Stream.of(
                     network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6"),
                     network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da"),
                     network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006"))
                 .map(dl -> dl.getBoundary().getP()).collect(Collectors.toList());
         double sum = ps.stream().mapToDouble(n -> n).sum();
-        // FIXME: Boundary.getP() is not working for the moment.
-        // DC approximation.
-        sum = sum - network.getTieLine("TL_fict").getDanglingLine1().getTerminal().getP(); // FIXME.
-        System.out.println(sum);
-        System.out.println(ps);
-        double anp = area.getNetPosition();
-        System.out.println(anp);
 
+        sum = sum + network.getTieLine("TL_fict").getDanglingLine1().getBoundary().getP();
         // FIXME: we miss the line "_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_2" because it is not a tie line.
-        assertEquals(sum, area.getNetPosition(), DELTA_POWER);
+        assertEquals(-sum, area.getNetPosition(), DELTA_POWER);
         assertTrue(area.getContainedBusViewBuses().isEmpty());
     }
 }
