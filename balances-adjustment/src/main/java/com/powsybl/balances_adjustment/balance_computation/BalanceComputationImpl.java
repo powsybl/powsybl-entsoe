@@ -16,6 +16,8 @@ import com.powsybl.loadflow.LoadFlowResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -114,7 +116,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             LOGGER.info("Areas {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
 
         } else {
-            LOGGER.error("Areas are unbalanced after {} iterations", context.getIterationNum());
+            LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), BigDecimal.valueOf(computeTotalMismatch(context)).setScale(2, RoundingMode.UP));
         }
 
         network.getVariantManager().removeVariant(workingVariantCopyId);
