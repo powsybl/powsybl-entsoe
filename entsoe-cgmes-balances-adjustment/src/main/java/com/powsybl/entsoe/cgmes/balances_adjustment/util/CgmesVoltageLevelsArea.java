@@ -97,11 +97,7 @@ class CgmesVoltageLevelsArea implements NetworkArea {
     }
 
     private double getLeavingFlow(DanglingLine danglingLine) {
-        double boundaryP = 0.0;
-        if (danglingLine.getTerminal().isConnected()) {
-            boundaryP = !Double.isNaN(danglingLine.getBoundary().getP()) ? -danglingLine.getBoundary().getP() : danglingLine.getTerminal().getP();
-        }
-        return boundaryP;
+        return danglingLine.getTerminal().isConnected() ? -danglingLine.getBoundary().getP() : 0;
     }
 
     private double getLeavingFlow(Branch<?> branch) {

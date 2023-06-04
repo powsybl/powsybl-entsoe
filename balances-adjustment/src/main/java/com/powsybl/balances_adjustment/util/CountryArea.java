@@ -112,11 +112,7 @@ public class CountryArea implements NetworkArea {
 
     private double getLeavingFlow(DanglingLine danglingLine) {
         // Considering P at boundary is much more accurate now.
-        double boundaryP = 0.0;
-        if (danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getTerminal().getP())) {
-            boundaryP = !Double.isNaN(danglingLine.getBoundary().getP()) ? -danglingLine.getBoundary().getP() : danglingLine.getTerminal().getP();
-        }
-        return boundaryP;
+        return danglingLine.getTerminal().isConnected() ? -danglingLine.getBoundary().getP() : 0;
     }
 
     private double getLeavingFlow(Line line) {
