@@ -21,6 +21,9 @@ public class CountryArea implements NetworkArea {
 
     private final List<Country> countries = new ArrayList<>();
 
+    // We should consider all dangling lines now, either paired or unpaired.
+    // The computation is more clean because we have the real value at boundary
+    // for a tie line now.
     private final List<DanglingLine> danglingLineBordersCache;
     private final List<Line> lineBordersCache;
     private final List<HvdcLine> hvdcLineBordersCache;
@@ -108,7 +111,8 @@ public class CountryArea implements NetworkArea {
     }
 
     private double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getTerminal().getP()) ? danglingLine.getTerminal().getP() : 0;
+        // Considering P at boundary is much more accurate now.
+        return danglingLine.getTerminal().isConnected() ? -danglingLine.getBoundary().getP() : 0;
     }
 
     private double getLeavingFlow(Line line) {

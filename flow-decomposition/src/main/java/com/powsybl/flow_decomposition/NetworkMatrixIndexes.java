@@ -6,14 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Map;
@@ -85,10 +78,11 @@ class NetworkMatrixIndexes {
 
     private List<Injection<?>> getNodeList(Network network) {
         return getAllNetworkInjections(network)
-            .filter(this::isInjectionConnected)
-            .filter(this::isInjectionInMainSynchronousComponent)
-            .filter(this::managedInjectionTypes)
-            .collect(Collectors.toList());
+                .filter(this::isNotPairedDanglingLine)
+                .filter(this::isInjectionConnected)
+                .filter(this::isInjectionInMainSynchronousComponent)
+                .filter(this::managedInjectionTypes)
+                .collect(Collectors.toList());
     }
 
     private boolean managedInjectionTypes(Injection<?> injection) {
@@ -103,6 +97,10 @@ class NetworkMatrixIndexes {
 
     private boolean isInjectionConnected(Injection<?> injection) {
         return injection.getTerminal().isConnected();
+    }
+
+    private boolean isNotPairedDanglingLine(Injection<?> injection) {
+        return !(injection instanceof DanglingLine && ((DanglingLine) injection).isPaired());
     }
 
     private boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {
@@ -142,9 +140,10 @@ class NetworkMatrixIndexes {
 
     private List<Injection<?>> getXNodeList(Network network) {
         return network.getDanglingLineStream()
-            .filter(this::isInjectionConnected)
-            .filter(this::isInjectionInMainSynchronousComponent)
-            .map(danglingLine -> (Injection<?>) danglingLine)
-            .collect(Collectors.toList());
+                .filter(dl -> !dl.isPaired())
+                .filter(this::isInjectionConnected)
+                .filter(this::isInjectionInMainSynchronousComponent)
+                .map(danglingLine -> (Injection<?>) danglingLine)
+                .collect(Collectors.toList());
     }
 }
