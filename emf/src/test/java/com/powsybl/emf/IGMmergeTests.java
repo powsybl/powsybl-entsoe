@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.LineCharacteristics;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
+import com.powsybl.loadflow.LoadFlow;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -133,6 +134,8 @@ class IGMmergeTests {
         igmNL.getGenerators().forEach(g -> generatorsId.add(g.getId()));
         igmNL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
         validNetworks.put("Merged", mergingView);
+
+        LoadFlow.run(mergingView);
 
         Path mergingViewMergeDir = Files.createDirectories(tmpDir.resolve("mergingViewMerge"));
         // export to CGMES only state variable of the merged network, the rest is exported separately for each igms
