@@ -84,6 +84,9 @@ class IGMmergeTests {
         igmBE.merge(igmNL);
         validNetworks.put("Merged", igmBE);
 
+        // Check that we have subnetworks
+        assertEquals(2, igmBE.getSubNetworks().size());
+
         Path destructiveMergeDir = Files.createDirectories(tmpDir.resolve("destructiveMerge"));
         exportNetwork(igmBE, destructiveMergeDir, "BE_NL", validNetworks, Set.of("EQ", "TP", "SSH", "SV"));
 
