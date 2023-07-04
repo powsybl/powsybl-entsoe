@@ -7,6 +7,7 @@
 package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.NetworkArea;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.ComponentConstants;
@@ -61,6 +62,14 @@ public class BalanceComputationImpl implements BalanceComputation {
      */
     @Override
     public CompletableFuture<BalanceComputationResult> run(Network network, String workingStateId, BalanceComputationParameters parameters) {
+        return this.run(network, workingStateId, parameters, Reporter.NO_OP);
+    }
+
+    /**
+     * Run balances adjustment computation in several iterations
+     */
+    @Override
+    public CompletableFuture<BalanceComputationResult> run(Network network, String workingStateId, BalanceComputationParameters parameters, Reporter reporter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(parameters);
@@ -82,7 +91,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             });
 
             // Step 2: compute Load Flow
-            LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters());
+            LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), reporter);
             if (!isLoadFlowResultOk(context, loadFlowResult)) {
                 LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
