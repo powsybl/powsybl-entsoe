@@ -73,6 +73,7 @@ public class BalanceComputationImpl implements BalanceComputation {
         Objects.requireNonNull(network);
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(parameters);
+        Objects.requireNonNull(reporter);
 
         BalanceComputationRunningContext context = new BalanceComputationRunningContext(areas, network, parameters);
         BalanceComputationResult result;
