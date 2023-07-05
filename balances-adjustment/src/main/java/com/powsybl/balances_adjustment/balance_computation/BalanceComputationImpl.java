@@ -93,9 +93,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             });
 
             // Step 2: compute Load Flow
-            Reporter lfReporter = reporter.createSubReporter("loadFlow", "Load flow on network '${networkId}' iteration '${iteration}'",
-                    Map.of("networkId", new TypedValue(network.getId(), TypedValue.UNTYPED),
-                            "iteration", new TypedValue(context.getIterationNum(), TypedValue.UNTYPED)));
+            Reporter lfReporter = createLoadFlowReporter(reporter, network.getId(), context.getIterationNum());
             LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), lfReporter);
             if (!isLoadFlowResultOk(context, loadFlowResult)) {
                 LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
@@ -228,5 +226,10 @@ public class BalanceComputationImpl implements BalanceComputation {
             balanceOffsets.put(area, oldBalanceOffset + mismatch);
             balanceMismatches.put(area, mismatch);
         }
+    }
+
+    private static Reporter createLoadFlowReporter(Reporter reporter, String networkId, int iteration) {
+        return reporter.createSubReporter("Balance computation loadFlow", "Load flow on network '${networkId}' iteration '${iteration}'",
+                Map.of("networkId", new TypedValue(networkId, TypedValue.UNTYPED), "iteration", new TypedValue(iteration, TypedValue.UNTYPED)));
     }
 }
