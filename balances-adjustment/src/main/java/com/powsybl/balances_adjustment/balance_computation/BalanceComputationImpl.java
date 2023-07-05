@@ -8,6 +8,7 @@ package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.NetworkArea;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.ComponentConstants;
@@ -92,7 +93,9 @@ public class BalanceComputationImpl implements BalanceComputation {
             });
 
             // Step 2: compute Load Flow
-            Reporter lfReporter = reporter.createSubReporter("loadFlow", "Load flow on network '${networkId}'", "networkId", network.getId());
+            Reporter lfReporter = reporter.createSubReporter("loadFlow", "Load flow on network '${networkId}' iteration '${iteration}'",
+                    Map.of("networkId", new TypedValue(network.getId(), TypedValue.UNTYPED),
+                            "iteration", new TypedValue(context.getIterationNum(), TypedValue.UNTYPED)));
             LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), lfReporter);
             if (!isLoadFlowResultOk(context, loadFlowResult)) {
                 LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
