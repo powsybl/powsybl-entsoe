@@ -7,8 +7,8 @@
 package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.NetworkArea;
+import com.powsybl.balances_adjustment.util.Reports;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.ComponentConstants;
@@ -89,13 +89,15 @@ public class BalanceComputationImpl implements BalanceComputation {
             context.getBalanceOffsets().forEach((area, offset) -> {
                 Scalable scalable = area.getScalable();
                 double done = scalable.scale(network, offset, parameters.getScalingParameters());
+                Reports.reportScaling(reporter, context.getIterationNum(), area.getName(), offset, done);
                 LOGGER.info("Iteration={}, Scaling for area {}: offset={}, done={}", context.getIterationNum(), area.getName(), offset, done);
             });
 
             // Step 2: compute Load Flow
-            Reporter lfReporter = createLoadFlowReporter(reporter, network.getId(), context.getIterationNum());
+            Reporter lfReporter = Reports.createLoadFlowReporter(reporter, network.getId(), context.getIterationNum());
             LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), lfReporter);
             if (!isLoadFlowResultOk(context, loadFlowResult)) {
+                Reports.reportConvergenceError(reporter, context.getIterationNum());
                 LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
                 return CompletableFuture.completedFuture(result);
@@ -107,6 +109,7 @@ public class BalanceComputationImpl implements BalanceComputation {
                 double target = area.getTargetNetPosition();
                 double balance = na.getNetPosition();
                 double mismatch = target - balance;
+                Reports.reportAreaMismatch(reporter, context.getIterationNum(), area.getName(), mismatch, target, balance);
                 LOGGER.info("Iteration={}, Mismatch for area {}: {} (target={}, balance={})", context.getIterationNum(), area.getName(), mismatch, target, balance);
                 context.updateAreaOffsetAndMismatch(area, mismatch);
             }
@@ -125,10 +128,13 @@ public class BalanceComputationImpl implements BalanceComputation {
         if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
             List<String> networkAreasName = areas.stream()
                     .map(BalanceComputationArea::getName).collect(Collectors.toList());
+            Reports.reportBalancedAreas(reporter, networkAreasName, result.getIterationCount());
             LOGGER.info("Areas {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
 
         } else {
-            LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), BigDecimal.valueOf(computeTotalMismatch(context)).setScale(2, RoundingMode.UP));
+            BigDecimal totalMismatch = BigDecimal.valueOf(computeTotalMismatch(context)).setScale(2, RoundingMode.UP);
+            Reports.reportUnbalancedAreas(reporter, context.getIterationNum(), totalMismatch);
+            LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), totalMismatch);
         }
 
         network.getVariantManager().removeVariant(workingVariantCopyId);
@@ -228,8 +234,4 @@ public class BalanceComputationImpl implements BalanceComputation {
         }
     }
 
-    private static Reporter createLoadFlowReporter(Reporter reporter, String networkId, int iteration) {
-        return reporter.createSubReporter("Balance computation loadFlow", "Load flow on network '${networkId}' iteration '${iteration}'",
-                Map.of("networkId", new TypedValue(networkId, TypedValue.UNTYPED), "iteration", new TypedValue(iteration, TypedValue.UNTYPED)));
-    }
 }
