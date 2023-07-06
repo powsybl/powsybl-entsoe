@@ -21,7 +21,6 @@ public final class Reports {
 
     private static final String ITERATION = "iteration";
     private static final String NETWORK_ID = "networkId";
-
     private static final String AREA_NAME = "areaName";
 
     private Reports() {
@@ -35,7 +34,7 @@ public final class Reports {
     public static void reportScaling(Reporter reporter, int iteration, String areaName, double offset, double done) {
         reporter.report(Report.builder()
                 .withKey("areaScaling")
-                .withDefaultMessage("Iteration={}, Scaling for area {}: offset={}, done={}")
+                .withDefaultMessage("Iteration=${iteration}, Scaling for area ${areaName}: offset=${offset}, done=${done}")
                 .withValue(ITERATION, iteration)
                 .withValue(AREA_NAME, areaName)
                 .withValue("offset", offset)
@@ -47,7 +46,7 @@ public final class Reports {
     public static void reportConvergenceError(Reporter reporter, int iteration) {
         reporter.report(Report.builder()
                 .withKey("convergenceError")
-                .withDefaultMessage("Iteration={}, LoadFlow on network does not converge")
+                .withDefaultMessage("Iteration=${iteration}, LoadFlow on network does not converge")
                 .withValue(ITERATION, iteration)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
@@ -56,7 +55,7 @@ public final class Reports {
     public static void reportAreaMismatch(Reporter reporter, int iteration, String areaName, double mismatch, double target, double balance) {
         reporter.report(Report.builder()
                 .withKey("areaMismatch")
-                .withDefaultMessage("Iteration={}, Mismatch for area {}: {} (target={}, balance={})")
+                .withDefaultMessage("Iteration=${iteration}, Mismatch for area ${areaName}: ${mismatch} (target=${target}, balance=${balance})")
                 .withValue(ITERATION, iteration)
                 .withValue(AREA_NAME, areaName)
                 .withValue("mismatch", mismatch)
@@ -69,7 +68,7 @@ public final class Reports {
     public static void reportBalancedAreas(Reporter reporter, List<String> networkAreasName, int iterationCount) {
         reporter.report(Report.builder()
                 .withKey("balancedAreas")
-                .withDefaultMessage("Areas {} are balanced after {} iterations")
+                .withDefaultMessage("Areas ${networkAreasName} are balanced after ${iterationCount} iterations")
                 .withValue("networkAreasName", networkAreasName.toString())
                 .withValue("iterationCount", iterationCount)
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -79,7 +78,7 @@ public final class Reports {
     public static void reportUnbalancedAreas(Reporter reporter, int iteration, BigDecimal totalMismatch) {
         reporter.report(Report.builder()
                 .withKey("unbalancedAreas")
-                .withDefaultMessage("Areas are unbalanced after {} iterations, total mismatch is {}")
+                .withDefaultMessage("Areas are unbalanced after ${iteration} iterations, total mismatch is ${totalMismatch}")
                 .withValue(ITERATION, iteration)
                 .withValue("totalMismatch", totalMismatch.toString())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
