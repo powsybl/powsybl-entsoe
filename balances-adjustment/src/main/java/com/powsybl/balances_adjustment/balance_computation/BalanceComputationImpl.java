@@ -187,14 +187,14 @@ public class BalanceComputationImpl implements BalanceComputation {
         BalanceComputationParameters parameters;
         private int iterationNum;
         private final Map<BalanceComputationArea, NetworkArea> networkAreas;
-        private final Map<BalanceComputationArea, Double> balanceOffsets = new HashMap<>();
+        private final Map<BalanceComputationArea, Double> balanceOffsets = new LinkedHashMap<>();
         private final Map<BalanceComputationArea, Double> balanceMismatches = new HashMap<>();
 
         public BalanceComputationRunningContext(List<BalanceComputationArea> areas, Network network, BalanceComputationParameters parameters) {
             this.iterationNum = 0;
             this.network = network;
             this.parameters = parameters;
-            networkAreas = areas.stream().collect(Collectors.toMap(Function.identity(), ba -> ba.getNetworkAreaFactory().create(network)));
+            networkAreas = areas.stream().collect(Collectors.toMap(Function.identity(), ba -> ba.getNetworkAreaFactory().create(network), (v1, v2) -> v1, LinkedHashMap::new));
             balanceOffsets.clear();
             balanceMismatches.clear();
         }
@@ -220,7 +220,7 @@ public class BalanceComputationImpl implements BalanceComputation {
         }
 
         public Map<BalanceComputationArea, Double> getBalanceOffsets() {
-            return Map.copyOf(balanceOffsets);
+            return new LinkedHashMap<>(balanceOffsets);
         }
 
         public Map<BalanceComputationArea, Double> getBalanceMismatches() {
