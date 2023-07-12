@@ -85,31 +85,34 @@ public class BalanceComputationImpl implements BalanceComputation {
         network.getVariantManager().setWorkingVariant(workingVariantCopyId);
 
         do {
+            Reporter subReporter = Reports.createBalanceComputationIterationReporter(reporter, context.getIterationNum());
             // Step 1: Perform the scaling
+            Reporter scalingReporter = subReporter.createSubReporter("scaling", "Scaling");
             context.getBalanceOffsets().forEach((area, offset) -> {
                 Scalable scalable = area.getScalable();
                 double done = scalable.scale(network, offset, parameters.getScalingParameters());
-                Reports.reportScaling(reporter, context.getIterationNum(), area.getName(), offset, done);
+                Reports.reportScaling(scalingReporter, area.getName(), offset, done);
                 LOGGER.info("Iteration={}, Scaling for area {}: offset={}, done={}", context.getIterationNum(), area.getName(), offset, done);
             });
 
             // Step 2: compute Load Flow
-            Reporter lfReporter = Reports.createLoadFlowReporter(reporter, network.getId(), context.getIterationNum());
+            Reporter lfReporter = subReporter.createSubReporter("loadflow", "Load Flow");
             LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), lfReporter);
             if (!isLoadFlowResultOk(context, loadFlowResult)) {
-                Reports.reportConvergenceError(reporter, context.getIterationNum());
+                Reports.reportConvergenceError(lfReporter);
                 LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
                 return CompletableFuture.completedFuture(result);
             }
 
             // Step 3: Compute balance and mismatch for each area
+            Reporter mismatchReporter = subReporter.createSubReporter("mismatch", "Mismatch");
             for (BalanceComputationArea area : areas) {
                 NetworkArea na = context.getNetworkArea(area);
                 double target = area.getTargetNetPosition();
                 double balance = na.getNetPosition();
                 double mismatch = target - balance;
-                Reports.reportAreaMismatch(reporter, context.getIterationNum(), area.getName(), mismatch, target, balance);
+                Reports.reportAreaMismatch(mismatchReporter, area.getName(), mismatch, target, balance);
                 LOGGER.info("Iteration={}, Mismatch for area {}: {} (target={}, balance={})", context.getIterationNum(), area.getName(), mismatch, target, balance);
                 context.updateAreaOffsetAndMismatch(area, mismatch);
             }
@@ -125,15 +128,16 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
         } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
 
+        Reporter terminationReporter = reporter.createSubReporter("termination", "Termination");
         if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
             List<String> networkAreasName = areas.stream()
                     .map(BalanceComputationArea::getName).collect(Collectors.toList());
-            Reports.reportBalancedAreas(reporter, networkAreasName, result.getIterationCount());
+            Reports.reportBalancedAreas(terminationReporter, networkAreasName, result.getIterationCount());
             LOGGER.info("Areas {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
 
         } else {
             BigDecimal totalMismatch = BigDecimal.valueOf(computeTotalMismatch(context)).setScale(2, RoundingMode.UP);
-            Reports.reportUnbalancedAreas(reporter, context.getIterationNum(), totalMismatch);
+            Reports.reportUnbalancedAreas(terminationReporter, context.getIterationNum(), totalMismatch);
             LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), totalMismatch);
         }
 

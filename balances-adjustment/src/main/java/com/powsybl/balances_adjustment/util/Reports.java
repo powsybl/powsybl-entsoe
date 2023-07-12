@@ -20,22 +20,15 @@ import java.util.Map;
 public final class Reports {
 
     private static final String ITERATION = "iteration";
-    private static final String NETWORK_ID = "networkId";
     private static final String AREA_NAME = "areaName";
 
     private Reports() {
     }
 
-    public static Reporter createLoadFlowReporter(Reporter reporter, String networkId, int iteration) {
-        return reporter.createSubReporter("Balance computation loadFlow", "Load flow on network '${networkId}' iteration '${iteration}'",
-                Map.of(NETWORK_ID, new TypedValue(networkId, TypedValue.UNTYPED), ITERATION, new TypedValue(iteration, TypedValue.UNTYPED)));
-    }
-
-    public static void reportScaling(Reporter reporter, int iteration, String areaName, double offset, double done) {
+    public static void reportScaling(Reporter reporter, String areaName, double offset, double done) {
         reporter.report(Report.builder()
                 .withKey("areaScaling")
-                .withDefaultMessage("Iteration=${iteration}, Scaling for area ${areaName}: offset=${offset}, done=${done}")
-                .withValue(ITERATION, iteration)
+                .withDefaultMessage("Scaling for area ${areaName}: offset=${offset}, done=${done}")
                 .withValue(AREA_NAME, areaName)
                 .withValue("offset", offset)
                 .withValue("done", done)
@@ -43,20 +36,18 @@ public final class Reports {
                 .build());
     }
 
-    public static void reportConvergenceError(Reporter reporter, int iteration) {
+    public static void reportConvergenceError(Reporter reporter) {
         reporter.report(Report.builder()
                 .withKey("convergenceError")
-                .withDefaultMessage("Iteration=${iteration}, LoadFlow on network does not converge")
-                .withValue(ITERATION, iteration)
+                .withDefaultMessage("LoadFlow on network does not converge")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
 
-    public static void reportAreaMismatch(Reporter reporter, int iteration, String areaName, double mismatch, double target, double balance) {
+    public static void reportAreaMismatch(Reporter reporter, String areaName, double mismatch, double target, double balance) {
         reporter.report(Report.builder()
                 .withKey("areaMismatch")
-                .withDefaultMessage("Iteration=${iteration}, Mismatch for area ${areaName}: ${mismatch} (target=${target}, balance=${balance})")
-                .withValue(ITERATION, iteration)
+                .withDefaultMessage("Mismatch for area ${areaName}: ${mismatch} (target=${target}, balance=${balance})")
                 .withValue(AREA_NAME, areaName)
                 .withValue("mismatch", mismatch)
                 .withValue("target", target)
@@ -85,4 +76,9 @@ public final class Reports {
                 .build());
     }
 
+
+    public static Reporter createBalanceComputationIterationReporter(Reporter reporter, int iteration) {
+        return reporter.createSubReporter("balanceComputation", "Balances computation iteration '${iteration}'",
+                Map.of(ITERATION, new TypedValue(iteration, TypedValue.UNTYPED)));
+    }
 }

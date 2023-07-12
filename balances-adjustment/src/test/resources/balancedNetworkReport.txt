@@ -1,22 +1,29 @@
 + Test balanced network report
-   Iteration=0, Mismatch for area FR: 100.0 (target=1300.0, balance=1200.0)
-   Iteration=0, Mismatch for area BE: -100.0 (target=-1300.0, balance=-1200.0)
-   Iteration=1, Scaling for area FR: offset=100.0, done=100.0
-   Iteration=1, Scaling for area BE: offset=-100.0, done=-100.0
-   Iteration=1, Mismatch for area FR: 0.0 (target=1300.0, balance=1300.0)
-   Iteration=1, Mismatch for area BE: 0.0 (target=-1300.0, balance=-1300.0)
-   Areas [FR, BE] are balanced after 2 iterations
-  + Load flow on network 'TestNetwork' iteration '0'
-    + Load flow on network 'TestNetwork'
-      + Network CC0 SC0
-         DC load flow completed (status=true)
-        + Post loading processing
-           Network has 3 buses and 3 branches
-           Network balance: active generation=4000.0 MW, active load=4000.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-  + Load flow on network 'TestNetwork' iteration '1'
-    + Load flow on network 'TestNetwork'
-      + Network CC0 SC0
-         DC load flow completed (status=true)
-        + Post loading processing
-           Network has 3 buses and 3 branches
-           Network balance: active generation=4000.0 MW, active load=4000.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+  + Balances computation iteration '0'
+    + Scaling
+    + Load Flow
+      + Load flow on network 'TestNetwork'
+        + Network CC0 SC0
+           DC load flow completed (status=true)
+          + Post loading processing
+             Network has 3 buses and 3 branches
+             Network balance: active generation=4000.0 MW, active load=4000.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+    + Mismatch
+       Mismatch for area FR: 100.0 (target=1300.0, balance=1200.0)
+       Mismatch for area BE: -100.0 (target=-1300.0, balance=-1200.0)
+  + Balances computation iteration '1'
+    + Scaling
+       Scaling for area FR: offset=100.0, done=100.0
+       Scaling for area BE: offset=-100.0, done=-100.0
+    + Load Flow
+      + Load flow on network 'TestNetwork'
+        + Network CC0 SC0
+           DC load flow completed (status=true)
+          + Post loading processing
+             Network has 3 buses and 3 branches
+             Network balance: active generation=4000.0 MW, active load=4000.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
+    + Mismatch
+       Mismatch for area FR: 0.0 (target=1300.0, balance=1300.0)
+       Mismatch for area BE: 0.0 (target=-1300.0, balance=-1300.0)
+  + Termination
+     Areas [FR, BE] are balanced after 2 iterations
