@@ -86,6 +86,7 @@ public class BalanceComputationImpl implements BalanceComputation {
 
         do {
             Reporter iterationReporter = Reports.createBalanceComputationIterationReporter(reporter, context.getIterationNum());
+            context.setIterationReporter(iterationReporter);
             // Step 1: Perform the scaling
             Reporter scalingReporter = iterationReporter.createSubReporter("scaling", "Scaling");
             context.getBalanceOffsets().forEach((area, offset) -> {
@@ -96,11 +97,8 @@ public class BalanceComputationImpl implements BalanceComputation {
             });
 
             // Step 2: compute Load Flow
-            Reporter lfReporter = iterationReporter.createSubReporter("loadFlow", "Load flow");
-            LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), lfReporter);
+            LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), iterationReporter);
             if (!isLoadFlowResultOk(context, loadFlowResult)) {
-                Reports.reportConvergenceError(lfReporter);
-                LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
                 return CompletableFuture.completedFuture(result);
             }
@@ -181,6 +179,8 @@ public class BalanceComputationImpl implements BalanceComputation {
                     } else if (list.isEmpty()) {
                         return false;
                     }
+                    Reporter lfReporter = Reports.createLfReporter(context.getIterationReporter(), list.get(0).getConnectedComponentNum(), list.get(0).getSynchronousComponentNum());
+                    Reports.reportLfStatus(lfReporter, list.get(0).getStatus().name());
                     return list.get(0).getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED;
                 })
             );
@@ -194,6 +194,7 @@ public class BalanceComputationImpl implements BalanceComputation {
         private final Map<BalanceComputationArea, Double> balanceOffsets = new LinkedHashMap<>();
         private final Map<BalanceComputationArea, Double> balanceMismatches = new HashMap<>();
         private final Reporter reporter;
+        private Reporter iterationReporter;
 
         public BalanceComputationRunningContext(List<BalanceComputationArea> areas, Network network, BalanceComputationParameters parameters) {
             this(areas, network, parameters, Reporter.NO_OP);
@@ -204,6 +205,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             this.network = network;
             this.parameters = parameters;
             this.reporter = reporter;
+            this.iterationReporter = Reporter.NO_OP;
             networkAreas = areas.stream().collect(Collectors.toMap(Function.identity(), ba -> ba.getNetworkAreaFactory().create(network), (v1, v2) -> v1, LinkedHashMap::new));
             balanceOffsets.clear();
             balanceMismatches.clear();
@@ -245,6 +247,15 @@ public class BalanceComputationImpl implements BalanceComputation {
 
         public Reporter getReporter() {
             return reporter;
+        }
+
+        public Reporter getIterationReporter() {
+            return iterationReporter;
+        }
+
+        public BalanceComputationRunningContext setIterationReporter(Reporter iterationReporter) {
+            this.iterationReporter = iterationReporter;
+            return this;
         }
     }
 

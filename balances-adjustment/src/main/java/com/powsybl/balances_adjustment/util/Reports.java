@@ -36,11 +36,12 @@ public final class Reports {
                 .build());
     }
 
-    public static void reportConvergenceError(Reporter reporter) {
+    public static void reportLfStatus(Reporter reporter, String status) {
         reporter.report(Report.builder()
-                .withKey("convergenceError")
-                .withDefaultMessage("Load flow on network does not converge")
-                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .withKey("lfStatus")
+                .withDefaultMessage("Load flow complete with status '${status}'")
+                .withValue("status", status)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
 
@@ -79,5 +80,11 @@ public final class Reports {
     public static Reporter createBalanceComputationIterationReporter(Reporter reporter, int iteration) {
         return reporter.createSubReporter("balanceComputation", "Balances Computation iteration '${iteration}'",
                 Map.of(ITERATION, new TypedValue(iteration, TypedValue.UNTYPED)));
+    }
+
+    public static Reporter createLfReporter(Reporter reporter, int networkNumCc, int networkNumSc) {
+        return reporter.createSubReporter("loadFlow", "Load flow on Network CC${networkNumCc} SC${networkNumSc}",
+                Map.of("networkNumCc", new TypedValue(networkNumCc, TypedValue.UNTYPED),
+                        "networkNumSc", new TypedValue(networkNumSc, TypedValue.UNTYPED)));
     }
 }
