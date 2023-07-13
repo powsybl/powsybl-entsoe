@@ -7,8 +7,8 @@
         + Post loading processing
            Network has 3 buses and 3 branches
            Network balance: active generation=4000.0 MW, active load=4000.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-    + Load flow on Network CC0 SC0
-       Load flow complete with status 'CONVERGED'
+    + Checking load flow status
+       Network CC0 SC0 Load flow complete with status 'CONVERGED'
     + Mismatch
        Mismatch for area FR: 100.0 (target=1300.0, balance=1200.0)
        Mismatch for area BE: -200.0 (target=-1400.0, balance=-1200.0)
@@ -22,8 +22,8 @@
         + Post loading processing
            Network has 3 buses and 3 branches
            Network balance: active generation=3940.0 MW, active load=4040.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-    + Load flow on Network CC0 SC0
-       Load flow complete with status 'CONVERGED'
+    + Checking load flow status
+       Network CC0 SC0 Load flow complete with status 'CONVERGED'
     + Mismatch
        Mismatch for area FR: -50.0 (target=1300.0, balance=1350.0)
        Mismatch for area BE: -50.0 (target=-1400.0, balance=-1350.0)
@@ -37,8 +37,8 @@
         + Post loading processing
            Network has 3 buses and 3 branches
            Network balance: active generation=3880.0 MW, active load=4080.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-    + Load flow on Network CC0 SC0
-       Load flow complete with status 'CONVERGED'
+    + Checking load flow status
+       Network CC0 SC0 Load flow complete with status 'CONVERGED'
     + Mismatch
        Mismatch for area FR: -50.0 (target=1300.0, balance=1350.0)
        Mismatch for area BE: -50.0 (target=-1400.0, balance=-1350.0)
@@ -52,8 +52,8 @@
         + Post loading processing
            Network has 3 buses and 3 branches
            Network balance: active generation=3820.0 MW, active load=4120.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-    + Load flow on Network CC0 SC0
-       Load flow complete with status 'CONVERGED'
+    + Checking load flow status
+       Network CC0 SC0 Load flow complete with status 'CONVERGED'
     + Mismatch
        Mismatch for area FR: -50.0 (target=1300.0, balance=1350.0)
        Mismatch for area BE: -50.0 (target=-1400.0, balance=-1350.0)
@@ -67,8 +67,8 @@
         + Post loading processing
            Network has 3 buses and 3 branches
            Network balance: active generation=3760.0 MW, active load=4160.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
-    + Load flow on Network CC0 SC0
-       Load flow complete with status 'CONVERGED'
+    + Checking load flow status
+       Network CC0 SC0 Load flow complete with status 'CONVERGED'
     + Mismatch
        Mismatch for area FR: -50.0 (target=1300.0, balance=1350.0)
        Mismatch for area BE: -50.0 (target=-1400.0, balance=-1350.0)

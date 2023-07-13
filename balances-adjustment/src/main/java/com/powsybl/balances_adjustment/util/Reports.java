@@ -36,10 +36,12 @@ public final class Reports {
                 .build());
     }
 
-    public static void reportLfStatus(Reporter reporter, String status) {
+    public static void reportLfStatus(Reporter reporter, int networkNumCc, int networkNumSc, String status) {
         reporter.report(Report.builder()
                 .withKey("lfStatus")
-                .withDefaultMessage("Load flow complete with status '${status}'")
+                .withDefaultMessage("Network CC${networkNumCc} SC${networkNumSc} Load flow complete with status '${status}'")
+                .withValue("networkNumCc", networkNumCc)
+                .withValue("networkNumSc", networkNumSc)
                 .withValue("status", status)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
@@ -83,7 +85,7 @@ public final class Reports {
     }
 
     public static Reporter createLfReporter(Reporter reporter, int networkNumCc, int networkNumSc) {
-        return reporter.createSubReporter("loadFlow", "Load flow on Network CC${networkNumCc} SC${networkNumSc}",
+        return reporter.createSubReporter("loadFlowStatus", "Checking Load flow status",
                 Map.of("networkNumCc", new TypedValue(networkNumCc, TypedValue.UNTYPED),
                         "networkNumSc", new TypedValue(networkNumSc, TypedValue.UNTYPED)));
     }

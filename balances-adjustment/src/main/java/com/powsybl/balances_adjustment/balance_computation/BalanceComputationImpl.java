@@ -181,8 +181,8 @@ public class BalanceComputationImpl implements BalanceComputation {
                         return false;
                     }
                     final var cr = list.get(0);
-                    Reporter lfReporter = Reports.createLfReporter(context.getIterationReporter(), cr.getConnectedComponentNum(), cr.getSynchronousComponentNum());
-                    Reports.reportLfStatus(lfReporter, cr.getStatus().name());
+                    Reporter lfStatusReporter = context.getIterationReporter().createSubReporter("loadFlowStatus", "Checking load flow status");
+                    Reports.reportLfStatus(lfStatusReporter, cr.getConnectedComponentNum(), cr.getSynchronousComponentNum() , cr.getStatus().name());
                     return cr.getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED;
                 })
             );
