@@ -1,5 +1,5 @@
 + Test balanced network report
-  + Balances Computation iteration '0'
+  + Balance Computation iteration '0'
     + Scaling
     + Load flow on network 'TestNetwork'
       + Network CC0 SC0
@@ -12,7 +12,7 @@
     + Mismatch
        Mismatch for area FR: 100.0 (target=1300.0, balance=1200.0)
        Mismatch for area BE: -100.0 (target=-1300.0, balance=-1200.0)
-  + Balances Computation iteration '1'
+  + Balance Computation iteration '1'
     + Scaling
        Scaling for area FR: offset=100.0, done=100.0
        Scaling for area BE: offset=-100.0, done=-100.0

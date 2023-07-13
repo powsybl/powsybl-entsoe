@@ -1,5 +1,5 @@
 + Test unbalanced network report
-  + Balances Computation iteration '0'
+  + Balance Computation iteration '0'
     + Scaling
     + Load flow on network 'TestNetwork'
       + Network CC0 SC0
@@ -12,7 +12,7 @@
     + Mismatch
        Mismatch for area FR: 100.0 (target=1300.0, balance=1200.0)
        Mismatch for area BE: -200.0 (target=-1400.0, balance=-1200.0)
-  + Balances Computation iteration '1'
+  + Balance Computation iteration '1'
     + Scaling
        Scaling for area FR: offset=100.0, done=100.0
        Scaling for area BE: offset=-200.0, done=-200.0
@@ -27,7 +27,7 @@
     + Mismatch
        Mismatch for area FR: -50.0 (target=1300.0, balance=1350.0)
        Mismatch for area BE: -50.0 (target=-1400.0, balance=-1350.0)
-  + Balances Computation iteration '2'
+  + Balance Computation iteration '2'
     + Scaling
        Scaling for area FR: offset=50.0, done=50.0
        Scaling for area BE: offset=-250.0, done=-250.0
@@ -42,7 +42,7 @@
     + Mismatch
        Mismatch for area FR: -50.0 (target=1300.0, balance=1350.0)
        Mismatch for area BE: -50.0 (target=-1400.0, balance=-1350.0)
-  + Balances Computation iteration '3'
+  + Balance Computation iteration '3'
     + Scaling
        Scaling for area FR: offset=0.0, done=0.0
        Scaling for area BE: offset=-300.0, done=-300.0
@@ -57,7 +57,7 @@
     + Mismatch
        Mismatch for area FR: -50.0 (target=1300.0, balance=1350.0)
        Mismatch for area BE: -50.0 (target=-1400.0, balance=-1350.0)
-  + Balances Computation iteration '4'
+  + Balance Computation iteration '4'
     + Scaling
        Scaling for area FR: offset=-50.0, done=-50.0
        Scaling for area BE: offset=-350.0, done=-350.0

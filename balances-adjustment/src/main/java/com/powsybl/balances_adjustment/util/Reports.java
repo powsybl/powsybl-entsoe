@@ -80,7 +80,7 @@ public final class Reports {
     }
 
     public static Reporter createBalanceComputationIterationReporter(Reporter reporter, int iteration) {
-        return reporter.createSubReporter("balanceComputation", "Balances Computation iteration '${iteration}'",
+        return reporter.createSubReporter("balanceComputation", "Balance Computation iteration '${iteration}'",
                 Map.of(ITERATION, new TypedValue(iteration, TypedValue.UNTYPED)));
     }
 
