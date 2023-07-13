@@ -180,9 +180,10 @@ public class BalanceComputationImpl implements BalanceComputation {
                     } else if (list.isEmpty()) {
                         return false;
                     }
-                    Reporter lfReporter = Reports.createLfReporter(context.getIterationReporter(), list.get(0).getConnectedComponentNum(), list.get(0).getSynchronousComponentNum());
-                    Reports.reportLfStatus(lfReporter, list.get(0).getStatus().name());
-                    return list.get(0).getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED;
+                    final var cr = list.get(0);
+                    Reporter lfReporter = Reports.createLfReporter(context.getIterationReporter(), cr.getConnectedComponentNum(), cr.getSynchronousComponentNum());
+                    Reports.reportLfStatus(lfReporter, cr.getStatus().name());
+                    return cr.getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED;
                 })
             );
     }
