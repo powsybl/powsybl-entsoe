@@ -99,6 +99,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             // Step 2: compute Load Flow
             LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), iterationReporter);
             if (!isLoadFlowResultOk(context, loadFlowResult)) {
+                LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
                 return CompletableFuture.completedFuture(result);
             }
