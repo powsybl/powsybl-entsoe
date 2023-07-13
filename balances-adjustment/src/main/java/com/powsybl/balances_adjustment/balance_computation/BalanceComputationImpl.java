@@ -128,16 +128,16 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
         } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
 
-        Reporter terminationReporter = reporter.createSubReporter("status", "Status");
+        Reporter statusReporter = reporter.createSubReporter("status", "Status");
         if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
             List<String> networkAreasName = areas.stream()
                     .map(BalanceComputationArea::getName).collect(Collectors.toList());
-            Reports.reportBalancedAreas(terminationReporter, networkAreasName, result.getIterationCount());
+            Reports.reportBalancedAreas(statusReporter, networkAreasName, result.getIterationCount());
             LOGGER.info("Areas {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
 
         } else {
             BigDecimal totalMismatch = BigDecimal.valueOf(computeTotalMismatch(context)).setScale(2, RoundingMode.UP);
-            Reports.reportUnbalancedAreas(terminationReporter, context.getIterationNum(), totalMismatch);
+            Reports.reportUnbalancedAreas(statusReporter, context.getIterationNum(), totalMismatch);
             LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), totalMismatch);
         }
 
