@@ -76,7 +76,6 @@ public final class Reports {
                 .build());
     }
 
-
     public static Reporter createBalanceComputationIterationReporter(Reporter reporter, int iteration) {
         return reporter.createSubReporter("balanceComputation", "Balances computation iteration '${iteration}'",
                 Map.of(ITERATION, new TypedValue(iteration, TypedValue.UNTYPED)));

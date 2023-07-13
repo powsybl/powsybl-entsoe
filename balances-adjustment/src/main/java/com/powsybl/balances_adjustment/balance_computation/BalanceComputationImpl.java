@@ -76,7 +76,7 @@ public class BalanceComputationImpl implements BalanceComputation {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(reporter);
 
-        BalanceComputationRunningContext context = new BalanceComputationRunningContext(areas, network, parameters);
+        BalanceComputationRunningContext context = new BalanceComputationRunningContext(areas, network, parameters, reporter);
         BalanceComputationResult result;
 
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
@@ -85,9 +85,9 @@ public class BalanceComputationImpl implements BalanceComputation {
         network.getVariantManager().setWorkingVariant(workingVariantCopyId);
 
         do {
-            Reporter subReporter = Reports.createBalanceComputationIterationReporter(reporter, context.getIterationNum());
+            Reporter iterationReporter = Reports.createBalanceComputationIterationReporter(reporter, context.getIterationNum());
             // Step 1: Perform the scaling
-            Reporter scalingReporter = subReporter.createSubReporter("scaling", "Scaling");
+            Reporter scalingReporter = iterationReporter.createSubReporter("scaling", "Scaling");
             context.getBalanceOffsets().forEach((area, offset) -> {
                 Scalable scalable = area.getScalable();
                 double done = scalable.scale(network, offset, parameters.getScalingParameters());
@@ -96,7 +96,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             });
 
             // Step 2: compute Load Flow
-            Reporter lfReporter = subReporter.createSubReporter("loadflow", "Load Flow");
+            Reporter lfReporter = iterationReporter.createSubReporter("loadflow", "Load Flow");
             LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), lfReporter);
             if (!isLoadFlowResultOk(context, loadFlowResult)) {
                 Reports.reportConvergenceError(lfReporter);
@@ -106,7 +106,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
 
             // Step 3: Compute balance and mismatch for each area
-            Reporter mismatchReporter = subReporter.createSubReporter("mismatch", "Mismatch");
+            Reporter mismatchReporter = iterationReporter.createSubReporter("mismatch", "Mismatch");
             for (BalanceComputationArea area : areas) {
                 NetworkArea na = context.getNetworkArea(area);
                 double target = area.getTargetNetPosition();
