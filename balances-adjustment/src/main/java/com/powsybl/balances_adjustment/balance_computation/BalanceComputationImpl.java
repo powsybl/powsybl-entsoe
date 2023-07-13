@@ -262,5 +262,4 @@ public class BalanceComputationImpl implements BalanceComputation {
             return this;
         }
     }
-
 }

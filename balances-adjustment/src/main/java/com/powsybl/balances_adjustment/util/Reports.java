@@ -83,10 +83,4 @@ public final class Reports {
         return reporter.createSubReporter("balanceComputation", "Balance Computation iteration '${iteration}'",
                 Map.of(ITERATION, new TypedValue(iteration, TypedValue.UNTYPED)));
     }
-
-    public static Reporter createLfReporter(Reporter reporter, int networkNumCc, int networkNumSc) {
-        return reporter.createSubReporter("loadFlowStatus", "Checking Load flow status",
-                Map.of("networkNumCc", new TypedValue(networkNumCc, TypedValue.UNTYPED),
-                        "networkNumSc", new TypedValue(networkNumSc, TypedValue.UNTYPED)));
-    }
 }
