@@ -9,6 +9,7 @@ package com.powsybl.balances_adjustment.balance_computation;
 import com.powsybl.balances_adjustment.util.NetworkArea;
 import com.powsybl.balances_adjustment.util.Reports;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.ComponentConstants;
@@ -182,7 +183,8 @@ public class BalanceComputationImpl implements BalanceComputation {
                     }
                     final var cr = list.get(0);
                     Reporter lfStatusReporter = context.getIterationReporter().createSubReporter("loadFlowStatus", "Checking load flow status");
-                    Reports.reportLfStatus(lfStatusReporter, cr.getConnectedComponentNum(), cr.getSynchronousComponentNum() , cr.getStatus().name());
+                    final var severity = cr.getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED ? TypedValue.INFO_SEVERITY : TypedValue.ERROR_SEVERITY;
+                    Reports.reportLfStatus(lfStatusReporter, cr.getConnectedComponentNum(), cr.getSynchronousComponentNum(), cr.getStatus().name(), severity);
                     return cr.getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED;
                 })
             );

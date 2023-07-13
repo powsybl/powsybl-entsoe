@@ -36,14 +36,14 @@ public final class Reports {
                 .build());
     }
 
-    public static void reportLfStatus(Reporter reporter, int networkNumCc, int networkNumSc, String status) {
+    public static void reportLfStatus(Reporter reporter, int networkNumCc, int networkNumSc, String status, TypedValue severity) {
         reporter.report(Report.builder()
                 .withKey("lfStatus")
                 .withDefaultMessage("Network CC${networkNumCc} SC${networkNumSc} Load flow complete with status '${status}'")
                 .withValue("networkNumCc", networkNumCc)
                 .withValue("networkNumSc", networkNumSc)
                 .withValue("status", status)
-                .withSeverity(TypedValue.INFO_SEVERITY)
+                .withSeverity(severity)
                 .build());
     }
 
