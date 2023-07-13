@@ -96,7 +96,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             });
 
             // Step 2: compute Load Flow
-            Reporter lfReporter = iterationReporter.createSubReporter("loadflow", "Load Flow");
+            Reporter lfReporter = iterationReporter.createSubReporter("loadFlow", "Load flow");
             LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), lfReporter);
             if (!isLoadFlowResultOk(context, loadFlowResult)) {
                 Reports.reportConvergenceError(lfReporter);
@@ -128,7 +128,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
         } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
 
-        Reporter terminationReporter = reporter.createSubReporter("termination", "Termination");
+        Reporter terminationReporter = reporter.createSubReporter("status", "Status");
         if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
             List<String> networkAreasName = areas.stream()
                     .map(BalanceComputationArea::getName).collect(Collectors.toList());

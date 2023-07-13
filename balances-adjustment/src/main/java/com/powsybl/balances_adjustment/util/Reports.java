@@ -39,7 +39,7 @@ public final class Reports {
     public static void reportConvergenceError(Reporter reporter) {
         reporter.report(Report.builder()
                 .withKey("convergenceError")
-                .withDefaultMessage("LoadFlow on network does not converge")
+                .withDefaultMessage("Load flow on network does not converge")
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }

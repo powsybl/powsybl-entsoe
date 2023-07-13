@@ -1,7 +1,7 @@
 + Test balanced network report
   + Balances Computation iteration '0'
     + Scaling
-    + Load Flow
+    + Load flow
       + Load flow on network 'TestNetwork'
         + Network CC0 SC0
            DC load flow completed (status=true)
@@ -15,7 +15,7 @@
     + Scaling
        Scaling for area FR: offset=100.0, done=100.0
        Scaling for area BE: offset=-100.0, done=-100.0
-    + Load Flow
+    + Load flow
       + Load flow on network 'TestNetwork'
         + Network CC0 SC0
            DC load flow completed (status=true)
@@ -25,5 +25,5 @@
     + Mismatch
        Mismatch for area FR: 0.0 (target=1300.0, balance=1300.0)
        Mismatch for area BE: 0.0 (target=-1300.0, balance=-1300.0)
-  + Termination
+  + Status
      Areas [FR, BE] are balanced after 2 iterations
