@@ -64,8 +64,8 @@ public class CountryArea implements NetworkArea {
         return Collections.unmodifiableCollection(busesCache);
     }
 
-    public double getLeavingFlowToCountry(CountryArea countryArea) {
-        countryArea.getCountries().forEach(country -> {
+    public double getLeavingFlowToCountry(CountryArea otherCountryArea) {
+        otherCountryArea.getCountries().forEach(country -> {
             if (countries.contains(country)) {
                 throw new PowsyblException("The leaving flow to the country area cannot be computed. " +
                         "The country " + country.getName() + " is contained in both control areas.");
@@ -73,17 +73,17 @@ public class CountryArea implements NetworkArea {
         });
         double sum = 0;
         for (DanglingLine danglingLine : danglingLineBordersCache) {
-            if (otherSideIsInArea(danglingLine, countryArea)) {
+            if (otherSideIsInArea(danglingLine, otherCountryArea)) {
                 sum += getLeavingFlow(danglingLine);
             }
         }
         for (Line line : lineBordersCache) {
-            if (countryArea.isAreaBorder(line)) {
+            if (otherCountryArea.isAreaBorder(line)) {
                 sum += getLeavingFlow(line);
             }
         }
         for (HvdcLine line : hvdcLineBordersCache) {
-            if (countryArea.isAreaBorder(line)) {
+            if (otherCountryArea.isAreaBorder(line)) {
                 sum += getLeavingFlow(line);
             }
         }
