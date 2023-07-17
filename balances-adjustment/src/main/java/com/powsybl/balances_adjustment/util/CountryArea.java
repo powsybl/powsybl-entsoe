@@ -64,25 +64,41 @@ public class CountryArea implements NetworkArea {
         return Collections.unmodifiableCollection(busesCache);
     }
 
-    public double getLeavingFlowToCountry(CountryArea countryArea) {
-        countryArea.getCountries().stream().forEach(country -> {
+    public double getLeavingFlowToCountry(CountryArea otherCountryArea) {
+        otherCountryArea.getCountries().forEach(country -> {
             if (countries.contains(country)) {
                 throw new PowsyblException("The leaving flow to the country area cannot be computed. " +
                         "The country " + country.getName() + " is contained in both control areas.");
             }
         });
         double sum = 0;
+        for (DanglingLine danglingLine : danglingLineBordersCache) {
+            if (otherSideIsInArea(danglingLine, otherCountryArea)) {
+                sum += getLeavingFlow(danglingLine);
+            }
+        }
         for (Line line : lineBordersCache) {
-            if (countryArea.isAreaBorder(line)) {
+            if (otherCountryArea.isAreaBorder(line)) {
                 sum += getLeavingFlow(line);
             }
         }
         for (HvdcLine line : hvdcLineBordersCache) {
-            if (countryArea.isAreaBorder(line)) {
+            if (otherCountryArea.isAreaBorder(line)) {
                 sum += getLeavingFlow(line);
             }
         }
         return sum;
+    }
+
+    private boolean otherSideIsInArea(DanglingLine danglingLine, CountryArea countryArea) {
+        Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
+        if (optionalTieLine.isPresent()) {
+            TieLine tieLine = optionalTieLine.get();
+            DanglingLine otherSide = tieLine.getDanglingLine1() == danglingLine ? tieLine.getDanglingLine2() : tieLine.getDanglingLine1();
+            return countryArea.isAreaBorder(otherSide);
+        } else {
+            return false;
+        }
     }
 
     private boolean isAreaBorder(DanglingLine danglingLine) {
@@ -111,7 +127,6 @@ public class CountryArea implements NetworkArea {
     }
 
     private double getLeavingFlow(DanglingLine danglingLine) {
-        // Considering P at boundary is much more accurate now.
         return danglingLine.getTerminal().isConnected() ? -danglingLine.getBoundary().getP() : 0;
     }
 
