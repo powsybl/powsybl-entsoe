@@ -6,6 +6,7 @@
  */
 package com.powsybl.balances_adjustment.balance_computation;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Network;
 
 import java.util.concurrent.CompletableFuture;
@@ -20,5 +21,7 @@ import java.util.concurrent.CompletableFuture;
 public interface BalanceComputation {
 
     CompletableFuture<BalanceComputationResult> run(Network network, String workingStateId, BalanceComputationParameters parameters);
+
+    CompletableFuture<BalanceComputationResult> run(Network network, String workingStateId, BalanceComputationParameters parameters, Reporter reporter);
 
 }

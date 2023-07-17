@@ -6,7 +6,9 @@
  */
 package com.powsybl.balances_adjustment.balance_computation;
 
+import com.powsybl.balances_adjustment.util.BalanceComputationAssert;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -89,7 +92,7 @@ class BalanceComputationSimpleDcTest {
                         new LoadFlowResultImpl.ComponentResultImpl(0, 1, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)
                 )
         );
-        doReturn(loadFlowResult).when(loadFlowRunnerMock).run(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
+        doReturn(loadFlowResult).when(loadFlowRunnerMock).run(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
 
         BalanceComputationResult result = balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters).join();
 
@@ -307,6 +310,32 @@ class BalanceComputationSimpleDcTest {
         assertEquals(1200, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1200, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
 
+    }
+
+    @Test
+    void testBalancedNetworkAfter1ScalingReport() throws IOException {
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1300.));
+
+        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+
+        ReporterModel reporter = new ReporterModel("testBalancedNetworkReport", "Test balanced network report");
+        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reporter).join();
+        BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reporter);
+    }
+
+    @Test
+    void testUnBalancedNetworkReport() throws IOException {
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1400.));
+
+        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+
+        ReporterModel reporter = new ReporterModel("testUnbalancedNetworkReport", "Test unbalanced network report");
+        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reporter).join();
+        BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reporter);
     }
 
 }
