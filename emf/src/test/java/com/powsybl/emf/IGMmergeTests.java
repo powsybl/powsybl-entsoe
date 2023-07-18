@@ -85,6 +85,8 @@ class IGMmergeTests {
         igmBE.merge(igmNL);
         validNetworks.put("Merged", igmBE);
 
+        LoadFlow.run(igmBE);
+
         Path destructiveMergeDir = Files.createDirectories(tmpDir.resolve("destructiveMerge"));
         exportNetwork(igmBE, destructiveMergeDir, "BE_NL", validNetworks, Set.of("EQ", "TP", "SSH", "SV"));
 
@@ -153,8 +155,8 @@ class IGMmergeTests {
         validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
 
         // compare
-        resetDanglineLinesP0Q0(serializedMergedNetwork);
-        resetDanglineLinesP0Q0(mergingView);
+        resetDanglingLinesP0Q0(serializedMergedNetwork);
+        resetDanglingLinesP0Q0(mergingView);
         compareNetwork(serializedMergedNetwork, mergingView);
     }
 
@@ -170,6 +172,8 @@ class IGMmergeTests {
         networkBENL.getBranches().forEach(b -> branchIds.add(b.getId()));
         networkBENL.getGenerators().forEach(g -> generatorsId.add(g.getId()));
         networkBENL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
+
+        LoadFlow.run(networkBENL);
 
         Path mergedResourcesDir = Files.createDirectories(tmpDir.resolve("mergedResourcesExport"));
         exportNetwork(networkBENL, mergedResourcesDir, "BE_NL", Map.of("BENL", networkBENL), Set.of("EQ", "TP", "SSH", "SV"));
@@ -213,12 +217,12 @@ class IGMmergeTests {
 
         compareNetwork(igmBE2, mergingView);
 
-        resetDanglineLinesP0Q0(cgm);
-        resetDanglineLinesP0Q0(igmBE2);
+        resetDanglingLinesP0Q0(cgm);
+        resetDanglingLinesP0Q0(igmBE2);
         compareNetwork(cgm, igmBE2);
     }
 
-    private static void resetDanglineLinesP0Q0(Network network) {
+    private static void resetDanglingLinesP0Q0(Network network) {
         // FIXME(Luma) CGMES Importer: consider keeping p0, q0 also for assembled (CGM) imports
         // Adaptations to be able to compare assembled and merged networks
         // If a dangling line is paired (is part of a tie line)
