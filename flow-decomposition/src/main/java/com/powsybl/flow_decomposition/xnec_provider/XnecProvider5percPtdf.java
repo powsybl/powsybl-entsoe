@@ -45,7 +45,7 @@ public class XnecProvider5percPtdf implements XnecProvider {
     }
 
     private static boolean hasMoreThan5PercentPtdf(Collection<Double> countryPtdfList) {
-        return (!countryPtdfList.isEmpty())
+        return !countryPtdfList.isEmpty()
             && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
     }
 
