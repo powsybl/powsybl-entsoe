@@ -15,7 +15,6 @@ import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.modification.ReplaceTieLinesByLines;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.LineCharacteristics;
@@ -59,7 +58,7 @@ class IGMmergeTests {
     }
 
     @Test
-    void igmsDestructiveMerge() throws IOException {
+    void igmsSubnetworksMerge() throws IOException {
 
         Set<String> branchIds = new HashSet<>();
         Set<String> generatorsId = new HashSet<>();
@@ -82,25 +81,25 @@ class IGMmergeTests {
         igmNL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
         // merge, serialize and deserialize the network
-        igmBE.merge(igmNL);
-        validNetworks.put("Merged", igmBE);
+        Network merged = Network.create("Merged", igmBE, igmNL);
+        validNetworks.put("Merged", merged);
 
         // Check that we have subnetworks
-        assertEquals(2, igmBE.getSubNetworks().size());
+        assertEquals(2, merged.getSubnetworks().size());
 
-        LoadFlow.run(igmBE);
+        LoadFlow.run(merged);
 
-        Path destructiveMergeDir = Files.createDirectories(tmpDir.resolve("destructiveMerge"));
-        exportNetwork(igmBE, destructiveMergeDir, "BE_NL", validNetworks, Set.of("EQ", "TP", "SSH", "SV"));
+        Path mergedDir = Files.createDirectories(tmpDir.resolve("subnetworksMerge"));
+        exportNetwork(merged, mergedDir, "BE_NL", validNetworks, Set.of("EQ", "TP", "SSH", "SV"));
 
         // copy the boundary set explicitly it is not serialized and is needed for reimport
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
         for (String bFile : boundaries.getFileNames()) {
-            Files.copy(boundaries.newInputStream(bFile), destructiveMergeDir.resolve("BE_NL" + bFile), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(boundaries.newInputStream(bFile), mergedDir.resolve("BE_NL" + bFile), StandardCopyOption.REPLACE_EXISTING);
         }
 
         // reimport and check
-        Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(destructiveMergeDir, "BE_NL"), null);
+        Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(mergedDir, "BE_NL"), null);
         validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
 
         // compare
@@ -110,57 +109,8 @@ class IGMmergeTests {
         // Before comparing, perform the same modification on the original network
         // so that both networks are comparable
         // This should be removed when we export tie lines as two separate equipment
-        new ReplaceTieLinesByLines().apply(igmBE);
-        compareNetwork(serializedMergedNetwork, igmBE);
-    }
-
-    @Test
-    void igmsMergeWithMergingView() throws IOException {
-
-        Set<String> branchIds = new HashSet<>();
-        Set<String> generatorsId = new HashSet<>();
-        Set<String> voltageLevelIds = new HashSet<>();
-
-        Map<String, Network> validNetworks = new HashMap<>();
-        GridModelReferenceResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
-        Network igmBE = Network.read(resBE.dataSource());
-        validNetworks.put("BE", igmBE);
-        igmBE.getBranches().forEach(b -> branchIds.add(b.getId()));
-        igmBE.getGenerators().forEach(g -> generatorsId.add(g.getId()));
-        igmBE.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
-
-        GridModelReferenceResources resNL = CgmesConformity1Catalog.microGridBaseCaseNL();
-        Network igmNL = Network.read(resNL.dataSource());
-
-        MergingView mergingView = MergingView.create("merged", "validation");
-        mergingView.merge(igmBE, igmNL);
-        validNetworks.put("NL", igmNL);
-        igmNL.getBranches().forEach(b -> branchIds.add(b.getId()));
-        igmNL.getGenerators().forEach(g -> generatorsId.add(g.getId()));
-        igmNL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
-        validNetworks.put("Merged", mergingView);
-
-        LoadFlow.run(mergingView);
-
-        Path mergingViewMergeDir = Files.createDirectories(tmpDir.resolve("mergingViewMerge"));
-        // export to CGMES only state variable of the merged network, the rest is exported separately for each igms
-        exportNetwork(mergingView, mergingViewMergeDir, "BE_NL", validNetworks, Set.of("SV"));
-        exportNetwork(igmBE, mergingViewMergeDir, "BE_NL_BE", Map.of("BE", igmBE), Set.of("EQ", "TP", "SSH"));
-        exportNetwork(igmNL, mergingViewMergeDir, "BE_NL_NL", Map.of("NL", igmNL), Set.of("EQ", "TP", "SSH"));
-
-        // copy the boundary set explicitly it is not serialized and is needed for reimport
-        ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
-        for (String bFile : boundaries.getFileNames()) {
-            Files.copy(boundaries.newInputStream(bFile), mergingViewMergeDir.resolve("BE_NL" + bFile), StandardCopyOption.REPLACE_EXISTING);
-        }
-
-        Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(mergingViewMergeDir, "BE_NL"), null);
-        validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
-
-        // compare
-        resetDanglingLinesP0Q0(serializedMergedNetwork);
-        resetDanglingLinesP0Q0(mergingView);
-        compareNetwork(serializedMergedNetwork, mergingView);
+        new ReplaceTieLinesByLines().apply(merged);
+        compareNetwork(serializedMergedNetwork, merged);
     }
 
     @Test
@@ -198,31 +148,6 @@ class IGMmergeTests {
         // This should be removed when we export tie lines as two separate equipment
         new ReplaceTieLinesByLines().apply(networkBENL);
         compareNetwork(serializedMergedNetwork, networkBENL);
-    }
-
-    @Test
-    void compareDestructiveMergeAndMergingView() {
-
-        GridModelReferenceResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
-        Network igmBE = Network.read(resBE.dataSource());
-        GridModelReferenceResources resNL = CgmesConformity1Catalog.microGridBaseCaseNL();
-        Network igmNL = Network.read(resNL.dataSource());
-
-        MergingView mergingView = MergingView.create("merged", "validation");
-        mergingView.merge(igmBE, igmNL);
-
-        Network igmBE2 = Network.read(resBE.dataSource());
-        Network igmNL2 = Network.read(resNL.dataSource());
-
-        igmBE2.merge(igmNL2);
-
-        Network cgm = createCGM();
-
-        compareNetwork(igmBE2, mergingView);
-
-        resetDanglingLinesP0Q0(cgm);
-        resetDanglingLinesP0Q0(igmBE2);
-        compareNetwork(cgm, igmBE2);
     }
 
     private static void resetDanglingLinesP0Q0(Network network) {
