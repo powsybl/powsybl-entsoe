@@ -130,11 +130,11 @@ class LossesCompensator {
     }
 
     private void compensateLossesOnTieLine(Network network, TieLine tieLine) {
-        double r1 = tieLine.getHalf1().getR();
-        double r2 = tieLine.getHalf2().getR();
+        double r1 = tieLine.getDanglingLine1().getR();
+        double r2 = tieLine.getDanglingLine2().getR();
         double r = r1 + r2;
-        Terminal terminal1 = tieLine.getTerminal1();
-        Terminal terminal2 = tieLine.getTerminal2();
+        Terminal terminal1 = tieLine.getDanglingLine1().getTerminal();
+        Terminal terminal2 = tieLine.getDanglingLine2().getTerminal();
         double losses = terminal1.getP() + terminal2.getP();
         double lossesSide1 = losses * r1 / r;
         double lossesSide2 = losses * r2 / r;

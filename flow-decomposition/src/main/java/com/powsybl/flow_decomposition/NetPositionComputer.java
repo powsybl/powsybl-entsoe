@@ -33,6 +33,16 @@ class NetPositionComputer {
             addLeavingFlow(netPositions, line, countrySide2);
         });
 
+        network.getTieLineStream().forEach(line -> {
+            Country countrySide1 = NetworkUtil.getTerminalCountry(line.getTerminal1());
+            Country countrySide2 = NetworkUtil.getTerminalCountry(line.getTerminal2());
+            if (countrySide1.equals(countrySide2)) {
+                return;
+            }
+            addLeavingFlow(netPositions, line, countrySide1);
+            addLeavingFlow(netPositions, line, countrySide2);
+        });
+
         network.getHvdcLineStream().forEach(hvdcLine -> {
             Country countrySide1 = NetworkUtil.getTerminalCountry(hvdcLine.getConverterStation1().getTerminal());
             Country countrySide2 = NetworkUtil.getTerminalCountry(hvdcLine.getConverterStation2().getTerminal());
@@ -55,12 +65,24 @@ class NetPositionComputer {
         netPositions.put(country, previousValue + getLeavingFlow(line, country));
     }
 
+    private static void addLeavingFlow(Map<Country, Double> netPositions, TieLine line, Country country) {
+        double previousValue = getPreviousValue(netPositions, country);
+        netPositions.put(country, previousValue + getLeavingFlow(line, country));
+    }
+
     private static void addLeavingFlow(Map<Country, Double> netPositions, HvdcLine hvdcLine, Country country) {
         double previousValue = getPreviousValue(netPositions, country);
         netPositions.put(country, previousValue + getLeavingFlow(hvdcLine, country));
     }
 
     private static double getLeavingFlow(Line line, Country country) {
+        double flowSide1 = line.getTerminal1().isConnected() && !Double.isNaN(line.getTerminal1().getP()) ? line.getTerminal1().getP() : 0;
+        double flowSide2 = line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP()) ? line.getTerminal2().getP() : 0;
+        double directFlow = (flowSide1 - flowSide2) / 2;
+        return country.equals(NetworkUtil.getTerminalCountry(line.getTerminal1())) ? directFlow : -directFlow;
+    }
+
+    private static double getLeavingFlow(TieLine line, Country country) {
         double flowSide1 = line.getTerminal1().isConnected() && !Double.isNaN(line.getTerminal1().getP()) ? line.getTerminal1().getP() : 0;
         double flowSide2 = line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP()) ? line.getTerminal2().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;

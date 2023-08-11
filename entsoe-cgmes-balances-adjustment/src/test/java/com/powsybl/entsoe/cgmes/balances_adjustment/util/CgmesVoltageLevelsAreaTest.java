@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -37,8 +38,11 @@ class CgmesVoltageLevelsAreaTest {
         assertEquals(5, area.getContainedBusViewBuses().size());
         Line line = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_2");
         double lineFlow = (line.getTerminal2().getP() - line.getTerminal1().getP()) / 2;
-        TieLine tieLine = (TieLine) network.getLine("TL_fict");
-        double tieLineFlow = (tieLine.getHalf2().getBoundary().getP() - tieLine.getHalf1().getBoundary().getP()) / 2;
+        assertFalse(Double.isNaN(lineFlow));
+        TieLine tieLine = network.getTieLine("TL_fict");
+        double tieLineFlow = -tieLine.getDanglingLine1().getBoundary().getP();
+        assertFalse(Double.isNaN(tieLineFlow));
+
         double realNetPosition = -network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6").getBoundary().getP()
                 - network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da").getBoundary().getP()
                 - network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006").getBoundary().getP()
