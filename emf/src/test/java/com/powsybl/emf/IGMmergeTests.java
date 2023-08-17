@@ -16,10 +16,7 @@ import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.modification.ReplaceTieLinesByLines;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.LineCharacteristics;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,28 +58,33 @@ class IGMmergeTests {
     void igmsSubnetworksMerge() throws IOException {
 
         Set<String> branchIds = new HashSet<>();
-        Set<String> generatorsId = new HashSet<>();
+        Set<String> generatorIds = new HashSet<>();
         Set<String> voltageLevelIds = new HashSet<>();
 
         // load two IGMs BE and NL
         Map<String, Network> validNetworks = new HashMap<>();
         GridModelReferenceResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
         Network igmBE = Network.read(resBE.dataSource());
-        validNetworks.put("BE", igmBE);
+        String idBE = igmBE.getId();
         igmBE.getBranches().forEach(b -> branchIds.add(b.getId()));
-        igmBE.getGenerators().forEach(g -> generatorsId.add(g.getId()));
+        igmBE.getGenerators().forEach(g -> generatorIds.add(g.getId()));
         igmBE.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
         GridModelReferenceResources resNL = CgmesConformity1Catalog.microGridBaseCaseNL();
         Network igmNL = Network.read(resNL.dataSource());
-        validNetworks.put("NL", igmNL);
+        String idNL = igmNL.getId();
         igmNL.getBranches().forEach(b -> branchIds.add(b.getId()));
-        igmNL.getGenerators().forEach(g -> generatorsId.add(g.getId()));
+        igmNL.getGenerators().forEach(g -> generatorIds.add(g.getId()));
         igmNL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
         // merge, serialize and deserialize the network
         Network merged = Network.create("Merged", igmBE, igmNL);
+        Network subnetworkBE = merged.getSubnetwork(idBE);
+        Network subnetworkNL = merged.getSubnetwork(idNL);
+
         validNetworks.put("Merged", merged);
+        validNetworks.put("BE", subnetworkBE);
+        validNetworks.put("NL", subnetworkNL);
 
         // Check that we have subnetworks
         assertEquals(2, merged.getSubnetworks().size());
@@ -100,7 +102,7 @@ class IGMmergeTests {
 
         // reimport and check
         Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(mergedDir, "BE_NL"), null);
-        validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
+        validate(serializedMergedNetwork, branchIds, generatorIds, voltageLevelIds);
 
         // compare
         // FIXME(Luma) CGMES Export: tie lines as two separate equipment instead of a single ACLS
@@ -111,6 +113,56 @@ class IGMmergeTests {
         // This should be removed when we export tie lines as two separate equipment
         new ReplaceTieLinesByLines().apply(merged);
         compareNetwork(serializedMergedNetwork, merged);
+    }
+
+    @Test
+    void testSubnetworksExports() throws IOException {
+        Set<String> branchIdsBE = new HashSet<>();
+        Set<String> generatorIdsBE = new HashSet<>();
+        Set<String> voltageLevelIdsBE = new HashSet<>();
+
+        // load two IGMs BE and NL
+        // BE is loaded twice to keep a reference for further comparison, since "merge" is destructive
+        GridModelReferenceResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
+        Network igmBE = Network.read(resBE.dataSource());
+        Network igmRefBE = Network.read(resBE.dataSource());
+        String idBE = igmBE.getId();
+        igmBE.getBranches().forEach(b -> branchIdsBE.add(b.getId()));
+        igmBE.getGenerators().forEach(g -> generatorIdsBE.add(g.getId()));
+        igmBE.getVoltageLevels().forEach(v -> voltageLevelIdsBE.add(v.getId()));
+
+        GridModelReferenceResources resNL = CgmesConformity1Catalog.microGridBaseCaseNL();
+        Network igmNL = Network.read(resNL.dataSource());
+
+        // merge, serialize and deserialize the network
+        Network merged = Network.create("Merged", igmBE, igmNL);
+        Network subnetworkBE = merged.getSubnetwork(idBE);
+
+        // Check that we have subnetworks
+        assertEquals(2, merged.getSubnetworks().size());
+
+        Network retrievedFromSubnetwork = exportAndLoad(subnetworkBE, "subnetworksBE", "BE");
+        validate(retrievedFromSubnetwork, branchIdsBE, generatorIdsBE, voltageLevelIdsBE);
+
+        // compare with ref (after its export)
+        Network retrievedFromRef = exportAndLoad(igmRefBE, "refBE", "BE");
+
+        // compare
+        compareNetwork(retrievedFromSubnetwork, retrievedFromRef);
+    }
+
+    private Network exportAndLoad(Network network, String dirName, String country) throws IOException {
+        Path dir = Files.createDirectories(tmpDir.resolve(dirName));
+        exportNetwork(network, dir, country, Map.of(country, network), Set.of("EQ", "TP", "SSH"));
+
+        // copy the boundary set explicitly it is not serialized and is needed for reimport
+        ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
+        for (String bFile : boundaries.getFileNames()) {
+            Files.copy(boundaries.newInputStream(bFile), dir.resolve(country + bFile), StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        // reimport
+        return Network.read(new GenericReadOnlyDataSource(dir, country), null);
     }
 
     @Test
@@ -205,13 +257,18 @@ class IGMmergeTests {
         }
     }
 
-    private static boolean checkDanglingLine(DanglingLine dl1, DanglingLine dl2) {
-        return dl1.getG() == dl2.getG() && dl1.getB() == dl1.getB() && dl1.getR() == dl2.getR()
-                && dl1.getX() == dl2.getX() && dl1.getP0() == dl2.getP0() && dl1.getQ0() == dl2.getQ0();
+    private static void checkDanglingLine(DanglingLine dl1, DanglingLine dl2) {
+        assertEquals(dl1.getG(), dl2.getG(), TOLERANCE_GB);
+        assertEquals(dl1.getB(), dl2.getB(), TOLERANCE_GB);
+        assertEquals(dl1.getR(), dl2.getR(), TOLERANCE_RX);
+        assertEquals(dl1.getX(), dl2.getX(), TOLERANCE_RX);
+        assertEquals(dl1.getP0(), dl2.getP0(), TOLERANCE_PQ);
+        assertEquals(dl1.getQ0(), dl2.getQ0(), TOLERANCE_PQ);
     }
 
     private static final double TOLERANCE_RX = 1e-10;
     private static final double TOLERANCE_GB = 1e-4;
+    private static final double TOLERANCE_PQ = 1e-4;
 
     private static void checkLineCharacteristics(LineCharacteristics line1, LineCharacteristics line2) {
         boolean halvesHaveSameOrder = true;
@@ -240,12 +297,10 @@ class IGMmergeTests {
     private static void compareNetwork(Network network1, Network network2) {
         assertEquals(network1.getDanglingLineCount(), network2.getDanglingLineCount());
         assertEquals(network1.getLineCount(), network2.getLineCount());
+        assertEquals(network1.getTieLineCount(), network2.getTieLineCount());
         network1.getDanglingLineStream().forEach(dl1 -> {
             DanglingLine dl2 = network2.getDanglingLine(dl1.getId());
-            if (!checkDanglingLine(dl1, dl2)) {
-                System.err.println("error");
-            }
-            assertTrue(checkDanglingLine(dl1, dl2));
+            checkDanglingLine(dl1, dl2);
         });
         network1.getLineStream().forEach(line1 -> {
             LineCharacteristics line2 = network2.getLine(line1.getId()); // cgm should be always at network1
