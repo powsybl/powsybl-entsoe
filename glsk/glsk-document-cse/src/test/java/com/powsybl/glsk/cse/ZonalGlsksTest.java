@@ -9,9 +9,9 @@ package com.powsybl.glsk.cse;
 
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
+import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,6 +63,6 @@ class ZonalGlsksTest {
     void checkZonalGlskFailsWithNonLinearGlskBlocks() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false, true);
-        assertThrows(NotImplementedException.class, () -> cseGlskDocument.getZonalGlsks(network));
+        assertThrows(GlskException.class, () -> cseGlskDocument.getZonalGlsks(network));
     }
 }

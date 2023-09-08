@@ -8,7 +8,6 @@ package com.powsybl.glsk.cse;
 
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.GlskPoint;
-import com.powsybl.glsk.api.util.converters.GlskPointLinearGlskConverter;
 import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.glsk.commons.GlskException;
@@ -169,22 +168,6 @@ public final class CseGlskDocument implements GlskDocument {
     @Override
     public List<GlskPoint> getGlskPoints(String zone) {
         return cseGlskPoints.getOrDefault(zone, Collections.emptyList());
-    }
-
-    @Override
-    public ZonalData<SensitivityVariableSet> getZonalGlsks(Network network) {
-        Map<String, SensitivityVariableSet> zonalData = new HashMap<>();
-        for (Map.Entry<String, List<GlskPoint>> entry : cseGlskPoints.entrySet()) {
-            String area = entry.getKey();
-            // There is always only one GlskPoint for a zone
-            GlskPoint zonalGlskPoint = entry.getValue().get(0);
-            try {
-                zonalData.put(area, GlskPointLinearGlskConverter.convert(network, zonalGlskPoint));
-            } catch (GlskException e) {
-                throw new NotImplementedException("Non linear GLSK cannot be converted to linear GLSK", e);
-            }
-        }
-        return new ZonalDataImpl<>(zonalData);
     }
 
     @Override
