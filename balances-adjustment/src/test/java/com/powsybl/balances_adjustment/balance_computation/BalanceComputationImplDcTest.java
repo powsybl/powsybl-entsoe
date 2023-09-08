@@ -61,7 +61,6 @@ class BalanceComputationImplDcTest {
                 Arrays.asList(Scalable.onGenerator("FFR1AA1 _generator"), Scalable.onGenerator("FFR2AA1 _generator"), Scalable.onGenerator("FFR3AA1 _generator")));
         scalableBE = Scalable.proportional(Arrays.asList(60f, 30f, 10f),
                 Arrays.asList(Scalable.onGenerator("BBE1AA1 _generator"), Scalable.onGenerator("BBE3AA1 _generator"), Scalable.onGenerator("BBE2AA1 _generator")));
-
     }
 
     @Test
@@ -90,7 +89,6 @@ class BalanceComputationImplDcTest {
 
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
         assertEquals(2, result.getIterationCount());
-
     }
 
     @Test
@@ -115,7 +113,6 @@ class BalanceComputationImplDcTest {
         // Check target net position after balances with the new state id
         testNetwork1.getVariantManager().setWorkingVariant(newStateId);
         assertEquals(1100., countryAreaFR.create(testNetwork1).getNetPosition(), 1.);
-
     }
 
     @Test
@@ -132,12 +129,11 @@ class BalanceComputationImplDcTest {
         assertEquals(5, result.getIterationCount());
         assertEquals(1000, countryAreaFR.create(testNetwork1).getNetPosition(), 1e-3);
         assertEquals(1500, countryAreaBE.create(testNetwork1).getNetPosition(), 1e-3);
-
     }
 
     @Test
     void testConstantPowerFactor() {
-        parameters.setLoadPowerFactorConstant(true);
+        parameters.getScalingParameters().setConstantPowerFactor(true);
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1200.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, 1300.));
@@ -148,6 +144,5 @@ class BalanceComputationImplDcTest {
 
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
         assertEquals(2, result.getIterationCount());
-
     }
 }

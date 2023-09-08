@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.balances_adjustment.balance_computation.BalanceComputationParameters;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.modification.scalable.json.JsonScalingParameters;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 
 import java.io.IOException;
@@ -28,10 +29,14 @@ public class BalanceComputationParametersSerializer extends StdSerializer<Balanc
 
         jsonGenerator.writeStartObject();
 
+        jsonGenerator.writeStringField("version", BalanceComputationParameters.VERSION);
         jsonGenerator.writeNumberField("maxNumberIterations", parameters.getMaxNumberIterations());
         jsonGenerator.writeNumberField("thresholdNetPosition", parameters.getThresholdNetPosition());
+        jsonGenerator.writeStringField("mismatchMode", parameters.getMismatchMode().name());
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
+        jsonGenerator.writeFieldName("scaling-parameters");
+        JsonScalingParameters.serialize(parameters.getScalingParameters(), jsonGenerator, serializerProvider);
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonBalanceComputationParameters.getExtensionSerializers());
 

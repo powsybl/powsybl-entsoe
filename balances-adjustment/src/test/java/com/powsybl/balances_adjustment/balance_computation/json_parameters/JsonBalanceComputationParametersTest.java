@@ -34,6 +34,7 @@ class JsonBalanceComputationParametersTest extends AbstractConverterTest {
         BalanceComputationParameters.load();
         assertEquals(BalanceComputationParameters.DEFAULT_MAX_NUMBER_ITERATIONS, parameters.getMaxNumberIterations());
         assertEquals(BalanceComputationParameters.DEFAULT_THRESHOLD_NET_POSITION, parameters.getThresholdNetPosition(), .01);
+        assertEquals(BalanceComputationParameters.DEFAULT_MISMATCH_MODE, parameters.getMismatchMode());
     }
 
     @Test
@@ -51,11 +52,11 @@ class JsonBalanceComputationParametersTest extends AbstractConverterTest {
         assertEquals("DC_VALUES", actualLoadflowParams.getVoltageInitMode().toString());
         assertTrue(actualLoadflowParams.isTransformerVoltageControlOn());
         assertTrue(actualLoadflowParams.isPhaseShifterRegulationOn());
-        assertFalse(actualLoadflowParams.isNoGeneratorReactiveLimits());
+        assertTrue(actualLoadflowParams.isUseReactiveLimits());
     }
 
     @Test
-    void readExtension() throws IOException {
+    void readExtension() {
         BalanceComputationParameters parameters = JsonBalanceComputationParameters.read(getClass().getResourceAsStream("/balanceComputationParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
@@ -108,7 +109,7 @@ class JsonBalanceComputationParametersTest extends AbstractConverterTest {
         }
 
         @Override
-        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
             return new DummyExtension();
         }
 

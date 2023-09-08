@@ -1,8 +1,10 @@
 {
+  "version" : "1.1",
   "maxNumberIterations" : 11,
   "thresholdNetPosition" : 2.0,
+  "mismatchMode" : "MAX",
   "load-flow-parameters" : {
-    "version" : "1.8",
+    "version" : "1.9",
     "voltageInitMode" : "DC_VALUES",
     "transformerVoltageControlOn" : true,
     "phaseShifterRegulationOn" : true,
@@ -17,6 +19,14 @@
     "dcUseTransformerRatio" : true,
     "countriesToBalance" : [ ],
     "connectedComponentMode" : "MAIN",
-    "hvdcAcEmulation" : true
+    "hvdcAcEmulation" : true,
+    "dcPowerFactor" : 1.0
+  },
+  "scaling-parameters" : {
+    "version" : "1.0",
+    "scalingConvention" : "GENERATOR",
+    "constantPowerFactor" : false,
+    "reconnect" : false,
+    "iterative" : false
   }
 }

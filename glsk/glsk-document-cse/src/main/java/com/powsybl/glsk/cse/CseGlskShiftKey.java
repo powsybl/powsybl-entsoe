@@ -25,8 +25,8 @@ import java.util.Optional;
 public class CseGlskShiftKey extends AbstractGlskShiftKey {
     private int order = 0;
 
-    public CseGlskShiftKey(BlockWrapper blockWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID) {
-        initCommonMemberVariables(blockWrapper, businessType, pointInterval, subjectDomainmRID);
+    public CseGlskShiftKey(BlockWrapper blockWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID, BigDecimal sumBlockFactors) {
+        initCommonMemberVariables(blockWrapper, businessType, pointInterval, subjectDomainmRID, sumBlockFactors);
 
         if (blockWrapper.getBlock() instanceof ManualGSKBlockType) {
             this.businessType = "B43";
@@ -71,8 +71,8 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         }
     }
 
-    public CseGlskShiftKey(BlockWrapper blockWrapper, NodeWrapper nodeWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID, int position) {
-        initCommonMemberVariables(blockWrapper, businessType, pointInterval, subjectDomainmRID);
+    public CseGlskShiftKey(BlockWrapper blockWrapper, NodeWrapper nodeWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID, int position, BigDecimal sumBlockFactors) {
+        initCommonMemberVariables(blockWrapper, businessType, pointInterval, subjectDomainmRID, sumBlockFactors);
         this.meritOrderPosition = position;
 
         this.businessType = "B45";
@@ -80,7 +80,7 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         registeredResourceArrayList.add(cseRegisteredResource);
     }
 
-    private void initCommonMemberVariables(BlockWrapper blockWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID) {
+    private void initCommonMemberVariables(BlockWrapper blockWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID, BigDecimal sumBlockFactors) {
         if (businessType.equals(BusinessTypeList.Z_02)) {
             this.psrType = "A04";
         } else if (businessType.equals(BusinessTypeList.Z_05)) {
@@ -99,9 +99,20 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
             blockWrapper.getMaximumShift().map(BigDecimal::doubleValue)
                 .ifPresent(ms -> this.maximumShift = ms);
         } else {
-            blockWrapper.getFactor().map(BigDecimal::doubleValue)
-                .ifPresent(q -> this.quantity = q);
+            blockWrapper.getFactor()
+                .ifPresent(q -> {
+                    if (sumIsZeroOrOne(sumBlockFactors)) {
+                        this.quantity = q.doubleValue();
+                    } else {
+                        this.quantity = q.divide(sumBlockFactors).doubleValue();
+                    }
+                });
         }
+    }
+
+    private static boolean sumIsZeroOrOne(BigDecimal sumBlockFactors) {
+        return BigDecimal.ONE.compareTo(sumBlockFactors) == 0
+                || BigDecimal.ZERO.compareTo(sumBlockFactors) == 0;
     }
 
     private static boolean isPartOfHybridShiftKey(BlockWrapper blockWrapper) {

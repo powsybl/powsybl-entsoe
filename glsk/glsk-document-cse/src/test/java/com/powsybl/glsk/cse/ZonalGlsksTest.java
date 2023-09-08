@@ -25,7 +25,7 @@ class ZonalGlsksTest {
     @Test
     void checkZonalGlskFromManualGskBlocks() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskOnlyLinear.xml"), false);
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskOnlyLinear.xml"), false, true);
         SensitivityVariableSet manualGlskSensi = cseGlskDocument.getZonalGlsks(network).getData("FR_MANUAL");
 
         assertNotNull(manualGlskSensi);
@@ -48,7 +48,7 @@ class ZonalGlsksTest {
     @Test
     void checkZonalGlskFromProportionalGlskBlocks() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskOnlyLinear.xml"), false);
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskOnlyLinear.xml"), false, true);
         SensitivityVariableSet glskSensi = cseGlskDocument.getZonalGlsks(network).getData("FR_PROPGLSK");
 
         assertNotNull(glskSensi);
@@ -62,7 +62,7 @@ class ZonalGlsksTest {
     @Test
     void checkZonalGlskFailsWithNonLinearGlskBlocks() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false);
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlsk.xml"), false, true);
         assertThrows(NotImplementedException.class, () -> cseGlskDocument.getZonalGlsks(network));
     }
 }

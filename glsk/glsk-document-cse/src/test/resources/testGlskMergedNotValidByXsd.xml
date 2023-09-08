@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GSKDocument DtdVersion="5" DtdRelease="0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="gsk-document.xsd">
+    <DocumentIdentification v="testGlskMerged"/>
+    <DocumentVersion v="1"/>
+    <DocumentType v="Z02"/>
+    <ProcessType v="Z02"/>
+    <SenderIdentification v="10VCSEEH4MMD-NDO" codingScheme="A01"/>
+    <SenderRole v="A36"/>
+    <ReceiverIdentification v="10X1001A1001A345" codingScheme="A01"/>
+    <ReceiverRole v="A04"/>
+    <CreationDateTime v="2020-09-15T17:59:09Z"/>
+    <GSKTimeInterval v="2020-09-16T22:00Z/2020-09-16T23:00Z"/>
+    <Domain v="10YDOM-1001A061T" codingScheme="A01"/>
+
+    <CalculationDirections>
+        <CalculationDirection>
+            <Direction v="Export"/>
+            <Country v="AT"/>
+            <InArea v="10YAT-APG------L" codingScheme="A01"/>
+            <OutArea v="10YIT-GRTN-----B" codingScheme="A01"/>
+        </CalculationDirection>
+        <CalculationDirection>
+            <Direction v="Import"/>
+            <Country v="CH"/>
+            <InArea v="10YIT-GRTN-----B" codingScheme="A01"/>
+            <OutArea v="10YCH-SWISSGRIDZ" codingScheme="A01"/>
+        </CalculationDirection>
+        <CalculationDirection>
+            <Direction v="Import"/>
+            <Country v="FR"/>
+            <InArea v="10YIT-GRTN-----B" codingScheme="A01"/>
+            <OutArea v="10YFR-RTE------C" codingScheme="A01"/>
+        </CalculationDirection>
+        <CalculationDirection>
+            <Direction v="Export"/>
+            <Country v="SI"/>
+            <InArea v="10YSI-ELES-----O" codingScheme="A01"/>
+            <OutArea v="10YIT-GRTN-----B" codingScheme="A01"/>
+        </CalculationDirection>
+    </CalculationDirections>
+    <TimeSeriesExport>
+        <TimeSeriesIdentification v="1"/>
+        <BusinessType v="Z02"/>
+        <Area v="10YAT-APG------L" codingScheme="A01"/>
+        <Name v="AT"/>
+        <TimeInterval v="2020-09-16T22:00Z/2020-09-16T23:00Z"/>
+        <ManualGSKBlock>
+            <Factor v="0.95"/>
+            <Node>
+                <Name v="AT01AA01"/>
+                <Factor v="70"/>
+            </Node>
+            <Node>
+                <Name v="AT02AA01"/>
+                <Factor v="30"/>
+            </Node>
+        </ManualGSKBlock>
+    </TimeSeriesExport>
+    <TimeSeriesExport>
+        <TimeSeriesIdentification v="1"/>
+        <BusinessType v="Z02"/>
+        <Area v="10YFR-RTE------C" codingScheme="A01"/>
+        <Name v="FR"/>
+        <TimeInterval v="2020-09-16T22:00Z/2020-09-16T23:00Z"/>
+        <PropGSKBlock>
+            <Factor v="0.25"/>
+            <Node>
+                <Name v="FR01AA01"/>
+            </Node>
+        </PropGSKBlock>
+        <PropLSKBlock>
+            <Factor v="0.75"/>
+            <Node>
+                <Name v="FR02AA01"/>
+            </Node>
+            <Node>
+                <Name v="FR03AA01"/>
+            </Node>
+        </PropLSKBlock>
+    </TimeSeriesExport>
+    <TimeSeries>
+        <TimeSeriesIdentification v="1"/>
+        <BusinessType v="Z02"/>
+        <Area v="10YAT-APG------L" codingScheme="A01"/>
+        <Name v="AT"/>
+        <TimeInterval v="2020-09-16T22:00Z/2020-09-16T23:00Z"/>
+        <ManualGSKBlock>
+            <Factor v="0.5"/>
+            <Node>
+                <Name v="AT01AA01"/>
+                <Factor v="40"/>
+            </Node>
+            <Node>
+                <Name v="AT02AA01"/>
+                <Factor v="60"/>
+            </Node>
+        </ManualGSKBlock>
+    </TimeSeries>
+    <TimeSeries>
+        <TimeSeriesIdentification v="1"/>
+        <BusinessType v="Z02"/>
+        <Area v="10YCH-SWISSGRIDZ" codingScheme="A01"/>
+        <Name v="CH"/>
+        <TimeInterval v="2020-09-16T22:00Z/2020-09-16T22:59Z"/>
+        <ReserveGSKBlock>
+            <Factor v="1.2"/>
+            <Node>
+                <Name v="CH01AA01"/>
+                <Pmin v="10"/>
+                <Pmax v="-200"/>
+            </Node>
+        </ReserveGSKBlock>
+    </TimeSeries>
+    <TimeSeries>
+        <TimeSeriesIdentification v="1"/>
+        <BusinessType v="Z02"/>
+        <Area v="10YFR-RTE------C" codingScheme="A01"/>
+        <Name v="FR"/>
+        <TimeInterval v="2020-09-16T22:00Z/2020-09-16T23:00Z"/>
+        <PropGSKBlock>
+            <Factor v="1.05"/>
+            <Node>
+                <Name v="FR01AA01"/>
+            </Node>
+            <Node>
+                <Name v="FR02AA01"/>
+            </Node>
+            <Node>
+                <Name v="FR03AA01"/>
+            </Node>
+        </PropGSKBlock>
+    </TimeSeries>
+    <TimeSeries>
+        <TimeSeriesIdentification v="1"/>
+        <BusinessType v="Z02"/>
+        <Area v="10YIT-GRTN-----B" codingScheme="A01"/>
+        <Name v="IT"/>
+        <TimeInterval v="2020-09-16T22:30Z/2020-09-16T22:30Z"/>
+        <MeritOrderGSKBlock>
+            <Factor v="1.15"/>
+            <Up>
+                <Factor v="1"/>
+                <Node>
+                    <Name v="IT01AA01"/>
+                    <Pmax v="-1000"/>
+                </Node>
+            </Up>
+            <Down>
+                <Factor v="1"/>
+                <Node>
+                    <Name v="IT01AA02"/>
+                    <Pmin v="0"/>
+                </Node>
+            </Down>
+        </MeritOrderGSKBlock>
+    </TimeSeries>
+    <TimeSeries>
+        <TimeSeriesIdentification v="1"/>
+        <BusinessType v="Z02"/>
+        <Area v="10YSI-ELES-----O" codingScheme="A01"/>
+        <Name v="SI"/>
+        <TimeInterval v="2020-09-16T22:00Z/2020-09-16T23:00Z"/>
+        <PropGSKBlock>
+            <Factor v="1.4"/>
+            <Node>
+                <Name v="SI01AA01"/>
+            </Node>
+        </PropGSKBlock>
+        <PropLSKBlock>
+            <Factor v="0.6"/>
+            <Node>
+                <Name v="SI02AA01"/>
+            </Node>
+            <Node>
+                <Name v="SI02AA02"/>
+            </Node>
+        </PropLSKBlock>
+    </TimeSeries>
+</GSKDocument>

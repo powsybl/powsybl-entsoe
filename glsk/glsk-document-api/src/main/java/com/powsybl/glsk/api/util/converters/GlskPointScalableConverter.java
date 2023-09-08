@@ -68,7 +68,7 @@ public final class GlskPointScalableConverter {
                 throw new GlskException("In convert glskShiftKey business type not supported");
             }
         }
-        return Scalable.proportional(percentages, scalables, true);
+        return Scalable.proportional(percentages, scalables); // iterative must be set in scalingParameters during scale
     }
 
     private static void convertRemainingCapacity(Network network, GlskShiftKey glskShiftKey, List<Float> percentages, List<Scalable> scalables) {
@@ -97,7 +97,7 @@ public final class GlskPointScalableConverter {
                 scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
             }
         });
-        return Scalable.proportional(percentages, scalables, true);
+        return Scalable.proportional(percentages, scalables); // iterative must be set in scalingParameters during scale
     }
 
     private static double getRemainingCapacityUp(GlskRegisteredResource resource, Network network) {

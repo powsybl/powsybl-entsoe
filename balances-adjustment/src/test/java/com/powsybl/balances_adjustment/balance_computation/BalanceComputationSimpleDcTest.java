@@ -6,7 +6,9 @@
  */
 package com.powsybl.balances_adjustment.balance_computation;
 
+import com.powsybl.balances_adjustment.util.BalanceComputationAssert;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -75,7 +78,7 @@ class BalanceComputationSimpleDcTest {
     }
 
     @Test
-    void testDivergentLoadFLow() {
+    void testDivergentLoadFlowOnMainSynchronousComponent() {
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1200.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1200.));
@@ -83,8 +86,13 @@ class BalanceComputationSimpleDcTest {
         LoadFlow.Runner loadFlowRunnerMock = Mockito.mock(LoadFlow.Runner.class);
 
         BalanceComputationImpl balanceComputation = Mockito.spy(new BalanceComputationImpl(areas, computationManager, loadFlowRunnerMock));
-        LoadFlowResult loadFlowResult = new LoadFlowResultImpl(false, new HashMap<>(), "logs");
-        doReturn(loadFlowResult).when(loadFlowRunnerMock).run(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
+        LoadFlowResult loadFlowResult = new LoadFlowResultImpl(true, Collections.emptyMap(), "logs",
+                List.of(
+                        new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, 50, "dummy", 0.0, 0.0),
+                        new LoadFlowResultImpl.ComponentResultImpl(0, 1, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)
+                )
+        );
+        doReturn(loadFlowResult).when(loadFlowRunnerMock).run(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
 
         BalanceComputationResult result = balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters).join();
 
@@ -110,7 +118,9 @@ class BalanceComputationSimpleDcTest {
 
                 branchFrBe2.getTerminal1().setP(-683);
                 branchFrBe2.getTerminal2().setP(683);
-                return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null));
+                return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null,
+                        List.of(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)))
+                );
             }
 
             @Override
@@ -130,7 +140,51 @@ class BalanceComputationSimpleDcTest {
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
         assertEquals(1, result.getIterationCount());
         assertTrue(result.getBalancedScalingMap().values().stream().allMatch(v -> v == 0.));
+    }
 
+    @Test
+    void testConvergedLoadFlowOnMainSynchronousComponent() {
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1199.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1199.));
+
+        LoadFlowProvider loadFlowProviderMock = new LoadFlowProvider() {
+
+            @Override
+            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters) {
+                generatorFr.getTerminal().setP(3000);
+                loadFr.getTerminal().setP(1800);
+
+                branchFrBe1.getTerminal1().setP(-516);
+                branchFrBe1.getTerminal2().setP(516);
+
+                branchFrBe2.getTerminal1().setP(-683);
+                branchFrBe2.getTerminal2().setP(683);
+                return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null,
+                        List.of(
+                                new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0),
+                                new LoadFlowResultImpl.ComponentResultImpl(0, 1, LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, 50, "dummy", 0.0, 0.0)
+                        ))
+                );
+            }
+
+            @Override
+            public String getName() {
+                return "test load flow";
+            }
+
+            @Override
+            public String getVersion() {
+                return "1.0";
+            }
+        };
+
+        BalanceComputationImpl balanceComputation = new BalanceComputationImpl(areas, computationManager, new LoadFlow.Runner(loadFlowProviderMock));
+
+        BalanceComputationResult result = balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters).join();
+        assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
+        assertEquals(1, result.getIterationCount());
+        assertTrue(result.getBalancedScalingMap().values().stream().allMatch(v -> v == 0.));
     }
 
     @Test
@@ -148,8 +202,9 @@ class BalanceComputationSimpleDcTest {
                 branchFrBe1.getTerminal1().setP(-516);
                 branchFrBe1.getTerminal2().setP(516);
                 branchFrBe2.getTerminal1().setP(-683);
-                branchFrBe2.getTerminal2().setP(683);
-                return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null));
+                return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null,
+                        List.of(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)))
+                );
             }
 
             @Override
@@ -255,6 +310,32 @@ class BalanceComputationSimpleDcTest {
         assertEquals(1200, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1200, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
 
+    }
+
+    @Test
+    void testBalancedNetworkAfter1ScalingReport() throws IOException {
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1300.));
+
+        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+
+        ReporterModel reporter = new ReporterModel("testBalancedNetworkReport", "Test balanced network report");
+        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reporter).join();
+        BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reporter);
+    }
+
+    @Test
+    void testUnBalancedNetworkReport() throws IOException {
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1400.));
+
+        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+
+        ReporterModel reporter = new ReporterModel("testUnbalancedNetworkReport", "Test unbalanced network report");
+        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reporter).join();
+        BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reporter);
     }
 
 }
