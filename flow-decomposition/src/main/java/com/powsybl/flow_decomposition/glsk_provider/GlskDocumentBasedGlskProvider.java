@@ -17,7 +17,7 @@ import com.powsybl.sensitivity.SensitivityVariableSet;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 public final class GlskDocumentBasedGlskProvider implements GlskProvider {
     private final GlskDocument glskDocument;
     private final Instant instant;
-    private final boolean usingNetworkInstant;
+    private final boolean timeSpecific;
 
-    private GlskDocumentBasedGlskProvider(GlskDocument glskDocument, Instant instant, boolean usingNetworkInstant) {
+    private GlskDocumentBasedGlskProvider(GlskDocument glskDocument, Instant instant, boolean timeSpecific) {
         this.glskDocument = glskDocument;
         this.instant = instant;
-        this.usingNetworkInstant = usingNetworkInstant;
+        this.timeSpecific = timeSpecific;
     }
 
     @Override
@@ -50,22 +50,12 @@ public final class GlskDocumentBasedGlskProvider implements GlskProvider {
     }
 
     private ZonalData<SensitivityVariableSet> getSensitivityVariableSetZonalData(Network network) {
-        Instant glskInstant = getOptionalInstant(network);
-        if (Objects.isNull(glskInstant)) {
-            return glskDocument.getZonalGlsks(network);
-        } else {
+        if (timeSpecific) {
+            Instant glskInstant = Optional.ofNullable(instant).orElse(getNetworkInstant(network));
             return glskDocument.getZonalGlsks(network, glskInstant);
+        } else {
+            return glskDocument.getZonalGlsks(network);
         }
-    }
-
-    private Instant getOptionalInstant(Network network) {
-        if (Objects.isNull(instant)) {
-            if (usingNetworkInstant) {
-                return getNetworkInstant(network);
-            }
-            return null;
-        }
-        return instant;
     }
 
     private Instant getNetworkInstant(Network network) {
@@ -85,6 +75,6 @@ public final class GlskDocumentBasedGlskProvider implements GlskProvider {
     }
 
     public static GlskProvider basedOnGivenInstant(GlskDocument glskDocument, Instant instant) {
-        return new GlskDocumentBasedGlskProvider(glskDocument, instant, false);
+        return new GlskDocumentBasedGlskProvider(glskDocument, instant, true);
     }
 }
