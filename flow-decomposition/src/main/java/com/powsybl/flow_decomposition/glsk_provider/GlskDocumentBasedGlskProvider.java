@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class GlskDocumentBasedGlskProvider implements GlskProvider {
+public final class GlskDocumentBasedGlskProvider implements GlskProvider {
     private final GlskDocument glskDocument;
     private final Instant instant;
     private final boolean usingNetworkInstant;
 
-    public GlskDocumentBasedGlskProvider(GlskDocument glskDocument, Instant instant, boolean usingNetworkInstant) {
+    private GlskDocumentBasedGlskProvider(GlskDocument glskDocument, Instant instant, boolean usingNetworkInstant) {
         this.glskDocument = glskDocument;
         this.instant = instant;
         this.usingNetworkInstant = usingNetworkInstant;
