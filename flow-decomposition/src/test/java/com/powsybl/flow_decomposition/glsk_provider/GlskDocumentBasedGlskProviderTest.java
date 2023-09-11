@@ -50,7 +50,7 @@ class GlskDocumentBasedGlskProviderTest {
     }
 
     @Test
-    void testThatGlskProviderWithGiovenInstantGetsCorrectFactors() {
+    void testThatGlskProviderWithGivenInstantGetsCorrectFactors() {
         String networkFileName = "testCase.xiidm";
         String glskFileName = "GlskUcteFrMultipleInstants.xml";
         Network network = importNetwork(networkFileName);
