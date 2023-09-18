@@ -171,11 +171,11 @@ class IGMmergeTests {
         Network networkBENL = createCGM();
 
         Set<String> branchIds = new HashSet<>();
-        Set<String> generatorsId = new HashSet<>();
+        Set<String> generatorIds = new HashSet<>();
         Set<String> voltageLevelIds = new HashSet<>();
 
         networkBENL.getBranches().forEach(b -> branchIds.add(b.getId()));
-        networkBENL.getGenerators().forEach(g -> generatorsId.add(g.getId()));
+        networkBENL.getGenerators().forEach(g -> generatorIds.add(g.getId()));
         networkBENL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
         LoadFlow.run(networkBENL);
@@ -189,7 +189,7 @@ class IGMmergeTests {
             Files.copy(boundaries.newInputStream(bFile), mergedResourcesDir.resolve("BE_NL" + bFile), StandardCopyOption.REPLACE_EXISTING);
         }
         Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(mergedResourcesDir, "BE_NL"), null);
-        validate(serializedMergedNetwork, branchIds, generatorsId, voltageLevelIds);
+        validate(serializedMergedNetwork, branchIds, generatorIds, voltageLevelIds);
 
         // compare
         // FIXME(Luma) CGMES Export: tie lines as two separate equipment instead of a single ACLS
@@ -200,22 +200,6 @@ class IGMmergeTests {
         // This should be removed when we export tie lines as two separate equipment
         new ReplaceTieLinesByLines().apply(networkBENL);
         compareNetwork(serializedMergedNetwork, networkBENL);
-    }
-
-    private static void resetDanglingLinesP0Q0(Network network) {
-        // FIXME(Luma) CGMES Importer: consider keeping p0, q0 also for assembled (CGM) imports
-        // Adaptations to be able to compare assembled and merged networks
-        // If a dangling line is paired (is part of a tie line)
-        // we should not use p0, q0 anymore,
-        // so it doesn't matter what values they have
-        // Tie lines from CGM do not have p0, q0 set,
-        // and Tie lines from merged networks keep their original p0, q0 values
-        network.getTieLineStream().forEach(tl -> {
-            tl.getDanglingLine1().setP0(0);
-            tl.getDanglingLine1().setQ0(0);
-            tl.getDanglingLine2().setP0(0);
-            tl.getDanglingLine2().setQ0(0);
-        });
     }
 
     private static void validate(Network n, Set<String> branchIds, Set<String> generatorsId, Set<String> voltageLevelIds) {
