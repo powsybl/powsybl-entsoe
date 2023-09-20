@@ -57,9 +57,9 @@ class BalanceComputationImplDcTest {
 
         loadFlowRunner = new LoadFlow.Runner(new OpenLoadFlowProvider(new DenseMatrixFactory()));
 
-        scalableFR = Scalable.proportional(Arrays.asList(60f, 30f, 10f),
+        scalableFR = Scalable.proportional(Arrays.asList(60.0, 30.0, 10.0),
                 Arrays.asList(Scalable.onGenerator("FFR1AA1 _generator"), Scalable.onGenerator("FFR2AA1 _generator"), Scalable.onGenerator("FFR3AA1 _generator")));
-        scalableBE = Scalable.proportional(Arrays.asList(60f, 30f, 10f),
+        scalableBE = Scalable.proportional(Arrays.asList(60.0, 30.0, 10.0),
                 Arrays.asList(Scalable.onGenerator("BBE1AA1 _generator"), Scalable.onGenerator("BBE3AA1 _generator"), Scalable.onGenerator("BBE2AA1 _generator")));
     }
 
