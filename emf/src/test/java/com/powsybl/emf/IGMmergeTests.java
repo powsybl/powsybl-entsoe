@@ -26,10 +26,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -200,6 +197,20 @@ class IGMmergeTests {
         // This should be removed when we export tie lines as two separate equipment
         new ReplaceTieLinesByLines().apply(networkBENL);
         compareNetwork(serializedMergedNetwork, networkBENL);
+    }
+
+    @Test
+    void testCompareSubnetworksMergeAgainstAssembled() {
+        Network merged = Network.create("merged",
+                Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource()),
+                Network.read(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource()));
+        // In merged, reset all p0, q0 values for all paired dangling lines
+        for (DanglingLine dl : merged.getDanglingLines(DanglingLineFilter.PAIRED)) {
+            dl.setP0(0);
+            dl.setQ0(0);
+        }
+        Network assembled = createCGM();
+        compareNetwork(assembled, merged);
     }
 
     private static void validate(Network n, Set<String> branchIds, Set<String> generatorsId, Set<String> voltageLevelIds) {
