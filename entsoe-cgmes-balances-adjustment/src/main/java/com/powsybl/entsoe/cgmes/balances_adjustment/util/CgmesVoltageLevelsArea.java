@@ -22,7 +22,7 @@ class CgmesVoltageLevelsArea implements NetworkArea {
     private final List<String> voltageLevelIds = new ArrayList<>();
 
     private final List<DanglingLine> danglingLineBordersCache; // paired and unpaired.
-    private final List<Branch<?>> branchBordersCache; // other branches.
+    private final List<? extends Branch<?>> branchBordersCache; // other branches.
 
     private final Set<Bus> busesCache;
 
@@ -51,14 +51,14 @@ class CgmesVoltageLevelsArea implements NetworkArea {
                 })
                 .filter(dl -> {
                     if (excludedXnodes != null) {
-                        return excludedXnodes.stream().noneMatch(xnodeCode -> dl.getUcteXnodeCode().equals(xnodeCode)); // There is the possibility to exclude dangling lines associated with boundary nodes with given X-node codes
+                        return excludedXnodes.stream().noneMatch(xnodeCode -> dl.getPairingKey().equals(xnodeCode)); // There is the possibility to exclude dangling lines associated with boundary nodes with given X-node codes
                     }
                     return true;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    private List<Branch<?>> createBranchesCache(Network network, CgmesControlArea area) {
+    private List<? extends Branch<?>> createBranchesCache(Network network, CgmesControlArea area) {
         return network.getLineStream()
                 .filter(this::isAreaBorder)
                 .filter(b -> b.getTerminal1().getBusView().getBus() != null && b.getTerminal1().getBusView().getBus().isInMainSynchronousComponent()
@@ -70,7 +70,7 @@ class CgmesVoltageLevelsArea implements NetworkArea {
                     }
                     return true;
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
