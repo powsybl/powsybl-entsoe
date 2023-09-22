@@ -30,11 +30,6 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-entsoe-util</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
             <scope>test</scope>
         </dependency>

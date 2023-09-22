@@ -445,7 +445,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportManualGskBlocksWithDanglingLines() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false);
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false, false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MANUAL");
         assertEquals(1, list.size());
         assertEquals(1, list.get(0).getGlskShiftKeys().size());
@@ -469,7 +469,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportPropGskBlocksWithDanglingLines() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false);
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false, false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGSK");
         assertEquals(1, list.size());
         assertEquals(1, list.get(0).getGlskShiftKeys().size());
@@ -495,7 +495,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportPropGlskBlocksWithDanglingLines() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false);
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false, false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGLSK");
         assertEquals(1, list.size());
         assertEquals(2, list.get(0).getGlskShiftKeys().size());
@@ -526,7 +526,7 @@ class CseGlskDocumentImporterTest {
 
     @Test
     void checkCseGlskDocumentImporterCorrectlyImportMeritOrderGskBlocksWithDanglingLines() {
-        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false);
+        CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false, false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MERITORDER");
         assertEquals(1, list.size());
         assertEquals(7, list.get(0).getGlskShiftKeys().size());
