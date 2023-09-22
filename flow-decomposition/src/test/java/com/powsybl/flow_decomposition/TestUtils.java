@@ -6,6 +6,8 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.glsk.api.GlskDocument;
+import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -28,6 +30,11 @@ public final class TestUtils {
     public static Network importNetwork(String networkResourcePath) {
         String networkName = Paths.get(networkResourcePath).getFileName().toString();
         return Network.read(networkName, TestUtils.class.getResourceAsStream(networkResourcePath));
+    }
+
+    public static GlskDocument importGlskDocument(String glskFileName) {
+        String glskName = Paths.get(glskFileName).getFileName().toString();
+        return GlskDocumentImporters.importGlsk(TestUtils.class.getResourceAsStream(glskName));
     }
 
     public static void assertCoherenceTotalFlow(boolean enableRescaledResults, FlowDecompositionResults flowDecompositionResults) {
