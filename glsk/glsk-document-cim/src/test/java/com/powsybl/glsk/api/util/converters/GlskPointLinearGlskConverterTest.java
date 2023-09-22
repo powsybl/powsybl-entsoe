@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Peter Mitri {@literal <peter.mitri@rte-france.com>}
  */
 class GlskPointLinearGlskConverterTest {
-    // TODO : detail existing tests
     private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointLinearGlskConverterTest.class);
     private static final double DOUBLE_TOLERANCE = 1e-4;
 
