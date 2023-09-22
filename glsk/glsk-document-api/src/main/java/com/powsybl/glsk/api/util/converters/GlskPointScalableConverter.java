@@ -206,16 +206,15 @@ public final class GlskPointScalableConverter {
                     .collect(Collectors.toList());
             totalP += generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
 
-            double finalTotalP = totalP;
-            generators.forEach(generator -> {
+            for (Generator generator : generators) {
                 // Calculate factor of each generator
-                float factor = (float) (glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoTargetP(generator) / finalTotalP);
+                float factor = (float) (glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoTargetP(generator) / totalP);
                 percentages.add(100 * factor);
                 // In case of global shift key limitation we will limit the generator proportionally to
                 // its participation in the global proportional scalable
                 double maxGeneratorValue = NetworkUtil.pseudoTargetP(generator) + factor * glskShiftKey.getMaximumShift();
                 scalables.add(Scalable.onGenerator(generator.getId(), -Double.MAX_VALUE, maxGeneratorValue));
-            });
+            }
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
@@ -225,21 +224,19 @@ public final class GlskPointScalableConverter {
                     .collect(Collectors.toList());
             totalP += loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
 
-            double finalTotalP = totalP;
-            loads.forEach(load -> {
-                float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / finalTotalP);
+            for (Load load : loads) {
+                float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(load) / totalP);
                 // For now glsk shift key maximum shift is not handled for loads by lack of specification
                 percentages.add(loadPercentage);
                 scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
-            });
+            }
         }
-        double finalTotalP = totalP;
-        danglingLines.forEach(danglingLine -> {
-            float danglingLinePercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(danglingLine) / finalTotalP);
+        for (DanglingLine danglingLine : danglingLines) {
+            float danglingLinePercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * NetworkUtil.pseudoP0(danglingLine) / totalP);
             // For now glsk shift key maximum shift is not handled for dangling lines by lack of specification
             percentages.add(danglingLinePercentage);
             scalables.add(Scalable.onDanglingLine(danglingLine.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
-        });
+        }
     }
 
     /**
@@ -265,12 +262,11 @@ public final class GlskPointScalableConverter {
 
             totalFactor += generatorResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
 
-            double finalTotalFactor = totalFactor;
-            generatorResources.forEach(generatorResource -> {
-                float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * generatorResource.getParticipationFactor() / finalTotalFactor);
+            for (GlskRegisteredResource generatorResource : generatorResources) {
+                float generatorPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * generatorResource.getParticipationFactor() / totalFactor);
                 percentages.add(generatorPercentage);
                 scalables.add(getGeneratorScalableWithLimits(network, generatorResource));
-            });
+            }
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B43 LSK");
             List<GlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
@@ -279,19 +275,17 @@ public final class GlskPointScalableConverter {
 
             totalFactor += loadResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
 
-            double finalTotalFactor = totalFactor;
-            loadResources.forEach(loadResource -> {
-                float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * loadResource.getParticipationFactor() / finalTotalFactor);
+            for (GlskRegisteredResource loadResource : loadResources) {
+                float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * loadResource.getParticipationFactor() / totalFactor);
                 percentages.add(loadPercentage);
                 scalables.add(getLoadScalableWithLimits(network, loadResource));
-            });
+            }
         }
-        double finalTotalFactor = totalFactor;
-        danglingLineResources.forEach(danglingLineResource -> {
-            float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * danglingLineResource.getParticipationFactor() / finalTotalFactor);
+        for (GlskRegisteredResource danglingLineResource : danglingLineResources) {
+            float loadPercentage = (float) (100 * glskShiftKey.getQuantity().floatValue() * danglingLineResource.getParticipationFactor() / totalFactor);
             percentages.add(loadPercentage);
             scalables.add(getDanglingLineScalableWithLimits(network, danglingLineResource));
-        });
+        }
     }
 
     private static Country getSubstationNullableCountry(Optional<Substation> substation) {
