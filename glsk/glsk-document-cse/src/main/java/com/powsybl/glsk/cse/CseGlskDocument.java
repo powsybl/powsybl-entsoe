@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  */
 public final class CseGlskDocument implements GlskDocument {
     private static final Logger LOGGER = LoggerFactory.getLogger(CseGlskDocument.class);
-    private static final String DATA_CHRONOLOGY_NOT_HANDLED = "CSE GLSK document does only support hourly data";
+    private static final String DATA_CHRONOLOGY_NOT_HANDLED = "CSE GLSK document only supports hourly data";
     private static final String COUNTRIES_IN_AREA_KEY = "countriesInArea";
     private static final String COUNTRIES_OUT_AREA_KEY = "countriesOutArea";
 
