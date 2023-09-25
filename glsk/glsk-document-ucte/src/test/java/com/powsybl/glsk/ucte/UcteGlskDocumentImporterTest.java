@@ -6,7 +6,6 @@
  */
 package com.powsybl.glsk.ucte;
 
-import com.google.common.math.DoubleMath;
 import com.powsybl.glsk.api.GlskRegisteredResource;
 import com.powsybl.glsk.api.GlskShiftKey;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
@@ -68,9 +67,7 @@ class UcteGlskDocumentImporterTest {
         //test factor LSK + GSK = 1
         for (int i = 0; i < ucteGlskDocument.getListGlskSeries().size(); i++) {
             for (int j = 0; j < ucteGlskDocument.getListGlskSeries().get(i).getUcteGlskBlocks().size(); j++) {
-                assertTrue(DoubleMath.fuzzyEquals(1.0,
-                        ucteGlskDocument.getListGlskSeries().get(i).getUcteGlskBlocks().get(j).getGlskShiftKeys().stream().mapToDouble(GlskShiftKey::getQuantity).sum(),
-                        1e-5));
+                assertEquals(1.0, ucteGlskDocument.getListGlskSeries().get(i).getUcteGlskBlocks().get(j).getGlskShiftKeys().stream().mapToDouble(GlskShiftKey::getQuantity).sum(), 1e-5);
             }
         }
 
@@ -98,7 +95,7 @@ class UcteGlskDocumentImporterTest {
     }
 
     @Test
-    void testFileNotFound() throws FileNotFoundException {
+    void testFileNotFound() {
         assertThrows(FileNotFoundException.class, () -> GlskDocumentImporters.importGlsk("/nonExistingFile.xml"));
     }
 
@@ -114,7 +111,7 @@ class UcteGlskDocumentImporterTest {
         double factor = result.get("10YNL----------L").getGlskShiftKeys().get(0)
                 .getRegisteredResourceArrayList()
                 .stream()
-                .filter(glskRegisteredResource -> glskRegisteredResource.getmRID().equals("N_EC-42 "))
+                .filter(glskRegisteredResource -> glskRegisteredResource.getmRID().equals("IOJDAEQD"))
                 .mapToDouble(GlskRegisteredResource::getParticipationFactor)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Not good"));

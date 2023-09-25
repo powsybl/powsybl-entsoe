@@ -41,11 +41,23 @@
             <mRID codingScheme="A02">FFR2AA1 _generator</mRID>
             <name>FFR2AA1 _generator</name>
           </RegisteredResource>
+          <RegisteredResource>
+            <mRID codingScheme="A02">FFR3AA1 _generator</mRID>
+            <name>FFR3AA1 _generator</name>
+          </RegisteredResource>
+          <RegisteredResource>
+            <mRID codingScheme="A02">DDE3AA1  XNODE_1A 1</mRID>
+            <name>DDE3AA1  XNODE_1A 1</name>
+          </RegisteredResource>
         </SKBlock_TimeSeries>
         <SKBlock_TimeSeries>
           <businessType>B42</businessType>
           <mktPSRType.psrType>A05</mktPSRType.psrType>
           <quantity.quantity>0.4</quantity.quantity>
+          <RegisteredResource>
+            <mRID codingScheme="A02">FFR1AA1 _load</mRID>
+            <name>FFR1AA1 _load</name>
+          </RegisteredResource>
           <RegisteredResource>
             <mRID codingScheme="A02">FFR2AA1 _load</mRID>
             <name>FFR2AA1 _load</name>
@@ -53,6 +65,10 @@
           <RegisteredResource>
             <mRID codingScheme="A02">FFR3AA1 _load</mRID>
             <name>FFFR3AA1 _load</name>
+          </RegisteredResource>
+          <RegisteredResource>
+            <mRID codingScheme="A02">BBE2AA1  XNODE_1B 1</mRID>
+            <name>DBBE2AA1  XNODE_1B 1</name>
           </RegisteredResource>
         </SKBlock_TimeSeries>
       </Point>
