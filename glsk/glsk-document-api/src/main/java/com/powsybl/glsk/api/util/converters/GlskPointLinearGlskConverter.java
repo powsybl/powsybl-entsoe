@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 /**
  * Convert a single GlskPoint to LinearGlsk
  * @author Pengbo Wang {@literal <pengbo.wang@rte-international.com>}
+ * @author Peter Mitri {@literal <peter.mitri@rte-france.com>}
  */
 public final class GlskPointLinearGlskConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlskPointLinearGlskConverter.class);
@@ -119,6 +120,13 @@ public final class GlskPointLinearGlskConverter {
      * @param weightedSensitivityVariables linearGlsk to be filled
      */
     private static void convertExplicitProportional(Network network, GlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
+        List<DanglingLine> danglingLines = glskShiftKey.getRegisteredResourceArrayList().stream()
+            .map(rr -> rr.getDanglingLineId(network))
+            .filter(Objects::nonNull)
+            .map(network::getDanglingLine)
+            .filter(NetworkUtil::isCorrect)
+            .collect(Collectors.toList());
+        double totalP = danglingLines.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
@@ -127,9 +135,11 @@ public final class GlskPointLinearGlskConverter {
                     .map(network::getGenerator)
                     .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
-            double totalP = generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
-            generators.forEach(generator -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(generator.getId(),
-                    glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP)));
+            totalP += generators.stream().mapToDouble(NetworkUtil::pseudoTargetP).sum();
+            for (Generator generator : generators) {
+                weightedSensitivityVariables.add(new WeightedSensitivityVariable(generator.getId(),
+                    glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoTargetP(generator) / (float) totalP));
+            }
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<Load> loads = glskShiftKey.getRegisteredResourceArrayList().stream()
@@ -137,12 +147,18 @@ public final class GlskPointLinearGlskConverter {
                     .map(network::getLoad)
                     .filter(NetworkUtil::isCorrect)
                     .collect(Collectors.toList());
-            double totalLoad = loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
-            loads.forEach(load -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(load.getId(),
-                    glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalLoad)));
+            totalP += loads.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
+            for (Load load : loads) {
+                weightedSensitivityVariables.add(new WeightedSensitivityVariable(load.getId(),
+                    glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(load) / (float) totalP));
+            }
         } else {
             //unknown PsrType
             throw new GlskException("convertExplicitProportional PsrType not supported");
+        }
+        for (DanglingLine danglingLine : danglingLines) {
+            weightedSensitivityVariables.add(new WeightedSensitivityVariable(danglingLine.getId(),
+                glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(danglingLine) / (float) totalP));
         }
     }
 
@@ -153,31 +169,44 @@ public final class GlskPointLinearGlskConverter {
      */
     private static void convertParticipationFactor(Network network, GlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
         //Generator A04 or Load A05
+        List<GlskRegisteredResource> danglingLineResources = glskShiftKey.getRegisteredResourceArrayList().stream()
+            .filter(danglingLineResource -> danglingLineResource.getDanglingLineId(network) != null &&
+                NetworkUtil.isCorrect(network.getDanglingLine(danglingLineResource.getDanglingLineId(network))))
+            .collect(Collectors.toList());
+        double totalFactor = danglingLineResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
             List<GlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(generatorResource -> NetworkUtil.isCorrect(network.getGenerator(generatorResource.getGeneratorId())))
-                    .collect(Collectors.toList());
-            double totalFactor = generatorResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
+                .filter(generatorResource -> NetworkUtil.isCorrect(network.getGenerator(generatorResource.getGeneratorId())))
+                .collect(Collectors.toList());
+            totalFactor += generatorResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
             if (totalFactor < 1e-10) {
                 throw new GlskException("total factor is zero");
             }
-            generatorResources.forEach(generatorResource -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(generatorResource.getGeneratorId(),
-                    glskShiftKey.getQuantity().floatValue() * (float) generatorResource.getParticipationFactor() / (float) totalFactor)));
+            for (GlskRegisteredResource generatorResource : generatorResources) {
+                weightedSensitivityVariables.add(new WeightedSensitivityVariable(generatorResource.getGeneratorId(),
+                    glskShiftKey.getQuantity().floatValue() * (float) generatorResource.getParticipationFactor() / (float) totalFactor));
+            }
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             //Load A05
             List<GlskRegisteredResource> loadResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-                    .filter(loadResource -> NetworkUtil.isCorrect(network.getLoad(loadResource.getLoadId())))
-                    .collect(Collectors.toList());
-            double totalFactor = loadResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
+                .filter(loadResource -> NetworkUtil.isCorrect(network.getLoad(loadResource.getLoadId())))
+                .collect(Collectors.toList());
+            totalFactor += loadResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
             if (totalFactor < 1e-10) {
                 throw new GlskException("total factor is zero");
             }
-            loadResources.forEach(loadResource -> weightedSensitivityVariables.add(new WeightedSensitivityVariable(loadResource.getLoadId(),
-                    glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor)));
+            for (GlskRegisteredResource loadResource : loadResources) {
+                weightedSensitivityVariables.add(new WeightedSensitivityVariable(loadResource.getLoadId(),
+                    glskShiftKey.getQuantity().floatValue() * (float) loadResource.getParticipationFactor() / (float) totalFactor));
+            }
         } else {
             //unknown PsrType
             throw new GlskException("convertParticipationFactor PsrType not supported");
+        }
+        for (GlskRegisteredResource danglingLineResource : danglingLineResources) {
+            weightedSensitivityVariables.add(new WeightedSensitivityVariable(danglingLineResource.getDanglingLineId(network),
+                glskShiftKey.getQuantity().floatValue() * (float) danglingLineResource.getParticipationFactor() / (float) totalFactor));
         }
     }
 }

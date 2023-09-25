@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * FlowBased Glsk Values Provider Test for Ucte format
  *
  * @author Baptiste Seguinot {@literal <baptiste.seguinot at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri@rte-france.com>}
  */
 class UcteGlskValueProviderTest {
 
@@ -166,5 +167,22 @@ class UcteGlskValueProviderTest {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/TestZeroLsk.xml"));
         ZonalData<SensitivityVariableSet> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
         assertNull(ucteGlskProvider.getData("10YFR-RTE------C"));
+    }
+
+    @Test
+    void testWithDanglingLines() {
+        Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
+        Instant instant = Instant.parse("2016-07-29T10:00:00Z");
+        UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskWithDanglingLines.xml"));
+        ZonalData<SensitivityVariableSet> ucteGlskProvider = ucteGlskDocument.getZonalGlsks(network, instant);
+        SensitivityVariableSet linearGlsk = ucteGlskProvider.getData("10YFR-RTE------C");
+
+        assertNotNull(linearGlsk);
+        assertEquals(5, linearGlsk.getVariables().size());
+        assertEquals(0.2, linearGlsk.getVariable("FFR1AA1 _generator").getWeight(), EPSILON); // 2000/3000 * 0.3 = 0.2
+        assertEquals(0.1, linearGlsk.getVariable("DDE3AA1  XNODE_1A 1").getWeight(), EPSILON); // 1000/3000 * 0.3 = 0.1
+        assertEquals(0.1272, linearGlsk.getVariable("FFR1AA1 _load").getWeight(), EPSILON); // 1000/5500 * 0.7 = 0.1272
+        assertEquals(0.4454, linearGlsk.getVariable("FFR2AA1 _load").getWeight(), EPSILON); // 3500/5500 * 0.7 = 0.4454
+        assertEquals(0.1272, linearGlsk.getVariable("BBE2AA1  XNODE_1B 1").getWeight(), EPSILON); // 1000/5500 * 0.7 = 0.1272
     }
 }

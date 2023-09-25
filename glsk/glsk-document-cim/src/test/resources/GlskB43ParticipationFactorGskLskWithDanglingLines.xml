@@ -18,7 +18,7 @@
   </time_Period.timeInterval>
   <domain.mRID codingScheme="A01">10YDOM-REGION-1V</domain.mRID>
   <TimeSeries>
-    <mRID>GLSK_B42_country</mRID>
+    <mRID>GLSK_B43_participation_factor</mRID>
     <subject_Domain.mRID codingScheme="A01">10YFR-RTE------C</subject_Domain.mRID>
     <curveType>A03</curveType>
     <Period>
@@ -30,29 +30,33 @@
       <Point>
         <position>1</position>
         <SKBlock_TimeSeries>
-          <businessType>B42</businessType>
+          <businessType>B43</businessType>
           <mktPSRType.psrType>A04</mktPSRType.psrType>
           <quantity.quantity>0.6</quantity.quantity>
           <RegisteredResource>
             <mRID codingScheme="A02">FFR1AA1 _generator</mRID>
             <name>FFR1AA1 _generator</name>
+            <sK_ResourceCapacity.defaultCapacity>0.7</sK_ResourceCapacity.defaultCapacity>
           </RegisteredResource>
           <RegisteredResource>
-            <mRID codingScheme="A02">FFR2AA1 _generator</mRID>
-            <name>FFR2AA1 _generator</name>
+            <mRID codingScheme="A02">DDE3AA1  XNODE_1A 1</mRID>
+            <name>DDE3AA1  XNODE_1A 1</name>
+            <sK_ResourceCapacity.defaultCapacity>0.3</sK_ResourceCapacity.defaultCapacity>
           </RegisteredResource>
         </SKBlock_TimeSeries>
         <SKBlock_TimeSeries>
-          <businessType>B42</businessType>
+          <businessType>B43</businessType>
           <mktPSRType.psrType>A05</mktPSRType.psrType>
           <quantity.quantity>0.4</quantity.quantity>
           <RegisteredResource>
-            <mRID codingScheme="A02">FFR2AA1 _load</mRID>
-            <name>FFR2AA1 _load</name>
+            <mRID codingScheme="A02">FFR1AA1 _load</mRID>
+            <name>FFR1AA1 _load</name>
+            <sK_ResourceCapacity.defaultCapacity>0.4</sK_ResourceCapacity.defaultCapacity>
           </RegisteredResource>
           <RegisteredResource>
-            <mRID codingScheme="A02">FFR3AA1 _load</mRID>
-            <name>FFFR3AA1 _load</name>
+            <mRID codingScheme="A02">BBE2AA1  XNODE_1B 1</mRID>
+            <name>BBE2AA1  XNODE_1B 1</name>
+            <sK_ResourceCapacity.defaultCapacity>0.6</sK_ResourceCapacity.defaultCapacity>
           </RegisteredResource>
         </SKBlock_TimeSeries>
       </Point>

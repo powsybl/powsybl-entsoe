@@ -36,12 +36,12 @@
           <RegisteredResource>
             <mRID codingScheme="A02">FFR1AA1 _generator</mRID>
             <name>FFR1AA1 _generator</name>
-            <sK_ResourceCapacity.defaultCapacity>0.5</sK_ResourceCapacity.defaultCapacity>
+            <sK_ResourceCapacity.defaultCapacity>0.7</sK_ResourceCapacity.defaultCapacity>
           </RegisteredResource>
           <RegisteredResource>
             <mRID codingScheme="A02">FFR2AA1 _generator</mRID>
             <name>FFR2AA1 _generator</name>
-            <sK_ResourceCapacity.defaultCapacity>0.5</sK_ResourceCapacity.defaultCapacity>
+            <sK_ResourceCapacity.defaultCapacity>0.3</sK_ResourceCapacity.defaultCapacity>
           </RegisteredResource>
         </SKBlock_TimeSeries>
         <SKBlock_TimeSeries>
@@ -51,12 +51,12 @@
           <RegisteredResource>
             <mRID codingScheme="A02">FFR1AA1 _load</mRID>
             <name>FFR1AA1 _load</name>
-            <sK_ResourceCapacity.defaultCapacity>0.5</sK_ResourceCapacity.defaultCapacity>
+            <sK_ResourceCapacity.defaultCapacity>0.2</sK_ResourceCapacity.defaultCapacity>
           </RegisteredResource>
           <RegisteredResource>
             <mRID codingScheme="A02">FFR2AA1 _load</mRID>
             <name>FFR2AA1 _load</name>
-            <sK_ResourceCapacity.defaultCapacity>0.5</sK_ResourceCapacity.defaultCapacity>
+            <sK_ResourceCapacity.defaultCapacity>0.8</sK_ResourceCapacity.defaultCapacity>
           </RegisteredResource>
         </SKBlock_TimeSeries>
       </Point>

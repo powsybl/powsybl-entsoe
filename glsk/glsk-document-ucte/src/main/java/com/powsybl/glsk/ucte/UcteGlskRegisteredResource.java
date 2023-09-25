@@ -8,12 +8,15 @@
 package com.powsybl.glsk.ucte;
 
 import com.powsybl.glsk.api.AbstractGlskRegisteredResource;
+import com.powsybl.glsk.api.util.Util;
+import com.powsybl.iidm.network.Network;
 import org.w3c.dom.Element;
 
 import java.util.Objects;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
+ * @author Peter Mitri {@literal <peter.mitri@rte-france.com>}
  */
 public class UcteGlskRegisteredResource extends AbstractGlskRegisteredResource {
 
@@ -37,5 +40,10 @@ public class UcteGlskRegisteredResource extends AbstractGlskRegisteredResource {
     @Override
     public String getLoadId() {
         return mRID + "_load";
+    }
+
+    @Override
+    public String getDanglingLineId(Network network) {
+        return Util.findDanglingLineIdForXndoe(network, mRID);
     }
 }
