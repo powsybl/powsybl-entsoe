@@ -33,7 +33,7 @@ public final class Util {
 
     public static String findDanglingLineIdForXndoe(Network network, String xnode) {
         Set<String> danglingLines = network.getDanglingLineStream()
-            .filter(dl -> dl.getUcteXnodeCode().equals(xnode))
+            .filter(dl -> dl.getPairingKey().equals(xnode))
             .map(Identifiable::getId)
             .collect(Collectors.toSet());
         if (danglingLines.size() != 1) {
