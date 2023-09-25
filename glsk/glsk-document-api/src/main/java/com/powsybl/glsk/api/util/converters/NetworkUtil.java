@@ -6,6 +6,7 @@
  */
 package com.powsybl.glsk.api.util.converters;
 
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
@@ -26,6 +27,10 @@ public final class NetworkUtil {
 
     static double pseudoP0(Load load) {
         return Math.max(MINIMAL_ABS_POWER_VALUE, Math.abs(load.getP0()));
+    }
+
+    static double pseudoP0(DanglingLine danglingLine) {
+        return Math.max(MINIMAL_ABS_POWER_VALUE, Math.abs(danglingLine.getP0()));
     }
 
     static boolean isCorrect(Injection<?> injection) {
