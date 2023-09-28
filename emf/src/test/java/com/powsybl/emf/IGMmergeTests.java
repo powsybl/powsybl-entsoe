@@ -70,7 +70,7 @@ class IGMmergeTests {
         igmNL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
         // merge, serialize and deserialize the network
-        Network merged = Network.create("Merged", igmBE, igmNL);
+        Network merged = Network.merge("Merged", igmBE, igmNL);
 
         // Check that we have subnetworks
         assertEquals(2, merged.getSubnetworks().size());
@@ -121,7 +121,7 @@ class IGMmergeTests {
         Network igmNL = Network.read(resNL.dataSource());
 
         // merge, serialize and deserialize the network
-        Network merged = Network.create("Merged", igmBE, igmNL);
+        Network merged = Network.merge("Merged", igmBE, igmNL);
         Network subnetworkBE = merged.getSubnetwork(idBE);
 
         // Check that we have subnetworks
@@ -190,7 +190,7 @@ class IGMmergeTests {
 
     @Test
     void testCompareSubnetworksMergeAgainstAssembled() {
-        Network merged = Network.create("merged",
+        Network merged = Network.merge("merged",
                 Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource()),
                 Network.read(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource()));
         // In merged, reset all p0, q0 values for all paired dangling lines
