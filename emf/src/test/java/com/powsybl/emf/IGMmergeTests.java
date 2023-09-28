@@ -10,11 +10,10 @@ package com.powsybl.emf;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conversion.export.*;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.modification.ReplaceTieLinesByLines;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
@@ -22,15 +21,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.function.Consumer;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
@@ -53,35 +52,25 @@ class IGMmergeTests {
 
     @Test
     void igmsSubnetworksMerge() throws IOException {
-
         Set<String> branchIds = new HashSet<>();
         Set<String> generatorIds = new HashSet<>();
         Set<String> voltageLevelIds = new HashSet<>();
 
         // load two IGMs BE and NL
-        Map<String, Network> validNetworks = new HashMap<>();
         GridModelReferenceResources resBE = CgmesConformity1Catalog.microGridBaseCaseBE();
         Network igmBE = Network.read(resBE.dataSource());
-        String idBE = igmBE.getId();
         igmBE.getBranches().forEach(b -> branchIds.add(b.getId()));
         igmBE.getGenerators().forEach(g -> generatorIds.add(g.getId()));
         igmBE.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
         GridModelReferenceResources resNL = CgmesConformity1Catalog.microGridBaseCaseNL();
         Network igmNL = Network.read(resNL.dataSource());
-        String idNL = igmNL.getId();
         igmNL.getBranches().forEach(b -> branchIds.add(b.getId()));
         igmNL.getGenerators().forEach(g -> generatorIds.add(g.getId()));
         igmNL.getVoltageLevels().forEach(v -> voltageLevelIds.add(v.getId()));
 
         // merge, serialize and deserialize the network
-        Network merged = Network.create("Merged", igmBE, igmNL);
-        Network subnetworkBE = merged.getSubnetwork(idBE);
-        Network subnetworkNL = merged.getSubnetwork(idNL);
-
-        validNetworks.put("Merged", merged);
-        validNetworks.put("BE", subnetworkBE);
-        validNetworks.put("NL", subnetworkNL);
+        Network merged = Network.merge("Merged", igmBE, igmNL);
 
         // Check that we have subnetworks
         assertEquals(2, merged.getSubnetworks().size());
@@ -89,7 +78,7 @@ class IGMmergeTests {
         LoadFlow.run(merged);
 
         Path mergedDir = Files.createDirectories(tmpDir.resolve("subnetworksMerge"));
-        exportNetwork(merged, mergedDir, "BE_NL", validNetworks, Set.of("EQ", "TP", "SSH", "SV"));
+        exportNetwork(merged, mergedDir, "BE_NL", Set.of("EQ", "TP", "SSH", "SV"));
 
         // copy the boundary set explicitly it is not serialized and is needed for reimport
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
@@ -132,7 +121,7 @@ class IGMmergeTests {
         Network igmNL = Network.read(resNL.dataSource());
 
         // merge, serialize and deserialize the network
-        Network merged = Network.create("Merged", igmBE, igmNL);
+        Network merged = Network.merge("Merged", igmBE, igmNL);
         Network subnetworkBE = merged.getSubnetwork(idBE);
 
         // Check that we have subnetworks
@@ -150,7 +139,7 @@ class IGMmergeTests {
 
     private Network exportAndLoad(Network network, String dirName, String country) throws IOException {
         Path dir = Files.createDirectories(tmpDir.resolve(dirName));
-        exportNetwork(network, dir, country, Map.of(country, network), Set.of("EQ", "TP", "SSH"));
+        exportNetwork(network, dir, country, Set.of("EQ", "TP", "SSH"));
 
         // copy the boundary set explicitly it is not serialized and is needed for reimport
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
@@ -178,7 +167,7 @@ class IGMmergeTests {
         LoadFlow.run(networkBENL);
 
         Path mergedResourcesDir = Files.createDirectories(tmpDir.resolve("mergedResourcesExport"));
-        exportNetwork(networkBENL, mergedResourcesDir, "BE_NL", Map.of("BENL", networkBENL), Set.of("EQ", "TP", "SSH", "SV"));
+        exportNetwork(networkBENL, mergedResourcesDir, "BE_NL", Set.of("EQ", "TP", "SSH", "SV"));
 
         //Copy the boundary set explicitly it is not serialized and is needed for reimport
         ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
@@ -201,7 +190,7 @@ class IGMmergeTests {
 
     @Test
     void testCompareSubnetworksMergeAgainstAssembled() {
-        Network merged = Network.create("merged",
+        Network merged = Network.merge("merged",
                 Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource()),
                 Network.read(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource()));
         // In merged, reset all p0, q0 values for all paired dangling lines
@@ -219,37 +208,11 @@ class IGMmergeTests {
         voltageLevelIds.forEach(v -> assertNotNull(n.getVoltageLevel(v)));
     }
 
-    private static void exportNetwork(Network network, Path outputDir, String baseName, Map<String, Network> validNetworks, Set<String> profilesToExport) {
+    private static void exportNetwork(Network network, Path outputDir, String baseName, Set<String> profilesToExport) {
         Objects.requireNonNull(network);
-        Path filenameEq = outputDir.resolve(baseName + "_EQ.xml");
-        Path filenameTp = outputDir.resolve(baseName + "_TP.xml");
-        Path filenameSsh = outputDir.resolve(baseName + "_SSH.xml");
-        Path filenameSv = outputDir.resolve(baseName + "_SV.xml");
-        CgmesExportContext context = new CgmesExportContext();
-        context.setScenarioTime(network.getCaseDate());
-        validNetworks.forEach((name, n) -> context.addIidmMappings(n));
-
-        if (profilesToExport.contains("EQ")) {
-            export(filenameEq, writer -> EquipmentExport.write(network, writer, context));
-        }
-        if (profilesToExport.contains("TP")) {
-            export(filenameTp, writer -> TopologyExport.write(network, writer, context));
-        }
-        if (profilesToExport.contains("SSH")) {
-            export(filenameSsh, writer -> SteadyStateHypothesisExport.write(network, writer, context));
-        }
-        if (profilesToExport.contains("SV")) {
-            export(filenameSv, writer -> StateVariablesExport.write(network, writer, context));
-        }
-    }
-
-    private static void export(Path file, Consumer<XMLStreamWriter> outConsumer) {
-        try (OutputStream out = Files.newOutputStream(file)) {
-            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", out);
-            outConsumer.accept(writer);
-        } catch (IOException | XMLStreamException e) {
-            throw new RuntimeException(e);
-        }
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, String.join(",", profilesToExport));
+        network.write("CGMES", exportParams, outputDir.resolve(baseName));
     }
 
     private static void checkDanglingLine(DanglingLine dl1, DanglingLine dl2) {
