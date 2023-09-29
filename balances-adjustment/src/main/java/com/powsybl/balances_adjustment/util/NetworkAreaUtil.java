@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -33,14 +32,14 @@ public final class NetworkAreaUtil {
                 .map(t -> (Load) t.getConnectable())
                 .filter(load -> load.getP0() >= 0)
                 .filter(load -> load.getExtension(LoadDetail.class) != null && load.getExtension(LoadDetail.class).getVariableActivePower() != 0)
-                .collect(Collectors.toList());
+                .toList();
         if (loads.isEmpty()) {
             loads = area.getContainedBusViewBuses().stream()
                     .flatMap(Bus::getConnectedTerminalStream)
                     .filter(t -> t.getConnectable() instanceof Load)
                     .map(t -> (Load) t.getConnectable())
                     .filter(load -> load.getP0() >= 0)
-                    .collect(Collectors.toList());
+                    .toList();
             if (loads.isEmpty()) {
                 throw new PowsyblException("There is no load in this area");
             }
@@ -49,8 +48,8 @@ public final class NetworkAreaUtil {
         if (totalP0 == 0.0) {
             throw new PowsyblException("All loads' active power flows is null"); // this case should never happen
         }
-        List<Float> percentages = loads.stream().map(load -> (float) (100f * load.getP0() / totalP0)).collect(Collectors.toList());
-        return Scalable.proportional(percentages, loads.stream().map(inj -> (Scalable) Scalable.onLoad(inj.getId())).collect(Collectors.toList()));
+        List<Double> percentages = loads.stream().map(load -> 100.0 * load.getP0() / totalP0).toList();
+        return Scalable.proportional(percentages, loads.stream().map(inj -> (Scalable) Scalable.onLoad(inj.getId())).toList());
     }
 
     private NetworkAreaUtil() {

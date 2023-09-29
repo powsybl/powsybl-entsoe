@@ -65,10 +65,10 @@ class BalanceComputationSimpleDcTest {
 
         loadFlowRunner = new LoadFlow.Runner(new OpenLoadFlowProvider(new DenseMatrixFactory()));
 
-        scalableFR = Scalable.proportional(Arrays.asList(60f, 40f),
+        scalableFR = Scalable.proportional(Arrays.asList(60.0, 40.0),
                 Arrays.asList(Scalable.onGenerator("GENERATOR_FR"), Scalable.onLoad("LOAD_FR")));
 
-        scalableBE = Scalable.proportional(Arrays.asList(60f, 40f),
+        scalableBE = Scalable.proportional(Arrays.asList(60.0, 40.0),
                 Arrays.asList(Scalable.onGenerator("GENERATOR_BE"), Scalable.onLoad("LOAD_BE")));
 
         generatorFr = simpleNetwork.getGenerator("GENERATOR_FR");
