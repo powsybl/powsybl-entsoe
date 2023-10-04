@@ -69,7 +69,7 @@
         <commonscsv.version>1.9.0</commonscsv.version>
         <maven.jaxb2.version>3.1.0</maven.jaxb2.version>
         <jakarta.xml.bind.version>4.0.0</jakarta.xml.bind.version>
-        <jaxb.impl.version>4.0.0</jaxb.impl.version>
+        <jaxb.runtime.version>4.0.0</jaxb.runtime.version>
     </properties>
 
     <modules>
@@ -182,9 +182,9 @@
                 <version>${jakarta.xml.bind.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>${jaxb.impl.version}</version>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb.runtime.version}</version>
                 <scope>runtime</scope>
             </dependency>
         </dependencies>
