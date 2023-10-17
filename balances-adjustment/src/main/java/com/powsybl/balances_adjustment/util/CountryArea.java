@@ -121,7 +121,7 @@ public class CountryArea implements NetworkArea {
     }
 
     private double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() ? -danglingLine.getBoundary().getP() : 0;
+        return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getBoundary().getP()) ? -danglingLine.getBoundary().getP() : 0;
     }
 
     private double getLeavingFlow(Line line) {
