@@ -138,4 +138,36 @@ class CountryAreaTest {
         assertEquals(0, countryAreaCH.create(testNetwork).getNetPosition(), 1e-3);
         assertEquals(0, countryAreaIT.create(testNetwork).getNetPosition(), 1e-3);
     }
+
+    @Test
+    void testNetPositionPartOfLineIsZeroWhenLineTerminal1PIsNaN() {
+        Network network = Network.read("testCaseSpecialDevices.xiidm", getClass().getResourceAsStream("/testCaseSpecialDevices.xiidm"));
+        network.getLine("LINE_FR_ES").getTerminal1().setP(Double.NaN);
+        assertEquals(75, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
+        assertEquals(-75, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
+    }
+
+    @Test
+    void testNetPositionPartOfLineIsZeroWhenLineTerminal2PIsNaN() {
+        Network network = Network.read("testCaseSpecialDevices.xiidm", getClass().getResourceAsStream("/testCaseSpecialDevices.xiidm"));
+        network.getLine("LINE_FR_ES").getTerminal2().setP(Double.NaN);
+        assertEquals(75, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
+        assertEquals(-75, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
+    }
+
+    @Test
+    void testNetPositionPartOfHvdcIsZeroWhenHvdcTerminal1PIsNaN() {
+        Network network = Network.read("testCaseSpecialDevices.xiidm", getClass().getResourceAsStream("/testCaseSpecialDevices.xiidm"));
+        network.getHvdcLine("HVDC_FR_ES").getConverterStation1().getTerminal().setP(Double.NaN);
+        assertEquals(75, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
+        assertEquals(-75, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
+    }
+
+    @Test
+    void testNetPositionPartOfHvdcIsZeroWhenHvdcTerminal2PIsNaN() {
+        Network network = Network.read("testCaseSpecialDevices.xiidm", getClass().getResourceAsStream("/testCaseSpecialDevices.xiidm"));
+        network.getHvdcLine("HVDC_FR_ES").getConverterStation2().getTerminal().setP(Double.NaN);
+        assertEquals(75, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
+        assertEquals(-75, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
+    }
 }
