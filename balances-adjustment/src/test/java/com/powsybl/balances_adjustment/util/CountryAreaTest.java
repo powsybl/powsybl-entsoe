@@ -144,8 +144,8 @@ class CountryAreaTest {
         Network network = Network.read("testCaseSpecialDevices.xiidm", getClass().getResourceAsStream("/testCaseSpecialDevices.xiidm"));
         network.getLine("LINE_FR_ES").getTerminal1().disconnect();
         network.getLine("LINE_FR_ES").getTerminal2().disconnect();
-        assertEquals(75, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
-        assertEquals(-75, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
+        assertEquals(50, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
+        assertEquals(-50, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
     }
 
     @Test
@@ -153,7 +153,7 @@ class CountryAreaTest {
         Network network = Network.read("testCaseSpecialDevices.xiidm", getClass().getResourceAsStream("/testCaseSpecialDevices.xiidm"));
         network.getHvdcLine("HVDC_FR_ES").getConverterStation1().getTerminal().disconnect();
         network.getHvdcLine("HVDC_FR_ES").getConverterStation2().getTerminal().disconnect();
-        assertEquals(75, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
-        assertEquals(-75, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
+        assertEquals(50, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
+        assertEquals(-50, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
     }
 }
