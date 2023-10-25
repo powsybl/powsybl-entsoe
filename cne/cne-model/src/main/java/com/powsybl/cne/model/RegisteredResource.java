@@ -9,7 +9,7 @@ package com.powsybl.cne.model;
 import com.powsybl.contingency.ContingencyElement;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class RegisteredResource {
 
