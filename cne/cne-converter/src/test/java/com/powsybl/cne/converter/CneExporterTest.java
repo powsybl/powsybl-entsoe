@@ -37,7 +37,7 @@ import java.util.Properties;
 /**
  * Check CneExporter class
  *
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 class CneExporterTest extends AbstractConverterTest {
 

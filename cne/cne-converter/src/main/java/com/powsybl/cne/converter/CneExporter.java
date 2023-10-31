@@ -31,7 +31,7 @@ import static com.powsybl.cne.converter.CneConstants.*;
 /**
  * CNE XML format export of an SecurityAnalysisResult.<p>
  *
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 @AutoService(SecurityAnalysisResultExporter.class)
 public class CneExporter implements SecurityAnalysisResultExporter {
