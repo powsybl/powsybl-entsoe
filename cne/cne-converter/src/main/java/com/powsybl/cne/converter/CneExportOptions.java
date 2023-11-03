@@ -7,7 +7,7 @@
 package com.powsybl.cne.converter;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 class CneExportOptions {
 

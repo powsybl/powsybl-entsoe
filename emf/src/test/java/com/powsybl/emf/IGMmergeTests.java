@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * @author Bertrand Rix <bertrand.rix at artelys.com>
+ * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 class IGMmergeTests {
 

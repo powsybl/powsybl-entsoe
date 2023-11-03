@@ -11,7 +11,7 @@ import com.powsybl.security.LimitViolation;
 import java.util.*;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class MonitoredRegisteredResource {
 

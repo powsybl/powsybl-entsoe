@@ -8,6 +8,7 @@ package com.powsybl.balances_adjustment.util;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.TieLineUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,13 +36,13 @@ public class CountryArea implements NetworkArea {
 
         danglingLineBordersCache = network.getDanglingLineStream()
                 .filter(this::isAreaBorder)
-                .collect(Collectors.toList());
+                .toList();
         lineBordersCache = network.getLineStream()
                 .filter(this::isAreaBorder)
-                .collect(Collectors.toList());
+                .toList();
         hvdcLineBordersCache = network.getHvdcLineStream()
                 .filter(this::isAreaBorder)
-                .collect(Collectors.toList());
+                .toList();
 
         busesCache = network.getBusView().getBusStream()
                 .filter(bus -> bus.getVoltageLevel().getSubstation().flatMap(Substation::getCountry).map(countries::contains).orElse(false))
@@ -73,7 +74,7 @@ public class CountryArea implements NetworkArea {
         });
         double sum = 0;
         for (DanglingLine danglingLine : danglingLineBordersCache) {
-            if (otherSideIsInArea(danglingLine, otherCountryArea)) {
+            if (isOtherSideInArea(danglingLine, otherCountryArea)) {
                 sum += getLeavingFlow(danglingLine);
             }
         }
@@ -90,15 +91,8 @@ public class CountryArea implements NetworkArea {
         return sum;
     }
 
-    private boolean otherSideIsInArea(DanglingLine danglingLine, CountryArea countryArea) {
-        Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
-        if (optionalTieLine.isPresent()) {
-            TieLine tieLine = optionalTieLine.get();
-            DanglingLine otherSide = tieLine.getDanglingLine1() == danglingLine ? tieLine.getDanglingLine2() : tieLine.getDanglingLine1();
-            return countryArea.isAreaBorder(otherSide);
-        } else {
-            return false;
-        }
+    private boolean isOtherSideInArea(DanglingLine danglingLine, CountryArea countryArea) {
+        return TieLineUtil.getPairedDanglingLine(danglingLine).filter(countryArea::isAreaBorder).isPresent();
     }
 
     private boolean isAreaBorder(DanglingLine danglingLine) {
@@ -127,20 +121,24 @@ public class CountryArea implements NetworkArea {
     }
 
     private double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() ? -danglingLine.getBoundary().getP() : 0;
+        return danglingLine.getTerminal().isConnected() ? zeroIfNan(-danglingLine.getBoundary().getP()) : 0;
     }
 
     private double getLeavingFlow(Line line) {
-        double flowSide1 = line.getTerminal1().isConnected() && !Double.isNaN(line.getTerminal1().getP()) ? line.getTerminal1().getP() : 0;
-        double flowSide2 = line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP()) ? line.getTerminal2().getP() : 0;
+        double flowSide1 = line.getTerminal1().isConnected() ? zeroIfNan(line.getTerminal1().getP()) : 0;
+        double flowSide2 = line.getTerminal2().isConnected() ? zeroIfNan(line.getTerminal2().getP()) : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
         return countries.contains(line.getTerminal1().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null)) ? directFlow : -directFlow;
     }
 
     private double getLeavingFlow(HvdcLine hvdcLine) {
-        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation1().getTerminal().getP()) ? hvdcLine.getConverterStation1().getTerminal().getP() : 0;
-        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation2().getTerminal().getP()) ? hvdcLine.getConverterStation2().getTerminal().getP() : 0;
+        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() ? zeroIfNan(hvdcLine.getConverterStation1().getTerminal().getP()) : 0;
+        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() ? zeroIfNan(hvdcLine.getConverterStation2().getTerminal().getP()) : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
         return countries.contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null)) ? directFlow : -directFlow;
+    }
+
+    private static double zeroIfNan(double aPossiblyNanValue) {
+        return Double.isNaN(aPossiblyNanValue) ? 0 : aPossiblyNanValue;
     }
 }
