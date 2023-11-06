@@ -34,6 +34,8 @@ public class FlowDecompositionComputer {
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
     private final LossesCompensator lossesCompensator;
 
+    private final FlowDecompositionObserverList observers;
+
     public FlowDecompositionComputer() {
         this(new FlowDecompositionParameters());
     }
@@ -46,6 +48,7 @@ public class FlowDecompositionComputer {
         this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
         this.sensitivityAnalysisRunner = SensitivityAnalysis.find(sensitivityAnalysisProvider);
         this.lossesCompensator = parameters.isLossesCompensationEnabled() ? new LossesCompensator(parameters) : null;
+        this.observers = new FlowDecompositionObserverList();
     }
 
     public FlowDecompositionComputer(FlowDecompositionParameters flowDecompositionParameters,
@@ -68,7 +71,10 @@ public class FlowDecompositionComputer {
         LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
 
         Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
+        observers.computedGlsk(glsks);
+
         Map<Country, Double> netPositions = getZonesNetPosition(network);
+        observers.computedNetPositions(netPositions);
 
         FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
         decomposeFlowForNState(network,
@@ -96,6 +102,7 @@ public class FlowDecompositionComputer {
                                         Map<Country, Map<String, Double>> glsks,
                                         LoadFlowRunningService.Result loadFlowServiceAcResult) {
         if (!xnecList.isEmpty()) {
+            observers.computingBaseCase();
             FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder = flowDecompositionResults.getBuilder(xnecList);
             decomposeFlowForState(network, xnecList, flowDecompositionResultsBuilder, netPositions, glsks, loadFlowServiceAcResult);
         }
@@ -109,6 +116,7 @@ public class FlowDecompositionComputer {
                                                   Map<Country, Double> netPositions,
                                                   Map<Country, Map<String, Double>> glsks) {
         if (!xnecList.isEmpty()) {
+            observers.computingContingency(contingencyId);
             networkStateManager.setNetworkVariant(contingencyId);
             LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
             FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder = flowDecompositionResults.getBuilder(contingencyId, xnecList);
@@ -133,17 +141,28 @@ public class FlowDecompositionComputer {
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
             netPositions, networkMatrixIndexes, glsks);
         saveDcReferenceFlow(flowDecompositionResultsBuilder, xnecList);
+        observers.computedNodalInjectionsMatrix(nodalInjectionsMatrix);
 
         // DC Sensi
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet ptdfMatrix = getPtdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
+        observers.computedPtdfMatrix(ptdfMatrix);
         SparseMatrixWithIndexesTriplet psdfMatrix = getPsdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
+        observers.computedPsdfMatrix(psdfMatrix);
 
         // None
         computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);
         computePstFlows(network, flowDecompositionResultsBuilder, networkMatrixIndexes, psdfMatrix);
 
         flowDecompositionResultsBuilder.build(parameters.isRescaleEnabled());
+    }
+
+    public void addObserver(FlowDecompositionObserver observer) {
+        this.observers.addObserver(observer);
+    }
+
+    public void removeObserver(FlowDecompositionObserver observer) {
+        this.observers.removeObserver(observer);
     }
 
     private LoadFlowRunningService.Result runAcLoadFlow(Network network) {
