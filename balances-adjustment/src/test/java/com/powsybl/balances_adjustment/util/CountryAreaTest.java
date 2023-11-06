@@ -129,4 +129,31 @@ class CountryAreaTest {
         assertEquals(0, countryAreaCH.getLeavingFlowToCountry(countryAreaDE), EPSILON);
         assertEquals(-699, countryAreaIT.getLeavingFlowToCountry(countryAreaAT), EPSILON);
     }
+
+    @Test
+    void testNetPositionIsZeroWhenDanglingLineBorderPIsNaN() {
+        Network testNetwork = Network.read("testCaseNanInNetPositionComputation.uct", NetworkAreaTest.class.getResourceAsStream("/testCaseNanInNetPositionComputation.uct"));
+        NetworkAreaFactory countryAreaCH = new CountryAreaFactory(Country.CH);
+        NetworkAreaFactory countryAreaIT = new CountryAreaFactory(Country.IT);
+        assertEquals(0, countryAreaCH.create(testNetwork).getNetPosition(), 1e-3);
+        assertEquals(0, countryAreaIT.create(testNetwork).getNetPosition(), 1e-3);
+    }
+
+    @Test
+    void testNetPositionPartOfLineIsZeroWhenLineIsDisconnected() {
+        Network network = Network.read("testCaseSpecialDevices.xiidm", getClass().getResourceAsStream("/testCaseSpecialDevices.xiidm"));
+        network.getLine("LINE_FR_ES").getTerminal1().disconnect();
+        network.getLine("LINE_FR_ES").getTerminal2().disconnect();
+        assertEquals(50, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
+        assertEquals(-50, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
+    }
+
+    @Test
+    void testNetPositionPartOfHvdcIsZeroWhenHvdcIsDisconnected() {
+        Network network = Network.read("testCaseSpecialDevices.xiidm", getClass().getResourceAsStream("/testCaseSpecialDevices.xiidm"));
+        network.getHvdcLine("HVDC_FR_ES").getConverterStation1().getTerminal().disconnect();
+        network.getHvdcLine("HVDC_FR_ES").getConverterStation2().getTerminal().disconnect();
+        assertEquals(50, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
+        assertEquals(-50, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
+    }
 }
