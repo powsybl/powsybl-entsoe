@@ -15,6 +15,8 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityVariableType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -26,6 +28,9 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class FlowDecompositionComputer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
+
     static final String DEFAULT_LOAD_FLOW_PROVIDER = null;
     static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = null;
     private final LoadFlowParameters loadFlowParameters;
@@ -66,33 +71,38 @@ public class FlowDecompositionComputer {
     }
 
     public FlowDecompositionResults run(XnecProvider xnecProvider, GlskProvider glskProvider, Network network) {
-        NetworkStateManager networkStateManager = new NetworkStateManager(network, xnecProvider);
+        observers.runStart();
+        try {
+            NetworkStateManager networkStateManager = new NetworkStateManager(network, xnecProvider);
 
-        LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
+            LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
 
-        Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
-        observers.computedGlsk(glsks);
+            Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
+            observers.computedGlsk(glsks);
 
-        Map<Country, Double> netPositions = getZonesNetPosition(network);
-        observers.computedNetPositions(netPositions);
+            Map<Country, Double> netPositions = getZonesNetPosition(network);
+            observers.computedNetPositions(netPositions);
 
-        FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
-        decomposeFlowForNState(network,
-                flowDecompositionResults,
-                xnecProvider.getNetworkElements(network),
-                netPositions,
-                glsks,
-                loadFlowServiceAcResult);
-        xnecProvider.getNetworkElementsPerContingency(network)
-                .forEach((contingencyId, xnecList) -> decomposeFlowForContingencyState(network,
-                        flowDecompositionResults,
-                        networkStateManager,
-                        contingencyId,
-                        xnecList,
-                        netPositions,
-                        glsks));
-        networkStateManager.deleteAllContingencyVariants();
-        return flowDecompositionResults;
+            FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
+            decomposeFlowForNState(network,
+                    flowDecompositionResults,
+                    xnecProvider.getNetworkElements(network),
+                    netPositions,
+                    glsks,
+                    loadFlowServiceAcResult);
+            xnecProvider.getNetworkElementsPerContingency(network)
+                    .forEach((contingencyId, xnecList) -> decomposeFlowForContingencyState(network,
+                            flowDecompositionResults,
+                            networkStateManager,
+                            contingencyId,
+                            xnecList,
+                            netPositions,
+                            glsks));
+            networkStateManager.deleteAllContingencyVariants();
+            return flowDecompositionResults;
+        } finally {
+            observers.runDone();
+        }
     }
 
     private void decomposeFlowForNState(Network network,
@@ -149,6 +159,8 @@ public class FlowDecompositionComputer {
         observers.computedPtdfMatrix(ptdfMatrix);
         SparseMatrixWithIndexesTriplet psdfMatrix = getPsdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
         observers.computedPsdfMatrix(psdfMatrix);
+        // psdf variation du flux d'un ligne en changeant la position d'un faceshifter
+        // vérifier que les PST tap positions sont inclues dans la PSDF
 
         // None
         computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);

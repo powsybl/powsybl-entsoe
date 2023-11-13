@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class FlowDecompositionObserverList implements FlowDecompositionObserver {
+public class FlowDecompositionObserverList {
     private final List<FlowDecompositionObserver> observers;
 
     public FlowDecompositionObserverList() {
@@ -21,52 +21,67 @@ public class FlowDecompositionObserverList implements FlowDecompositionObserver 
         this.observers.remove(o);
     }
 
-    @Override
+    public void runStart() {
+        for (FlowDecompositionObserver o : observers) {
+            o.runStart();
+        }
+    }
+
+    public void runDone() {
+        for (FlowDecompositionObserver o : observers) {
+            o.runDone();
+        }
+    }
+
     public void computingBaseCase() {
         for (FlowDecompositionObserver o : observers) {
             o.computingBaseCase();
         }
     }
 
-    @Override
     public void computingContingency(String contingencyId) {
         for (FlowDecompositionObserver o : observers) {
             o.computingContingency(contingencyId);
         }
     }
 
-    @Override
     public void computedGlsk(Map<Country, Map<String, Double>> glsks) {
         for (FlowDecompositionObserver o : observers) {
             o.computedGlsk(glsks);
         }
     }
 
-    @Override
     public void computedNetPositions(Map<Country, Double> netPositions) {
         for (FlowDecompositionObserver o : observers) {
             o.computedNetPositions(netPositions);
         }
     }
 
-    @Override
     public void computedNodalInjectionsMatrix(SparseMatrixWithIndexesTriplet matrix) {
-        for (FlowDecompositionObserver o : observers) {
-            o.computedNodalInjectionsMatrix(matrix);
-        }
+        sendMatrix(FlowDecompositionObserver::computedNodalInjectionsMatrix, matrix);
     }
 
-    @Override
     public void computedPtdfMatrix(SparseMatrixWithIndexesTriplet matrix) {
+        sendMatrix(FlowDecompositionObserver::computedPtdfMatrix, matrix);
+    }
+
+    public void computedPsdfMatrix(SparseMatrixWithIndexesTriplet matrix) {
+        sendMatrix(FlowDecompositionObserver::computedPsdfMatrix, matrix);
+    }
+
+    private void sendMatrix(MatrixNotification notification, SparseMatrixWithIndexesTriplet matrix) {
+        if (observers.isEmpty()) {
+            return;
+        }
+
+        Map<String, Map<String, Double>> mapMatrix = matrix.toMap();
         for (FlowDecompositionObserver o : observers) {
-            o.computedPtdfMatrix(matrix);
+            notification.sendMatrix(o, mapMatrix);
         }
     }
 
-    @Override
-    public void computedPsdfMatrix(SparseMatrixWithIndexesTriplet matrix) {
-        for (FlowDecompositionObserver o : observers) {
-            o.computedPsdfMatrix(matrix);
-        }
+    @FunctionalInterface
+    private interface MatrixNotification {
+        public void sendMatrix(FlowDecompositionObserver o, Map<String, Map<String, Double>> matrix);
     }
 }
