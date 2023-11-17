@@ -1,6 +1,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,32 @@ public class FlowDecompositionObserverList {
 
     public void computedPsdfMatrix(SparseMatrixWithIndexesTriplet matrix) {
         sendMatrix(FlowDecompositionObserver::computedPsdfMatrix, matrix);
+    }
+
+    public void computedAcFlows(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
+        if (observers.isEmpty()) {
+            return;
+        }
+
+        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
+        Map<String, Double> results = referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
+
+        for (FlowDecompositionObserver o : observers) {
+            o.computedAcFlows(results);
+        }
+    }
+
+    public void computedDcFlows(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
+        if (observers.isEmpty()) {
+            return;
+        }
+
+        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
+        Map<String, Double> results = referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
+
+        for (FlowDecompositionObserver o : observers) {
+            o.computedDcFlows(results);
+        }
     }
 
     private void sendMatrix(MatrixNotification notification, SparseMatrixWithIndexesTriplet matrix) {
