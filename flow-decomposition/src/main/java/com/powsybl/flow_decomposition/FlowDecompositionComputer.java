@@ -145,8 +145,10 @@ public class FlowDecompositionComputer {
 
         // None
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecList));
+        observers.computedAcFlows(network, networkMatrixIndexes);
 
         runDcLoadFlow(network);
+        observers.computedDcFlows(network, networkMatrixIndexes);
 
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
             netPositions, networkMatrixIndexes, glsks);

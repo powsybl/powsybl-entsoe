@@ -27,4 +27,8 @@ public interface FlowDecompositionObserver {
      * @param map the matrix indexed by (line, node)
      */
     void computedPsdfMatrix(Map<String, Map<String, Double>> map);
+
+    void computedAcFlows(Map<String, Double> positions);
+
+    void computedDcFlows(Map<String, Double> positions);
 }
