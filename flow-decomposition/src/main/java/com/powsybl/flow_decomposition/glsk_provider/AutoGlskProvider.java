@@ -27,14 +27,14 @@ public class AutoGlskProvider implements GlskProvider {
                 network.getCountries()
                        .stream()
                        .collect(Collectors.toMap(Function.identity(), country -> new HashMap<>()));
-        network.getGeneratorStream().forEach(generator -> {
+        network.getGeneratorStream().filter(g -> g.getTerminal().isConnected()).forEach(generator -> {
             Country generatorCountry = NetworkUtil.getInjectionCountry(generator);
             glsks.get(generatorCountry).put(generator.getId(), generator.getTargetP());
         });
         glsks.forEach((country, glsk) -> {
             double glskSum = glsk.values().stream().mapToDouble(factor -> factor).sum();
             if (glskSum == 0.0) {
-                glsk.forEach((key, value) -> glsk.put(key, 0.0));
+                glsk.forEach((key, value) -> glsk.put(key, 1.0 / glsk.size()));
             } else {
                 glsk.forEach((key, value) -> glsk.put(key, value / glskSum));
             }
