@@ -47,10 +47,13 @@ public final class GlskPointScalableConverter {
 
     public static Scalable convert(Network network, List<GlskShiftKey> shiftKeys) {
         Objects.requireNonNull(shiftKeys);
-        List<Double> percentages = new ArrayList<>();
-        List<Scalable> scalables = new ArrayList<>();
+
+        List<Scalable> shiftKeyScalables = new ArrayList<>();
+        List<Double> shiftKeyPercentages = new ArrayList<>();
 
         for (GlskShiftKey glskShiftKey : shiftKeys) {
+            List<Double> percentages = new ArrayList<>();
+            List<Scalable> scalables = new ArrayList<>();
             if (glskShiftKey.getBusinessType().equals("B42") && glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                 //B42 country
                 convertCountryProportional(network, glskShiftKey, percentages, scalables);
@@ -66,8 +69,11 @@ public final class GlskPointScalableConverter {
             } else {
                 throw new GlskException("In convert glskShiftKey business type not supported");
             }
+            shiftKeyScalables.add(Scalable.proportional(percentages, scalables, -Double.MAX_VALUE, glskShiftKey.getMaximumShift()));
+            shiftKeyPercentages.add(percentages.stream().mapToDouble(Double::doubleValue).sum());
         }
-        return Scalable.proportional(percentages, scalables); // iterative must be set in scalingParameters during scale
+
+        return Scalable.proportional(shiftKeyPercentages, shiftKeyScalables); // iterative must be set in scalingParameters during scale
     }
 
     private static void convertRemainingCapacity(Network network, GlskShiftKey glskShiftKey, List<Double> percentages, List<Scalable> scalables) {
