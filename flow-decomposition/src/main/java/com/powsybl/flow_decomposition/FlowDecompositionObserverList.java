@@ -70,7 +70,7 @@ public class FlowDecompositionObserverList {
         sendMatrix(FlowDecompositionObserver::computedPsdfMatrix, matrix);
     }
 
-    public void computedAcFlows(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
+    public void computedAcFlows(Network network, NetworkMatrixIndexes networkMatrixIndexes, boolean fallbackHasBeenActivated) {
         if (observers.isEmpty()) {
             return;
         }
@@ -79,7 +79,7 @@ public class FlowDecompositionObserverList {
         Map<String, Double> results = referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedAcFlows(results);
+            o.computedAcFlows(results, fallbackHasBeenActivated);
         }
     }
 

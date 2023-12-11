@@ -28,7 +28,7 @@ public interface FlowDecompositionObserver {
      */
     void computedPsdfMatrix(Map<String, Map<String, Double>> map);
 
-    void computedAcFlows(Map<String, Double> positions);
+    void computedAcFlows(Map<String, Double> positions, boolean fallbackHasBeenActivated);
 
     void computedDcFlows(Map<String, Double> positions);
 }
