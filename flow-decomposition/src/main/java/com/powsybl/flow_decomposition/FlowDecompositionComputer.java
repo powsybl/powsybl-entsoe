@@ -145,7 +145,7 @@ public class FlowDecompositionComputer {
 
         // None
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecList));
-        observers.computedAcFlows(network, networkMatrixIndexes);
+        observers.computedAcFlows(network, networkMatrixIndexes, loadFlowServiceAcResult.fallbackHasBeenActivated());
 
         runDcLoadFlow(network);
         observers.computedDcFlows(network, networkMatrixIndexes);
