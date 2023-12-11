@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.balances_adjustment.balance_computation.BalanceComputationParameters;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.benrejeb at rte-france.com>}
  */
-class JsonBalanceComputationParametersTest extends AbstractConverterTest {
+class JsonBalanceComputationParametersTest extends AbstractSerDeTest {
 
     @Test
     void testDefaultBalanceComputationConfig() {
