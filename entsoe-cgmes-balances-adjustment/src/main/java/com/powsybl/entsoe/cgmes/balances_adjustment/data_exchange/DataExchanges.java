@@ -10,11 +10,11 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.*;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,9 +54,9 @@ public class DataExchanges {
     /** The identification of the role played by the a market player. */
     private final StandardRoleType receiverMarketRole;
     /** The date and time of the creation of the document. */
-    private final DateTime creationDate;
+    private final ZonedDateTime creationDate;
     /** This information provides the start and end date and time of the period covered by the document. */
-    private final Interval period;
+    private final Pair<ZonedDateTime, ZonedDateTime> period;
 
     // Optional data
     /** The identification of an individually predefined dataset in a
@@ -74,7 +74,7 @@ public class DataExchanges {
     DataExchanges(String mRID, int revisionNumber, StandardMessageType type, StandardProcessType processType,
                   String senderId, StandardCodingSchemeType senderCodingScheme, StandardRoleType senderMarketRole,
                   String receiverId, StandardCodingSchemeType receiverCodingScheme, StandardRoleType receiverMarketRole,
-                  DateTime creationDate, Interval period, String datasetMarketDocumentMRId, StandardStatusType docStatus, Map<String, StoredDoubleTimeSeries> timeSeriesById,
+                  ZonedDateTime creationDate, Pair<ZonedDateTime, ZonedDateTime> period, String datasetMarketDocumentMRId, StandardStatusType docStatus, Map<String, StoredDoubleTimeSeries> timeSeriesById,
                   String domainId, StandardCodingSchemeType domainCodingScheme) {
         this.mRID = Objects.requireNonNull(mRID, "mRID is missing");
         this.revisionNumber = checkRevisionNumber(revisionNumber);
@@ -137,11 +137,11 @@ public class DataExchanges {
         return receiverMarketRole;
     }
 
-    public DateTime getCreationDate() {
+    public ZonedDateTime getCreationDate() {
         return creationDate;
     }
 
-    public Interval getPeriod() {
+    public Pair<ZonedDateTime, ZonedDateTime> getPeriod() {
         return period;
     }
 

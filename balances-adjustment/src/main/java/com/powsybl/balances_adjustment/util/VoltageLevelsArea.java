@@ -117,7 +117,7 @@ public class VoltageLevelsArea implements NetworkArea {
     private double getLeavingFlow(ThreeWindingsTransformer threeWindingsTransformer) {
         double outsideFlow = 0;
         double insideFlow = 0;
-        for (ThreeWindingsTransformer.Side side : ThreeWindingsTransformer.Side.values()) {
+        for (ThreeSides side : ThreeSides.values()) {
             outsideFlow += !voltageLevelIds.contains(threeWindingsTransformer.getTerminal(side).getVoltageLevel().getId()) && threeWindingsTransformer.getTerminal(side).isConnected()
                     ? threeWindingsTransformer.getTerminal(side).getP() : 0;
             insideFlow += voltageLevelIds.contains(threeWindingsTransformer.getTerminal(side).getVoltageLevel().getId()) && threeWindingsTransformer.getTerminal(side).isConnected()

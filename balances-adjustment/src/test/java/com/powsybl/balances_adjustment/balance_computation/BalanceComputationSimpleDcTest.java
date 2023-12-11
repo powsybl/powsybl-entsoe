@@ -8,6 +8,11 @@ package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.BalanceComputationAssert;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -106,10 +111,10 @@ class BalanceComputationSimpleDcTest {
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1199.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1199.));
 
-        LoadFlowProvider loadFlowProviderMock = new LoadFlowProvider() {
+        LoadFlowProvider loadFlowProviderMock = new AbstractLoadFlowProviderMock() {
 
             @Override
-            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters) {
+            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
                 generatorFr.getTerminal().setP(3000);
                 loadFr.getTerminal().setP(1800);
 
@@ -121,16 +126,6 @@ class BalanceComputationSimpleDcTest {
                 return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null,
                         List.of(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)))
                 );
-            }
-
-            @Override
-            public String getName() {
-                return "test load flow";
-            }
-
-            @Override
-            public String getVersion() {
-                return "1.0";
             }
         };
 
@@ -148,10 +143,10 @@ class BalanceComputationSimpleDcTest {
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1199.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1199.));
 
-        LoadFlowProvider loadFlowProviderMock = new LoadFlowProvider() {
+        LoadFlowProvider loadFlowProviderMock = new AbstractLoadFlowProviderMock() {
 
             @Override
-            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters) {
+            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
                 generatorFr.getTerminal().setP(3000);
                 loadFr.getTerminal().setP(1800);
 
@@ -166,16 +161,6 @@ class BalanceComputationSimpleDcTest {
                                 new LoadFlowResultImpl.ComponentResultImpl(0, 1, LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, 50, "dummy", 0.0, 0.0)
                         ))
                 );
-            }
-
-            @Override
-            public String getName() {
-                return "test load flow";
-            }
-
-            @Override
-            public String getVersion() {
-                return "1.0";
             }
         };
 
@@ -193,10 +178,10 @@ class BalanceComputationSimpleDcTest {
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1400.));
 
-        LoadFlowProvider loadFlowProviderMock = new LoadFlowProvider() {
+        LoadFlowProvider loadFlowProviderMock = new AbstractLoadFlowProviderMock() {
 
             @Override
-            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters) {
+            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
                 generatorFr.getTerminal().setP(3000);
                 loadFr.getTerminal().setP(1800);
                 branchFrBe1.getTerminal1().setP(-516);
@@ -205,16 +190,6 @@ class BalanceComputationSimpleDcTest {
                 return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null,
                         List.of(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)))
                 );
-            }
-
-            @Override
-            public String getName() {
-                return "test load flow";
-            }
-
-            @Override
-            public String getVersion() {
-                return "1.0";
             }
         };
 
@@ -336,6 +311,55 @@ class BalanceComputationSimpleDcTest {
         ReporterModel reporter = new ReporterModel("testUnbalancedNetworkReport", "Test unbalanced network report");
         balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reporter).join();
         BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reporter);
+    }
+
+    private abstract class AbstractLoadFlowProviderMock implements LoadFlowProvider {
+
+        @Override
+        public Optional<Class<? extends Extension<LoadFlowParameters>>> getSpecificParametersClass() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig platformConfig) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(Map<String, String> map) {
+            return Optional.empty();
+        }
+
+        @Override
+        public Map<String, String> createMapFromSpecificParameters(Extension<LoadFlowParameters> extension) {
+            return null;
+        }
+
+        @Override
+        public void updateSpecificParameters(Extension<LoadFlowParameters> extension, Map<String, String> map) {
+
+        }
+
+        @Override
+        public String getName() {
+            return "test load flow";
+        }
+
+        @Override
+        public String getVersion() {
+            return "1.0";
+        }
+
+        @Override
+        public List<Parameter> getSpecificParameters() {
+            return null;
+        }
+
     }
 
 }

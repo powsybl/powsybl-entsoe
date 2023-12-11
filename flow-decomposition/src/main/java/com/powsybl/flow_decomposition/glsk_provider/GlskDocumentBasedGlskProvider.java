@@ -59,7 +59,7 @@ public final class GlskDocumentBasedGlskProvider implements GlskProvider {
     }
 
     private Instant getNetworkInstant(Network network) {
-        return Instant.ofEpochMilli(network.getCaseDate().getMillis());
+        return network.getCaseDate().toInstant();
     }
 
     private Map<Country, Map<String, Double>> getDefaultGlsk(Network network) {

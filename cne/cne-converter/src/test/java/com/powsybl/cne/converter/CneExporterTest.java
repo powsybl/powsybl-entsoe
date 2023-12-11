@@ -8,10 +8,10 @@ package com.powsybl.cne.converter;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.converter.SecurityAnalysisResultExporter;
@@ -39,7 +39,7 @@ import java.util.Properties;
  *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class CneExporterTest extends AbstractConverterTest {
+class CneExporterTest extends AbstractSerDeTest {
 
     private FileSystem fileSystem;
     private Path workingDir;
@@ -102,10 +102,10 @@ class CneExporterTest extends AbstractConverterTest {
 
     private static SecurityAnalysisResult create() {
         // Create a many LimitViolations
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
 
-        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.TWO);
+        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, "20'", 1200, 100, 1.0f, 110.0, TwoSides.TWO);
         violation2.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0, 230.0));
         violation2.addExtension(CurrentExtension.class, new CurrentExtension(95.0));
 

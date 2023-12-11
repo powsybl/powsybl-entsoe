@@ -8,11 +8,11 @@ package com.powsybl.entsoe.cgmes.balances_adjustment.data_exchange;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.DoubleTimeSeries;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -47,9 +47,9 @@ class PevfExchangesTest {
         assertEquals("ReceiverMarket", exchanges.getReceiverId());
         assertEquals(StandardCodingSchemeType.A01, exchanges.getReceiverCodingScheme());
         assertEquals(StandardRoleType.A33, exchanges.getReceiverMarketRole());
-        assertEquals(DateTime.parse("2020-04-05T14:30:00Z"), exchanges.getCreationDate());
-        assertEquals(DateTime.parse("2020-04-05T22:00Z"), exchanges.getPeriod().getStart());
-        assertEquals(DateTime.parse("2020-04-06T22:00Z"), exchanges.getPeriod().getEnd());
+        assertEquals(ZonedDateTime.parse("2020-04-05T14:30:00Z"), exchanges.getCreationDate());
+        assertEquals(ZonedDateTime.parse("2020-04-05T22:00Z"), exchanges.getPeriod().getLeft());
+        assertEquals(ZonedDateTime.parse("2020-04-06T22:00Z"), exchanges.getPeriod().getRight());
         // Optional
         assertEquals(Optional.of("PEVF CGM Export"), exchanges.getDatasetMarketDocumentMRId());
         assertEquals(Optional.of(StandardStatusType.A01), exchanges.getDocStatus());
@@ -165,7 +165,7 @@ class PevfExchangesTest {
 
     @Test
     void invalidRevisionNumberTest() {
-        DateTime dateTime = DateTime.now();
+        ZonedDateTime dateTime = ZonedDateTime.now();
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new DataExchanges("", -1, StandardMessageType.B19, StandardProcessType.A01,
                 "", StandardCodingSchemeType.A01, StandardRoleType.A32,
                 "", StandardCodingSchemeType.A02, StandardRoleType.A33,
