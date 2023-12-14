@@ -11,6 +11,7 @@ import com.powsybl.timeseries.DoubleTimeSeries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Iterator;
@@ -55,6 +56,12 @@ class PevfExchangesTest {
         assertEquals(Optional.of(StandardStatusType.A01), exchanges.getDocStatus());
         assertFalse(exchanges.getDomainId().isPresent());
         assertFalse(exchanges.getDomainCodingScheme().isPresent());
+    }
+
+    @Test
+    void testErrorInCodeStatus() {
+        InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_doc_status.xml");
+        assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
     }
 
     @Test
