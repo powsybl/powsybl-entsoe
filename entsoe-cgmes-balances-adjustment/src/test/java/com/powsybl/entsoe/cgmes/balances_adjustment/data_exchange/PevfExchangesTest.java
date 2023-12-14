@@ -51,8 +51,8 @@ class PevfExchangesTest {
         assertEquals(StandardCodingSchemeType.A01, exchanges.getReceiverCodingScheme());
         assertEquals(StandardRoleType.A33, exchanges.getReceiverMarketRole());
         assertEquals(ZonedDateTime.parse("2020-04-05T14:30:00Z"), exchanges.getCreationDate());
-        assertEquals(ZonedDateTime.parse("2020-04-05T22:00Z"), exchanges.getPeriod().getLeft());
-        assertEquals(ZonedDateTime.parse("2020-04-06T22:00Z"), exchanges.getPeriod().getRight());
+        assertEquals(ZonedDateTime.parse("2020-04-05T22:00Z").toInstant(), exchanges.getPeriod().getStart());
+        assertEquals(ZonedDateTime.parse("2020-04-06T22:00Z").toInstant(), exchanges.getPeriod().getEnd());
         // Optional
         assertEquals(Optional.of("PEVF CGM Export"), exchanges.getDatasetMarketDocumentMRId());
         assertEquals(Optional.of(StandardStatusType.A01), exchanges.getDocStatus());

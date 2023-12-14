@@ -10,7 +10,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.*;
-import org.apache.commons.lang3.tuple.Pair;
+import org.threeten.extra.Interval;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -56,7 +56,7 @@ public class DataExchanges {
     /** The date and time of the creation of the document. */
     private final ZonedDateTime creationDate;
     /** This information provides the start and end date and time of the period covered by the document. */
-    private final Pair<ZonedDateTime, ZonedDateTime> period;
+    private final Interval period;
 
     // Optional data
     /** The identification of an individually predefined dataset in a
@@ -74,7 +74,7 @@ public class DataExchanges {
     DataExchanges(String mRID, int revisionNumber, StandardMessageType type, StandardProcessType processType,
                   String senderId, StandardCodingSchemeType senderCodingScheme, StandardRoleType senderMarketRole,
                   String receiverId, StandardCodingSchemeType receiverCodingScheme, StandardRoleType receiverMarketRole,
-                  ZonedDateTime creationDate, Pair<ZonedDateTime, ZonedDateTime> period, String datasetMarketDocumentMRId, StandardStatusType docStatus, Map<String, StoredDoubleTimeSeries> timeSeriesById,
+                  ZonedDateTime creationDate, Interval period, String datasetMarketDocumentMRId, StandardStatusType docStatus, Map<String, StoredDoubleTimeSeries> timeSeriesById,
                   String domainId, StandardCodingSchemeType domainCodingScheme) {
         this.mRID = Objects.requireNonNull(mRID, "mRID is missing");
         this.revisionNumber = checkRevisionNumber(revisionNumber);
@@ -141,7 +141,7 @@ public class DataExchanges {
         return creationDate;
     }
 
-    public Pair<ZonedDateTime, ZonedDateTime> getPeriod() {
+    public Interval getPeriod() {
         return period;
     }
 

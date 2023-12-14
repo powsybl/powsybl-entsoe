@@ -10,11 +10,14 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.timeseries.*;
+
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.extra.Interval;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLInputFactory;
@@ -24,7 +27,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
@@ -49,7 +51,7 @@ public final class DataExchangesXml {
 
         private String datasetMarketDocumentMRId;
 
-        private Pair<ZonedDateTime, ZonedDateTime> period;
+        private Interval period;
 
         private ZonedDateTime creationDate;
 
@@ -82,7 +84,7 @@ public final class DataExchangesXml {
 
         private String mRID;
 
-        private Pair<ZonedDateTime, ZonedDateTime> period;
+        private Interval period;
 
         private Duration spacing;
 
@@ -256,7 +258,7 @@ public final class DataExchangesXml {
         // Log TimeSeries Reason
         if (LOGGER.isInfoEnabled() && Objects.nonNull(context.code) && Objects.nonNull(context.text)) {
             LOGGER.info("TimeSeries '{}' [{}, {}] - {} ({}) : {}", context.mRID,
-                                                                    context.period.getLeft(), context.period.getRight(),
+                                                                    context.period.getStart(), context.period.getEnd(),
                                                                     context.code,
                                                                     StandardReasonCodeType.valueOf(context.code).getDescription(),
                                                                     context.text);
@@ -265,7 +267,7 @@ public final class DataExchangesXml {
         // Create DataChunk
         DoubleDataChunk dataChunk;
         // Computed number of steps
-        int nbSteps = (int) (ChronoUnit.NANOS.between(context.period.getLeft(), context.period.getRight()) / context.spacing.toNanos());
+        int nbSteps = (int) (context.period.toDuration().toNanos() / context.spacing.toNanos());
         // Check if all steps are defined or not
         if (context.positions.size() == nbSteps) {
             // Uncompressed chunk
@@ -288,7 +290,7 @@ public final class DataExchangesXml {
         }
 
         // Instantiate new time series
-        TimeSeriesIndex index = RegularTimeSeriesIndex.create(context.period.getLeft().toInstant(), context.period.getRight().toInstant(), context.spacing);
+        TimeSeriesIndex index = RegularTimeSeriesIndex.create(context.period.getStart(), context.period.getEnd(), context.spacing);
         var metadata = new TimeSeriesMetadata(context.mRID, TimeSeriesDataType.DOUBLE, context.tags, index);
         // Add new time series into DataExchanges
         return new StoredDoubleTimeSeries(metadata, dataChunk);
@@ -320,17 +322,17 @@ public final class DataExchangesXml {
         });
     }
 
-    private static Pair<ZonedDateTime, ZonedDateTime> readTimeInterval(XMLStreamReader xmlReader) throws UncheckedXmlStreamException {
-        var interval = new ZonedDateTime[2];
+    private static Interval readTimeInterval(XMLStreamReader xmlReader) throws UncheckedXmlStreamException {
+        var interval = new Instant[2];
         XmlUtil.readSubElements(xmlReader, subElementName -> {
             try {
                 switch (subElementName) {
                     case DataExchangesConstants.START :
-                        interval[0] = ZonedDateTime.parse(xmlReader.getElementText());
+                        interval[0] = OffsetDateTime.parse(xmlReader.getElementText()).toInstant();
                         break;
 
                     case DataExchangesConstants.END :
-                        interval[1] = ZonedDateTime.parse(xmlReader.getElementText());
+                        interval[1] = OffsetDateTime.parse(xmlReader.getElementText()).toInstant();
                         break;
 
                     default:
@@ -340,7 +342,7 @@ public final class DataExchangesXml {
                 throw new UncheckedXmlStreamException(e);
             }
         });
-        return Pair.of(interval[0], interval[1]);
+        return Interval.of(interval[0], interval[1]);
     }
 
     private static void readPoint(XMLStreamReader xmlReader, ParsingTimeSeriesContext context) throws UncheckedXmlStreamException {
