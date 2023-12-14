@@ -11,7 +11,9 @@ import com.powsybl.timeseries.DoubleTimeSeries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileReader;
 import java.io.InputStream;
+import java.io.Reader;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Iterator;
@@ -61,6 +63,30 @@ class PevfExchangesTest {
     @Test
     void testErrorInCodeStatus() {
         InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_doc_status.xml");
+        assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
+    }
+
+    @Test
+    void testErrorInMarketDocument() {
+        InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_marketdocument.xml");
+        assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
+    }
+
+    @Test
+    void testErrorInTimeSeries() {
+        InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_timeseries.xml");
+        assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
+    }
+
+    @Test
+    void testErrorInPeriod() {
+        InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_period.xml");
+        assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
+    }
+
+    @Test
+    void testErrorInTimeInterval() {
+        InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_timeinterval.xml");
         assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
     }
 
