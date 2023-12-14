@@ -14,6 +14,7 @@ import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.iidm.modification.scalable.Scalable;
+import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
@@ -309,6 +310,29 @@ class CseGlskDocumentImporterTest {
         assertEquals(2500., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2500., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
         assertEquals(3500., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
+    }
+
+    @Test
+    void checkCseGlskDocumentImporterWithHybridGskGeneratorSaturated() {
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+
+        //max P is 9000: generator 2 should go up to 8750 when shifting by 1000
+        network.getGenerator("FFR1AA1 _generator").setTargetP(8750.);
+        network.getGenerator("FFR2AA1 _generator").setTargetP(8000.);
+
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskHybrid.xml"));
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("10YCH-SWISSGRIDZ");
+
+        assertNotNull(meritOrderGskScalable);
+        assertEquals(8750., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(8000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
+
+        ScalingParameters scalingParameters = new ScalingParameters().setPriority(ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED);
+        meritOrderGskScalable.scale(network, 1000., scalingParameters);
+        assertEquals(9000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(8750., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
+        assertEquals(3000., network.getGenerator("FFR3AA1 _generator").getTargetP(), EPSILON);
     }
 
     @Test

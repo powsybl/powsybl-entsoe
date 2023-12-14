@@ -223,8 +223,7 @@ public final class GlskPointScalableConverter {
                 percentages.add(100.0 * factor);
                 // In case of global shift key limitation we will limit the generator proportionally to
                 // its participation in the global proportional scalable
-                double maxGeneratorValue = NetworkUtil.pseudoTargetP(generator) + factor * glskShiftKey.getMaximumShift();
-                scalables.add(Scalable.onGenerator(generator.getId(), -Double.MAX_VALUE, maxGeneratorValue));
+                scalables.add(Scalable.onGenerator(generator.getId()));
             }
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
