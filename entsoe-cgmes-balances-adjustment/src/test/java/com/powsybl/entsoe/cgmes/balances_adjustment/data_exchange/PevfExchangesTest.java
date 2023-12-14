@@ -11,9 +11,7 @@ import com.powsybl.timeseries.DoubleTimeSeries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileReader;
 import java.io.InputStream;
-import java.io.Reader;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Iterator;
