@@ -157,7 +157,7 @@ public final class DataExchangesXml {
                                 break;
 
                             case DataExchangesConstants.TIME_PERIOD_INTERVAL:
-                                context.period = readTimeInterval(xmlReader, DataExchangesConstants.TIME_PERIOD_INTERVAL);
+                                context.period = readTimeInterval(xmlReader);
                                 break;
 
                             case DataExchangesConstants.DOMAIN + "." + DataExchangesConstants.MRID:
@@ -175,7 +175,7 @@ public final class DataExchangesXml {
                                         try {
                                             context.docStatus = StandardStatusType.valueOf(XmlUtil.readText(xmlReader));
                                         } catch (XMLStreamException e) {
-                                            throw new RuntimeException(e);
+                                            throw new UncheckedXmlStreamException(e);
                                         }
                                     }
                                 });
@@ -211,7 +211,7 @@ public final class DataExchangesXml {
                                  context.domainId, context.domainCodingScheme);
     }
 
-    private static StoredDoubleTimeSeries readTimeSeries(XMLStreamReader xmlReader) throws XMLStreamException {
+    private static StoredDoubleTimeSeries readTimeSeries(XMLStreamReader xmlReader) throws UncheckedXmlStreamException {
         var context = new ParsingTimeSeriesContext();
 
         XmlUtil.readSubElements(xmlReader, subElementName -> {
@@ -294,7 +294,7 @@ public final class DataExchangesXml {
         return new StoredDoubleTimeSeries(metadata, dataChunk);
     }
 
-    private static void readPeriod(XMLStreamReader xmlReader, ParsingTimeSeriesContext context) throws XMLStreamException {
+    private static void readPeriod(XMLStreamReader xmlReader, ParsingTimeSeriesContext context) throws UncheckedXmlStreamException {
         XmlUtil.readSubElements(xmlReader, subElementName -> {
             try {
                 switch (subElementName) {
@@ -304,7 +304,7 @@ public final class DataExchangesXml {
                         break;
 
                     case DataExchangesConstants.TIME_INTERVAL:
-                        context.period = readTimeInterval(xmlReader, DataExchangesConstants.TIME_INTERVAL);
+                        context.period = readTimeInterval(xmlReader);
                         break;
 
                     case DataExchangesConstants.POINT:
@@ -320,7 +320,7 @@ public final class DataExchangesXml {
         });
     }
 
-    private static Pair<ZonedDateTime, ZonedDateTime> readTimeInterval(XMLStreamReader xmlReader, String rootElement) throws XMLStreamException {
+    private static Pair<ZonedDateTime, ZonedDateTime> readTimeInterval(XMLStreamReader xmlReader) throws UncheckedXmlStreamException {
         var interval = new ZonedDateTime[2];
         XmlUtil.readSubElements(xmlReader, subElementName -> {
             try {
@@ -343,7 +343,7 @@ public final class DataExchangesXml {
         return Pair.of(interval[0], interval[1]);
     }
 
-    private static void readPoint(XMLStreamReader xmlReader, ParsingTimeSeriesContext context) throws XMLStreamException {
+    private static void readPoint(XMLStreamReader xmlReader, ParsingTimeSeriesContext context) throws UncheckedXmlStreamException {
         XmlUtil.readSubElements(xmlReader, subElementName -> {
             try {
                 switch (xmlReader.getLocalName()) {
@@ -370,7 +370,7 @@ public final class DataExchangesXml {
         });
     }
 
-    private static void readReason(XMLStreamReader xmlReader, ParsingTimeSeriesContext context) throws XMLStreamException {
+    private static void readReason(XMLStreamReader xmlReader, ParsingTimeSeriesContext context) throws UncheckedXmlStreamException {
         XmlUtil.readSubElements(xmlReader, subElementName -> {
             try {
                 switch (xmlReader.getLocalName()) {

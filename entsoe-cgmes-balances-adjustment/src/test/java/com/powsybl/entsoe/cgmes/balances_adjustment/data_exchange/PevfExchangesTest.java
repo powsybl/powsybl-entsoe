@@ -10,6 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.DoubleTimeSeries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.InputStream;
 import java.time.Instant;
@@ -58,33 +60,14 @@ class PevfExchangesTest {
         assertFalse(exchanges.getDomainCodingScheme().isPresent());
     }
 
-    @Test
-    void testErrorInCodeStatus() {
-        InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_doc_status.xml");
-        assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
-    }
-
-    @Test
-    void testErrorInMarketDocument() {
-        InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_marketdocument.xml");
-        assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
-    }
-
-    @Test
-    void testErrorInTimeSeries() {
-        InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_timeseries.xml");
-        assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
-    }
-
-    @Test
-    void testErrorInPeriod() {
-        InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_period.xml");
-        assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
-    }
-
-    @Test
-    void testErrorInTimeInterval() {
-        InputStream inputStream = getClass().getResourceAsStream("/testPEVFMarketDocument_2-0_error_timeinterval.xml");
+    @ParameterizedTest
+    @ValueSource(strings = {"/testPEVFMarketDocument_2-0_error_doc_status.xml",
+        "/testPEVFMarketDocument_2-0_error_marketdocument.xml",
+        "/testPEVFMarketDocument_2-0_error_timeseries.xml",
+        "/testPEVFMarketDocument_2-0_error_period.xml",
+        "/testPEVFMarketDocument_2-0_error_timeinterval.xml"})
+    void testErrorInXML(String path) {
+        InputStream inputStream = getClass().getResourceAsStream(path);
         assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
     }
 
