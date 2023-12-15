@@ -8,10 +8,6 @@ package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.BalanceComputationAssert;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
@@ -313,38 +309,7 @@ class BalanceComputationSimpleDcTest {
         BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reporter);
     }
 
-    private abstract class AbstractLoadFlowProviderMock implements LoadFlowProvider {
-
-        @Override
-        public Optional<Class<? extends Extension<LoadFlowParameters>>> getSpecificParametersClass() {
-            return Optional.empty();
-        }
-
-        @Override
-        public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
-            return Optional.empty();
-        }
-
-        @Override
-        public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig platformConfig) {
-            return Optional.empty();
-        }
-
-        @Override
-        public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(Map<String, String> map) {
-            return Optional.empty();
-        }
-
-        @Override
-        public Map<String, String> createMapFromSpecificParameters(Extension<LoadFlowParameters> extension) {
-            return null;
-        }
-
-        @Override
-        public void updateSpecificParameters(Extension<LoadFlowParameters> extension, Map<String, String> map) {
-
-        }
-
+    private abstract class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
         @Override
         public String getName() {
             return "test load flow";
@@ -353,11 +318,6 @@ class BalanceComputationSimpleDcTest {
         @Override
         public String getVersion() {
             return "1.0";
-        }
-
-        @Override
-        public List<Parameter> getSpecificParameters() {
-            return null;
         }
 
     }

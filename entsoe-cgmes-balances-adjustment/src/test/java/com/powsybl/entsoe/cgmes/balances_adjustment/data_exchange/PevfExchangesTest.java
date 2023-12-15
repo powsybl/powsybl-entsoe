@@ -10,7 +10,10 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.DoubleTimeSeries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.io.InputStream;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Iterator;
@@ -48,13 +51,24 @@ class PevfExchangesTest {
         assertEquals(StandardCodingSchemeType.A01, exchanges.getReceiverCodingScheme());
         assertEquals(StandardRoleType.A33, exchanges.getReceiverMarketRole());
         assertEquals(ZonedDateTime.parse("2020-04-05T14:30:00Z"), exchanges.getCreationDate());
-        assertEquals(ZonedDateTime.parse("2020-04-05T22:00Z"), exchanges.getPeriod().getLeft());
-        assertEquals(ZonedDateTime.parse("2020-04-06T22:00Z"), exchanges.getPeriod().getRight());
+        assertEquals(ZonedDateTime.parse("2020-04-05T22:00Z").toInstant(), exchanges.getPeriod().getStart());
+        assertEquals(ZonedDateTime.parse("2020-04-06T22:00Z").toInstant(), exchanges.getPeriod().getEnd());
         // Optional
         assertEquals(Optional.of("PEVF CGM Export"), exchanges.getDatasetMarketDocumentMRId());
         assertEquals(Optional.of(StandardStatusType.A01), exchanges.getDocStatus());
         assertFalse(exchanges.getDomainId().isPresent());
         assertFalse(exchanges.getDomainCodingScheme().isPresent());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/testPEVFMarketDocument_2-0_error_doc_status.xml",
+        "/testPEVFMarketDocument_2-0_error_marketdocument.xml",
+        "/testPEVFMarketDocument_2-0_error_timeseries.xml",
+        "/testPEVFMarketDocument_2-0_error_period.xml",
+        "/testPEVFMarketDocument_2-0_error_timeinterval.xml"})
+    void testErrorInXML(String path) {
+        InputStream inputStream = getClass().getResourceAsStream(path);
+        assertThrows(RuntimeException.class, () -> DataExchangesXml.parse(inputStream));
     }
 
     @Test
