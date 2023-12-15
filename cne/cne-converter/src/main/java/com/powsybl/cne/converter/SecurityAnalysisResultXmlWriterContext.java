@@ -8,7 +8,6 @@ package com.powsybl.cne.converter;
 
 import com.powsybl.cne.model.ContingencySeries;
 import com.powsybl.cne.model.MonitoredRegisteredResource;
-import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisResult;
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class SecurityAnalysisResultXmlWriterContext implements XmlWriterContext {
+class SecurityAnalysisResultXmlWriterContext {
 
     private static final String MISSING_SUFFIX = " is missing";
 
@@ -67,7 +66,6 @@ class SecurityAnalysisResultXmlWriterContext implements XmlWriterContext {
         return options;
     }
 
-    @Override
     public XMLStreamWriter getWriter() {
         return writer;
     }

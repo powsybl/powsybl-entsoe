@@ -8,7 +8,7 @@ package com.powsybl.cne.converter;
 
 import com.powsybl.cne.model.*;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import org.junit.jupiter.api.Assertions;
@@ -29,11 +29,11 @@ class CneModelTest {
 
     @Test
     void baseTestMonitoredRegisteredResource() {
-        LimitViolation current = new LimitViolation("current", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
-        LimitViolation lowShortCircuitCurrent = new LimitViolation("lowShortCircuitCurrent", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
-        LimitViolation highShortCircuitCurrent = new LimitViolation("highShortCircuitCurrent", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
-        LimitViolation lowVoltage = new LimitViolation("lowVoltage", LimitViolationType.LOW_VOLTAGE, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
-        LimitViolation highVoltage = new LimitViolation("highVoltage", LimitViolationType.HIGH_VOLTAGE, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
+        LimitViolation current = new LimitViolation("current", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
+        LimitViolation lowShortCircuitCurrent = new LimitViolation("lowShortCircuitCurrent", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
+        LimitViolation highShortCircuitCurrent = new LimitViolation("highShortCircuitCurrent", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
+        LimitViolation lowVoltage = new LimitViolation("lowVoltage", LimitViolationType.LOW_VOLTAGE, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
+        LimitViolation highVoltage = new LimitViolation("highVoltage", LimitViolationType.HIGH_VOLTAGE, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE);
         List<LimitViolation> violations = Arrays.asList(current, lowShortCircuitCurrent, highShortCircuitCurrent, lowVoltage, highVoltage);
 
         MonitoredRegisteredResource currentResource = new MonitoredRegisteredResource(violations);
@@ -84,7 +84,7 @@ class CneModelTest {
     @Test
     void otherLimitViolationNotAllowed() {
         // Fail to create MonitoredRegisteredResource with LimitViolation.OTHER
-        List<LimitViolation> violations = Collections.singletonList(new LimitViolation("otherId", LimitViolationType.OTHER, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE));
+        List<LimitViolation> violations = Collections.singletonList(new LimitViolation("otherId", LimitViolationType.OTHER, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, TwoSides.ONE));
         try {
             new MonitoredRegisteredResource(violations);
             Assertions.fail("Expected an UnsupportedOperationException to be thrown");
