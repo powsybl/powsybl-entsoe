@@ -15,6 +15,7 @@
     <description>Model of GLSK according to CIM format with its importer.</description>
 
     <dependencies>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-document-api</artifactId>

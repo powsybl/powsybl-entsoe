@@ -47,10 +47,13 @@ public final class GlskPointScalableConverter {
 
     public static Scalable convert(Network network, List<GlskShiftKey> shiftKeys) {
         Objects.requireNonNull(shiftKeys);
-        List<Double> percentages = new ArrayList<>();
-        List<Scalable> scalables = new ArrayList<>();
+
+        List<Scalable> shiftKeyScalables = new ArrayList<>();
+        List<Double> shiftKeyPercentages = new ArrayList<>();
 
         for (GlskShiftKey glskShiftKey : shiftKeys) {
+            List<Double> percentages = new ArrayList<>();
+            List<Scalable> scalables = new ArrayList<>();
             if (glskShiftKey.getBusinessType().equals("B42") && glskShiftKey.getRegisteredResourceArrayList().isEmpty()) {
                 //B42 country
                 convertCountryProportional(network, glskShiftKey, percentages, scalables);
@@ -66,8 +69,17 @@ public final class GlskPointScalableConverter {
             } else {
                 throw new GlskException("In convert glskShiftKey business type not supported");
             }
+            Double percentageSum = percentages.stream().mapToDouble(Double::doubleValue).sum();
+            shiftKeyPercentages.add(percentageSum);
+
+            // each scalable needs to have a sum of percentages equal to 100%
+            List<Double> normalizedPercentages = percentages.stream().map(p -> p * 100 / percentageSum).toList();
+            // the limit of the scalables is the power they can reach, not how much they can be scaled by
+            Double currentPower = scalables.stream().mapToDouble(scalable -> scalable.getSteadyStatePower(network, 1, Scalable.ScalingConvention.GENERATOR)).sum();
+            shiftKeyScalables.add(Scalable.proportional(normalizedPercentages, scalables, -Double.MAX_VALUE, currentPower + glskShiftKey.getMaximumShift()));
         }
-        return Scalable.proportional(percentages, scalables); // iterative must be set in scalingParameters during scale
+
+        return Scalable.proportional(shiftKeyPercentages, shiftKeyScalables); // iterative must be set in scalingParameters during scale
     }
 
     private static void convertRemainingCapacity(Network network, GlskShiftKey glskShiftKey, List<Double> percentages, List<Scalable> scalables) {
@@ -211,8 +223,7 @@ public final class GlskPointScalableConverter {
                 percentages.add(100.0 * factor);
                 // In case of global shift key limitation we will limit the generator proportionally to
                 // its participation in the global proportional scalable
-                double maxGeneratorValue = NetworkUtil.pseudoTargetP(generator) + factor * glskShiftKey.getMaximumShift();
-                scalables.add(Scalable.onGenerator(generator.getId(), -Double.MAX_VALUE, maxGeneratorValue));
+                scalables.add(Scalable.onGenerator(generator.getId()));
             }
         } else if (glskShiftKey.getPsrType().equals("A05")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional LSK");
