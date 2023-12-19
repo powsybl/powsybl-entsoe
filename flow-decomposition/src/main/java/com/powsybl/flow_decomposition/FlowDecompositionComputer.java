@@ -15,8 +15,6 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityVariableType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -28,8 +26,6 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class FlowDecompositionComputer {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
 
     static final String DEFAULT_LOAD_FLOW_PROVIDER = null;
     static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = null;
@@ -142,13 +138,15 @@ public class FlowDecompositionComputer {
                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
         saveAcReferenceFlow(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
         compensateLosses(network);
+        observers.computedAcFlows(network, loadFlowServiceAcResult);
 
         // None
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecList));
-        observers.computedAcFlows(network, networkMatrixIndexes, loadFlowServiceAcResult.fallbackHasBeenActivated());
+        observers.computedAcNodalInjections(networkMatrixIndexes, loadFlowServiceAcResult.fallbackHasBeenActivated());
 
         runDcLoadFlow(network);
-        observers.computedDcFlows(network, networkMatrixIndexes);
+        observers.computedDcFlows(network);
+        observers.computedDcNodalInjections(networkMatrixIndexes);
 
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network,
             netPositions, networkMatrixIndexes, glsks);
@@ -161,8 +159,6 @@ public class FlowDecompositionComputer {
         observers.computedPtdfMatrix(ptdfMatrix);
         SparseMatrixWithIndexesTriplet psdfMatrix = getPsdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
         observers.computedPsdfMatrix(psdfMatrix);
-        // psdf variation du flux d'un ligne en changeant la position d'un faceshifter
-        // vérifier que les PST tap positions sont inclues dans la PSDF
 
         // None
         computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);

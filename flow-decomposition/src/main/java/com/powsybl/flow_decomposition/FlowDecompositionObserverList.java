@@ -1,11 +1,20 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.LoadFlowRunningService.Result;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class FlowDecompositionObserverList {
     private final List<FlowDecompositionObserver> observers;
@@ -70,20 +79,38 @@ public class FlowDecompositionObserverList {
         sendMatrix(FlowDecompositionObserver::computedPsdfMatrix, matrix);
     }
 
-    public void computedAcFlows(Network network, NetworkMatrixIndexes networkMatrixIndexes, boolean fallbackHasBeenActivated) {
+    public void computedAcFlows(Network network, Result loadFlowServiceAcResult) {
         if (observers.isEmpty()) {
             return;
         }
 
-        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
-        Map<String, Double> results = referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
+        Map<String, Double> acFlows;
+        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
+            acFlows = network.getBranchStream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
+        } else {
+            ReferenceFlowComputer flowComputer = new ReferenceFlowComputer();
+            acFlows = flowComputer.run(network.getBranchStream().collect(Collectors.toSet()));
+        }
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedAcFlows(results, fallbackHasBeenActivated);
+            o.computedAcFlows(acFlows);
         }
     }
 
-    public void computedDcFlows(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
+    public void computedDcFlows(Network network) {
+        if (observers.isEmpty()) {
+            return;
+        }
+
+        ReferenceFlowComputer flowComputer = new ReferenceFlowComputer();
+        Map<String, Double> dcFlows = flowComputer.run(network.getBranchStream().collect(Collectors.toSet()));
+
+        for (FlowDecompositionObserver o : observers) {
+            o.computedDcFlows(dcFlows);
+        }
+    }
+
+    public void computedAcNodalInjections(NetworkMatrixIndexes networkMatrixIndexes, boolean fallbackHasBeenActivated) {
         if (observers.isEmpty()) {
             return;
         }
@@ -92,7 +119,20 @@ public class FlowDecompositionObserverList {
         Map<String, Double> results = referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedDcFlows(results);
+            o.computedAcNodalInjections(results, fallbackHasBeenActivated);
+        }
+    }
+
+    public void computedDcNodalInjections(NetworkMatrixIndexes networkMatrixIndexes) {
+        if (observers.isEmpty()) {
+            return;
+        }
+
+        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
+        Map<String, Double> results = referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
+
+        for (FlowDecompositionObserver o : observers) {
+            o.computedDcNodalInjections(results);
         }
     }
 
