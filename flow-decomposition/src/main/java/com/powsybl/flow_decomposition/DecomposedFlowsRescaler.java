@@ -35,6 +35,7 @@ final class DecomposedFlowsRescaler {
 
         double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
         double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
+        double fmax = decomposedFlow.getFmax();
         double allocatedFlow = decomposedFlow.getAllocatedFlow();
         double xNodeFlow = decomposedFlow.getXNodeFlow();
         double pstFlow = decomposedFlow.getPstFlow();
@@ -55,6 +56,6 @@ final class DecomposedFlowsRescaler {
         Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
 
-        return new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow, dcReferenceFlow, rescaledAllocatedFlow, rescaledXNodeFlow, rescaledPstFlow, rescaleInternalFlow, rescaledLoopFlows);
+        return new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow, dcReferenceFlow, rescaledAllocatedFlow, rescaledXNodeFlow, rescaledPstFlow, rescaleInternalFlow, rescaledLoopFlows, fmax);
     }
 }

@@ -85,12 +85,13 @@ class InternalFlowTests {
         Map<String, Double> loopFlows = new TreeMap<>();
         double allocatedFlow = 100;
         double pstFlow = 200.;
+        double fmax = 1000.;
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.BE), 500.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Country country1 = Country.FR;
         Country country2 = Country.FR;
-        return new DecomposedFlow("", "", country1, country2, acReferenceFlow, dcReferenceFlow, allocatedFlow, 0, pstFlow, internalFlow, loopFlows);
+        return new DecomposedFlow("", "", country1, country2, acReferenceFlow, dcReferenceFlow, allocatedFlow, 0, pstFlow, internalFlow, loopFlows, fmax);
     }
 
     private DecomposedFlow getRescaledFlow(double internalFlow, double acReferenceFlow, double dcReferenceFlow) {

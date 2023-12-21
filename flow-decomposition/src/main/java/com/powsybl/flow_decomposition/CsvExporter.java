@@ -84,9 +84,11 @@ public class CsvExporter {
         failSilentlyPrint(printer, DecomposedFlow.ALLOCATED_COLUMN_NAME);
         failSilentlyPrint(printer, DecomposedFlow.INTERNAL_COLUMN_NAME);
         failSilentlyPrint(printer, DecomposedFlow.PST_COLUMN_NAME);
+        failSilentlyPrint(printer, DecomposedFlow.XNODE_COLUMN_NAME);
         loopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, loopFlowKey));
         failSilentlyPrint(printer, DecomposedFlow.AC_REFERENCE_FLOW_COLUMN_NAME);
         failSilentlyPrint(printer, DecomposedFlow.DC_REFERENCE_FLOW_COLUMN_NAME);
+        failSilentlyPrint(printer, "fmax");
         failSilentlyPrintLn(printer);
     }
 
@@ -99,9 +101,11 @@ public class CsvExporter {
         failSilentlyPrint(printer, decomposedFlow.getAllocatedFlow());
         failSilentlyPrint(printer, decomposedFlow.getInternalFlow());
         failSilentlyPrint(printer, decomposedFlow.getPstFlow());
+        failSilentlyPrint(printer, decomposedFlow.getXNodeFlow());
         allLoopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, decomposedFlow.getLoopFlows().getOrDefault(loopFlowKey, NO_FLOW)));
         failSilentlyPrint(printer, decomposedFlow.getAcReferenceFlow());
         failSilentlyPrint(printer, decomposedFlow.getDcReferenceFlow());
+        failSilentlyPrint(printer, decomposedFlow.getFmax());
         failSilentlyPrintLn(printer);
     }
 }

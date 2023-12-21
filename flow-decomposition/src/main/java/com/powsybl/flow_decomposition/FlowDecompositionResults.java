@@ -6,10 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -86,7 +83,8 @@ public class FlowDecompositionResults {
             Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
             Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());
             double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
-            DecomposedFlow decomposedFlow = new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow.get(branchId), dcReferenceFlow.get(branchId), allocatedFlow, xNodeFlow, pstFlow, internalFlow, loopFlowsMap);
+            double fmax = computeFmax(xnecMap.get(branchId));
+            DecomposedFlow decomposedFlow = new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow.get(branchId), dcReferenceFlow.get(branchId), allocatedFlow, xNodeFlow, pstFlow, internalFlow, loopFlowsMap, fmax);
             if (isRescaleEnable) {
                 return DecomposedFlowsRescaler.rescale(decomposedFlow);
             }
@@ -99,6 +97,17 @@ public class FlowDecompositionResults {
                     .orElse(NO_FLOW);
             }
             return NO_FLOW;
+        }
+    }
+
+    private double computeFmax(Branch branch) {
+        Optional<CurrentLimits> optionalCurrentLimits = branch.getCurrentLimits1();
+        if (optionalCurrentLimits.isPresent()) {
+            double imax = optionalCurrentLimits.get().getPermanentLimit();
+            double vnom = branch.getTerminal1().getVoltageLevel().getNominalV();
+            return imax * vnom * Math.sqrt(3) / 1000;
+        } else {
+            return Double.NaN;
         }
     }
 
