@@ -53,7 +53,7 @@ abstract class AbstractSensitivityAnalyser {
 
     protected List<Pair<String, String>> getFunctionVariableFactors(List<String> variableList,
                                                                     List<Branch> functionList) {
-        List<Pair<String, String>> factors = new ArrayList<>();
+        List<Pair<String, String>> factors = new ArrayList<>(variableList.size() * functionList.size());
         variableList.forEach(
             variable -> functionList.forEach(
                 function -> factors.add(Pair.of(function.getId(), variable))));

@@ -82,6 +82,7 @@ class NetworkMatrixIndexes {
                 .filter(this::isInjectionConnected)
                 .filter(this::isInjectionInMainSynchronousComponent)
                 .filter(this::managedInjectionTypes)
+                .filter(this::isNotNegligibleLoad)
                 .collect(Collectors.toList());
     }
 
@@ -105,6 +106,10 @@ class NetworkMatrixIndexes {
 
     private boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {
         return NetworkUtil.isTerminalInMainSynchronousComponent(injection.getTerminal());
+    }
+
+    private boolean isNotNegligibleLoad(Injection<?> injection) {
+        return !(injection instanceof Load load) || Math.abs(load.getP0()) > 1e-9;
     }
 
     private List<String> getNodeIdList(List<Injection<?>> nodeList) {
@@ -143,6 +148,7 @@ class NetworkMatrixIndexes {
                 .filter(dl -> !dl.isPaired())
                 .filter(this::isInjectionConnected)
                 .filter(this::isInjectionInMainSynchronousComponent)
+                .filter(this::isNotNegligibleLoad)
                 .map(danglingLine -> (Injection<?>) danglingLine)
                 .collect(Collectors.toList());
     }
