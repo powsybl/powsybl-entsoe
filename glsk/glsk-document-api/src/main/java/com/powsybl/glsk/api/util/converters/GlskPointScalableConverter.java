@@ -136,7 +136,7 @@ public final class GlskPointScalableConverter {
         Scalable upScalable = Scalable.stack(glskPoint.getGlskShiftKeys().stream()
                 .filter(glskShiftKey -> glskShiftKey.getMeritOrderPosition() > 0)
                 .sorted(Comparator.comparingInt(GlskShiftKey::getMeritOrderPosition))
-                .map(getGlskShiftKeyScalableFunction(network)).toArray(Scalable[]::new));
+                .map(getGlskShiftKeyScalableFunction(network) ).toArray(Scalable[]::new));
 
         Scalable downScalable = Scalable.stack(glskPoint.getGlskShiftKeys().stream()
                 .filter(glskShiftKey -> glskShiftKey.getMeritOrderPosition() < 0)
