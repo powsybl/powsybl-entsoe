@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Convert a single GlskPoint to Scalable
@@ -135,19 +136,26 @@ public final class GlskPointScalableConverter {
         Scalable upScalable = Scalable.stack(glskPoint.getGlskShiftKeys().stream()
                 .filter(glskShiftKey -> glskShiftKey.getMeritOrderPosition() > 0)
                 .sorted(Comparator.comparingInt(GlskShiftKey::getMeritOrderPosition))
-                .map(glskShiftKey -> {
-                    GlskRegisteredResource resource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
-                    return isGenerator(network, resource) ? getGeneratorScalableWithLimits(network, resource) : getDanglingLineScalableWithLimits(network, resource);
-                }).toArray(Scalable[]::new));
+                .map(getGlskShiftKeyScalableFunction(network)).toArray(Scalable[]::new));
 
         Scalable downScalable = Scalable.stack(glskPoint.getGlskShiftKeys().stream()
                 .filter(glskShiftKey -> glskShiftKey.getMeritOrderPosition() < 0)
                 .sorted(Comparator.comparingInt(GlskShiftKey::getMeritOrderPosition).reversed())
-                .map(glskShiftKey -> {
-                    GlskRegisteredResource resource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
-                    return isGenerator(network, resource) ? getGeneratorScalableWithLimits(network, resource) : getDanglingLineScalableWithLimits(network, resource);
-                }).toArray(Scalable[]::new));
+                .map(getGlskShiftKeyScalableFunction(network)).toArray(Scalable[]::new));
         return Scalable.upDown(upScalable, downScalable);
+    }
+
+    private static Function<GlskShiftKey, Scalable> getGlskShiftKeyScalableFunction(Network network) {
+        return glskShiftKey -> {
+            GlskRegisteredResource resource = Objects.requireNonNull(glskShiftKey.getRegisteredResourceArrayList()).get(0);
+            if (isGenerator(network, resource)) {
+                return getGeneratorScalableWithLimits(network, resource);
+            } else if (isLoad(network, resource)) {
+                return getLoadScalableWithLimits(network, resource);
+            } else {
+                return getDanglingLineScalableWithLimits(network, resource);
+            }
+        };
     }
 
     /**
@@ -304,6 +312,10 @@ public final class GlskPointScalableConverter {
 
     private static boolean isGenerator(Network network, GlskRegisteredResource glskRegisteredResource) {
         return network.getGenerator(glskRegisteredResource.getGeneratorId()) != null;
+    }
+
+    private static boolean isLoad(Network network, GlskRegisteredResource glskRegisteredResource) {
+        return network.getLoad(glskRegisteredResource.getLoadId()) != null;
     }
 
     private static Scalable getGeneratorScalableWithLimits(Network network, GlskRegisteredResource generatorRegisteredResource) {
