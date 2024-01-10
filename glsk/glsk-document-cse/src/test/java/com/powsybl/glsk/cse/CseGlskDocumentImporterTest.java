@@ -590,6 +590,9 @@ class CseGlskDocumentImporterTest {
 
         assertNotNull(meritOrderGskScalable);
         assertEquals(-100., network.getLoad("IMESM121_load").getP0(), EPSILON);
+
+        meritOrderGskScalable.scale(network, 100.);
+        assertEquals(-200., network.getLoad("IMESM121_load").getP0(), EPSILON);
     }
 
     @Test
