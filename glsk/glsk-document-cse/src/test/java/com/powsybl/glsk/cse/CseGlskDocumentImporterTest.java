@@ -580,7 +580,19 @@ class CseGlskDocumentImporterTest {
         assertEquals(2000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // -1000
         assertEquals(2000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // -3000
         assertEquals(1500., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // -500
+    }
 
+    @Test
+    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithLoads() {
+        Network network = Network.read("testCaseWithLoadss.xiidm", getClass().getResourceAsStream("/testCaseWithLoads.xiidm"));
+        GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithLoads.xml"));
+        Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER");
+
+        assertNotNull(meritOrderGskScalable);
+        assertEquals(-100., network.getLoad("IMESM121_load").getP0(), EPSILON);
+
+        meritOrderGskScalable.scale(network, 100.);
+        assertEquals(-200., network.getLoad("IMESM121_load").getP0(), EPSILON);
     }
 
     @Test
