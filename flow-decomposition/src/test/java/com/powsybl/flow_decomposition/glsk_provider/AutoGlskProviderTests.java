@@ -29,10 +29,47 @@ class AutoGlskProviderTests {
         String loadBe = "BLOAD 11_load";
         String genFr = "FGEN1 11_generator";
         Network network = importNetwork(networkFileName);
-        AutoGlskProvider autoGlskProvider = new AutoGlskProvider();
-        Map<Country, Map<String, Double>> glsks = autoGlskProvider.getGlsk(network);
+
+        Map<Country, Map<String, Double>> glsks = new AutoGlskProvider().getGlsk(network);
+
         assertEquals(1.0, glsks.get(Country.FR).get(genFr), EPSILON);
         assertEquals(1.0, glsks.get(Country.BE).get(genBe), EPSILON);
         assertNull(glsks.get(Country.BE).get(loadBe));
     }
+
+    @Test
+    void testThatGlskIgnoreDisconnectedGenerators() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
+        String genBe = "BGEN2 11_generator";
+        String loadBe = "BLOAD 11_load";
+        String genFr = "FGEN1 11_generator";
+        Network network = importNetwork(networkFileName);
+
+        network.getGenerator(genFr).getTerminal().disconnect();
+
+        Map<Country, Map<String, Double>> glsks = new AutoGlskProvider().getGlsk(network);
+
+        assertNull(glsks.get(Country.FR).get(genFr));
+
+        assertEquals(1.0, glsks.get(Country.BE).get(genBe), EPSILON);
+        assertNull(glsks.get(Country.BE).get(loadBe));
+    }
+
+    @Test
+    void testThatGlskWorkForNullTargetP() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
+        String genBe = "BGEN2 11_generator";
+        String loadBe = "BLOAD 11_load";
+        String genFr = "FGEN1 11_generator";
+        Network network = importNetwork(networkFileName);
+
+        network.getGenerator(genFr).setTargetP(0.0);
+
+        Map<Country, Map<String, Double>> glsks = new AutoGlskProvider().getGlsk(network);
+
+        assertEquals(1.0, glsks.get(Country.FR).get(genFr), EPSILON);
+        assertEquals(1.0, glsks.get(Country.BE).get(genBe), EPSILON);
+        assertNull(glsks.get(Country.BE).get(loadBe));
+    }
+
 }
