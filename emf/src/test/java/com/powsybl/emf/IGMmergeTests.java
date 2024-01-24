@@ -199,6 +199,7 @@ class IGMmergeTests {
             dl.setQ0(0);
         }
         Network assembled = createCGM();
+        //TODO This test fails because in `assembled` the dangling lines have non-zero values for p0 and q0.
         compareNetwork(assembled, merged);
     }
 
