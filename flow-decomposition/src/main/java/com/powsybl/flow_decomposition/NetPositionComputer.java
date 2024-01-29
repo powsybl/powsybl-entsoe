@@ -66,7 +66,7 @@ class NetPositionComputer {
     }
 
     private static void addLeavingFlow(Map<Country, Double> netPositions, DanglingLine danglingLine, Country country) {
-        Double previousValue = getPreviousValue(netPositions, country);
+        double previousValue = getPreviousValue(netPositions, country);
         netPositions.put(country, previousValue + getLeavingFlow(danglingLine));
     }
 
