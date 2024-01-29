@@ -26,6 +26,7 @@ class NetPositionTest {
     @Test
     void testLines() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
+        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(1000.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
         assertEquals(1500.0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
@@ -36,9 +37,24 @@ class NetPositionTest {
     }
 
     @Test
-    void testDanglingLines() {
+    void testLinesDisconnected() {
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
+        network.getBranch("BBE1AA1  BBE2AA1  1").getTerminal1().disconnect();
+        network.getBranch("BBE1AA1  BBE2AA1  1").getTerminal2().disconnect();
+        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
+        assertEquals(1000.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(1500.0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(0.0, netPositions.get(Country.NL), DOUBLE_TOLERANCE);
+        assertEquals(-2500.0, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
+        double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
+        assertEquals(0.0, sumAllNetPositions, DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testDanglingLinesBalanced() {
         Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
-        LoadFlow.run(network);
+        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(1000.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
         assertEquals(2300.0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
@@ -46,6 +62,31 @@ class NetPositionTest {
         assertEquals(-2800.0, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
         double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
         assertEquals(0.0, sumAllNetPositions, DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testDanglingLinesDisconnected() {
+        Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
+        network.getDanglingLine("BBE2AA1  X_BEFR1  1").getTerminal().disconnect();
+        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
+        assertEquals(1000.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(2300.0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(-500.0, netPositions.get(Country.NL), DOUBLE_TOLERANCE);
+        assertEquals(-2800.0, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
+        double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
+        assertEquals(0.0, sumAllNetPositions, DOUBLE_TOLERANCE);
+    }
+
+    @Test
+    void testDanglingLinesUnbalanced() {
+        Network network = Network.read("NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE.uct", getClass().getResourceAsStream("NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE.uct"));
+        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
+        assertEquals(100, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
+        assertEquals(100, sumAllNetPositions, DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -59,13 +100,14 @@ class NetPositionTest {
     }
 
     @Test
-    void testUnboundedXnode() {
-        Network network = Network.read("NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE.uct", getClass().getResourceAsStream("NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE.uct"));
-        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+    void testHvdcLinesDisconnected() {
+        Network network = Network.read("TestCaseHvdc.xiidm", getClass().getResourceAsStream("TestCaseHvdc.xiidm"));
+        network.getHvdcLine("hvdc_line_FR_1_DE").getConverterStation1().getTerminal().disconnect();
+        network.getHvdcLine("hvdc_line_FR_1_DE").getConverterStation2().getTerminal().disconnect();
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
-        assertEquals(100, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
-        assertEquals(0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(200.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(-200.0, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
         double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
-        assertEquals(100, sumAllNetPositions, DOUBLE_TOLERANCE);
+        assertEquals(0.0, sumAllNetPositions, DOUBLE_TOLERANCE);
     }
 }
