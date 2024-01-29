@@ -1,0 +1,20 @@
+##C 2007.05.01
+This is a test network with only two branches.
+Each branch is linking a generator with a  central load.
+Used to validate:
+- Basic network importer
+- XNEC automatic selection
+- GLSK automatic generation
+- Zone automatic extraction
+##N
+##ZFR
+FGEN1 11 GEN          0 3 400.00 0.00000 0.00000 -100.00 0.00000 1000.00 -1000.0 1000.00 -1000.0
+##ZBE
+BGEN2 11 GEN          0 2 400.00 0.00000 0.00000 -100.00 0.00000 1000.00 -1000.0 1000.00 -1000.0
+BLOAD 11 LOAD         0 0        100.000 0.00000 0.00000 0.00000
+##ZXX
+X     11 XNODE        0 0        100.000 0.00000 0.00000 0.00000 1000.00 -1000.0 1000.00 -1000.0
+##L
+FGEN1 11 BLOAD 11 1 0 1.0000 0.0500 0.000000    480 LINE
+BLOAD 11 BGEN2 11 1 0 1.0000 0.0500 0.000000    480 LINE
+BLOAD 11 X     11 1 0 1.0000 0.0500 0.000000    480 LINE

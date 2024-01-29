@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -57,4 +58,14 @@ class NetPositionTest {
         assertEquals(0.0, sumAllNetPositions, DOUBLE_TOLERANCE);
     }
 
+    @Test
+    void testUnboundedXnode() {
+        Network network = Network.read("NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE.uct", getClass().getResourceAsStream("NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE.uct"));
+        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
+        assertEquals(100, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
+        assertEquals(100, sumAllNetPositions, DOUBLE_TOLERANCE);
+    }
 }
