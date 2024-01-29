@@ -23,17 +23,12 @@ class NetPositionComputer {
     static Map<Country, Double> computeNetPositions(Network network) {
         Map<Country, Double> netPositions = new EnumMap<>(Country.class);
 
-        network.getLineStream().forEach(line -> {
-            Country countrySide1 = NetworkUtil.getTerminalCountry(line.getTerminal1());
-            Country countrySide2 = NetworkUtil.getTerminalCountry(line.getTerminal2());
-            if (countrySide1.equals(countrySide2)) {
-                return;
-            }
-            addLeavingFlow(netPositions, line, countrySide1);
-            addLeavingFlow(netPositions, line, countrySide2);
+        network.getDanglingLineStream().forEach(danglingLine -> {
+            Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
+            addLeavingFlow(netPositions, danglingLine, country);
         });
 
-        network.getTieLineStream().forEach(line -> {
+        network.getLineStream().forEach(line -> {
             Country countrySide1 = NetworkUtil.getTerminalCountry(line.getTerminal1());
             Country countrySide2 = NetworkUtil.getTerminalCountry(line.getTerminal2());
             if (countrySide1.equals(countrySide2)) {
@@ -65,24 +60,17 @@ class NetPositionComputer {
         netPositions.put(country, previousValue + getLeavingFlow(line, country));
     }
 
-    private static void addLeavingFlow(Map<Country, Double> netPositions, TieLine line, Country country) {
-        double previousValue = getPreviousValue(netPositions, country);
-        netPositions.put(country, previousValue + getLeavingFlow(line, country));
-    }
-
     private static void addLeavingFlow(Map<Country, Double> netPositions, HvdcLine hvdcLine, Country country) {
         double previousValue = getPreviousValue(netPositions, country);
         netPositions.put(country, previousValue + getLeavingFlow(hvdcLine, country));
     }
 
-    private static double getLeavingFlow(Line line, Country country) {
-        double flowSide1 = line.getTerminal1().isConnected() && !Double.isNaN(line.getTerminal1().getP()) ? line.getTerminal1().getP() : 0;
-        double flowSide2 = line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP()) ? line.getTerminal2().getP() : 0;
-        double directFlow = (flowSide1 - flowSide2) / 2;
-        return country.equals(NetworkUtil.getTerminalCountry(line.getTerminal1())) ? directFlow : -directFlow;
+    private static void addLeavingFlow(Map<Country, Double> netPositions, DanglingLine danglingLine, Country country) {
+        double previousValue = getPreviousValue(netPositions, country);
+        netPositions.put(country, previousValue + getLeavingFlow(danglingLine));
     }
 
-    private static double getLeavingFlow(TieLine line, Country country) {
+    private static double getLeavingFlow(Line line, Country country) {
         double flowSide1 = line.getTerminal1().isConnected() && !Double.isNaN(line.getTerminal1().getP()) ? line.getTerminal1().getP() : 0;
         double flowSide2 = line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP()) ? line.getTerminal2().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
@@ -94,5 +82,9 @@ class NetPositionComputer {
         double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation2().getTerminal().getP()) ? hvdcLine.getConverterStation2().getTerminal().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
         return country.equals(NetworkUtil.getTerminalCountry(hvdcLine.getConverterStation1().getTerminal())) ? directFlow : -directFlow;
+    }
+
+    private static double getLeavingFlow(DanglingLine danglingLine) {
+        return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getTerminal().getP()) ? danglingLine.getTerminal().getP() : 0;
     }
 }
