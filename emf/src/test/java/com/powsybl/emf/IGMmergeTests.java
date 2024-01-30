@@ -193,11 +193,6 @@ class IGMmergeTests {
         Network merged = Network.merge("merged",
                 Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource()),
                 Network.read(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource()));
-        // In merged, reset all p0, q0 values for all paired dangling lines
-        for (DanglingLine dl : merged.getDanglingLines(DanglingLineFilter.PAIRED)) {
-            dl.setP0(0);
-            dl.setQ0(0);
-        }
         Network assembled = createCGM();
         compareNetwork(assembled, merged);
     }
