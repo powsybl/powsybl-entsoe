@@ -1,8 +1,9 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, Coreso SA (https://www.coreso.eu/) and TSCNET Services GmbH (https://www.tscnet.eu/)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.flow_decomposition;
 
@@ -15,10 +16,26 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
+/**
+ * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
+ */
 class FlowDecompositionObserverTest {
     private enum Event {
-        RUN_START, RUN_DONE, COMPUTING_BASE_CASE, COMPUTING_CONTINGENCY, COMPUTED_GLSK, COMPUTED_NET_POSITIONS, COMPUTED_NODAL_INJECTIONS_MATRIX, COMPUTED_PTDF_MATRIX, COMPUTED_PSDF_MATRIX, COMPUTED_AC_NODAL_INJECTIONS, COMPUTED_DC_NODAL_INJECTIONS, COMPUTED_AC_FLOWS, COMPUTED_DC_FLOWS,
+        RUN_START,
+        RUN_DONE,
+        COMPUTING_BASE_CASE,
+        COMPUTING_CONTINGENCY,
+        COMPUTED_GLSK,
+        COMPUTED_NET_POSITIONS,
+        COMPUTED_NODAL_INJECTIONS_MATRIX,
+        COMPUTED_PTDF_MATRIX,
+        COMPUTED_PSDF_MATRIX,
+        COMPUTED_AC_NODAL_INJECTIONS,
+        COMPUTED_DC_NODAL_INJECTIONS,
+        COMPUTED_AC_FLOWS,
+        COMPUTED_DC_FLOWS
     }
 
     private static final String BASE_CASE = "base-case";
@@ -285,6 +302,31 @@ class FlowDecompositionObserverTest {
         for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
             assertEquals(allBranches, report.dcFlows.forContingency(contingencyId).keySet());
         }
+    }
+
+    @Test
+    void testRemoveObserver() {
+        String networkFileName = "19700101_0000_FO4_UX1.uct";
+        String branchId = "DB000011 DF000011 1";
+
+        Network network = TestUtils.importNetwork(networkFileName);
+        XnecProvider xnecProvider = XnecProviderByIds.builder()
+                                                     .addNetworkElementsOnBasecase(Set.of(branchId))
+                                                     .build();
+        var flowDecompositionParameters = FlowDecompositionParameters.load();
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        var reportInserted = new ObserverReport();
+        flowComputer.addObserver(reportInserted);
+
+        var reportRemoved = new ObserverReport();
+        flowComputer.addObserver(reportRemoved);
+
+        flowComputer.removeObserver(reportRemoved);
+
+        flowComputer.run(xnecProvider, network);
+
+        assertFalse(reportInserted.allEvents().isEmpty());
+        assertTrue(reportRemoved.allEvents().isEmpty());
     }
 
     private void assertEventsFired(Collection<Event> firedEvents, Event... expectedEvents) {
