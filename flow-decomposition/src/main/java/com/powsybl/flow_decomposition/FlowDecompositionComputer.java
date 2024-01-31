@@ -9,7 +9,6 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -19,7 +18,6 @@ import com.powsybl.sensitivity.SensitivityVariableType;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -180,12 +178,7 @@ public class FlowDecompositionComputer {
     }
 
     private void saveAcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acReferenceFlows;
-        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
-            acReferenceFlows = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
-        } else {
-            acReferenceFlows = getXnecReferenceFlows(xnecList);
-        }
+        Map<String, Double> acReferenceFlows = new AcReferenceFlowComputer().run(xnecList, loadFlowServiceAcResult);
         flowDecompositionResultBuilder.saveAcReferenceFlow(acReferenceFlows);
     }
 
@@ -194,9 +187,8 @@ public class FlowDecompositionComputer {
         return netPositionComputer.run(network);
     }
 
-    private Map<String, Double> getXnecReferenceFlows(Set<Branch> xnecList) {
-        ReferenceFlowComputer referenceFlowComputer = new ReferenceFlowComputer();
-        return referenceFlowComputer.run(xnecList);
+    private Map<String, Double> getBranchReferenceFlows(Set<Branch> branches) {
+        return new ReferenceFlowComputer().run(branches);
     }
 
     private void compensateLosses(Network network) {
@@ -218,7 +210,7 @@ public class FlowDecompositionComputer {
     }
 
     private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList) {
-        flowDecompositionResultBuilder.saveDcReferenceFlow(getXnecReferenceFlows(xnecList));
+        flowDecompositionResultBuilder.saveDcReferenceFlow(getBranchReferenceFlows(xnecList));
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {

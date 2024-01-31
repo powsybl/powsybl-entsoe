@@ -9,13 +9,11 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.LoadFlowRunningService.Result;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
@@ -88,13 +86,8 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        Map<String, Double> acFlows;
-        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
-            acFlows = network.getBranchStream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
-        } else {
-            ReferenceFlowComputer flowComputer = new ReferenceFlowComputer();
-            acFlows = flowComputer.run(network.getBranchStream().collect(Collectors.toSet()));
-        }
+        Map<String, Double> acFlows =
+                new AcReferenceFlowComputer().run(network.getBranchStream().toList(), loadFlowServiceAcResult);
 
         for (FlowDecompositionObserver o : observers) {
             o.computedAcFlows(acFlows);
@@ -106,8 +99,7 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        ReferenceFlowComputer flowComputer = new ReferenceFlowComputer();
-        Map<String, Double> dcFlows = flowComputer.run(network.getBranchStream().collect(Collectors.toSet()));
+        Map<String, Double> dcFlows = new ReferenceFlowComputer().run(network.getBranchStream().toList());
 
         for (FlowDecompositionObserver o : observers) {
             o.computedDcFlows(dcFlows);
@@ -119,8 +111,7 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
-        Map<String, Double> results = referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
+        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(networkMatrixIndexes.getNodeList());
 
         for (FlowDecompositionObserver o : observers) {
             o.computedAcNodalInjections(results, fallbackHasBeenActivated);
@@ -132,8 +123,7 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
-        Map<String, Double> results = referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
+        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(networkMatrixIndexes.getNodeList());
 
         for (FlowDecompositionObserver o : observers) {
             o.computedDcNodalInjections(results);
