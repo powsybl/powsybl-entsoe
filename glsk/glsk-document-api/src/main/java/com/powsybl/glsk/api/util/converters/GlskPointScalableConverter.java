@@ -84,7 +84,12 @@ public final class GlskPointScalableConverter {
             shiftKeyPercentages.add(percentageSum);
 
             // each scalable needs to have a sum of percentages equal to 100%
-            List<Double> normalizedPercentages = percentages.stream().map(p -> p * 100 / percentageSum).toList();
+            List<Double> normalizedPercentages;
+            if (Math.abs(percentageSum) >= 1e-6) {
+                normalizedPercentages = percentages.stream().map(p -> p * 100. / percentageSum).toList();
+            } else {
+                normalizedPercentages = percentages.stream().map(p -> 100. / percentages.size()).toList();
+            }
             // the limit of the scalables is the power they can reach, not how much they can be scaled by
             Double currentPower = scalables.stream().mapToDouble(scalable -> scalable.getSteadyStatePower(network, 1, Scalable.ScalingConvention.GENERATOR)).sum();
             shiftKeyScalables.add(Scalable.proportional(normalizedPercentages, scalables, -Double.MAX_VALUE, currentPower + glskShiftKey.getMaximumShift()));
