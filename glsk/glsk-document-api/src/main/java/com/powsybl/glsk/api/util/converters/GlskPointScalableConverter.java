@@ -81,15 +81,17 @@ public final class GlskPointScalableConverter {
                 throw new GlskException("In convert glskShiftKey business type not supported");
             }
             Double percentageSum = percentages.stream().mapToDouble(Double::doubleValue).sum();
-            shiftKeyPercentages.add(percentageSum);
 
             // each scalable needs to have a sum of percentages equal to 100%
             List<Double> normalizedPercentages;
             if (Math.abs(percentageSum) >= 1e-6) {
-                normalizedPercentages = percentages.stream().map(p -> p * 100. / percentageSum).toList();
+                Double finalPercentageSum = percentageSum;
+                normalizedPercentages = percentages.stream().map(p -> p * 100. / finalPercentageSum).toList();
             } else {
                 normalizedPercentages = percentages.stream().map(p -> 100. / percentages.size()).toList();
+                percentageSum = 0.;
             }
+            shiftKeyPercentages.add(percentageSum);
             // the limit of the scalables is the power they can reach, not how much they can be scaled by
             Double currentPower = scalables.stream().mapToDouble(scalable -> scalable.getSteadyStatePower(network, 1, Scalable.ScalingConvention.GENERATOR)).sum();
             shiftKeyScalables.add(Scalable.proportional(normalizedPercentages, scalables, -Double.MAX_VALUE, currentPower + glskShiftKey.getMaximumShift()));
