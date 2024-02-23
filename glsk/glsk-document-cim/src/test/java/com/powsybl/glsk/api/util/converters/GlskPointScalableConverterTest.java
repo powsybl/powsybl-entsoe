@@ -257,4 +257,27 @@ class GlskPointScalableConverterTest {
         assertEquals(840., testNetwork.getLoad("FFR1AA1 _load").getP0(), DOUBLE_TOLERANCE); // 0.4 * 0.4 = 16 %
         assertEquals(760., testNetwork.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), DOUBLE_TOLERANCE); // 0.4 * 0.6 = 24 %
     }
+
+    @Test
+    void testNullPercentageSum() {
+        GlskPoint glsk = CimGlskDocument.importGlsk(getResourceAsStream("/GlskB43ParticipationFactorGskLskZeroSum.xml")).getGlskPoints().get(0);
+        Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glsk);
+
+        assertNotNull(scalable);
+        assertEquals(2000., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), DOUBLE_TOLERANCE);
+        assertEquals(2000., testNetwork.getGenerator("FFR2AA1 _generator").getTargetP(), DOUBLE_TOLERANCE);
+        assertEquals(3000., testNetwork.getGenerator("FFR3AA1 _generator").getTargetP(), DOUBLE_TOLERANCE);
+        assertEquals(1000., testNetwork.getLoad("FFR1AA1 _load").getP0(), DOUBLE_TOLERANCE);
+        assertEquals(3500., testNetwork.getLoad("FFR2AA1 _load").getP0(), DOUBLE_TOLERANCE);
+        assertEquals(1500., testNetwork.getLoad("FFR3AA1 _load").getP0(), DOUBLE_TOLERANCE);
+
+        double done = scalable.scale(testNetwork, 500.);
+        assertEquals(500., done, DOUBLE_TOLERANCE);
+        assertEquals(2350., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), DOUBLE_TOLERANCE); // 0.7 * 1.0 = 70 %
+        assertEquals(2150., testNetwork.getGenerator("FFR2AA1 _generator").getTargetP(), DOUBLE_TOLERANCE); // 0.3 * 1.0 = 30 %
+        assertEquals(3000., testNetwork.getGenerator("FFR3AA1 _generator").getTargetP(), DOUBLE_TOLERANCE); // untouched
+        assertEquals(1000., testNetwork.getLoad("FFR1AA1 _load").getP0(), DOUBLE_TOLERANCE); // 0.0 * 0.0 = 0 %
+        assertEquals(3500., testNetwork.getLoad("FFR2AA1 _load").getP0(), DOUBLE_TOLERANCE); // 0.0 * 0.0 = 0 %
+        assertEquals(1500., testNetwork.getLoad("FFR3AA1 _load").getP0(), DOUBLE_TOLERANCE); // untouched
+    }
 }
