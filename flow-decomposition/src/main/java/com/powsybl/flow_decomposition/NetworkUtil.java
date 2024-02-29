@@ -38,12 +38,7 @@ public final class NetworkUtil {
                     "Cannot retrieve country info needed for the algorithm.", terminal.getVoltageLevel().getId()));
         }
         Substation substation = optionalSubstation.get();
-        Optional<Country> optionalCountry = substation.getCountry();
-        if (optionalCountry.isEmpty()) {
-            throw new PowsyblException(String.format("Substation %s does not have country property" +
-                    "needed for the algorithm.", substation.getId()));
-        }
-        return optionalCountry.get();
+        return substation.getNullableCountry();
     }
 
     static String getLoopFlowIdFromCountry(Network network, String identifiableId) {
