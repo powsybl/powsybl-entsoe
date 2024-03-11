@@ -25,14 +25,14 @@ jobs:
       with:
         repository: powsybl/powsybl-core
         ref: refs/heads/main
-        path: powsybl-core
+        path: ../powsybl-core
 
     - name: Checkout powsybl-open-loadflow branch
       uses: actions/checkout@v4
       with:
         repository: powsybl/powsybl-open-loadflow
-        ref: refs/heads/reporter_v2
-        path: powsybl-open-loadflow
+        ref: refs/heads/report_v2
+        path: ../powsybl-open-loadflow
 
     - name: Checkout sources
       uses: actions/checkout@v1
