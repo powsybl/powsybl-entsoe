@@ -86,7 +86,7 @@ public class BalanceComputationImpl implements BalanceComputation {
         network.getVariantManager().setWorkingVariant(workingVariantCopyId);
 
         do {
-            ReportNode iterationReportNode = Reports.createBalanceComputationIterationReportNode(reportNode, context.getIterationNum());
+            ReportNode iterationReportNode = Reports.createBalanceComputationIterationReportNode(context.getReportNode(), context.getIterationNum());
             context.setIterationReportNode(iterationReportNode);
             // Step 1: Perform the scaling
             ReportNode scalingReportNode = iterationReportNode.newReportNode().withMessageTemplate("scaling", "Scaling").add();
@@ -128,10 +128,10 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
         } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
 
-        ReportNode statusReportNode = reportNode.newReportNode().withMessageTemplate("status", "Status").add();
+        ReportNode statusReportNode = context.getReportNode().newReportNode().withMessageTemplate("status", "Status").add();
         if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
             List<String> networkAreasName = areas.stream()
-                    .map(BalanceComputationArea::getName).collect(Collectors.toList());
+                    .map(BalanceComputationArea::getName).toList();
             Reports.reportBalancedAreas(statusReportNode, networkAreasName, result.getIterationCount());
             LOGGER.info("Areas {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
 
@@ -197,7 +197,13 @@ public class BalanceComputationImpl implements BalanceComputation {
         private final Map<BalanceComputationArea, NetworkArea> networkAreas;
         private final Map<BalanceComputationArea, Double> balanceOffsets = new LinkedHashMap<>();
         private final Map<BalanceComputationArea, Double> balanceMismatches = new HashMap<>();
+        /**
+         * The root node of the report for balance adjustment
+         */
         private final ReportNode reportNode;
+        /**
+         * The node where information about the current iteration of balance adjustment is reported
+         */
         private ReportNode iterationReportNode;
 
         public BalanceComputationRunningContext(List<BalanceComputationArea> areas, Network network, BalanceComputationParameters parameters) {
