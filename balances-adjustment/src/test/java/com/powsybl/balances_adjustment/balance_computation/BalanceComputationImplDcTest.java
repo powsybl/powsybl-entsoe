@@ -53,6 +53,7 @@ class BalanceComputationImplDcTest {
         parameters = new BalanceComputationParameters();
         parameters.getLoadFlowParameters().setDc(true);
         parameters.getLoadFlowParameters().setDistributedSlack(false);
+        parameters.getLoadFlowParameters().setWriteSlackBus(false);
         balanceComputationFactory = new BalanceComputationFactoryImpl();
 
         loadFlowRunner = new LoadFlow.Runner(new OpenLoadFlowProvider(new DenseMatrixFactory()));

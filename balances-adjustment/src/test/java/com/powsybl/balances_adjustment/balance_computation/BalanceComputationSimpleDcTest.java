@@ -44,10 +44,10 @@ class BalanceComputationSimpleDcTest {
     private LoadFlow.Runner loadFlowRunner;
     private Generator generatorFr;
     private Load loadFr;
-    private Branch branchFrBe1;
-    private Branch branchFrBe2;
-    private String initialState = "InitialState";
-    private String initialVariantNew = "InitialVariantNew";
+    private Branch<?> branchFrBe1;
+    private Branch<?> branchFrBe2;
+    private final String initialState = "InitialState";
+    private final String initialVariantNew = "InitialVariantNew";
 
     @BeforeEach
     void setUp() {
@@ -60,6 +60,7 @@ class BalanceComputationSimpleDcTest {
 
         parameters = new BalanceComputationParameters();
         parameters.getLoadFlowParameters().setDc(true);
+        parameters.getLoadFlowParameters().setWriteSlackBus(false);
 
         balanceComputationFactory = new BalanceComputationFactoryImpl();
 
@@ -246,11 +247,11 @@ class BalanceComputationSimpleDcTest {
         assertEquals(2, result.getIterationCount());
         assertEquals(initialState, simpleNetwork.getVariantManager().getWorkingVariantId());
 
-        loadFlowRunner.run(simpleNetwork, initialVariantNew, computationManager, new LoadFlowParameters());
+        loadFlowRunner.run(simpleNetwork, initialVariantNew, computationManager, parameters.getLoadFlowParameters());
         assertEquals(1300, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1300, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
 
-        loadFlowRunner.run(simpleNetwork, initialState, computationManager, new LoadFlowParameters());
+        loadFlowRunner.run(simpleNetwork, initialState, computationManager, parameters.getLoadFlowParameters());
         assertEquals(1200, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1200, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
     }
@@ -272,7 +273,7 @@ class BalanceComputationSimpleDcTest {
         assertEquals(5, result.getIterationCount());
         assertEquals(initialState, simpleNetwork.getVariantManager().getWorkingVariantId());
 
-        loadFlowRunner.run(simpleNetwork, initialState, computationManager, new LoadFlowParameters());
+        loadFlowRunner.run(simpleNetwork, initialState, computationManager, parameters.getLoadFlowParameters());
         assertEquals(1200, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1200, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
 
@@ -308,7 +309,7 @@ class BalanceComputationSimpleDcTest {
         BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
     }
 
-    private abstract class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
+    private static abstract class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
         @Override
         public String getName() {
             return "test load flow";
