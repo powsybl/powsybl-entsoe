@@ -52,16 +52,16 @@ jobs:
 
     - name: Build with Maven
       if: matrix.os == 'ubuntu-latest'
-      run: mvn --batch-mode -Pjacoco install
+      run: mvn --batch-mode -Pjacoco --file ./main/pom.xml install
 
     - name: Build with Maven
       if: matrix.os != 'ubuntu-latest'
-      run: mvn --batch-mode install
+      run: mvn --batch-mode --file ./main/pom.xml install
 
     - name: Run SonarCloud analysis
       if: matrix.os == 'ubuntu-latest'
       run: >
-        mvn --batch-mode -DskipTests sonar:sonar
+        mvn --batch-mode -DskipTests  --file ./main/pom.xml sonar:sonar
         -Dsonar.host.url=https://sonarcloud.io
         -Dsonar.organization=powsybl-ci-github
         -Dsonar.projectKey=com.powsybl:powsybl-entsoe
