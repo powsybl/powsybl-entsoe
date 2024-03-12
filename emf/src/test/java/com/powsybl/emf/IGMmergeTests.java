@@ -14,7 +14,6 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.modification.ReplaceTieLinesByLines;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import org.junit.jupiter.api.AfterEach;
@@ -75,6 +74,13 @@ class IGMmergeTests {
         // Check that we have subnetworks
         assertEquals(2, merged.getSubnetworks().size());
 
+        // Once the CGM ("merged") has been built, we do not need values (p0, q0) at dangling lines
+        // They are the values of the equivalent injections needed when only one IGM is considered
+        for (TieLine tl : merged.getTieLineStream().toList()) {
+            tl.getDanglingLine1().setP0(0).setQ0(0);
+            tl.getDanglingLine2().setP0(0).setQ0(0);
+        }
+
         LoadFlow.run(merged);
 
         Path mergedDir = Files.createDirectories(tmpDir.resolve("subnetworksMerge"));
@@ -91,14 +97,7 @@ class IGMmergeTests {
         validate(serializedMergedNetwork, branchIds, generatorIds, voltageLevelIds);
 
         // compare
-        // FIXME(Luma) CGMES Export: tie lines as two separate equipment instead of a single ACLS
-        // Right now in CGMES we are exporting tie lines as regular lines,
-        // instead of two separate equipment.
-        // Before comparing, perform the same modification on the original network
-        // so that both networks are comparable
-        // This should be removed when we export tie lines as two separate equipment
-        new ReplaceTieLinesByLines().apply(merged);
-        compareNetwork(serializedMergedNetwork, merged);
+        compareNetwork(merged, serializedMergedNetwork);
     }
 
     @Test
@@ -155,6 +154,12 @@ class IGMmergeTests {
     void cgmToCgmes() throws IOException {
         // read resources for BE and NL, merge the resources themselves and read a network from this set of resources
         Network networkBENL = createCGM();
+        // Once the CGM has been built, we do not need values (p0, q0) at dangling lines
+        // They are the values of the equivalent injections needed when only one IGM is considered
+        for (TieLine tl : networkBENL.getTieLineStream().toList()) {
+            tl.getDanglingLine1().setP0(0).setQ0(0);
+            tl.getDanglingLine2().setP0(0).setQ0(0);
+        }
 
         Set<String> branchIds = new HashSet<>();
         Set<String> generatorIds = new HashSet<>();
@@ -177,15 +182,8 @@ class IGMmergeTests {
         Network serializedMergedNetwork = Network.read(new GenericReadOnlyDataSource(mergedResourcesDir, "BE_NL"), null);
         validate(serializedMergedNetwork, branchIds, generatorIds, voltageLevelIds);
 
-        // compare
-        // FIXME(Luma) CGMES Export: tie lines as two separate equipment instead of a single ACLS
-        // Right now in CGMES we are exporting tie lines as regular lines,
-        // instead of two separate equipment.
-        // Before comparing, perform the same modification on the original network
-        // so that both networks are comparable
-        // This should be removed when we export tie lines as two separate equipment
-        new ReplaceTieLinesByLines().apply(networkBENL);
-        compareNetwork(serializedMergedNetwork, networkBENL);
+        // compare the serialized and reimported network with the original one
+        compareNetwork(networkBENL, serializedMergedNetwork);
     }
 
     @Test
