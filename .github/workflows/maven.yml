@@ -21,19 +21,23 @@ jobs:
       run: env
 
     - name: Checkout sources
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        path: main
 
     - name: Checkout powsybl-core branch
       uses: actions/checkout@v4
       with:
         repository: powsybl/powsybl-core
         ref: refs/heads/main
+        path: powsybl-core
 
     - name: Checkout powsybl-open-loadflow branch
       uses: actions/checkout@v4
       with:
         repository: powsybl/powsybl-open-loadflow
         ref: refs/heads/report_v2
+        path: powsybl-open-loadflow
 
     - name: Set up JDK 17
       uses: actions/setup-java@v1
@@ -41,10 +45,10 @@ jobs:
         java-version: 17
 
     - name: Build and install powsybl-core with Maven
-      run: ./mvnw --batch-mode -DskipTests=true --file ../powsybl-core/pom.xml
+      run: mvn --batch-mode -DskipTests=true --file ../powsybl-core/pom.xml
 
     - name: Build and install powsybl-open-loadflow with Maven
-      run: ./mvnw --batch-mode -DskipTests=true --file ../powsybl-open-loadflow/pom.xml
+      run: mvn --batch-mode -DskipTests=true --file ../powsybl-open-loadflow/pom.xml
 
     - name: Build with Maven
       if: matrix.os == 'ubuntu-latest'
