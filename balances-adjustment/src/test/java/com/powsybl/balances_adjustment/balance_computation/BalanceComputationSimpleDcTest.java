@@ -8,8 +8,7 @@ package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.BalanceComputationAssert;
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
@@ -45,10 +44,10 @@ class BalanceComputationSimpleDcTest {
     private LoadFlow.Runner loadFlowRunner;
     private Generator generatorFr;
     private Load loadFr;
-    private Branch branchFrBe1;
-    private Branch branchFrBe2;
-    private String initialState = "InitialState";
-    private String initialVariantNew = "InitialVariantNew";
+    private Branch<?> branchFrBe1;
+    private Branch<?> branchFrBe2;
+    private final String initialState = "InitialState";
+    private final String initialVariantNew = "InitialVariantNew";
 
     @BeforeEach
     void setUp() {
@@ -61,6 +60,7 @@ class BalanceComputationSimpleDcTest {
 
         parameters = new BalanceComputationParameters();
         parameters.getLoadFlowParameters().setDc(true);
+        parameters.getLoadFlowParameters().setWriteSlackBus(false);
 
         balanceComputationFactory = new BalanceComputationFactoryImpl();
 
@@ -110,7 +110,7 @@ class BalanceComputationSimpleDcTest {
         LoadFlowProvider loadFlowProviderMock = new AbstractLoadFlowProviderMock() {
 
             @Override
-            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
+            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
                 generatorFr.getTerminal().setP(3000);
                 loadFr.getTerminal().setP(1800);
 
@@ -142,7 +142,7 @@ class BalanceComputationSimpleDcTest {
         LoadFlowProvider loadFlowProviderMock = new AbstractLoadFlowProviderMock() {
 
             @Override
-            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
+            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
                 generatorFr.getTerminal().setP(3000);
                 loadFr.getTerminal().setP(1800);
 
@@ -177,7 +177,7 @@ class BalanceComputationSimpleDcTest {
         LoadFlowProvider loadFlowProviderMock = new AbstractLoadFlowProviderMock() {
 
             @Override
-            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
+            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
                 generatorFr.getTerminal().setP(3000);
                 loadFr.getTerminal().setP(1800);
                 branchFrBe1.getTerminal1().setP(-516);
@@ -247,11 +247,11 @@ class BalanceComputationSimpleDcTest {
         assertEquals(2, result.getIterationCount());
         assertEquals(initialState, simpleNetwork.getVariantManager().getWorkingVariantId());
 
-        loadFlowRunner.run(simpleNetwork, initialVariantNew, computationManager, new LoadFlowParameters());
+        loadFlowRunner.run(simpleNetwork, initialVariantNew, computationManager, parameters.getLoadFlowParameters());
         assertEquals(1300, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1300, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
 
-        loadFlowRunner.run(simpleNetwork, initialState, computationManager, new LoadFlowParameters());
+        loadFlowRunner.run(simpleNetwork, initialState, computationManager, parameters.getLoadFlowParameters());
         assertEquals(1200, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1200, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
     }
@@ -273,7 +273,7 @@ class BalanceComputationSimpleDcTest {
         assertEquals(5, result.getIterationCount());
         assertEquals(initialState, simpleNetwork.getVariantManager().getWorkingVariantId());
 
-        loadFlowRunner.run(simpleNetwork, initialState, computationManager, new LoadFlowParameters());
+        loadFlowRunner.run(simpleNetwork, initialState, computationManager, parameters.getLoadFlowParameters());
         assertEquals(1200, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1200, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
 
@@ -291,9 +291,9 @@ class BalanceComputationSimpleDcTest {
 
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        ReporterModel reporter = new ReporterModel("testBalancedNetworkReport", "Test balanced network report");
-        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reporter).join();
-        BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reporter);
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testBalancedNetworkReport", "Test balanced network report").build();
+        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
+        BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reportNode);
     }
 
     @Test
@@ -304,12 +304,12 @@ class BalanceComputationSimpleDcTest {
 
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        ReporterModel reporter = new ReporterModel("testUnbalancedNetworkReport", "Test unbalanced network report");
-        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reporter).join();
-        BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reporter);
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testUnbalancedNetworkReport", "Test unbalanced network report").build();
+        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
+        BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
     }
 
-    private abstract class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
+    private abstract static class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
         @Override
         public String getName() {
             return "test load flow";
