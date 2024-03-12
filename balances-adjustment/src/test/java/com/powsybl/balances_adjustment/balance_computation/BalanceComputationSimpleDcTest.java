@@ -309,7 +309,7 @@ class BalanceComputationSimpleDcTest {
         BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
     }
 
-    private static abstract class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
+    private abstract static class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
         @Override
         public String getName() {
             return "test load flow";
