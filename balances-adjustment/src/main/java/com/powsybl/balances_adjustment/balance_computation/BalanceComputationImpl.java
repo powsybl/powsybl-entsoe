@@ -86,7 +86,7 @@ public class BalanceComputationImpl implements BalanceComputation {
         network.getVariantManager().setWorkingVariant(workingVariantCopyId);
 
         do {
-            ReportNode iterationReportNode = Reports.createBalanceComputationIterationReporter(reportNode, context.getIterationNum());
+            ReportNode iterationReportNode = Reports.createBalanceComputationIterationReportNode(reportNode, context.getIterationNum());
             context.setIterationReportNode(iterationReportNode);
             // Step 1: Perform the scaling
             ReportNode scalingReportNode = iterationReportNode.newReportNode().withMessageTemplate("scaling", "Scaling").add();

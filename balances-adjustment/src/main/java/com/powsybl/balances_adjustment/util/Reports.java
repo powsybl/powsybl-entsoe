@@ -72,7 +72,7 @@ public final class Reports {
                 .add();
     }
 
-    public static ReportNode createBalanceComputationIterationReporter(ReportNode reportNode, int iteration) {
+    public static ReportNode createBalanceComputationIterationReportNode(ReportNode reportNode, int iteration) {
         return reportNode.newReportNode().withMessageTemplate("balanceComputation", "Balance Computation iteration '${iteration}'")
                 .withUntypedValue(ITERATION, iteration)
                 .add();
