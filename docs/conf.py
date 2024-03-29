@@ -62,8 +62,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = "furo"
 
-html_title = 'PowSyBl ENTSO-E'
-html_short_title = 'PowSyBl ENTSO-E'
+html_title = 'ENTSO-E'
+html_short_title = 'ENTSO-E'
 
 html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"
