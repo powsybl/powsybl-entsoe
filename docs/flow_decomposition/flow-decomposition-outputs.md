@@ -20,5 +20,3 @@ a flow from side 1 to side 2, while a negative one means a flow from side 2 to s
 On the other hand, all flow parts (allocated flow, internal flow, loop flows and PST flow) are oriented in the branch
 flow convention. A positive flow part tends to increase the absolute flow on the branch (i.e. a burdening flow), while a
 negative one tends to decrease the absolute flow on the branch (i.e. a relieving flow).
-
-#
