@@ -54,12 +54,12 @@ $$
 $$
 
 where:
-- $$\mathrm{NI}$$ is the vector of the network injections,
-- $$\mathrm{NI}_\mathrm{X}$$ is the vector of the network injections from dangling lines,
-- $$\mathrm{NI}_\mathrm{AF}$$ is the vector of allocated flow part of the network injections,
-- $$\mathrm{NI}_\mathrm{LIF}$$ is the vector of loop flow and internal flow part of the network injections,
-- $$\mathrm{NP}$$ is the vector of the zones' net position,
-- $$\mathrm{GLSK}$$ is the matrix of the GLSK factors for each injection in each zone,
+- $\mathrm{NI}$ is the vector of the network injections,
+- $\mathrm{NI}_\mathrm{X}$ is the vector of the network injections from dangling lines,
+- $\mathrm{NI}_\mathrm{AF}$ is the vector of allocated flow part of the network injections,
+- $\mathrm{NI}_\mathrm{LIF}$ is the vector of loop flow and internal flow part of the network injections,
+- $\mathrm{NP}$ is the vector of the zones' net position,
+- $\mathrm{GLSK}$ is the matrix of the GLSK factors for each injection in each zone,
 
 ## Sensitivity analysis
 
@@ -67,8 +67,8 @@ In order to assess the linear impact (implied by the DC approximation) of each n
 on the network elements' flow, a sensitivity analysis is run.
 
 The following matrices are calculated using [sensitivity analysis](https://www.powsybl.org/pages/documentation/simulation/sensitivity/) API:
-- $$\mathrm{PTDF}$$ is the matrix of the sensitivity of the network element flow to each network injection shift,
-- $$\mathrm{PSDF}$$ is the matrix of the sensitivity of the network element flow to each phase shift transformer tap angle change,
+- $\mathrm{PTDF}$ is the matrix of the sensitivity of the network element flow to each network injection shift,
+- $\mathrm{PSDF}$ is the matrix of the sensitivity of the network element flow to each phase shift transformer tap angle change,
 
 ## Flow partitioning
 
@@ -84,12 +84,12 @@ $$
 $$
 
 where:
-- $$\mathrm{F}_\mathrm{AF}$$ is the vector of the network element allocated flow,
-- $$\mathrm{F}_\mathrm{LIF}$$ is the matrix of the network element loop flow or internal flow for each zone,
-- $$\mathrm{F}_\mathrm{PST}$$ is the vector of the network element PST (phase shift transformer) flow,
-- $$\mathrm{F}_\mathrm{X}$$ is the vector of the network element xnode flow,
-- $$\mathrm{AM}$$ is the allocation matrix, which associates each injection to its zone. $$\mathrm{AM}_{ij}$$ = 1 if node i is in zone j, 0 otherwise,
-- $$\mathrm{\Delta}_\mathrm{PST}$$ is the phase shift transformers angle vector,
+- $\mathrm{F}_\mathrm{AF}$ is the vector of the network element allocated flow,
+- $\mathrm{F}_\mathrm{LIF}$ is the matrix of the network element loop flow or internal flow for each zone,
+- $\mathrm{F}_\mathrm{PST}$ is the vector of the network element PST (phase shift transformer) flow,
+- $\mathrm{F}_\mathrm{X}$ is the vector of the network element xnode flow,
+- $\mathrm{AM}$ is the allocation matrix, which associates each injection to its zone. $\mathrm{AM}_{ij}$ = 1 if node i is in zone j, 0 otherwise,
+- $\mathrm{\Delta}_\mathrm{PST}$ is the phase shift transformers angle vector,
 
 ## Flow parts rescaling
 
@@ -100,4 +100,4 @@ However, the flow reference is the one calculated using AC power flow which is d
 is though to rescale the different flow parts in order to ensure that the sum of the parts is equal to the initially calculated AC flow.
 
 The difference between reference AC flow and the sum of the parts of the decomposition is redispatched on the different
-parts proportionally to their rectified linear unit ($$\mathrm{ReLU}(x) = \mathrm{max}(x, 0)$$).
+parts proportionally to their rectified linear unit ($\mathrm{ReLU}(x) = \mathrm{max}(x, 0)$).
