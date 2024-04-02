@@ -16,7 +16,12 @@ Any available source can be used as a valid input for flow decomposition (includ
 
 The second input of the flow decomposition algorithm are the GLSK to be used for each zone.
 
-Current implementation of the algorithm only allows automatic generation of Country GSK for each country of the network.
+GLSK used must be linear (i.e. proportional, not merit order), and two implementations exist:
+- Default implementation which is Country GSK, i.e. automatic GLSK on all generators of the country, proportional to
+their power setpoint.
+- GLSK document based, that relies on an input handled by PowSyBl GLSK importers.
+If the input file does not contain a given country of the network, default
+implementation will be used for this country.
 
 ## Network elements
 
