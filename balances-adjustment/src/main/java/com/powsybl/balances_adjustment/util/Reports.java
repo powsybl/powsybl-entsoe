@@ -6,13 +6,11 @@
  */
 package com.powsybl.balances_adjustment.util;
 
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author George Budau {@literal <george.budau at artelys.com>}
@@ -25,62 +23,58 @@ public final class Reports {
     private Reports() {
     }
 
-    public static void reportScaling(Reporter reporter, String areaName, double offset, double done) {
-        reporter.report(Report.builder()
-                .withKey("areaScaling")
-                .withDefaultMessage("Scaling for area ${areaName}: offset=${offset}, done=${done}")
-                .withValue(AREA_NAME, areaName)
-                .withValue("offset", offset)
-                .withValue("done", done)
+    public static void reportScaling(ReportNode reportNode, String areaName, double offset, double done) {
+        reportNode.newReportNode().withMessageTemplate("areaScaling",
+                        "Scaling for area ${areaName}: offset=${offset}, done=${done}")
+                .withUntypedValue(AREA_NAME, areaName)
+                .withUntypedValue("offset", offset)
+                .withUntypedValue("done", done)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void reportLfStatus(Reporter reporter, int networkNumCc, int networkNumSc, String status, TypedValue severity) {
-        reporter.report(Report.builder()
-                .withKey("lfStatus")
-                .withDefaultMessage("Network CC${networkNumCc} SC${networkNumSc} Load flow complete with status '${status}'")
-                .withValue("networkNumCc", networkNumCc)
-                .withValue("networkNumSc", networkNumSc)
-                .withValue("status", status)
+    public static void reportLfStatus(ReportNode reportNode, int networkNumCc, int networkNumSc, String status, TypedValue severity) {
+        reportNode.newReportNode().withMessageTemplate("lfStatus",
+                        "Network CC${networkNumCc} SC${networkNumSc} Load flow complete with status '${status}'")
+                .withUntypedValue("networkNumCc", networkNumCc)
+                .withUntypedValue("networkNumSc", networkNumSc)
+                .withUntypedValue("status", status)
                 .withSeverity(severity)
-                .build());
+                .add();
     }
 
-    public static void reportAreaMismatch(Reporter reporter, String areaName, double mismatch, double target, double balance) {
-        reporter.report(Report.builder()
-                .withKey("areaMismatch")
-                .withDefaultMessage("Mismatch for area ${areaName}: ${mismatch} (target=${target}, balance=${balance})")
-                .withValue(AREA_NAME, areaName)
-                .withValue("mismatch", mismatch)
-                .withValue("target", target)
-                .withValue("balance", balance)
+    public static void reportAreaMismatch(ReportNode reportNode, String areaName, double mismatch, double target, double balance) {
+        reportNode.newReportNode().withMessageTemplate("areaMismatch",
+                        "Mismatch for area ${areaName}: ${mismatch} (target=${target}, balance=${balance})")
+                .withUntypedValue(AREA_NAME, areaName)
+                .withUntypedValue("mismatch", mismatch)
+                .withUntypedValue("target", target)
+                .withUntypedValue("balance", balance)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void reportBalancedAreas(Reporter reporter, List<String> networkAreasName, int iterationCount) {
-        reporter.report(Report.builder()
-                .withKey("balancedAreas")
-                .withDefaultMessage("Areas ${networkAreasName} are balanced after ${iterationCount} iterations")
-                .withValue("networkAreasName", networkAreasName.toString())
-                .withValue("iterationCount", iterationCount)
+    public static void reportBalancedAreas(ReportNode reportNode, List<String> networkAreasName, int iterationCount) {
+        reportNode.newReportNode().withMessageTemplate("balancedAreas",
+                        "Areas ${networkAreasName} are balanced after ${iterationCount} iterations")
+                .withUntypedValue("networkAreasName", networkAreasName.toString())
+                .withUntypedValue("iterationCount", iterationCount)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void reportUnbalancedAreas(Reporter reporter, int iteration, BigDecimal totalMismatch) {
-        reporter.report(Report.builder()
-                .withKey("unbalancedAreas")
-                .withDefaultMessage("Areas are unbalanced after ${iteration} iterations, total mismatch is ${totalMismatch}")
-                .withValue(ITERATION, iteration)
-                .withValue("totalMismatch", totalMismatch.toString())
+    public static void reportUnbalancedAreas(ReportNode reportNode, int iteration, BigDecimal totalMismatch) {
+        reportNode.newReportNode().withMessageTemplate("unbalancedAreas",
+                "Areas are unbalanced after ${iteration} iterations, total mismatch is ${totalMismatch}")
+                .withUntypedValue(ITERATION, iteration)
+                .withUntypedValue("totalMismatch", totalMismatch.toString())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static Reporter createBalanceComputationIterationReporter(Reporter reporter, int iteration) {
-        return reporter.createSubReporter("balanceComputation", "Balance Computation iteration '${iteration}'",
-                Map.of(ITERATION, new TypedValue(iteration, TypedValue.UNTYPED)));
+    public static ReportNode createBalanceComputationIterationReporter(ReportNode reportNode, int iteration) {
+        return reportNode.newReportNode().withMessageTemplate("balanceComputation", "Balance Computation iteration '${iteration}'")
+                .withUntypedValue(ITERATION, iteration)
+                .add();
     }
 }
