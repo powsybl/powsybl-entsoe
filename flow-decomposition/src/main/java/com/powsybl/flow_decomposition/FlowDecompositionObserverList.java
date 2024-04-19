@@ -86,8 +86,8 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        Map<String, Double> acFlows =
-                new AcReferenceFlowComputer().run(network.getBranchStream().toList(), loadFlowServiceAcResult);
+        Map<String, Double> acFlows = new AcReferenceFlowComputer()
+                .run(network.getBranchStream().toList(), loadFlowServiceAcResult);
 
         for (FlowDecompositionObserver o : observers) {
             o.computedAcFlows(acFlows);
@@ -110,6 +110,14 @@ public class FlowDecompositionObserverList {
         if (observers.isEmpty()) {
             return;
         }
+
+        // set LOSSES terminal's P to 0.0
+        String lossesId = LossesCompensator.getLossesId("");
+        networkMatrixIndexes.getNodeList().forEach(n -> {
+            if (n.getId().startsWith(lossesId)) {
+                n.getTerminal().setP(0.0);
+            }
+        });
 
         Map<String, Double> results = new ReferenceNodalInjectionComputer().run(networkMatrixIndexes.getNodeList());
 
@@ -143,6 +151,6 @@ public class FlowDecompositionObserverList {
 
     @FunctionalInterface
     private interface MatrixNotification {
-        public void sendMatrix(FlowDecompositionObserver o, Map<String, Map<String, Double>> matrix);
+        void sendMatrix(FlowDecompositionObserver o, Map<String, Map<String, Double>> matrix);
     }
 }

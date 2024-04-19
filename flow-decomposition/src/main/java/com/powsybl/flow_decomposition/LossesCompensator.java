@@ -83,14 +83,9 @@ class LossesCompensator {
         String lossesId = getLossesId(busId);
         Bus bus = network.getBusBreakerView().getBus(busId);
         switch (bus.getVoltageLevel().getTopologyKind()) {
-            case BUS_BREAKER:
-                addZeroMWLossesLoadForBusBreakerTopology(bus, lossesId);
-                return;
-            case NODE_BREAKER:
-                addZeroMWLossesLoadForNodeTopology(bus, lossesId);
-                return;
-            default:
-                throw new PowsyblException("This topology is not managed by the loss compensation.");
+            case BUS_BREAKER -> addZeroMWLossesLoadForBusBreakerTopology(bus, lossesId);
+            case NODE_BREAKER -> addZeroMWLossesLoadForNodeTopology(bus, lossesId);
+            default -> throw new PowsyblException("This topology is not managed by the loss compensation.");
         }
     }
 
@@ -120,8 +115,8 @@ class LossesCompensator {
     }
 
     private void compensateLossesOnBranch(Network network, Branch<?> branch) {
-        if (branch instanceof TieLine) {
-            compensateLossesOnTieLine(network, (TieLine) branch);
+        if (branch instanceof TieLine tieLine) {
+            compensateLossesOnTieLine(network, tieLine);
         } else {
             Terminal sendingTerminal = getSendingTerminal(branch);
             double losses = branch.getTerminal1().getP() + branch.getTerminal2().getP();

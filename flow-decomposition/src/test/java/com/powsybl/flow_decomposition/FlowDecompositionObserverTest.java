@@ -44,7 +44,7 @@ class FlowDecompositionObserverTest {
      * ObserverReport gathers all observed events from the flow decomposition. It keeps the events occuring, and the
      * matrices
      */
-    private final class ObserverReport implements FlowDecompositionObserver {
+    private static final class ObserverReport implements FlowDecompositionObserver {
 
         private List<Event> events = new LinkedList<>();
         private String currentContingency = null;
@@ -164,7 +164,6 @@ class FlowDecompositionObserverTest {
         String contingencyElementId2 = "FB000021 FD000021 1";
         String contingencyId1 = "DD000011 DF000011 1";
         String contingencyId2 = "FB000011 FD000011 1_FB000021 FD000021 1";
-
         Network network = TestUtils.importNetwork(networkFileName);
         Map<String, Set<String>> contingencies = Map.ofEntries(
             Map.entry(contingencyId1, Set.of(contingencyId1)),
@@ -179,13 +178,9 @@ class FlowDecompositionObserverTest {
         var flowDecompositionParameters = FlowDecompositionParameters.load();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         var report = new ObserverReport();
-
         flowComputer.addObserver(report);
-
         flowComputer.run(xnecProvider, network);
-
         assertEventsFired(report.allEvents(), Event.COMPUTED_GLSK, Event.COMPUTED_NET_POSITIONS);
-
         assertEventsFired(
             report.eventsForBaseCase(),
             Event.COMPUTED_AC_FLOWS,
@@ -308,7 +303,6 @@ class FlowDecompositionObserverTest {
     void testRemoveObserver() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         String branchId = "DB000011 DF000011 1";
-
         Network network = TestUtils.importNetwork(networkFileName);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
                                                      .addNetworkElementsOnBasecase(Set.of(branchId))
@@ -317,10 +311,8 @@ class FlowDecompositionObserverTest {
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         var reportInserted = new ObserverReport();
         flowComputer.addObserver(reportInserted);
-
         var reportRemoved = new ObserverReport();
         flowComputer.addObserver(reportRemoved);
-
         flowComputer.removeObserver(reportRemoved);
 
         flowComputer.run(xnecProvider, network);
@@ -329,11 +321,34 @@ class FlowDecompositionObserverTest {
         assertTrue(reportRemoved.allEvents().isEmpty());
     }
 
+    @Test
+    void testObserverWithEnableLossesCompensation() {
+        String networkFileName = "19700101_0000_FO4_UX1.uct";
+        String branchId = "DB000011 DF000011 1";
+        Network network = TestUtils.importNetwork(networkFileName);
+        XnecProvider xnecProvider = XnecProviderByIds.builder()
+                .addNetworkElementsOnBasecase(Set.of(branchId))
+                .build();
+        var flowDecompositionParameters = FlowDecompositionParameters.load().setEnableLossesCompensation(true);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        var report = new ObserverReport();
+        flowComputer.addObserver(report);
+        flowComputer.run(xnecProvider, network);
+
+        // losses at 0 in acNodalInjection
+        String lossesId = LossesCompensator.getLossesId("");
+        report.acNodalInjections.forBaseCase().forEach((inj, p) -> {
+            if (inj.startsWith(lossesId)) {
+                assertEquals(0, p, 1E-8);
+            }
+        });
+    }
+
     private void assertEventsFired(Collection<Event> firedEvents, Event... expectedEvents) {
         var missing = new HashSet<Event>();
         Collections.addAll(missing, expectedEvents);
         missing.removeAll(firedEvents);
-        assertTrue(missing.isEmpty(), () -> "Missing events: " + missing.toString());
+        assertTrue(missing.isEmpty(), () -> "Missing events: " + missing);
     }
 
     private static final class ContingencyValue<T> {
