@@ -8,8 +8,8 @@ package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.NetworkArea;
 import com.powsybl.balances_adjustment.util.Reports;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.ComponentConstants;
@@ -64,20 +64,20 @@ public class BalanceComputationImpl implements BalanceComputation {
      */
     @Override
     public CompletableFuture<BalanceComputationResult> run(Network network, String workingStateId, BalanceComputationParameters parameters) {
-        return this.run(network, workingStateId, parameters, Reporter.NO_OP);
+        return this.run(network, workingStateId, parameters, ReportNode.NO_OP);
     }
 
     /**
      * Run balances adjustment computation in several iterations
      */
     @Override
-    public CompletableFuture<BalanceComputationResult> run(Network network, String workingStateId, BalanceComputationParameters parameters, Reporter reporter) {
+    public CompletableFuture<BalanceComputationResult> run(Network network, String workingStateId, BalanceComputationParameters parameters, ReportNode reportNode) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(parameters);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
 
-        BalanceComputationRunningContext context = new BalanceComputationRunningContext(areas, network, parameters, reporter);
+        BalanceComputationRunningContext context = new BalanceComputationRunningContext(areas, network, parameters, reportNode);
         BalanceComputationResult result;
 
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
@@ -86,19 +86,19 @@ public class BalanceComputationImpl implements BalanceComputation {
         network.getVariantManager().setWorkingVariant(workingVariantCopyId);
 
         do {
-            Reporter iterationReporter = Reports.createBalanceComputationIterationReporter(reporter, context.getIterationNum());
-            context.setIterationReporter(iterationReporter);
+            ReportNode iterationReportNode = Reports.createBalanceComputationIterationReporter(reportNode, context.getIterationNum());
+            context.setIterationReportNode(iterationReportNode);
             // Step 1: Perform the scaling
-            Reporter scalingReporter = iterationReporter.createSubReporter("scaling", "Scaling");
+            ReportNode scalingReportNode = iterationReportNode.newReportNode().withMessageTemplate("scaling", "Scaling").add();
             context.getBalanceOffsets().forEach((area, offset) -> {
                 Scalable scalable = area.getScalable();
                 double done = scalable.scale(network, offset, parameters.getScalingParameters());
-                Reports.reportScaling(scalingReporter, area.getName(), offset, done);
+                Reports.reportScaling(scalingReportNode, area.getName(), offset, done);
                 LOGGER.info("Iteration={}, Scaling for area {}: offset={}, done={}", context.getIterationNum(), area.getName(), offset, done);
             });
 
             // Step 2: compute Load Flow
-            LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), iterationReporter);
+            LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), iterationReportNode);
             if (!isLoadFlowResultOk(context, loadFlowResult)) {
                 LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
@@ -106,13 +106,13 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
 
             // Step 3: Compute balance and mismatch for each area
-            Reporter mismatchReporter = iterationReporter.createSubReporter("mismatch", "Mismatch");
+            ReportNode mismatchReportNode = iterationReportNode.newReportNode().withMessageTemplate("mismatch", "Mismatch").add();
             for (BalanceComputationArea area : areas) {
                 NetworkArea na = context.getNetworkArea(area);
                 double target = area.getTargetNetPosition();
                 double balance = na.getNetPosition();
                 double mismatch = target - balance;
-                Reports.reportAreaMismatch(mismatchReporter, area.getName(), mismatch, target, balance);
+                Reports.reportAreaMismatch(mismatchReportNode, area.getName(), mismatch, target, balance);
                 LOGGER.info("Iteration={}, Mismatch for area {}: {} (target={}, balance={})", context.getIterationNum(), area.getName(), mismatch, target, balance);
                 context.updateAreaOffsetAndMismatch(area, mismatch);
             }
@@ -128,16 +128,16 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
         } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
 
-        Reporter statusReporter = reporter.createSubReporter("status", "Status");
+        ReportNode statusReportNode = reportNode.newReportNode().withMessageTemplate("status", "Status").add();
         if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
             List<String> networkAreasName = areas.stream()
                     .map(BalanceComputationArea::getName).collect(Collectors.toList());
-            Reports.reportBalancedAreas(statusReporter, networkAreasName, result.getIterationCount());
+            Reports.reportBalancedAreas(statusReportNode, networkAreasName, result.getIterationCount());
             LOGGER.info("Areas {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
 
         } else {
             BigDecimal totalMismatch = BigDecimal.valueOf(computeTotalMismatch(context)).setScale(2, RoundingMode.UP);
-            Reports.reportUnbalancedAreas(statusReporter, context.getIterationNum(), totalMismatch);
+            Reports.reportUnbalancedAreas(statusReportNode, context.getIterationNum(), totalMismatch);
             LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), totalMismatch);
         }
 
@@ -182,9 +182,9 @@ public class BalanceComputationImpl implements BalanceComputation {
                         return false;
                     }
                     final var cr = list.get(0);
-                    Reporter lfStatusReporter = context.getIterationReporter().createSubReporter("loadFlowStatus", "Checking load flow status");
+                    ReportNode lfStatusReportNode = context.getIterationReportNode().newReportNode().withMessageTemplate("loadFlowStatus", "Checking load flow status").add();
                     final var severity = cr.getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED ? TypedValue.INFO_SEVERITY : TypedValue.ERROR_SEVERITY;
-                    Reports.reportLfStatus(lfStatusReporter, cr.getConnectedComponentNum(), cr.getSynchronousComponentNum(), cr.getStatus().name(), severity);
+                    Reports.reportLfStatus(lfStatusReportNode, cr.getConnectedComponentNum(), cr.getSynchronousComponentNum(), cr.getStatus().name(), severity);
                     return cr.getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED;
                 })
             );
@@ -197,19 +197,19 @@ public class BalanceComputationImpl implements BalanceComputation {
         private final Map<BalanceComputationArea, NetworkArea> networkAreas;
         private final Map<BalanceComputationArea, Double> balanceOffsets = new LinkedHashMap<>();
         private final Map<BalanceComputationArea, Double> balanceMismatches = new HashMap<>();
-        private final Reporter reporter;
-        private Reporter iterationReporter;
+        private final ReportNode reportNode;
+        private ReportNode iterationReportNode;
 
         public BalanceComputationRunningContext(List<BalanceComputationArea> areas, Network network, BalanceComputationParameters parameters) {
-            this(areas, network, parameters, Reporter.NO_OP);
+            this(areas, network, parameters, ReportNode.NO_OP);
         }
 
-        public BalanceComputationRunningContext(List<BalanceComputationArea> areas, Network network, BalanceComputationParameters parameters, Reporter reporter) {
+        public BalanceComputationRunningContext(List<BalanceComputationArea> areas, Network network, BalanceComputationParameters parameters, ReportNode reportNode) {
             this.iterationNum = 0;
             this.network = network;
             this.parameters = parameters;
-            this.reporter = reporter;
-            this.iterationReporter = Reporter.NO_OP;
+            this.reportNode = reportNode;
+            this.iterationReportNode = ReportNode.NO_OP;
             networkAreas = areas.stream().collect(Collectors.toMap(Function.identity(), ba -> ba.getNetworkAreaFactory().create(network), (v1, v2) -> v1, LinkedHashMap::new));
             balanceOffsets.clear();
             balanceMismatches.clear();
@@ -249,16 +249,16 @@ public class BalanceComputationImpl implements BalanceComputation {
             balanceMismatches.put(area, mismatch);
         }
 
-        public Reporter getReporter() {
-            return reporter;
+        public ReportNode getReportNode() {
+            return reportNode;
         }
 
-        public Reporter getIterationReporter() {
-            return iterationReporter;
+        public ReportNode getIterationReportNode() {
+            return iterationReportNode;
         }
 
-        public BalanceComputationRunningContext setIterationReporter(Reporter iterationReporter) {
-            this.iterationReporter = iterationReporter;
+        public BalanceComputationRunningContext setIterationReportNode(ReportNode iterationReportNode) {
+            this.iterationReportNode = iterationReportNode;
             return this;
         }
     }

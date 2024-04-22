@@ -1,0 +1,19 @@
+# Configuration
+
+## Dedicated parameters
+
+| Name                                    | Type    | Default value                               | Description                                                                                                                                                                                                                                                                                                                 |
+|-----------------------------------------|---------|---------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| enable-losses-compensation              | boolean | false                                       | When set to true, adds losses compensation step of the algorithm. Otherwise, all losses will be compensated using chosen power flow compensation strategy.                                                                                                                                                                  |
+| losses-compensation-epsilon             | double  | 1e-5                                        | Threshold used in losses compensation step of the algorihm. If actual losses are below the given threshold on a branch, no injection is created in the network to compensate these losses. Used to avoid creating too many injections in the network. May have an impact in overall algorithm performance and memory usage. |
+| sensitivity-epsilon                     | double  | 1e-5                                        | Threshold used when filling PTDF and PSDF matrices. If a sensitivity is below the given threshold, it is set to zero. Used to keep sparse matrices in the algorithm. May have an impact in overall algorithm performance and memory usage.                                                                                  |
+| rescale-enabled                         | boolean | false                                       | When set to true, rescaling step is done to ensure that the sum of all flow parts is equal to the AC reference flow.                                                                                                                                                                                                        |
+| dc-fallback-enabled-after-ac-divergence | boolean | true                                        | Defines the fallback behavior after an AC divergence Use True to run DC loadflow if an AC loadflow diverges (default). Use False to throw an exception if an AC loadflow diverges.                                                                                                                                          |
+| sensitivity-variable-batch-size         | int     | 15000                                       | When set to a lower value, this parameter will reduce memory usage, but it might increase computation time                                                                                                                                                                                                                  |
+
+## Impact of existing parameters
+
+Any implementation of load flow provider and sensitivity analysis provider can be used, as the entire algorithm only
+relies on common loadflow API and sensitivity analysis API.
+
+Thus, flow decomposition algorithm relies on [load flow parameters](https://www.powsybl.org/pages/documentation/simulation/powerflow/) and [sensitivity analysis parameters](https://www.powsybl.org/pages/documentation/simulation/sensitivity/).
