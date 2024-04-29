@@ -61,6 +61,9 @@ class NodalInjectionComputer {
                                                                 Map<Country, Map<String, Double>> glsks,
                                                                 Map<Country, Double> netPositions) {
         Country injectionCountry = NetworkUtil.getInjectionCountry(injection);
+        if (injectionCountry == null) {
+            return DEFAULT_GLSK_FACTOR * DEFAULT_NET_POSITION;
+        }
         return glsks.get(injectionCountry).getOrDefault(injection.getId(), DEFAULT_GLSK_FACTOR)
             * netPositions.getOrDefault(injectionCountry, DEFAULT_NET_POSITION);
     }
