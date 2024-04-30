@@ -84,9 +84,9 @@ class NetPositionComputer {
         double flowSide2 = line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP()) ? line.getTerminal2().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
         if (NetworkUtil.getTerminalCountry(line.getTerminal1()) == null) {
-            directFlow = flowSide1;
+            directFlow = -flowSide1;
         } else if (NetworkUtil.getTerminalCountry(line.getTerminal2()) == null) {
-            directFlow = flowSide2;
+            directFlow = -flowSide2;
         }
         return country.equals(NetworkUtil.getTerminalCountry(line.getTerminal1())) ? directFlow : -directFlow;
     }
