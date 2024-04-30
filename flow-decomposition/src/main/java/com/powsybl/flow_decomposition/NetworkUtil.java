@@ -34,6 +34,16 @@ public final class NetworkUtil {
         return String.format("%s %s", LOOP_FLOWS_COLUMN_PREFIX, country);
     }
 
+    public static Country getBusCountry(Bus bus) {
+        Optional<Substation> optionalSubstation = bus.getVoltageLevel().getSubstation();
+        if (optionalSubstation.isEmpty()) {
+            throw new PowsyblException(String.format("Voltage level %s does not belong to any substation. " +
+                    "Cannot retrieve country info needed for the algorithm.", bus.getVoltageLevel().getId()));
+        }
+        Substation substation = optionalSubstation.get();
+        return substation.getNullableCountry();
+    }
+
     public static Country getTerminalCountry(Terminal terminal) {
         Optional<Substation> optionalSubstation = terminal.getVoltageLevel().getSubstation();
         if (optionalSubstation.isEmpty()) {

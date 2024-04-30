@@ -82,6 +82,11 @@ class LossesCompensator {
     private static void addZeroMWLossesLoad(Network network, String busId) {
         String lossesId = getLossesId(busId);
         Bus bus = network.getBusBreakerView().getBus(busId);
+        Country country = NetworkUtil.getBusCountry(bus);
+        // node without country will not compensate losses
+        if (country == null) {
+            return;
+        }
         switch (bus.getVoltageLevel().getTopologyKind()) {
             case BUS_BREAKER -> addZeroMWLossesLoadForBusBreakerTopology(bus, lossesId);
             case NODE_BREAKER -> addZeroMWLossesLoadForNodeTopology(bus, lossesId);
@@ -120,7 +125,19 @@ class LossesCompensator {
         } else {
             Terminal sendingTerminal = getSendingTerminal(branch);
             double losses = branch.getTerminal1().getP() + branch.getTerminal2().getP();
-            updateLoadForLossesOnTerminal(network, sendingTerminal, losses);
+            Country country = NetworkUtil.getTerminalCountry(sendingTerminal);
+            if (country != null) {
+                updateLoadForLossesOnTerminal(network, sendingTerminal, losses);
+                return;
+            }
+            // sending terminal has no country, attribute loss to receiving terminal
+            Terminal receivingTerminal = getReceivingTerminal(branch);
+            country = NetworkUtil.getTerminalCountry(receivingTerminal);
+            if (country != null) {
+                updateLoadForLossesOnTerminal(network, receivingTerminal, losses);
+                return;
+            }
+            throw new PowsyblException(String.format("Branch %s connects two nodes without countries.", branch.getId()));
         }
     }
 
@@ -147,5 +164,9 @@ class LossesCompensator {
 
     private Terminal getSendingTerminal(Branch<?> branch) {
         return branch.getTerminal1().getP() > 0 ? branch.getTerminal1() : branch.getTerminal2();
+    }
+
+    private Terminal getReceivingTerminal(Branch<?> branch) {
+        return branch.getTerminal1().getP() <= 0 ? branch.getTerminal1() : branch.getTerminal2();
     }
 }

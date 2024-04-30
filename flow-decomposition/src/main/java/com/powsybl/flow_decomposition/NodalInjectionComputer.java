@@ -62,7 +62,7 @@ class NodalInjectionComputer {
                                                                 Map<Country, Double> netPositions) {
         Country injectionCountry = NetworkUtil.getInjectionCountry(injection);
         if (injectionCountry == null) {
-            return DEFAULT_GLSK_FACTOR * DEFAULT_NET_POSITION;
+            return 0.0;
         }
         return glsks.get(injectionCountry).getOrDefault(injection.getId(), DEFAULT_GLSK_FACTOR)
             * netPositions.getOrDefault(injectionCountry, DEFAULT_NET_POSITION);
@@ -102,9 +102,13 @@ class NodalInjectionComputer {
         networkMatrixIndexes.getNodeList().forEach(
             node -> {
                 String nodeId = node.getId();
+                String countryString = NetworkUtil.getLoopFlowIdFromCountry(network, nodeId);
+                if (countryString == null) {
+                    return;
+                }
                 nodalInjectionMatrix.addItem(
                     nodeId,
-                    NetworkUtil.getLoopFlowIdFromCountry(network, nodeId),
+                    countryString,
                     computeNodalInjectionForLoopFLow(
                         nodalInjectionDcReference.get(nodeId),
                         nodalInjectionsForAllocatedFlow.get(nodeId),
