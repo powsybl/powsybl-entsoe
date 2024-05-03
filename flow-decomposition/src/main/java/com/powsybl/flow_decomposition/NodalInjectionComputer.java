@@ -61,11 +61,8 @@ class NodalInjectionComputer {
                                                                 Map<Country, Map<String, Double>> glsks,
                                                                 Map<Country, Double> netPositions) {
         Country injectionCountry = NetworkUtil.getInjectionCountry(injection);
-        if (injectionCountry == null) {
-            return 0.0;
-        }
         return glsks.get(injectionCountry).getOrDefault(injection.getId(), DEFAULT_GLSK_FACTOR)
-            * netPositions.getOrDefault(injectionCountry, DEFAULT_NET_POSITION);
+                * netPositions.getOrDefault(injectionCountry, DEFAULT_NET_POSITION);
     }
 
     private SparseMatrixWithIndexesTriplet getEmptyNodalInjectionMatrix(Map<Country, Map<String, Double>> glsks, Integer size) {

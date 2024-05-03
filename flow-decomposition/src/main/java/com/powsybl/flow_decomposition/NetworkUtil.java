@@ -28,9 +28,6 @@ public final class NetworkUtil {
     }
 
     public static String getLoopFlowIdFromCountry(Country country) {
-        if (country == null) {
-            return null;
-        }
         return String.format("%s %s", LOOP_FLOWS_COLUMN_PREFIX, country);
     }
 
