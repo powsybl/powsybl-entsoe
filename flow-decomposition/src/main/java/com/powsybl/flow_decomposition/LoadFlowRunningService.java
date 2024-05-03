@@ -30,11 +30,15 @@ class LoadFlowRunningService {
     }
 
     Result runAcLoadflow(Network network, LoadFlowParameters loadFlowParameters, boolean isDcFallbackEnabledAfterAcDivergence) {
+        return runAcLoadflow(network, loadFlowParameters, isDcFallbackEnabledAfterAcDivergence, false);
+    }
+
+    Result runAcLoadflow(Network network, LoadFlowParameters loadFlowParameters, boolean isDcFallbackEnabledAfterAcDivergence, boolean enableSlackCompensationBeforeDcLf) {
         LoadFlowParameters acEnforcedParameters = enforceAcLoadFlowCalculation(loadFlowParameters);
         LoadFlowResult acLoadFlowResult = runner.run(network, acEnforcedParameters);
         if (!acLoadFlowResult.isOk() && isDcFallbackEnabledAfterAcDivergence) {
             LOGGER.warn("AC loadflow divergence. Running DC loadflow as fallback procedure.");
-            return runDcLoadflow(network, loadFlowParameters)
+            return runDcLoadflow(network, loadFlowParameters, enableSlackCompensationBeforeDcLf)
                 .setFallbackHasBeenActivated(FALLBACK_HAS_BEEN_ACTIVATED);
         }
         if (!acLoadFlowResult.isOk()) {
@@ -43,8 +47,21 @@ class LoadFlowRunningService {
         return new Result(acLoadFlowResult, FALLBACK_HAS_NOT_BEEN_ACTIVATED);
     }
 
-    Result runDcLoadflow(Network network, LoadFlowParameters loadFlowParameters) {
+    Result runDcLoadflow(Network network, LoadFlowParameters loadFlowParameters, boolean enableSlackCompensationBeforeDcLf) {
         LoadFlowParameters dcEnforcedParameters = enforceDcLoadFlowCalculation(loadFlowParameters);
+        if (enableSlackCompensationBeforeDcLf && dcEnforcedParameters.isDistributedSlack()) {
+            // remove slack distribution and incorporate it directly
+            // in generators/loads depending on the slack distribution type
+            dcEnforcedParameters.setDistributedSlack(false);
+            switch (dcEnforcedParameters.getBalanceType()) {
+                case PROPORTIONAL_TO_LOAD, PROPORTIONAL_TO_CONFORM_LOAD ->
+                    // filter fictive loads used to compensate losses
+                    network.getLoadStream().filter(load -> !load.getId().startsWith(LossesCompensator.LOSSES_ID_PREFIX)).forEach(load -> load.setP0(load.getTerminal().getP()));
+                case PROPORTIONAL_TO_GENERATION_P_MAX, PROPORTIONAL_TO_GENERATION_P, PROPORTIONAL_TO_GENERATION_PARTICIPATION_FACTOR, PROPORTIONAL_TO_GENERATION_REMAINING_MARGIN ->
+                    network.getGeneratorStream().forEach(gen -> gen.setTargetP(gen.getTerminal().getP()));
+                default -> throw new UnsupportedOperationException("Unknown balance type mode: " + dcEnforcedParameters.getBalanceType());
+            }
+        }
         LoadFlowResult dcLoadFlowResult = runner.run(network, dcEnforcedParameters);
         if (!dcLoadFlowResult.isOk()) {
             throw new PowsyblException("DC loadfow divergence.");

@@ -29,12 +29,14 @@ public class FlowDecompositionParameters {
     public static final boolean ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE = true;
     public static final boolean DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE = ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE;
     private static final int DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE = 15000;
+    public static final boolean DEFAULT_SLACK_COMPENSATION_BEFORE_DC_LF = false;
     private boolean enableLossesCompensation;
     private double lossesCompensationEpsilon;
     private double sensitivityEpsilon;
     private boolean rescaleEnabled;
     private boolean dcFallbackEnabledAfterAcDivergence;
     private int sensitivityVariableBatchSize;
+    private boolean enableSlackCompensationBeforeDcLf;
 
     public static FlowDecompositionParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -66,6 +68,7 @@ public class FlowDecompositionParameters {
         this.rescaleEnabled = DEFAULT_RESCALE_ENABLED;
         this.dcFallbackEnabledAfterAcDivergence = DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE;
         this.sensitivityVariableBatchSize = DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE;
+        this.enableSlackCompensationBeforeDcLf = DEFAULT_SLACK_COMPENSATION_BEFORE_DC_LF;
     }
 
     public FlowDecompositionParameters setEnableLossesCompensation(boolean enableLossesCompensation) {
@@ -120,5 +123,13 @@ public class FlowDecompositionParameters {
     public FlowDecompositionParameters setSensitivityVariableBatchSize(int sensitivityVariableBatchSize) {
         this.sensitivityVariableBatchSize = sensitivityVariableBatchSize;
         return this;
+    }
+
+    public void setEnableSlackCompensationBeforeDcLf(boolean enableSlackCompensationBeforeDcLf) {
+        this.enableSlackCompensationBeforeDcLf = enableSlackCompensationBeforeDcLf;
+    }
+
+    public boolean getEnableSlackCompensationBeforeDcLf() {
+        return enableSlackCompensationBeforeDcLf;
     }
 }

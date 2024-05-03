@@ -198,7 +198,7 @@ public class FlowDecompositionComputer {
     }
 
     private LoadFlowRunningService.Result runDcLoadFlow(Network network) {
-        return loadFlowRunningService.runDcLoadflow(network, loadFlowParameters);
+        return loadFlowRunningService.runDcLoadflow(network, loadFlowParameters, parameters.getEnableSlackCompensationBeforeDcLf());
     }
 
     private SparseMatrixWithIndexesTriplet getNodalInjectionsMatrix(Network network,
