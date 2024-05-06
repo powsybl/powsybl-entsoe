@@ -22,139 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
  */
 class FlowDecompositionObserverTest {
-    private enum Event {
-        RUN_START,
-        RUN_DONE,
-        COMPUTING_BASE_CASE,
-        COMPUTING_CONTINGENCY,
-        COMPUTED_GLSK,
-        COMPUTED_NET_POSITIONS,
-        COMPUTED_NODAL_INJECTIONS_MATRIX,
-        COMPUTED_PTDF_MATRIX,
-        COMPUTED_PSDF_MATRIX,
-        COMPUTED_AC_NODAL_INJECTIONS,
-        COMPUTED_DC_NODAL_INJECTIONS,
-        COMPUTED_AC_FLOWS,
-        COMPUTED_DC_FLOWS
-    }
-
-    private static final String BASE_CASE = "base-case";
-
-    /**
-     * ObserverReport gathers all observed events from the flow decomposition. It keeps the events occuring, and the
-     * matrices
-     */
-    private static final class ObserverReport implements FlowDecompositionObserver {
-
-        private List<Event> events = new LinkedList<>();
-        private String currentContingency = null;
-        private ContingencyValue<List<Event>> eventsPerContingency = new ContingencyValue<>();
-        private Map<Country, Map<String, Double>> glsks;
-        private Map<Country, Double> netPositions;
-        private ContingencyValue<Map<String, Map<String, Double>>> nodalInjections = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Map<String, Double>>> ptdfs = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Map<String, Double>>> psdfs = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Double>> acNodalInjections = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Double>> dcNodalInjections = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Double>> acFlows = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Double>> dcFlows = new ContingencyValue<>();
-
-        public List<Event> allEvents() {
-            return events;
-        }
-
-        public List<Event> eventsForBaseCase() {
-            return eventsPerContingency.forBaseCase();
-        }
-
-        public List<Event> eventsForContingency(String contingencyId) {
-            return eventsPerContingency.forContingency(contingencyId);
-        }
-
-        @Override
-        public void runStart() {
-            addEvent(Event.RUN_START);
-        }
-
-        @Override
-        public void runDone() {
-            addEvent(Event.RUN_DONE);
-        }
-
-        @Override
-        public void computingBaseCase() {
-            currentContingency = BASE_CASE;
-            addEvent(Event.COMPUTING_BASE_CASE);
-        }
-
-        @Override
-        public void computingContingency(String contingencyId) {
-            currentContingency = contingencyId;
-            addEvent(Event.COMPUTING_CONTINGENCY);
-        }
-
-        @Override
-        public void computedGlsk(Map<Country, Map<String, Double>> glsks) {
-            addEvent(Event.COMPUTED_GLSK);
-            this.glsks = glsks;
-        }
-
-        @Override
-        public void computedNetPositions(Map<Country, Double> netPositions) {
-            addEvent(Event.COMPUTED_NET_POSITIONS);
-            this.netPositions = netPositions;
-        }
-
-        @Override
-        public void computedNodalInjectionsMatrix(Map<String, Map<String, Double>> nodalInjections) {
-            addEvent(Event.COMPUTED_NODAL_INJECTIONS_MATRIX);
-            this.nodalInjections.put(currentContingency, nodalInjections);
-        }
-
-        @Override
-        public void computedPtdfMatrix(Map<String, Map<String, Double>> pdtfMatrix) {
-            addEvent(Event.COMPUTED_PTDF_MATRIX);
-            this.ptdfs.put(currentContingency, pdtfMatrix);
-        }
-
-        @Override
-        public void computedPsdfMatrix(Map<String, Map<String, Double>> psdfMatrix) {
-            addEvent(Event.COMPUTED_PSDF_MATRIX);
-            this.psdfs.put(currentContingency, psdfMatrix);
-        }
-
-        @Override
-        public void computedAcNodalInjections(Map<String, Double> positions, boolean fallbackHasBeenActivated) {
-            addEvent(Event.COMPUTED_AC_NODAL_INJECTIONS);
-            this.acNodalInjections.put(currentContingency, positions);
-        }
-
-        @Override
-        public void computedDcNodalInjections(Map<String, Double> positions) {
-            addEvent(Event.COMPUTED_DC_NODAL_INJECTIONS);
-            this.dcNodalInjections.put(currentContingency, positions);
-        }
-
-        @Override
-        public void computedAcFlows(Map<String, Double> flows) {
-            addEvent(Event.COMPUTED_AC_FLOWS);
-            this.acFlows.put(currentContingency, flows);
-        }
-
-        @Override
-        public void computedDcFlows(Map<String, Double> flows) {
-            addEvent(Event.COMPUTED_DC_FLOWS);
-            this.dcFlows.put(currentContingency, flows);
-        }
-
-        private void addEvent(Event e) {
-            if (currentContingency != null) {
-                eventsPerContingency.putIfAbsent(currentContingency, new LinkedList<>());
-                eventsPerContingency.forContingency(currentContingency).add(e);
-            }
-            events.add(e);
-        }
-    }
 
     @Test
     void testNStateN1AndN2PostContingencyState() {
@@ -177,38 +44,38 @@ class FlowDecompositionObserverTest {
                                                      .build();
         var flowDecompositionParameters = FlowDecompositionParameters.load();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        var report = new ObserverReport();
+        var report = new FlowDecompositionOberserverImpl();
         flowComputer.addObserver(report);
         flowComputer.run(xnecProvider, network);
-        assertEventsFired(report.allEvents(), Event.COMPUTED_GLSK, Event.COMPUTED_NET_POSITIONS);
+        assertEventsFired(report.allEvents(), FlowDecompositionOberserverImpl.Event.COMPUTED_GLSK, FlowDecompositionOberserverImpl.Event.COMPUTED_NET_POSITIONS);
         assertEventsFired(
             report.eventsForBaseCase(),
-            Event.COMPUTED_AC_FLOWS,
-            Event.COMPUTED_AC_NODAL_INJECTIONS,
-            Event.COMPUTED_DC_FLOWS,
-            Event.COMPUTED_DC_NODAL_INJECTIONS,
-            Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
-            Event.COMPUTED_PTDF_MATRIX,
-            Event.COMPUTED_PSDF_MATRIX);
+            FlowDecompositionOberserverImpl.Event.COMPUTED_AC_FLOWS,
+            FlowDecompositionOberserverImpl.Event.COMPUTED_AC_NODAL_INJECTIONS,
+            FlowDecompositionOberserverImpl.Event.COMPUTED_DC_FLOWS,
+            FlowDecompositionOberserverImpl.Event.COMPUTED_DC_NODAL_INJECTIONS,
+            FlowDecompositionOberserverImpl.Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
+            FlowDecompositionOberserverImpl.Event.COMPUTED_PTDF_MATRIX,
+            FlowDecompositionOberserverImpl.Event.COMPUTED_PSDF_MATRIX);
 
         for (var contingencyId : List.of(contingencyId1, contingencyId2)) {
             assertEventsFired(
                 report.eventsForContingency(contingencyId),
-                Event.COMPUTED_AC_FLOWS,
-                Event.COMPUTED_AC_NODAL_INJECTIONS,
-                Event.COMPUTED_DC_FLOWS,
-                Event.COMPUTED_DC_NODAL_INJECTIONS,
-                Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
-                Event.COMPUTED_PTDF_MATRIX,
-                Event.COMPUTED_PSDF_MATRIX);
+                FlowDecompositionOberserverImpl.Event.COMPUTED_AC_FLOWS,
+                FlowDecompositionOberserverImpl.Event.COMPUTED_AC_NODAL_INJECTIONS,
+                FlowDecompositionOberserverImpl.Event.COMPUTED_DC_FLOWS,
+                FlowDecompositionOberserverImpl.Event.COMPUTED_DC_NODAL_INJECTIONS,
+                FlowDecompositionOberserverImpl.Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
+                FlowDecompositionOberserverImpl.Event.COMPUTED_PTDF_MATRIX,
+                FlowDecompositionOberserverImpl.Event.COMPUTED_PSDF_MATRIX);
         }
 
         // Checking GLSK
-        assertEquals(Set.of(Country.BE, Country.DE, Country.FR), report.glsks.keySet());
-        assertEquals(Set.of("DB000011_generator", "DF000011_generator"), report.glsks.get(Country.DE).keySet());
+        assertEquals(Set.of(Country.BE, Country.DE, Country.FR), report.getGlsks().keySet());
+        assertEquals(Set.of("DB000011_generator", "DF000011_generator"), report.getGlsks().get(Country.DE).keySet());
 
         // Checking net positions
-        assertEquals(Set.of(Country.BE, Country.DE, Country.FR), report.netPositions.keySet());
+        assertEquals(Set.of(Country.BE, Country.DE, Country.FR), report.getNetPositions().keySet());
 
         var xnecNodes = Set.of(
             "BB000021_load",
@@ -225,39 +92,39 @@ class FlowDecompositionObserverTest {
             "XNL00011 BB000011 1");
 
         // Checking nodal injections
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(xnecNodes, report.nodalInjections.forContingency(contingencyId).keySet());
+        for (var contingencyId : List.of(FlowDecompositionOberserverImpl.BASE_CASE, contingencyId1, contingencyId2)) {
+            assertEquals(xnecNodes, report.getNodalInjections().forContingency(contingencyId).keySet());
             assertEquals(
                 Set.of("Allocated Flow", "Loop Flow from BE"),
-                report.nodalInjections.forContingency(contingencyId).get("BB000021_load").keySet());
+                report.getNodalInjections().forContingency(contingencyId).get("BB000021_load").keySet());
         }
 
         // Checking PTDFs
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
+        for (var contingencyId : List.of(FlowDecompositionOberserverImpl.BASE_CASE, contingencyId1, contingencyId2)) {
             var branches = Set.of(branchId);
-            assertEquals(branches, report.ptdfs.forContingency(contingencyId).keySet());
-            assertEquals(xnecNodes, report.ptdfs.forContingency(contingencyId).get(branchId).keySet());
+            assertEquals(branches, report.getPtdfs().forContingency(contingencyId).keySet());
+            assertEquals(xnecNodes, report.getPtdfs().forContingency(contingencyId).get(branchId).keySet());
         }
 
         // Checking PSDFs
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
+        for (var contingencyId : List.of(FlowDecompositionOberserverImpl.BASE_CASE, contingencyId1, contingencyId2)) {
             var branches = Set.of(branchId);
             var pstNodes = Set.of("BF000011 BF000012 1");
-            assertEquals(branches, report.psdfs.forContingency(contingencyId).keySet());
+            assertEquals(branches, report.getPsdfs().forContingency(contingencyId).keySet());
             assertEquals(
                 pstNodes,
-                report.psdfs.forContingency(contingencyId).get(branchId).keySet(),
+                report.getPsdfs().forContingency(contingencyId).get(branchId).keySet(),
                 "contingency = " + contingencyId);
         }
 
         // Checking AC nodal injections
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(xnecNodes, report.acNodalInjections.forContingency(contingencyId).keySet());
+        for (var contingencyId : List.of(FlowDecompositionOberserverImpl.BASE_CASE, contingencyId1, contingencyId2)) {
+            assertEquals(xnecNodes, report.getAcNodalInjections().forContingency(contingencyId).keySet());
         }
 
         // Checking DC nodal injections
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(xnecNodes, report.dcNodalInjections.forContingency(contingencyId).keySet());
+        for (var contingencyId : List.of(FlowDecompositionOberserverImpl.BASE_CASE, contingencyId1, contingencyId2)) {
+            assertEquals(xnecNodes, report.getDcNodalInjections().forContingency(contingencyId).keySet());
         }
 
         var allBranches = Set.of(
@@ -289,13 +156,13 @@ class FlowDecompositionObserverTest {
             "XDF00011 DF000011 1 + XDF00011 FD000011 1");
 
         // Checking AC flows
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(allBranches, report.acFlows.forContingency(contingencyId).keySet());
+        for (var contingencyId : List.of(FlowDecompositionOberserverImpl.BASE_CASE, contingencyId1, contingencyId2)) {
+            assertEquals(allBranches, report.getAcFlows().forContingency(contingencyId).keySet());
         }
 
         // Checking DC flows
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(allBranches, report.dcFlows.forContingency(contingencyId).keySet());
+        for (var contingencyId : List.of(FlowDecompositionOberserverImpl.BASE_CASE, contingencyId1, contingencyId2)) {
+            assertEquals(allBranches, report.getDcFlows().forContingency(contingencyId).keySet());
         }
     }
 
@@ -309,9 +176,9 @@ class FlowDecompositionObserverTest {
                                                      .build();
         var flowDecompositionParameters = FlowDecompositionParameters.load();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        var reportInserted = new ObserverReport();
+        var reportInserted = new FlowDecompositionOberserverImpl();
         flowComputer.addObserver(reportInserted);
-        var reportRemoved = new ObserverReport();
+        var reportRemoved = new FlowDecompositionOberserverImpl();
         flowComputer.addObserver(reportRemoved);
         flowComputer.removeObserver(reportRemoved);
 
@@ -331,43 +198,23 @@ class FlowDecompositionObserverTest {
                 .build();
         var flowDecompositionParameters = FlowDecompositionParameters.load().setEnableLossesCompensation(true);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
-        var report = new ObserverReport();
+        var report = new FlowDecompositionOberserverImpl();
         flowComputer.addObserver(report);
         flowComputer.run(xnecProvider, network);
 
         // losses at 0 in acNodalInjection
         String lossesId = LossesCompensator.getLossesId("");
-        report.acNodalInjections.forBaseCase().forEach((inj, p) -> {
+        report.getAcNodalInjections().forBaseCase().forEach((inj, p) -> {
             if (inj.startsWith(lossesId)) {
                 assertEquals(0, p, 1E-8);
             }
         });
     }
 
-    private void assertEventsFired(Collection<Event> firedEvents, Event... expectedEvents) {
-        var missing = new HashSet<Event>();
+    private void assertEventsFired(Collection<FlowDecompositionOberserverImpl.Event> firedEvents, FlowDecompositionOberserverImpl.Event... expectedEvents) {
+        var missing = new HashSet<FlowDecompositionOberserverImpl.Event>();
         Collections.addAll(missing, expectedEvents);
         missing.removeAll(firedEvents);
         assertTrue(missing.isEmpty(), () -> "Missing events: " + missing);
-    }
-
-    private static final class ContingencyValue<T> {
-        private Map<String, T> values = new HashMap<>();
-
-        public void put(String contingencyId, T value) {
-            values.put(contingencyId, value);
-        }
-
-        public void putIfAbsent(String contingencyId, T value) {
-            values.putIfAbsent(contingencyId, value);
-        }
-
-        public T forContingency(String contingencyId) {
-            return values.get(contingencyId);
-        }
-
-        public T forBaseCase() {
-            return values.get(BASE_CASE);
-        }
     }
 }

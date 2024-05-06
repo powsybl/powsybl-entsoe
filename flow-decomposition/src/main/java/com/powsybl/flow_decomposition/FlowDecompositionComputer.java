@@ -178,17 +178,13 @@ public class FlowDecompositionComputer {
     }
 
     private void saveAcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acReferenceFlows = new AcReferenceFlowComputer().run(xnecList, loadFlowServiceAcResult);
+        Map<String, Double> acReferenceFlows = FlowComputerUtils.calculateAcReferenceFlows(xnecList, loadFlowServiceAcResult);
         flowDecompositionResultBuilder.saveAcReferenceFlow(acReferenceFlows);
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network) {
         NetPositionComputer netPositionComputer = new NetPositionComputer();
         return netPositionComputer.run(network);
-    }
-
-    private Map<String, Double> getBranchReferenceFlows(Set<Branch> branches) {
-        return new ReferenceFlowComputer().run(branches);
     }
 
     private void compensateLosses(Network network) {
@@ -210,7 +206,7 @@ public class FlowDecompositionComputer {
     }
 
     private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList) {
-        flowDecompositionResultBuilder.saveDcReferenceFlow(getBranchReferenceFlows(xnecList));
+        flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getReferenceFlow(xnecList));
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {

@@ -10,6 +10,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.flow_decomposition.LoadFlowRunningService.Result;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,10 +86,7 @@ public class FlowDecompositionObserverList {
         if (observers.isEmpty()) {
             return;
         }
-
-        Map<String, Double> acFlows = new AcReferenceFlowComputer()
-                .run(network.getBranchStream().toList(), loadFlowServiceAcResult);
-
+        Map<String, Pair<Double, Double>> acFlows = FlowComputerUtils.calculateAcFlows(network.getBranchStream().toList(), loadFlowServiceAcResult);
         for (FlowDecompositionObserver o : observers) {
             o.computedAcFlows(acFlows);
         }
@@ -99,7 +97,7 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        Map<String, Double> dcFlows = new ReferenceFlowComputer().run(network.getBranchStream().toList());
+        Map<String, Pair<Double, Double>> dcFlows = FlowComputerUtils.calculateDcFlows(network.getBranchStream().toList());
 
         for (FlowDecompositionObserver o : observers) {
             o.computedDcFlows(dcFlows);
