@@ -20,6 +20,7 @@ import java.util.Map;
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
  */
 public class FlowDecompositionObserverList {
+
     private final List<FlowDecompositionObserver> observers;
 
     public FlowDecompositionObserverList() {

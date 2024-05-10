@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-final class DecomposedFlowsRescaler {
-    private DecomposedFlowsRescaler() {
+final class DecomposedFlowsRescalerReLU {
+    private DecomposedFlowsRescalerReLU() {
     }
 
     private static double reLU(double value) {
@@ -34,6 +34,7 @@ final class DecomposedFlowsRescaler {
         Country country2 = decomposedFlow.getCountry2();
 
         double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
+        double acMaxFlow = decomposedFlow.getAcMaxFlow();
         double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
         double allocatedFlow = decomposedFlow.getAllocatedFlow();
         double xNodeFlow = decomposedFlow.getXNodeFlow();
@@ -46,7 +47,7 @@ final class DecomposedFlowsRescaler {
         }
 
         double deltaToRescale = acReferenceFlow * Math.signum(acReferenceFlow) - decomposedFlow.getTotalFlow();
-        double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + reLU(xNodeFlow) + loopFlows.values().stream().mapToDouble(DecomposedFlowsRescaler::reLU).sum() + reLU(internalFlow);
+        double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + reLU(xNodeFlow) + loopFlows.values().stream().mapToDouble(DecomposedFlowsRescalerReLU::reLU).sum() + reLU(internalFlow);
 
         double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
         double rescaledXNodeFlow = rescaleValue(xNodeFlow, deltaToRescale, sumOfReLUFlows);
@@ -55,6 +56,6 @@ final class DecomposedFlowsRescaler {
         Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
             .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
 
-        return new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow, dcReferenceFlow, rescaledAllocatedFlow, rescaledXNodeFlow, rescaledPstFlow, rescaleInternalFlow, rescaledLoopFlows);
+        return new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow, acMaxFlow, dcReferenceFlow, rescaledAllocatedFlow, rescaledXNodeFlow, rescaledPstFlow, rescaleInternalFlow, rescaledLoopFlows);
     }
 }

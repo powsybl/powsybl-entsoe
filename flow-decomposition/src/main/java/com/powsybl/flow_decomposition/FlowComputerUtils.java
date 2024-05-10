@@ -31,6 +31,13 @@ public final class FlowComputerUtils {
         return getReferenceFlow(xnecList);
     }
 
+    public static Map<String, Double> calculateAcMaxFlows(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
+            return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
+        }
+        return getMaxFlow(xnecList);
+    }
+
     public static Map<String, Pair<Double, Double>> calculateAcFlows(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
             return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Pair.of(Double.NaN, Double.NaN)));
@@ -55,6 +62,14 @@ public final class FlowComputerUtils {
                 .collect(Collectors.toMap(
                         Identifiable::getId,
                         FlowComputerUtils::getReferenceP
+                ));
+    }
+
+    public static Map<String, Double> getMaxFlow(Collection<Branch> xnecList) {
+        return xnecList.stream()
+                .collect(Collectors.toMap(
+                        Identifiable::getId,
+                        branch -> Math.max(Math.abs(branch.getTerminal1().getP()), Math.abs(branch.getTerminal2().getP()))
                 ));
     }
 

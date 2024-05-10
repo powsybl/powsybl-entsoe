@@ -37,10 +37,10 @@ public final class TestUtils {
         return GlskDocumentImporters.importGlsk(TestUtils.class.getResourceAsStream(glskName));
     }
 
-    public static void assertCoherenceTotalFlow(boolean enableRescaledResults, FlowDecompositionResults flowDecompositionResults) {
+    public static void assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode rescaleMode, FlowDecompositionResults flowDecompositionResults) {
         for (String xnec : flowDecompositionResults.getDecomposedFlowMap().keySet()) {
             DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnec);
-            if (enableRescaledResults) {
+            if (!rescaleMode.equals(FlowDecompositionParameters.RescaleMode.NONE)) {
                 assertEquals(Math.abs(decomposedFlow.getAcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
             } else {
                 assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);

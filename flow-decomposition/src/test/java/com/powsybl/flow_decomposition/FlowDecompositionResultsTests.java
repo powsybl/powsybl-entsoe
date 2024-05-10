@@ -83,10 +83,11 @@ class FlowDecompositionResultsTests {
         FlowDecompositionResults.PerStateBuilder nStateBuilder = flowDecompositionResults.getBuilder(nStateXnecList);
 
         nStateBuilder.saveAcReferenceFlow(Map.of(branchId, 10.0));
+        nStateBuilder.saveAcMaxFlow(Map.of(branchId, 10.0));
         nStateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
         nStateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
         nStateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
-        nStateBuilder.build(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
+        nStateBuilder.build(FlowDecompositionParameters.RescaleMode.NONE);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());
@@ -109,10 +110,11 @@ class FlowDecompositionResultsTests {
         String xnecId = "DB000011 DF000011 1_DD000011 DF000011 1";
 
         n1StateBuilder.saveAcReferenceFlow(Map.of(branchId, 10.0));
+        n1StateBuilder.saveAcMaxFlow(Map.of(branchId, 10.0));
         n1StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
         n1StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
         n1StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
-        n1StateBuilder.build(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
+        n1StateBuilder.build(FlowDecompositionParameters.RescaleMode.NONE);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());
@@ -135,10 +137,11 @@ class FlowDecompositionResultsTests {
         String xnecId = "DB000011 DF000011 1_FB000011 FD000011 1_FB000021 FD000021 1";
 
         n2StateBuilder.saveAcReferenceFlow(Map.of(branchId, 10.0));
+        n2StateBuilder.saveAcMaxFlow(Map.of(branchId, 10.0));
         n2StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
         n2StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
         n2StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
-        n2StateBuilder.build(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
+        n2StateBuilder.build(FlowDecompositionParameters.RescaleMode.NONE);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());

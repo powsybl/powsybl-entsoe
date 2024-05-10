@@ -45,6 +45,7 @@ public class FlowDecompositionResults {
         private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
         private Map<String, Map<String, Double>> pstFlowMap;
         private Map<String, Double> acReferenceFlow;
+        private Map<String, Double> acMaxFlow;
         private Map<String, Double> dcReferenceFlow;
 
         PerStateBuilder(String contingencyId, Set<Branch> xnecList) {
@@ -64,19 +65,23 @@ public class FlowDecompositionResults {
             this.acReferenceFlow = acReferenceFlow;
         }
 
+        void saveAcMaxFlow(Map<String, Double> acMaxFlow) {
+            this.acMaxFlow = acMaxFlow;
+        }
+
         void saveDcReferenceFlow(Map<String, Double> dcReferenceFlow) {
             this.dcReferenceFlow = dcReferenceFlow;
         }
 
-        void build(boolean isRescaleEnable) {
+        void build(FlowDecompositionParameters.RescaleMode rescaleMode) {
             allocatedAndLoopFlowsMatrix.toMap()
                 .forEach((branchId, decomposedFlow) -> {
                     String xnecId = NetworkUtil.getXnecId(contingencyId, branchId);
-                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, isRescaleEnable));
+                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, rescaleMode));
                 });
         }
 
-        private DecomposedFlow createDecomposedFlow(String branchId, Map<String, Double> allocatedAndLoopFlowMap, boolean isRescaleEnable) {
+        private DecomposedFlow createDecomposedFlow(String branchId, Map<String, Double> allocatedAndLoopFlowMap, FlowDecompositionParameters.RescaleMode rescaleMode) {
             Map<String, Double> loopFlowsMap = allocatedAndLoopFlowMap.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -86,11 +91,18 @@ public class FlowDecompositionResults {
             Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
             Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());
             double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
-            DecomposedFlow decomposedFlow = new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow.get(branchId), dcReferenceFlow.get(branchId), allocatedFlow, xNodeFlow, pstFlow, internalFlow, loopFlowsMap);
-            if (isRescaleEnable) {
-                return DecomposedFlowsRescaler.rescale(decomposedFlow);
+            DecomposedFlow decomposedFlow = new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow.get(branchId), acMaxFlow.get(branchId), dcReferenceFlow.get(branchId), allocatedFlow, xNodeFlow, pstFlow, internalFlow, loopFlowsMap);
+            switch (rescaleMode) {
+                case RELU -> {
+                    return DecomposedFlowsRescalerReLU.rescale(decomposedFlow);
+                }
+                case PROPORTIONAL -> {
+                    return DecomposedFlowsRescalerProportional.rescale(decomposedFlow);
+                }
+                default -> {
+                    return decomposedFlow;
+                }
             }
-            return decomposedFlow;
         }
 
         private double extractInternalFlow(Map<String, Double> loopFlowsMap, Country country1, Country country2) {

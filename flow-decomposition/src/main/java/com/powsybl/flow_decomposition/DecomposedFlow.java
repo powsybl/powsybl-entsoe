@@ -20,6 +20,7 @@ public class DecomposedFlow {
     private final Country country1;
     private final Country country2;
     private final double acReferenceFlow;
+    private final double acMaxFlow;
     private final double dcReferenceFlow;
     private final double allocatedFlow;
     private final double xNodeFlow;
@@ -34,12 +35,13 @@ public class DecomposedFlow {
     static final String PST_COLUMN_NAME = "PST Flow";
     static final String INTERNAL_COLUMN_NAME = "Internal Flow";
 
-    protected DecomposedFlow(String branchId, String contingencyId, Country country1, Country country2, double acReferenceFlow, double dcReferenceFlow, double allocatedFlow, double xNodeFlow, double pstFlow, double internalFlow, Map<String, Double> loopFlowsMap) {
+    protected DecomposedFlow(String branchId, String contingencyId, Country country1, Country country2, double acMaxFlow, double acReferenceFlow, double dcReferenceFlow, double allocatedFlow, double xNodeFlow, double pstFlow, double internalFlow, Map<String, Double> loopFlowsMap) {
         this.branchId = branchId;
         this.contingencyId = contingencyId;
         this.country1 = country1;
         this.country2 = country2;
         this.acReferenceFlow = acReferenceFlow;
+        this.acMaxFlow = acMaxFlow;
         this.dcReferenceFlow = dcReferenceFlow;
         this.allocatedFlow = allocatedFlow;
         this.xNodeFlow = xNodeFlow;
@@ -70,6 +72,10 @@ public class DecomposedFlow {
 
     public double getAcReferenceFlow() {
         return acReferenceFlow;
+    }
+
+    public double getAcMaxFlow() {
+        return acMaxFlow;
     }
 
     public double getDcReferenceFlow() {
