@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 final class DecomposedFlowsRescalerProportional {
+
+    public static final double MIN_FLOW_TOLERANCE = 1E-6; // min flow in MW to rescale
+
     private DecomposedFlowsRescalerProportional() {
     }
 
@@ -37,7 +40,8 @@ final class DecomposedFlowsRescalerProportional {
             return decomposedFlow;
         }
 
-        double rescaleFactor = dcReferenceFlow == 0 ? 1.0 : Math.abs(acMaxFlow / dcReferenceFlow);
+        // if dcReferenceFlow is too small, do not rescale
+        double rescaleFactor = Math.abs(dcReferenceFlow) <= MIN_FLOW_TOLERANCE ? 1.0 : Math.abs(acMaxFlow / dcReferenceFlow);
 
         double rescaledAllocatedFlow = rescaleFactor * allocatedFlow;
         double rescaledXNodeFlow = rescaleFactor * xNodeFlow;
