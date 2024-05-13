@@ -37,7 +37,7 @@ final class DecomposedFlowsRescalerProportional {
             return decomposedFlow;
         }
 
-        double rescaleFactor = Math.abs(acMaxFlow / dcReferenceFlow);
+        double rescaleFactor = dcReferenceFlow == 0 ? 1.0 : Math.abs(acMaxFlow / dcReferenceFlow);
 
         double rescaledAllocatedFlow = rescaleFactor * allocatedFlow;
         double rescaledXNodeFlow = rescaleFactor * xNodeFlow;
