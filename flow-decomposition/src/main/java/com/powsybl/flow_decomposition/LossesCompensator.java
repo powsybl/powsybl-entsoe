@@ -23,6 +23,7 @@ class LossesCompensator {
     private final double epsilon;
     private Integer networkHash;
     public static final String LOSSES_ID_PREFIX = "LOSSES ";
+    private static final double MIN_FLOW = 1E-6; // min flow to be considered the sending terminal in MW
 
     LossesCompensator(double epsilon) {
         this.epsilon = epsilon;
@@ -164,10 +165,13 @@ class LossesCompensator {
     }
 
     private Terminal getSendingTerminal(Branch<?> branch) {
-        return branch.getTerminal1().getP() > 0 ? branch.getTerminal1() : branch.getTerminal2();
+        // include some tolerance to check if terminal 1 is the sending terminal
+        // it avoids the case where the flow is almost zero, but positive
+        // example: p1 = 1E-10 and p2 = 1
+        return branch.getTerminal1().getP() > MIN_FLOW ? branch.getTerminal1() : branch.getTerminal2();
     }
 
     private Terminal getReceivingTerminal(Branch<?> branch) {
-        return branch.getTerminal1().getP() <= 0 ? branch.getTerminal1() : branch.getTerminal2();
+        return branch.getTerminal1().getP() <= MIN_FLOW ? branch.getTerminal1() : branch.getTerminal2();
     }
 }
