@@ -61,24 +61,12 @@ class LossesCompensator {
     private void compensateLossesOnBranches(Network network) {
         network.getBranchStream()
             .filter(this::hasBuses)
-            .filter(this::hasP0s)
             .forEach(branch -> compensateLossesOnBranch(network, branch));
     }
 
-    private boolean hasBus(Terminal terminal) {
-        return terminal.getBusBreakerView().getBus() != null;
-    }
-
     private boolean hasBuses(Branch<?> branch) {
-        return hasBus(branch.getTerminal1()) && hasBus(branch.getTerminal2());
-    }
-
-    private boolean hasP0(Terminal terminal) {
-        return !Double.isNaN(terminal.getP());
-    }
-
-    private boolean hasP0s(Branch<?> branch) {
-        return hasP0(branch.getTerminal1()) && hasP0(branch.getTerminal2());
+        return !(branch.getTerminal1().getBusBreakerView().getBus() == null &&
+                branch.getTerminal2().getBusBreakerView().getBus() == null);
     }
 
     private static void addZeroMWLossesLoad(Network network, String busId) {
