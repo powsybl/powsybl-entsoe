@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 class RescalingTests {
     private static final double EPSILON = 1e-5;
@@ -59,14 +60,14 @@ class RescalingTests {
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Country country1 = Country.FR;
         Country country2 = Country.FR;
-        return new DecomposedFlow("", "", country1, country2, acReferenceFlow, dcReferenceFlow, allocatedFlow, 0, pstFlow, internalFlow, loopFlows);
+        return new DecomposedFlow("", "", country1, country2, acReferenceFlow, acReferenceFlow, dcReferenceFlow, allocatedFlow, 0, pstFlow, internalFlow, loopFlows);
     }
 
     private DecomposedFlow getRescaledFlow(double acReferenceFlow, double dcReferenceFlow) {
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
         assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
 
-        return DecomposedFlowsRescaler.rescale(decomposedFlow);
+        return DecomposedFlowsRescaler.rescale(decomposedFlow, FlowDecompositionParameters.RescaleMode.RELU);
     }
 
     @Test
@@ -134,31 +135,37 @@ class RescalingTests {
     }
 
     @Test
-    void testNormalizationWithFlowDecompositionResultsWithPstNetwork() {
+    void testReLUNormalizationWithFlowDecompositionResultsWithPstNetwork() {
         String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
-        testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
+        testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.RELU);
     }
 
     @Test
     void testNoNormalizationWithFlowDecompositionResultsWithPstNetwork() {
         String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
-        testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
+        testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.NONE);
     }
 
-    static void testNormalizationWithFlowDecompositionResults(String networkFileName, boolean enableRescaledResults) {
+    @Test
+    void testProportionalNormalizationWithFlowDecompositionResultsWithPstNetwork() {
+        String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
+        testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.PROPORTIONAL);
+    }
+
+    static void testNormalizationWithFlowDecompositionResults(String networkFileName, FlowDecompositionParameters.RescaleMode rescaleMode) {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
-            .setRescaleEnabled(enableRescaledResults);
+            .setRescaleMode(rescaleMode);
 
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         XnecProvider xnecProvider = new XnecProviderAllBranches();
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
-        TestUtils.assertCoherenceTotalFlow(enableRescaledResults, flowDecompositionResults);
+        TestUtils.assertCoherenceTotalFlow(rescaleMode, flowDecompositionResults);
     }
 
     @Test
@@ -171,7 +178,7 @@ class RescalingTests {
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
-            .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
+            .setRescaleMode(FlowDecompositionParameters.RescaleMode.RELU);
 
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();

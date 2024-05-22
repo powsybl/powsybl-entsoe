@@ -19,6 +19,7 @@ import java.util.Map;
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
  */
 public class FlowDecompositionObserverList {
+
     private final List<FlowDecompositionObserver> observers;
 
     public FlowDecompositionObserverList() {
@@ -86,8 +87,7 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        Map<String, Double> acFlows =
-                new AcReferenceFlowComputer().run(network.getBranchStream().toList(), loadFlowServiceAcResult);
+        Map<String, Double> acFlows = FlowComputerUtils.calculateAcReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult);
 
         for (FlowDecompositionObserver o : observers) {
             o.computedAcFlows(acFlows);
@@ -99,7 +99,7 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        Map<String, Double> dcFlows = new ReferenceFlowComputer().run(network.getBranchStream().toList());
+        Map<String, Double> dcFlows = FlowComputerUtils.getReferenceFlow(network.getBranchStream().toList());
 
         for (FlowDecompositionObserver o : observers) {
             o.computedDcFlows(dcFlows);
@@ -143,6 +143,6 @@ public class FlowDecompositionObserverList {
 
     @FunctionalInterface
     private interface MatrixNotification {
-        public void sendMatrix(FlowDecompositionObserver o, Map<String, Map<String, Double>> matrix);
+        void sendMatrix(FlowDecompositionObserver o, Map<String, Map<String, Double>> matrix);
     }
 }

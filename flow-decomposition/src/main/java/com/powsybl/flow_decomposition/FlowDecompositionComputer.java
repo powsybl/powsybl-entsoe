@@ -135,6 +135,7 @@ public class FlowDecompositionComputer {
                                        Map<Country, Map<String, Double>> glsks,
                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
         saveAcReferenceFlow(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
+        saveAcMaxFlow(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
         compensateLosses(network);
         observers.computedAcFlows(network, loadFlowServiceAcResult);
 
@@ -162,7 +163,7 @@ public class FlowDecompositionComputer {
         computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);
         computePstFlows(network, flowDecompositionResultsBuilder, networkMatrixIndexes, psdfMatrix);
 
-        flowDecompositionResultsBuilder.build(parameters.isRescaleEnabled());
+        flowDecompositionResultsBuilder.build(parameters.getRescaleMode());
     }
 
     public void addObserver(FlowDecompositionObserver observer) {
@@ -178,17 +179,18 @@ public class FlowDecompositionComputer {
     }
 
     private void saveAcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acReferenceFlows = new AcReferenceFlowComputer().run(xnecList, loadFlowServiceAcResult);
+        Map<String, Double> acReferenceFlows = FlowComputerUtils.calculateAcReferenceFlows(xnecList, loadFlowServiceAcResult);
         flowDecompositionResultBuilder.saveAcReferenceFlow(acReferenceFlows);
+    }
+
+    private void saveAcMaxFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+        Map<String, Double> acMaxFlow = FlowComputerUtils.calculateAcMaxFlows(xnecList, loadFlowServiceAcResult);
+        flowDecompositionResultBuilder.saveAcMaxFlow(acMaxFlow);
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network) {
         NetPositionComputer netPositionComputer = new NetPositionComputer();
         return netPositionComputer.run(network);
-    }
-
-    private Map<String, Double> getBranchReferenceFlows(Set<Branch> branches) {
-        return new ReferenceFlowComputer().run(branches);
     }
 
     private void compensateLosses(Network network) {
@@ -210,7 +212,7 @@ public class FlowDecompositionComputer {
     }
 
     private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList) {
-        flowDecompositionResultBuilder.saveDcReferenceFlow(getBranchReferenceFlows(xnecList));
+        flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getReferenceFlow(xnecList));
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {

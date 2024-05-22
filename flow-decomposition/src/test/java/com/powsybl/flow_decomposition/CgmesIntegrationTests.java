@@ -59,13 +59,13 @@ class CgmesIntegrationTests {
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
-            .setRescaleEnabled(FlowDecompositionParameters.ENABLE_RESCALED_RESULTS);
+            .setRescaleMode(FlowDecompositionParameters.RescaleMode.RELU);
         String xnecId = "044cd006-c766-11e1-8775-005056c00008";
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
         assertNotNull(flowDecompositionResults.getDecomposedFlowMap().get(xnecId));
         assertEquals(1, flowDecompositionResults.getDecomposedFlowMap().size());
-        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.isRescaleEnabled(), flowDecompositionResults);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
     }
 }
