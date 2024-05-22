@@ -35,7 +35,7 @@ public class DecomposedFlow {
     static final String PST_COLUMN_NAME = "PST Flow";
     static final String INTERNAL_COLUMN_NAME = "Internal Flow";
 
-    protected DecomposedFlow(String branchId, String contingencyId, Country country1, Country country2, double acMaxFlow, double acReferenceFlow, double dcReferenceFlow, double allocatedFlow, double xNodeFlow, double pstFlow, double internalFlow, Map<String, Double> loopFlowsMap) {
+    protected DecomposedFlow(String branchId, String contingencyId, Country country1, Country country2, double acReferenceFlow, double acMaxFlow, double dcReferenceFlow, double allocatedFlow, double xNodeFlow, double pstFlow, double internalFlow, Map<String, Double> loopFlowsMap) {
         this.branchId = branchId;
         this.contingencyId = contingencyId;
         this.country1 = country1;
