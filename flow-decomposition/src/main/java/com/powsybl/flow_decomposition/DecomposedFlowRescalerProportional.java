@@ -57,6 +57,19 @@ public class DecomposedFlowRescalerProportional implements DecomposedFlowRescale
         Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleFactor * entry.getValue()));
 
-        return new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow, acMaxFlow, dcReferenceFlow, rescaledAllocatedFlow, rescaledXNodeFlow, rescaledPstFlow, rescaleInternalFlow, rescaledLoopFlows);
+        return new DecomposedFlowBuilder()
+                .addBranchId(branchId)
+                .addContingencyId(contingencyId)
+                .addCountry1(country1)
+                .addCountry2(country2)
+                .addAcReferenceFlow(acReferenceFlow)
+                .addAcMaxFlow(acMaxFlow)
+                .addDcReferenceFlow(dcReferenceFlow)
+                .addAllocatedFlow(rescaledAllocatedFlow)
+                .addXNodeFlow(rescaledXNodeFlow)
+                .addPstFlow(rescaledPstFlow)
+                .addInternalFlow(rescaleInternalFlow)
+                .addLoopFlowsMap(rescaledLoopFlows)
+                .build();
     }
 }

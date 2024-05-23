@@ -35,19 +35,19 @@ public class DecomposedFlow {
     static final String PST_COLUMN_NAME = "PST Flow";
     static final String INTERNAL_COLUMN_NAME = "Internal Flow";
 
-    protected DecomposedFlow(String branchId, String contingencyId, Country country1, Country country2, double acReferenceFlow, double acMaxFlow, double dcReferenceFlow, double allocatedFlow, double xNodeFlow, double pstFlow, double internalFlow, Map<String, Double> loopFlowsMap) {
-        this.branchId = branchId;
-        this.contingencyId = contingencyId;
-        this.country1 = country1;
-        this.country2 = country2;
-        this.acReferenceFlow = acReferenceFlow;
-        this.acMaxFlow = acMaxFlow;
-        this.dcReferenceFlow = dcReferenceFlow;
-        this.allocatedFlow = allocatedFlow;
-        this.xNodeFlow = xNodeFlow;
-        this.pstFlow = pstFlow;
-        this.internalFlow = internalFlow;
-        this.loopFlowsMap.putAll(loopFlowsMap);
+    protected DecomposedFlow(DecomposedFlowBuilder builder) {
+        this.branchId = builder.branchId;
+        this.contingencyId = builder.contingencyId;
+        this.country1 = builder.country1;
+        this.country2 = builder.country2;
+        this.acReferenceFlow = builder.acReferenceFlow;
+        this.acMaxFlow = builder.acMaxFlow;
+        this.dcReferenceFlow = builder.dcReferenceFlow;
+        this.allocatedFlow = builder.allocatedFlow;
+        this.xNodeFlow = builder.xNodeFlow;
+        this.pstFlow = builder.pstFlow;
+        this.internalFlow = builder.internalFlow;
+        this.loopFlowsMap.putAll(builder.loopFlowsMap);
     }
 
     public String getBranchId() {

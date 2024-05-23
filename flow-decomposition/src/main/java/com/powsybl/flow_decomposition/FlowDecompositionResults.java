@@ -91,7 +91,20 @@ public class FlowDecompositionResults {
             Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
             Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());
             double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
-            DecomposedFlow decomposedFlow = new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow.get(branchId), acMaxFlow.get(branchId), dcReferenceFlow.get(branchId), allocatedFlow, xNodeFlow, pstFlow, internalFlow, loopFlowsMap);
+            DecomposedFlow decomposedFlow = new DecomposedFlowBuilder()
+                    .addBranchId(branchId)
+                    .addContingencyId(contingencyId)
+                    .addCountry1(country1)
+                    .addCountry2(country2)
+                    .addAcReferenceFlow(acReferenceFlow.get(branchId))
+                    .addAcMaxFlow(acMaxFlow.get(branchId))
+                    .addDcReferenceFlow(dcReferenceFlow.get(branchId))
+                    .addAllocatedFlow(allocatedFlow)
+                    .addXNodeFlow(xNodeFlow)
+                    .addPstFlow(pstFlow)
+                    .addInternalFlow(internalFlow)
+                    .addLoopFlowsMap(loopFlowsMap)
+                    .build();
             return decomposedFlowRescaler.rescale(decomposedFlow);
         }
 

@@ -90,7 +90,20 @@ class InternalFlowTests {
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Country country1 = Country.FR;
         Country country2 = Country.FR;
-        return new DecomposedFlow("", "", country1, country2, acReferenceFlow, acReferenceFlow, dcReferenceFlow, allocatedFlow, 0, pstFlow, internalFlow, loopFlows);
+        return new DecomposedFlowBuilder()
+                .addBranchId("")
+                .addContingencyId("")
+                .addCountry1(country1)
+                .addCountry2(country2)
+                .addAcReferenceFlow(acReferenceFlow)
+                .addAcMaxFlow(acReferenceFlow)
+                .addDcReferenceFlow(dcReferenceFlow)
+                .addAllocatedFlow(allocatedFlow)
+                .addXNodeFlow(0)
+                .addPstFlow(pstFlow)
+                .addInternalFlow(internalFlow)
+                .addLoopFlowsMap(loopFlows)
+                .build();
     }
 
     private DecomposedFlow getRescaledFlow(double internalFlow, double acReferenceFlow, double dcReferenceFlow) {
