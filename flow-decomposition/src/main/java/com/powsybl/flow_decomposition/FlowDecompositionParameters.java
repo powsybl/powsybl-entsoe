@@ -29,7 +29,7 @@ public class FlowDecompositionParameters {
 
     public enum RescaleMode {
         NONE,
-        RELU,
+        ACER_METHODOLOGY,
         PROPORTIONAL
     }
 

@@ -59,7 +59,7 @@ class CgmesIntegrationTests {
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
-            .setRescaleMode(FlowDecompositionParameters.RescaleMode.RELU);
+            .setRescaleMode(FlowDecompositionParameters.RescaleMode.ACER_METHODOLOGY);
         String xnecId = "044cd006-c766-11e1-8775-005056c00008";
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);

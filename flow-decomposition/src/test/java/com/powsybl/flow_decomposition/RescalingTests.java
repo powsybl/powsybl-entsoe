@@ -67,7 +67,7 @@ class RescalingTests {
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
         assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
 
-        return DecomposedFlowsRescaler.rescale(decomposedFlow, FlowDecompositionParameters.RescaleMode.RELU);
+        return new DecomposedFlowRescalerAcerMethodology().rescale(decomposedFlow);
     }
 
     @Test
@@ -137,7 +137,7 @@ class RescalingTests {
     @Test
     void testReLUNormalizationWithFlowDecompositionResultsWithPstNetwork() {
         String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
-        testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.RELU);
+        testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.ACER_METHODOLOGY);
     }
 
     @Test
@@ -178,7 +178,7 @@ class RescalingTests {
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
-            .setRescaleMode(FlowDecompositionParameters.RescaleMode.RELU);
+            .setRescaleMode(FlowDecompositionParameters.RescaleMode.ACER_METHODOLOGY);
 
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();

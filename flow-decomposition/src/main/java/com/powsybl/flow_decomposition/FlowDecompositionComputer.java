@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
@@ -32,7 +33,7 @@ public class FlowDecompositionComputer {
     private final LoadFlowRunningService loadFlowRunningService;
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
     private final LossesCompensator lossesCompensator;
-
+    private final DecomposedFlowRescaler decomposedFlowRescaler;
     private final FlowDecompositionObserverList observers;
 
     public FlowDecompositionComputer() {
@@ -47,6 +48,7 @@ public class FlowDecompositionComputer {
         this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
         this.sensitivityAnalysisRunner = SensitivityAnalysis.find(sensitivityAnalysisProvider);
         this.lossesCompensator = parameters.isLossesCompensationEnabled() ? new LossesCompensator(parameters) : null;
+        this.decomposedFlowRescaler = getDecomposedFlowRescaler();
         this.observers = new FlowDecompositionObserverList();
     }
 
@@ -163,7 +165,7 @@ public class FlowDecompositionComputer {
         computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);
         computePstFlows(network, flowDecompositionResultsBuilder, networkMatrixIndexes, psdfMatrix);
 
-        flowDecompositionResultsBuilder.build(parameters.getRescaleMode());
+        flowDecompositionResultsBuilder.build(decomposedFlowRescaler);
     }
 
     public void addObserver(FlowDecompositionObserver observer) {
@@ -196,6 +198,21 @@ public class FlowDecompositionComputer {
     private void compensateLosses(Network network) {
         if (parameters.isLossesCompensationEnabled()) {
             lossesCompensator.run(network);
+        }
+    }
+
+    private DecomposedFlowRescaler getDecomposedFlowRescaler() {
+        switch (parameters.getRescaleMode()) {
+            case NONE -> {
+                return new DecomposedFlowRescalerNoOp();
+            }
+            case ACER_METHODOLOGY -> {
+                return new DecomposedFlowRescalerAcerMethodology();
+            }
+            case PROPORTIONAL -> {
+                return new DecomposedFlowRescalerProportional();
+            }
+            default -> throw new PowsyblException("DecomposedFlowRescaler not defined for mode: " + parameters.getRescaleMode());
         }
     }
 

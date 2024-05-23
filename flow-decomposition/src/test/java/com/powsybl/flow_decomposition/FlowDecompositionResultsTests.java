@@ -81,13 +81,14 @@ class FlowDecompositionResultsTests {
     void testBuilderNState() {
         Set<Branch> nStateXnecList = xnecProvider.getNetworkElements(network);
         FlowDecompositionResults.PerStateBuilder nStateBuilder = flowDecompositionResults.getBuilder(nStateXnecList);
+        DecomposedFlowRescaler decomposedFlowRescaler = new DecomposedFlowRescalerNoOp();
 
         nStateBuilder.saveAcReferenceFlow(Map.of(branchId, 10.0));
         nStateBuilder.saveAcMaxFlow(Map.of(branchId, 10.0));
         nStateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
         nStateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
         nStateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
-        nStateBuilder.build(FlowDecompositionParameters.RescaleMode.NONE);
+        nStateBuilder.build(decomposedFlowRescaler);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());
@@ -108,13 +109,14 @@ class FlowDecompositionResultsTests {
         Set<Branch> n1StateContingency2XnecList = xnecProvider.getNetworkElements(contingencyId2, network);
         FlowDecompositionResults.PerStateBuilder n1StateBuilder = flowDecompositionResults.getBuilder(contingencyId2, n1StateContingency2XnecList);
         String xnecId = "DB000011 DF000011 1_DD000011 DF000011 1";
+        DecomposedFlowRescaler decomposedFlowRescaler = new DecomposedFlowRescalerNoOp();
 
         n1StateBuilder.saveAcReferenceFlow(Map.of(branchId, 10.0));
         n1StateBuilder.saveAcMaxFlow(Map.of(branchId, 10.0));
         n1StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
         n1StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
         n1StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
-        n1StateBuilder.build(FlowDecompositionParameters.RescaleMode.NONE);
+        n1StateBuilder.build(decomposedFlowRescaler);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());
@@ -135,13 +137,14 @@ class FlowDecompositionResultsTests {
         Set<Branch> n1StateContingency3XnecList = xnecProvider.getNetworkElements(contingencyId3, network);
         FlowDecompositionResults.PerStateBuilder n2StateBuilder = flowDecompositionResults.getBuilder(contingencyId3, n1StateContingency3XnecList);
         String xnecId = "DB000011 DF000011 1_FB000011 FD000011 1_FB000021 FD000021 1";
+        DecomposedFlowRescaler decomposedFlowRescaler = new DecomposedFlowRescalerNoOp();
 
         n2StateBuilder.saveAcReferenceFlow(Map.of(branchId, 10.0));
         n2StateBuilder.saveAcMaxFlow(Map.of(branchId, 10.0));
         n2StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
         n2StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
         n2StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
-        n2StateBuilder.build(FlowDecompositionParameters.RescaleMode.NONE);
+        n2StateBuilder.build(decomposedFlowRescaler);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());

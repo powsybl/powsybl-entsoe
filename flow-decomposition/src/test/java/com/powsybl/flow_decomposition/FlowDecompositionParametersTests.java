@@ -61,7 +61,7 @@ class FlowDecompositionParametersTests {
         mapModuleConfig.setStringProperty("enable-losses-compensation", Boolean.toString(true));
         mapModuleConfig.setStringProperty("losses-compensation-epsilon", Double.toString(2e-5));
         mapModuleConfig.setStringProperty("sensitivity-epsilon", Double.toString(3e-3));
-        mapModuleConfig.setStringProperty("rescale-mode", FlowDecompositionParameters.RescaleMode.RELU.name());
+        mapModuleConfig.setStringProperty("rescale-mode", FlowDecompositionParameters.RescaleMode.ACER_METHODOLOGY.name());
         mapModuleConfig.setStringProperty("dc-fallback-enabled-after-ac-divergence", Boolean.toString(false));
         mapModuleConfig.setStringProperty("sensitivity-variable-batch-size", Integer.toString(1234));
 
@@ -69,7 +69,7 @@ class FlowDecompositionParametersTests {
         assertTrue(parameters.isLossesCompensationEnabled());
         assertEquals(2e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(3e-3, parameters.getSensitivityEpsilon(), EPSILON);
-        assertEquals(FlowDecompositionParameters.RescaleMode.RELU, parameters.getRescaleMode());
+        assertEquals(FlowDecompositionParameters.RescaleMode.ACER_METHODOLOGY, parameters.getRescaleMode());
         assertFalse(parameters.isDcFallbackEnabledAfterAcDivergence());
         assertEquals(1234, parameters.getSensitivityVariableBatchSize());
     }
