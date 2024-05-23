@@ -20,8 +20,8 @@ public class DecomposedFlowBuilder {
     protected String contingencyId;
     protected Country country1;
     protected Country country2;
-    protected double acReferenceFlow;
-    protected double acMaxFlow;
+    protected double acTerminal1ReferenceFlow;
+    protected double acTerminal2ReferenceFlow;
     protected double dcReferenceFlow;
     protected double allocatedFlow;
     protected double xNodeFlow;
@@ -53,13 +53,13 @@ public class DecomposedFlowBuilder {
         return this;
     }
 
-    public DecomposedFlowBuilder addAcReferenceFlow(double acReferenceFlow) {
-        this.acReferenceFlow = acReferenceFlow;
+    public DecomposedFlowBuilder addAcTerminal1ReferenceFlow(double acTerminal1ReferenceFlow) {
+        this.acTerminal1ReferenceFlow = acTerminal1ReferenceFlow;
         return this;
     }
 
-    public DecomposedFlowBuilder addAcMaxFlow(double acMaxFlow) {
-        this.acMaxFlow = acMaxFlow;
+    public DecomposedFlowBuilder addAcTerminal2ReferenceFlow(double acTerminal2ReferenceFlow) {
+        this.acTerminal2ReferenceFlow = acTerminal2ReferenceFlow;
         return this;
     }
 

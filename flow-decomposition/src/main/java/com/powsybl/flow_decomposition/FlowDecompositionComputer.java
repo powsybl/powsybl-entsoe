@@ -11,6 +11,7 @@ import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -136,8 +137,7 @@ public class FlowDecompositionComputer {
                                        Map<Country, Double> netPositions,
                                        Map<Country, Map<String, Double>> glsks,
                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        saveAcReferenceFlow(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
-        saveAcMaxFlow(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
+        saveAcReferenceFlows(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult);
         compensateLosses(network);
         observers.computedAcFlows(network, loadFlowServiceAcResult);
 
@@ -180,14 +180,11 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
-    private void saveAcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acReferenceFlows = FlowComputerUtils.calculateAcReferenceFlows(xnecList, loadFlowServiceAcResult);
-        flowDecompositionResultBuilder.saveAcReferenceFlow(acReferenceFlows);
-    }
-
-    private void saveAcMaxFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acMaxFlow = FlowComputerUtils.calculateAcMaxFlows(xnecList, loadFlowServiceAcResult);
-        flowDecompositionResultBuilder.saveAcMaxFlow(acMaxFlow);
+    private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+        Map<String, Double> acTerminal1ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, TwoSides.ONE);
+        Map<String, Double> acTerminal2ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, TwoSides.TWO);
+        flowDecompositionResultBuilder.saveAcTerminal1ReferenceFlow(acTerminal1ReferenceFlows);
+        flowDecompositionResultBuilder.saveAcTerminal2ReferenceFlow(acTerminal2ReferenceFlows);
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network) {
@@ -229,7 +226,7 @@ public class FlowDecompositionComputer {
     }
 
     private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList) {
-        flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getReferenceFlow(xnecList));
+        flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlow(xnecList, TwoSides.ONE));
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {

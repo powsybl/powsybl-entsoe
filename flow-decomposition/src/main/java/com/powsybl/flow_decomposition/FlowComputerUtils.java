@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.TwoSides;
 
 import java.util.Collection;
 import java.util.Map;
@@ -26,37 +27,18 @@ public final class FlowComputerUtils {
         // empty constructor
     }
 
-    public static Map<String, Double> calculateAcReferenceFlows(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+    public static Map<String, Double> calculateAcTerminalReferenceFlows(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, TwoSides side) {
         if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
             return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
         }
-        return getReferenceFlow(xnecList);
+        return getTerminalReferenceFlow(xnecList, side);
     }
 
-    public static Map<String, Double> calculateAcMaxFlows(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
-            return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
-        }
-        return getMaxFlow(xnecList);
-    }
-
-    public static Map<String, Double> getReferenceFlow(Collection<Branch> xnecList) {
+    public static Map<String, Double> getTerminalReferenceFlow(Collection<Branch> xnecList, TwoSides side) {
         return xnecList.stream()
                 .collect(Collectors.toMap(
                         Identifiable::getId,
-                        FlowComputerUtils::getReferenceP
+                        branch -> branch.getTerminal(side).getP()
                 ));
-    }
-
-    private static Map<String, Double> getMaxFlow(Collection<Branch> xnecList) {
-        return xnecList.stream()
-                .collect(Collectors.toMap(
-                        Identifiable::getId,
-                        branch -> Math.max(Math.abs(branch.getTerminal1().getP()), Math.abs(branch.getTerminal2().getP()))
-                ));
-    }
-
-    private static double getReferenceP(Branch branch) {
-        return branch.getTerminal1().getP();
     }
 }

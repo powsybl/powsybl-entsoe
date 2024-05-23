@@ -26,8 +26,9 @@ public class DecomposedFlowRescalerProportional implements DecomposedFlowRescale
 
     @Override
     public DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
-        double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
-        if (Double.isNaN(acReferenceFlow)) {
+        double acTerminal1ReferenceFlow = decomposedFlow.getAcTerminal1ReferenceFlow();
+        double acTerminal2ReferenceFlow = decomposedFlow.getAcTerminal2ReferenceFlow();
+        if (Double.isNaN(acTerminal1ReferenceFlow) || Double.isNaN(acTerminal2ReferenceFlow)) {
             return decomposedFlow;
         }
 
@@ -41,14 +42,15 @@ public class DecomposedFlowRescalerProportional implements DecomposedFlowRescale
         String contingencyId = decomposedFlow.getContingencyId();
         Country country1 = decomposedFlow.getCountry1();
         Country country2 = decomposedFlow.getCountry2();
-        double acMaxFlow = decomposedFlow.getAcMaxFlow();
         double allocatedFlow = decomposedFlow.getAllocatedFlow();
         double xNodeFlow = decomposedFlow.getXNodeFlow();
         double pstFlow = decomposedFlow.getPstFlow();
         double internalFlow = decomposedFlow.getInternalFlow();
         Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
 
-        double rescaleFactor = Math.abs(acMaxFlow / dcReferenceFlow);
+        // rescale proportionally to max (abs) ac flow
+        double acMaxAbsFlow = decomposedFlow.getMaxAbsAcFlow();
+        double rescaleFactor = Math.abs(acMaxAbsFlow / dcReferenceFlow);
 
         double rescaledAllocatedFlow = rescaleFactor * allocatedFlow;
         double rescaledXNodeFlow = rescaleFactor * xNodeFlow;
@@ -62,8 +64,8 @@ public class DecomposedFlowRescalerProportional implements DecomposedFlowRescale
                 .addContingencyId(contingencyId)
                 .addCountry1(country1)
                 .addCountry2(country2)
-                .addAcReferenceFlow(acReferenceFlow)
-                .addAcMaxFlow(acMaxFlow)
+                .addAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow)
+                .addAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow)
                 .addDcReferenceFlow(dcReferenceFlow)
                 .addAllocatedFlow(rescaledAllocatedFlow)
                 .addXNodeFlow(rescaledXNodeFlow)

@@ -41,8 +41,8 @@ public final class TestUtils {
         for (String xnec : flowDecompositionResults.getDecomposedFlowMap().keySet()) {
             DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnec);
             switch (rescaleMode) {
-                case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
-                case PROPORTIONAL -> assertEquals(Math.abs(decomposedFlow.getAcMaxFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
+                case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
+                case PROPORTIONAL -> assertEquals(decomposedFlow.getMaxAbsAcFlow(), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
                 default -> assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
             }
         }

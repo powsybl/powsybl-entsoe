@@ -38,7 +38,7 @@ class RescalingTests {
         assertEquals(expectedLoopFlowGE, rescaledFlow.getLoopFlow(Country.GE), EPSILON);
         assertEquals(expectedLoopFlowES, rescaledFlow.getLoopFlow(Country.ES), EPSILON);
         assertEquals(expectedInternalFlow, rescaledFlow.getInternalFlow(), EPSILON);
-        assertEquals(acReferenceFlow, rescaledFlow.getAcReferenceFlow(), EPSILON);
+        assertEquals(acReferenceFlow, rescaledFlow.getAcTerminal1ReferenceFlow(), EPSILON);
         assertEquals(dcReferenceFlow, rescaledFlow.getDcReferenceFlow(), EPSILON);
     }
 
@@ -65,8 +65,8 @@ class RescalingTests {
                 .addContingencyId("")
                 .addCountry1(country1)
                 .addCountry2(country2)
-                .addAcReferenceFlow(acReferenceFlow)
-                .addAcMaxFlow(acReferenceFlow)
+                .addAcTerminal1ReferenceFlow(acReferenceFlow)
+                .addAcTerminal2ReferenceFlow(acReferenceFlow)
                 .addDcReferenceFlow(dcReferenceFlow)
                 .addAllocatedFlow(allocatedFlow)
                 .addXNodeFlow(0)
@@ -197,7 +197,7 @@ class RescalingTests {
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
-        assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAcReferenceFlow()));
+        assertTrue(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAcTerminal1ReferenceFlow()));
         assertFalse(Double.isNaN(flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow()));
 
     }

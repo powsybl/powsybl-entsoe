@@ -19,8 +19,8 @@ public class DecomposedFlow {
     private final String contingencyId;
     private final Country country1;
     private final Country country2;
-    private final double acReferenceFlow;
-    private final double acMaxFlow;
+    private final double acTerminal1ReferenceFlow;
+    private final double acTerminal2ReferenceFlow;
     private final double dcReferenceFlow;
     private final double allocatedFlow;
     private final double xNodeFlow;
@@ -28,7 +28,8 @@ public class DecomposedFlow {
     private final double internalFlow;
     private final Map<String, Double> loopFlowsMap = new TreeMap<>();
     static final double NO_FLOW = 0.;
-    static final String AC_REFERENCE_FLOW_COLUMN_NAME = "Reference AC Flow";
+    static final String AC_REFERENCE_FLOW_1_COLUMN_NAME = "Reference AC Flow 1";
+    static final String AC_REFERENCE_FLOW_2_COLUMN_NAME = "Reference AC Flow 2";
     static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
     static final String ALLOCATED_COLUMN_NAME = "Allocated Flow";
     static final String XNODE_COLUMN_NAME = "Xnode Flow";
@@ -40,8 +41,8 @@ public class DecomposedFlow {
         this.contingencyId = builder.contingencyId;
         this.country1 = builder.country1;
         this.country2 = builder.country2;
-        this.acReferenceFlow = builder.acReferenceFlow;
-        this.acMaxFlow = builder.acMaxFlow;
+        this.acTerminal1ReferenceFlow = builder.acTerminal1ReferenceFlow;
+        this.acTerminal2ReferenceFlow = builder.acTerminal2ReferenceFlow;
         this.dcReferenceFlow = builder.dcReferenceFlow;
         this.allocatedFlow = builder.allocatedFlow;
         this.xNodeFlow = builder.xNodeFlow;
@@ -70,12 +71,12 @@ public class DecomposedFlow {
         return country2;
     }
 
-    public double getAcReferenceFlow() {
-        return acReferenceFlow;
+    public double getAcTerminal1ReferenceFlow() {
+        return acTerminal1ReferenceFlow;
     }
 
-    public double getAcMaxFlow() {
-        return acMaxFlow;
+    public double getAcTerminal2ReferenceFlow() {
+        return acTerminal2ReferenceFlow;
     }
 
     public double getDcReferenceFlow() {
@@ -118,6 +119,10 @@ public class DecomposedFlow {
         return getAllocatedFlow() + getXNodeFlow() + getPstFlow() + getInternalFlow() + getTotalLoopFlow();
     }
 
+    public double getMaxAbsAcFlow() {
+        return Math.max(Math.abs(acTerminal1ReferenceFlow), Math.abs(acTerminal2ReferenceFlow));
+    }
+
     @Override
     public String toString() {
         return String.format("branchId: %s, contingencyId: %s, decomposition: %s", branchId, contingencyId, getAllKeyMap());
@@ -125,7 +130,8 @@ public class DecomposedFlow {
 
     private TreeMap<String, Double> getAllKeyMap() {
         TreeMap<String, Double> localDecomposedFlowMap = new TreeMap<>();
-        localDecomposedFlowMap.put(AC_REFERENCE_FLOW_COLUMN_NAME, getAcReferenceFlow());
+        localDecomposedFlowMap.put(AC_REFERENCE_FLOW_1_COLUMN_NAME, getAcTerminal1ReferenceFlow());
+        localDecomposedFlowMap.put(AC_REFERENCE_FLOW_2_COLUMN_NAME, getAcTerminal2ReferenceFlow());
         localDecomposedFlowMap.put(DC_REFERENCE_FLOW_COLUMN_NAME, getDcReferenceFlow());
         localDecomposedFlowMap.put(ALLOCATED_COLUMN_NAME, getAllocatedFlow());
         localDecomposedFlowMap.put(XNODE_COLUMN_NAME, getXNodeFlow());

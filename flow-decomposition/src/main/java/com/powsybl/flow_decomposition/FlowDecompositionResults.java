@@ -44,8 +44,8 @@ public class FlowDecompositionResults {
         private final String contingencyId;
         private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
         private Map<String, Map<String, Double>> pstFlowMap;
-        private Map<String, Double> acReferenceFlow;
-        private Map<String, Double> acMaxFlow;
+        private Map<String, Double> acTerminal1ReferenceFlow;
+        private Map<String, Double> acTerminal2ReferenceFlow;
         private Map<String, Double> dcReferenceFlow;
 
         PerStateBuilder(String contingencyId, Set<Branch> xnecList) {
@@ -61,12 +61,12 @@ public class FlowDecompositionResults {
             this.pstFlowMap = pstFlowMatrix.toMap();
         }
 
-        void saveAcReferenceFlow(Map<String, Double> acReferenceFlow) {
-            this.acReferenceFlow = acReferenceFlow;
+        void saveAcTerminal1ReferenceFlow(Map<String, Double> acTerminal1ReferenceFlow) {
+            this.acTerminal1ReferenceFlow = acTerminal1ReferenceFlow;
         }
 
-        void saveAcMaxFlow(Map<String, Double> acMaxFlow) {
-            this.acMaxFlow = acMaxFlow;
+        void saveAcTerminal2ReferenceFlow(Map<String, Double> acTerminal2ReferenceFlow) {
+            this.acTerminal2ReferenceFlow = acTerminal2ReferenceFlow;
         }
 
         void saveDcReferenceFlow(Map<String, Double> dcReferenceFlow) {
@@ -96,8 +96,8 @@ public class FlowDecompositionResults {
                     .addContingencyId(contingencyId)
                     .addCountry1(country1)
                     .addCountry2(country2)
-                    .addAcReferenceFlow(acReferenceFlow.get(branchId))
-                    .addAcMaxFlow(acMaxFlow.get(branchId))
+                    .addAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow.get(branchId))
+                    .addAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow.get(branchId))
                     .addDcReferenceFlow(dcReferenceFlow.get(branchId))
                     .addAllocatedFlow(allocatedFlow)
                     .addXNodeFlow(xNodeFlow)

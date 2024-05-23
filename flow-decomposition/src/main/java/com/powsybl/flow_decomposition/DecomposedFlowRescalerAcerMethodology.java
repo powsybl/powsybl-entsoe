@@ -33,8 +33,8 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
 
     @Override
     public DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
-        double acReferenceFlow = decomposedFlow.getAcReferenceFlow();
-        if (Double.isNaN(acReferenceFlow)) {
+        double acTerminal1ReferenceFlow = decomposedFlow.getAcTerminal1ReferenceFlow();
+        if (Double.isNaN(acTerminal1ReferenceFlow)) {
             return decomposedFlow;
         }
 
@@ -42,7 +42,7 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
         String contingencyId = decomposedFlow.getContingencyId();
         Country country1 = decomposedFlow.getCountry1();
         Country country2 = decomposedFlow.getCountry2();
-        double acMaxFlow = decomposedFlow.getAcMaxFlow();
+        double acTerminal2ReferenceFlow = decomposedFlow.getAcTerminal2ReferenceFlow();
         double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
         double allocatedFlow = decomposedFlow.getAllocatedFlow();
         double xNodeFlow = decomposedFlow.getXNodeFlow();
@@ -50,7 +50,7 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
         double internalFlow = decomposedFlow.getInternalFlow();
         Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
 
-        double deltaToRescale = acReferenceFlow * Math.signum(acReferenceFlow) - decomposedFlow.getTotalFlow();
+        double deltaToRescale = acTerminal1ReferenceFlow * Math.signum(acTerminal1ReferenceFlow) - decomposedFlow.getTotalFlow();
         double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + reLU(xNodeFlow) + loopFlows.values().stream().mapToDouble(DecomposedFlowRescalerAcerMethodology::reLU).sum() + reLU(internalFlow);
 
         double rescaledAllocatedFlow = rescaleValue(allocatedFlow, deltaToRescale, sumOfReLUFlows);
@@ -65,8 +65,8 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
                 .addContingencyId(contingencyId)
                 .addCountry1(country1)
                 .addCountry2(country2)
-                .addAcReferenceFlow(acReferenceFlow)
-                .addAcMaxFlow(acMaxFlow)
+                .addAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow)
+                .addAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow)
                 .addDcReferenceFlow(dcReferenceFlow)
                 .addAllocatedFlow(rescaledAllocatedFlow)
                 .addXNodeFlow(rescaledXNodeFlow)

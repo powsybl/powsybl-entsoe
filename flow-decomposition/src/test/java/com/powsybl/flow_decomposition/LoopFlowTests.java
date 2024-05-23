@@ -55,10 +55,10 @@ class LoopFlowTests {
         assertEquals(100, decomposedFlowMap.get(x5).getLoopFlow(Country.ES), EPSILON);
         assertEquals(0, decomposedFlowMap.get(x5).getLoopFlow(Country.FR), EPSILON);
 
-        assertTrue(Double.isNaN(decomposedFlowMap.get(x1).getAcReferenceFlow()));
-        assertTrue(Double.isNaN(decomposedFlowMap.get(x2).getAcReferenceFlow()));
-        assertTrue(Double.isNaN(decomposedFlowMap.get(x4).getAcReferenceFlow()));
-        assertTrue(Double.isNaN(decomposedFlowMap.get(x5).getAcReferenceFlow()));
+        assertTrue(Double.isNaN(decomposedFlowMap.get(x1).getAcTerminal1ReferenceFlow()));
+        assertTrue(Double.isNaN(decomposedFlowMap.get(x2).getAcTerminal1ReferenceFlow()));
+        assertTrue(Double.isNaN(decomposedFlowMap.get(x4).getAcTerminal1ReferenceFlow()));
+        assertTrue(Double.isNaN(decomposedFlowMap.get(x5).getAcTerminal1ReferenceFlow()));
 
         assertEquals(100, decomposedFlowMap.get(x1).getDcReferenceFlow(), EPSILON);
         assertEquals(200, decomposedFlowMap.get(x2).getDcReferenceFlow(), EPSILON);
