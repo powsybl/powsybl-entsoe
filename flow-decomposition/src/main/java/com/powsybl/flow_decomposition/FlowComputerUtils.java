@@ -48,7 +48,7 @@ public final class FlowComputerUtils {
                 ));
     }
 
-    public static Map<String, Double> getMaxFlow(Collection<Branch> xnecList) {
+    private static Map<String, Double> getMaxFlow(Collection<Branch> xnecList) {
         return xnecList.stream()
                 .collect(Collectors.toMap(
                         Identifiable::getId,
