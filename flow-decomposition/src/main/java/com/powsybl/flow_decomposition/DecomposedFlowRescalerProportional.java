@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 public class DecomposedFlowRescalerProportional implements DecomposedFlowRescaler {
-    private static final double MIN_FLOW_TOLERANCE = 1E-6; // min flow in MW to rescale
+    public static final double MIN_FLOW_TOLERANCE = 1E-6; // min flow in MW to rescale
 
     public DecomposedFlowRescalerProportional() {
         // empty constructor
