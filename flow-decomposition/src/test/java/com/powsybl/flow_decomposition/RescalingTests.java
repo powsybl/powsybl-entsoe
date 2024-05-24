@@ -16,9 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -203,11 +201,22 @@ class RescalingTests {
     }
 
     @Test
+    void testRescalingNoOpDoesNotRescale() {
+        double acReferenceFlow = 1.0;
+        double dcReferenceFlow = 0.9;
+        DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerNoOp().rescale(decomposedFlow);
+        // check that same object is returned by rescaler
+        assertSame(decomposedFlow, decomposedFlowRescaled);
+    }
+
+    @Test
     void testRescalingProportionalDoesNotRescaleWithSmallFlow() {
         double acReferenceFlow = 1.0;
         double dcReferenceFlow = DecomposedFlowRescalerProportional.MIN_FLOW_TOLERANCE / 10;
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
         DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerProportional().rescale(decomposedFlow);
-        assertEquals(decomposedFlow, decomposedFlowRescaled);
+        // check that same object is returned by rescaler
+        assertSame(decomposedFlow, decomposedFlowRescaled);
     }
 }
