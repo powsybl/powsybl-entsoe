@@ -20,10 +20,15 @@ import java.util.stream.Collectors;
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 public class DecomposedFlowRescalerProportional implements DecomposedFlowRescaler {
-    public static final double MIN_FLOW_TOLERANCE = 1E-6; // min flow in MW to rescale
+    private final double minFlowTolerance; // min flow in MW to rescale
+    public static final double DEFAULT_MIN_FLOW_TOLERANCE = 1E-6; // default min tolerance is 1 W = 1E-6 MW
+
+    public DecomposedFlowRescalerProportional(double minFlowTolerance) {
+        this.minFlowTolerance = minFlowTolerance;
+    }
 
     public DecomposedFlowRescalerProportional() {
-        // empty constructor
+        this(DEFAULT_MIN_FLOW_TOLERANCE);
     }
 
     @Override
@@ -36,7 +41,7 @@ public class DecomposedFlowRescalerProportional implements DecomposedFlowRescale
 
         // if dcReferenceFlow is too small, do not rescale
         double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
-        if (Math.abs(dcReferenceFlow) < MIN_FLOW_TOLERANCE) {
+        if (Math.abs(dcReferenceFlow) < minFlowTolerance) {
             return decomposedFlow;
         }
 
