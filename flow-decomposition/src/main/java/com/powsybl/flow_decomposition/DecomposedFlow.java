@@ -37,10 +37,10 @@ public class DecomposedFlow {
     static final String INTERNAL_COLUMN_NAME = "Internal Flow";
 
     protected DecomposedFlow(DecomposedFlowBuilder builder) {
-        this.branchId = builder.branchId;
-        this.contingencyId = builder.contingencyId;
-        this.country1 = builder.country1;
-        this.country2 = builder.country2;
+        this.branchId = Objects.requireNonNull(builder.branchId);
+        this.contingencyId = Objects.requireNonNull(builder.contingencyId);
+        this.country1 = Objects.requireNonNull(builder.country1);
+        this.country2 = Objects.requireNonNull(builder.country2);
         this.acTerminal1ReferenceFlow = builder.acTerminal1ReferenceFlow;
         this.acTerminal2ReferenceFlow = builder.acTerminal2ReferenceFlow;
         this.dcReferenceFlow = builder.dcReferenceFlow;
@@ -48,7 +48,7 @@ public class DecomposedFlow {
         this.xNodeFlow = builder.xNodeFlow;
         this.pstFlow = builder.pstFlow;
         this.internalFlow = builder.internalFlow;
-        this.loopFlowsMap.putAll(builder.loopFlowsMap);
+        this.loopFlowsMap.putAll(Objects.requireNonNull(builder.loopFlowsMap));
     }
 
     public String getBranchId() {

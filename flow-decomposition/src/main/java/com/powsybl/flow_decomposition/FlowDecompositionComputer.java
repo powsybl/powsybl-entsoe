@@ -8,6 +8,10 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescaler;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerAcerMethodology;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerNoOp;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerProportional;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;

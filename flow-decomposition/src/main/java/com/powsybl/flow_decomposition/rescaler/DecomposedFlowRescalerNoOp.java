@@ -5,7 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.flow_decomposition;
+package com.powsybl.flow_decomposition.rescaler;
+
+import com.powsybl.flow_decomposition.DecomposedFlow;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

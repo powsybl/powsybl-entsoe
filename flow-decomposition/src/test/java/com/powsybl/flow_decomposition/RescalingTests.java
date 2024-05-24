@@ -6,6 +6,9 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerAcerMethodology;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerNoOp;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerProportional;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Country;

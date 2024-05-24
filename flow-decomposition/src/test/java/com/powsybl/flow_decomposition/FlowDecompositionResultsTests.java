@@ -7,6 +7,8 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescaler;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerNoOp;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
@@ -98,6 +100,7 @@ class FlowDecompositionResultsTests {
         assertEquals("", decomposedFlow.getContingencyId());
         assertEquals(branchId, decomposedFlow.getId());
         assertEquals(10.0, decomposedFlow.getAcTerminal1ReferenceFlow());
+        assertEquals(10.0, decomposedFlow.getAcTerminal2ReferenceFlow());
         assertEquals(11.0, decomposedFlow.getDcReferenceFlow());
         assertEquals(20.0, decomposedFlow.getAllocatedFlow());
         assertEquals(12.0, decomposedFlow.getLoopFlow(FR));
@@ -126,6 +129,7 @@ class FlowDecompositionResultsTests {
         assertEquals(contingencyId2, decomposedFlow.getContingencyId());
         assertEquals(xnecId, decomposedFlow.getId());
         assertEquals(10.0, decomposedFlow.getAcTerminal1ReferenceFlow());
+        assertEquals(10.0, decomposedFlow.getAcTerminal2ReferenceFlow());
         assertEquals(11.0, decomposedFlow.getDcReferenceFlow());
         assertEquals(20.0, decomposedFlow.getAllocatedFlow());
         assertEquals(12.0, decomposedFlow.getLoopFlow(FR));
@@ -154,6 +158,7 @@ class FlowDecompositionResultsTests {
         assertEquals(contingencyId3, decomposedFlow.getContingencyId());
         assertEquals(xnecId, decomposedFlow.getId());
         assertEquals(10.0, decomposedFlow.getAcTerminal1ReferenceFlow());
+        assertEquals(10.0, decomposedFlow.getAcTerminal2ReferenceFlow());
         assertEquals(11.0, decomposedFlow.getDcReferenceFlow());
         assertEquals(20.0, decomposedFlow.getAllocatedFlow());
         assertEquals(12.0, decomposedFlow.getLoopFlow(FR));
