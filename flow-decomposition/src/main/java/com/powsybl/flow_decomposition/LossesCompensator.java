@@ -144,7 +144,7 @@ class LossesCompensator {
         if (terminal1.getP() >= terminal2.getP()) {
             return terminal1;
         } else {
-           return terminal2;
+            return terminal2;
         }
     }
 }
