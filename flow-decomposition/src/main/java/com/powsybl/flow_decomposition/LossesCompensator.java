@@ -59,13 +59,8 @@ class LossesCompensator {
 
     private void compensateLossesOnBranches(Network network) {
         network.getBranchStream()
-            .filter(this::hasAtLeastOneBus)
+            .filter(branch -> branch.getTerminal1().isConnected() || branch.getTerminal2().isConnected())
             .forEach(branch -> compensateLossesOnBranch(network, branch));
-    }
-
-    private boolean hasAtLeastOneBus(Branch<?> branch) {
-        return branch.getTerminal1().getBusBreakerView().getBus() != null ||
-               branch.getTerminal2().getBusBreakerView().getBus() != null;
     }
 
     private static void addZeroMWLossesLoad(Network network, String busId) {
@@ -137,6 +132,19 @@ class LossesCompensator {
     }
 
     private Terminal getSendingTerminal(Branch<?> branch) {
-        return branch.getTerminal1().getP() > 0 ? branch.getTerminal1() : branch.getTerminal2();
+        Terminal terminal1 = branch.getTerminal1();
+        Terminal terminal2 = branch.getTerminal2();
+
+        // if only one terminal is connected, that is the sending terminal
+        if (!(terminal1.isConnected() && terminal2.isConnected())) {
+            return terminal1.isConnected() ? terminal1 : terminal2;
+        }
+
+        // terminal with greater P is the sending terminal
+        if (terminal1.getP() >= terminal2.getP()) {
+            return terminal1;
+        } else {
+           return terminal2;
+        }
     }
 }
