@@ -236,9 +236,9 @@ class RescalingTests {
     @Test
     void testRescalingProportionalDoesNotRescaleWithSmallFlow() {
         double acReferenceFlow = 1.0;
-        double dcReferenceFlow = DecomposedFlowRescalerProportional.DEFAULT_MIN_FLOW_TOLERANCE / 10;
+        double dcReferenceFlow = 0.001;
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
-        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerProportional().rescale(decomposedFlow);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerProportional(0.5).rescale(decomposedFlow);
         // check that same object is returned by rescaler
         assertSame(decomposedFlow, decomposedFlowRescaled);
     }

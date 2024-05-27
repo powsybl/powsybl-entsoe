@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerProportional;
 
 import java.util.Objects;
 
@@ -38,6 +39,7 @@ public class FlowDecompositionParameters {
     private double lossesCompensationEpsilon;
     private double sensitivityEpsilon;
     private RescaleMode rescaleMode;
+    private double proportionalRescalerMinFlowTolerance;
     private boolean dcFallbackEnabledAfterAcDivergence;
     private int sensitivityVariableBatchSize;
 
@@ -59,6 +61,7 @@ public class FlowDecompositionParameters {
             parameters.setLossesCompensationEpsilon(moduleConfig.getDoubleProperty("losses-compensation-epsilon", DEFAULT_LOSSES_COMPENSATION_EPSILON));
             parameters.setSensitivityEpsilon(moduleConfig.getDoubleProperty("sensitivity-epsilon", DEFAULT_SENSITIVITY_EPSILON));
             parameters.setRescaleMode(moduleConfig.getEnumProperty("rescale-mode", RescaleMode.class, DEFAULT_RESCALE_MODE));
+            parameters.setProportionalRescalerMinFlowTolerance(moduleConfig.getDoubleProperty("proportional-rescaler-min-flow-tolerance", DecomposedFlowRescalerProportional.DEFAULT_MIN_FLOW_TOLERANCE));
             parameters.setDcFallbackEnabledAfterAcDivergence(moduleConfig.getBooleanProperty("dc-fallback-enabled-after-ac-divergence", DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE));
             parameters.setSensitivityVariableBatchSize(moduleConfig.getIntProperty("sensitivity-variable-batch-size", DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE));
         });
@@ -69,6 +72,7 @@ public class FlowDecompositionParameters {
         this.lossesCompensationEpsilon = DEFAULT_LOSSES_COMPENSATION_EPSILON;
         this.sensitivityEpsilon = DEFAULT_SENSITIVITY_EPSILON;
         this.rescaleMode = DEFAULT_RESCALE_MODE;
+        this.proportionalRescalerMinFlowTolerance = DecomposedFlowRescalerProportional.DEFAULT_MIN_FLOW_TOLERANCE;
         this.dcFallbackEnabledAfterAcDivergence = DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE;
         this.sensitivityVariableBatchSize = DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE;
     }
@@ -107,6 +111,14 @@ public class FlowDecompositionParameters {
     public FlowDecompositionParameters setRescaleMode(RescaleMode rescaleMode) {
         this.rescaleMode = rescaleMode;
         return this;
+    }
+
+    public void setProportionalRescalerMinFlowTolerance(double proportionalRescalerMinFlowTolerance) {
+        this.proportionalRescalerMinFlowTolerance = proportionalRescalerMinFlowTolerance;
+    }
+
+    public double getProportionalRescalerMinFlowTolerance() {
+        return proportionalRescalerMinFlowTolerance;
     }
 
     public boolean isDcFallbackEnabledAfterAcDivergence() {

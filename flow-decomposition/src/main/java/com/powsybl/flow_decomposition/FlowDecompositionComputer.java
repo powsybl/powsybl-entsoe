@@ -211,7 +211,7 @@ public class FlowDecompositionComputer {
                 return new DecomposedFlowRescalerAcerMethodology();
             }
             case PROPORTIONAL -> {
-                return new DecomposedFlowRescalerProportional();
+                return new DecomposedFlowRescalerProportional(parameters.getProportionalRescalerMinFlowTolerance());
             }
             default -> throw new PowsyblException("DecomposedFlowRescaler not defined for mode: " + parameters.getRescaleMode());
         }
