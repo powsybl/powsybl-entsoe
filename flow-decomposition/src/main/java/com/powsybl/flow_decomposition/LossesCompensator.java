@@ -125,7 +125,7 @@ class LossesCompensator {
     }
 
     private void updateLoadForLossesOnTerminal(Network network, Terminal terminal, double losses) {
-        if (Math.abs(losses) > epsilon) {
+        if (losses > epsilon) {
             Load load = network.getLoad(getLossesId(terminal.getBusBreakerView().getBus().getId()));
             load.setP0(load.getP0() + losses);
         }

@@ -278,4 +278,76 @@ class LossesCompensationTests {
             assertEquals(losses, load.getP0());
         });
     }
+
+    /*
+        Test flow decomposition with losses compensation in a simple network
+          FR : bus1
+          BE : bus2, bus3
+                                   ____ bus3
+                                  |      |
+                                 l32     d3 (1)
+                                  |
+                bus1 --- l21 --- bus2
+                 |                |
+                g1 (3)           d2 (2)
+
+         Line l32 is open
+         Line characteristics: (r,x,g,b) = (0.01, 0.1, 0.0, 0.5)
+     */
+    @Test
+    void testLossCompensationWithLineConnectedToOnlyOneSide() {
+        String networkFileName = "lossesCompensatorLineConnectedToOneSide.xiidm";
+        Network network = importNetwork(networkFileName);
+
+        String xnecId = "l21";
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
+
+        // setup parameters
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        loadFlowParameters.setDistributedSlack(true);
+        loadFlowParameters.setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX);
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
+        flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION);
+
+        // run flow decomposition
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, loadFlowParameters);
+        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
+
+        // check results
+        DecomposedFlow xnecDecomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnecId);
+
+        assertEquals(2.004, xnecDecomposedFlow.getTotalFlow(), EPSILON);
+        assertEquals(2.004, xnecDecomposedFlow.getLoopFlow(Country.BE), EPSILON);
+    }
+
+    /*
+        Same network as in the test `testLossCompensationWithLineConnectedToOnlyOneSide`
+        but this time line l32 is reconnected
+     */
+    @Test
+    void testLossCompensationWithSmallP1() {
+        String networkFileName = "lossesCompensatorLineConnectedToOneSide.xiidm";
+        Network network = importNetwork(networkFileName);
+        network.getLine("l32").getTerminal1().connect();
+
+        String xnecId = "l21";
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
+
+        // setup parameters
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        loadFlowParameters.setDistributedSlack(true);
+        loadFlowParameters.setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX);
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters();
+        flowDecompositionParameters.setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION);
+
+        // run flow decomposition
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, loadFlowParameters);
+        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
+
+        // check results
+        DecomposedFlow xnecDecomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnecId);
+
+        assertEquals(3.011, xnecDecomposedFlow.getTotalFlow(), EPSILON);
+        assertEquals(3.011, xnecDecomposedFlow.getLoopFlow(Country.BE), EPSILON);
+    }
 }
