@@ -99,5 +99,15 @@ calculated by the DC power flow.
 However, the flow reference is the one calculated using AC power flow which is different. The final step of the algorithm
 is though to rescale the different flow parts in order to ensure that the sum of the parts is equal to the initially calculated AC flow.
 
+By default, no rescaling to the AC flow is done on the flow decomposition results.
+
+Available rescaling modes are defined here below.
+
+#### ACER methodology-based rescaling
 The difference between reference AC flow and the sum of the parts of the decomposition is redispatched on the different
 parts proportionally to their rectified linear unit ($\mathrm{ReLU}(x) = \mathrm{max}(x, 0)$).
+
+#### Proportional rescaling
+Each flow is rescaled with a proportional coefficient. The coefficient is defined by $$\alpha_{\text{rescale}} = \frac{max(|AC p1|, |AC p2|)}{|DC p1|}$$.
+In this way, the DC flow will have the same magnitude as the AC flow.
+Since we divide by the DC flow to calculate the coefficient, lines with a too small DC flow are not rescaled.
