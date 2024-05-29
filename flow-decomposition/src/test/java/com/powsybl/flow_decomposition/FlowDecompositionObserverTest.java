@@ -329,6 +329,29 @@ class FlowDecompositionObserverTest {
         assertTrue(reportRemoved.allEvents().isEmpty());
     }
 
+    @Test
+    void testObserverWithEnableLossesCompensation() {
+        String networkFileName = "19700101_0000_FO4_UX1.uct";
+        String branchId = "DB000011 DF000011 1";
+        Network network = TestUtils.importNetwork(networkFileName);
+        XnecProvider xnecProvider = XnecProviderByIds.builder()
+                .addNetworkElementsOnBasecase(Set.of(branchId))
+                .build();
+        var flowDecompositionParameters = FlowDecompositionParameters.load().setEnableLossesCompensation(true);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        var report = new ObserverReport();
+        flowComputer.addObserver(report);
+        flowComputer.run(xnecProvider, network);
+
+        // losses at 0 in acNodalInjection
+        String lossesId = LossesCompensator.getLossesId("");
+        report.acNodalInjections.forBaseCase().forEach((inj, p) -> {
+            if (inj.startsWith(lossesId)) {
+                assertEquals(0, p, 1E-8);
+            }
+        });
+    }
+
     private void assertEventsFired(Collection<Event> firedEvents, Event... expectedEvents) {
         var missing = new HashSet<Event>();
         Collections.addAll(missing, expectedEvents);
