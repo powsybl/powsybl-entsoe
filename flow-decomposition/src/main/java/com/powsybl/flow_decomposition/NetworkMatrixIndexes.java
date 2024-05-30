@@ -10,10 +10,6 @@ import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
@@ -31,13 +27,13 @@ class NetworkMatrixIndexes {
 
     NetworkMatrixIndexes(Network network, List<Branch> xnecList) {
         this.xnecList = xnecList;
-        nodeList = getNodeList(network);
+        nodeList = NetworkUtil.getNodeList(network);
         nodeIdList = getNodeIdList(nodeList);
-        pstList = getPstIdList(network);
-        xnecIndex = getXnecIndex(this.xnecList);
+        pstList = NetworkUtil.getPstIdList(network);
+        xnecIndex = NetworkUtil.getIndex(getXnecIdList(this.xnecList));
         nodeIndex = NetworkUtil.getIndex(nodeIdList);
         pstIndex = NetworkUtil.getIndex(pstList);
-        xnodeList = getXNodeList(network);
+        xnodeList = NetworkUtil.getXNodeList(network);
     }
 
     List<Branch> getXnecList() {
@@ -76,74 +72,11 @@ class NetworkMatrixIndexes {
         return xnodeList;
     }
 
-    private List<Injection<?>> getNodeList(Network network) {
-        return getAllNetworkInjections(network)
-                .filter(this::isNotPairedDanglingLine)
-                .filter(this::isInjectionConnected)
-                .filter(this::isInjectionInMainSynchronousComponent)
-                .filter(this::managedInjectionTypes)
-                .collect(Collectors.toList());
-    }
-
-    private boolean managedInjectionTypes(Injection<?> injection) {
-        return !(injection instanceof BusbarSection || injection instanceof ShuntCompensator || injection instanceof StaticVarCompensator); // TODO Remove this fix once the active power computation after a DC load flow is fixed in OLF
-    }
-
-    private Stream<Injection<?>> getAllNetworkInjections(Network network) {
-        return network.getConnectableStream()
-            .filter(Injection.class::isInstance)
-            .map(connectable -> (Injection<?>) connectable);
-    }
-
-    private boolean isInjectionConnected(Injection<?> injection) {
-        return injection.getTerminal().isConnected();
-    }
-
-    private boolean isNotPairedDanglingLine(Injection<?> injection) {
-        return !(injection instanceof DanglingLine && ((DanglingLine) injection).isPaired());
-    }
-
-    private boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {
-        return NetworkUtil.isTerminalInMainSynchronousComponent(injection.getTerminal());
-    }
-
     private List<String> getNodeIdList(List<Injection<?>> nodeList) {
-        return nodeList.stream()
-            .map(Injection::getId)
-            .collect(Collectors.toList());
+        return nodeList.stream().map(Injection::getId).toList();
     }
 
-    private List<String> getPstIdList(Network network) {
-        return network.getTwoWindingsTransformerStream()
-            .filter(this::isPst)
-            .filter(this::hasNeutralStep)
-            .map(Identifiable::getId)
-            .collect(Collectors.toList());
-    }
-
-    private boolean isPst(TwoWindingsTransformer twt) {
-        return twt.getPhaseTapChanger() != null;
-    }
-
-    private boolean hasNeutralStep(TwoWindingsTransformer pst) {
-        return pst.getPhaseTapChanger().getNeutralStep().isPresent();
-    }
-
-    private Map<String, Integer> getXnecIndex(List<Branch> xnecList) {
-        return IntStream.range(0, xnecList.size())
-            .boxed()
-            .collect(Collectors.toMap(
-                i -> xnecList.get(i).getId(),
-                Function.identity()
-            ));
-    }
-
-    private List<Injection<?>> getXNodeList(Network network) {
-        return network.getDanglingLineStream()
-                .filter(dl -> !dl.isPaired())
-                .filter(this::isInjectionConnected)
-                .filter(this::isInjectionInMainSynchronousComponent)
-                .map(danglingLine -> (Injection<?>) danglingLine)
-                .collect(Collectors.toList());
+    private List<String> getXnecIdList(List<Branch> xnecList) {
+        return xnecList.stream().map(Identifiable::getId).toList();
     }
 }

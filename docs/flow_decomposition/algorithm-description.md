@@ -89,7 +89,7 @@ where:
 - $\mathrm{F}_\mathrm{PST}$ is the vector of the network element PST (phase shift transformer) flow,
 - $\mathrm{F}_\mathrm{X}$ is the vector of the network element xnode flow,
 - $\mathrm{AM}$ is the allocation matrix, which associates each injection to its zone. $\mathrm{AM}_{ij}$ = 1 if node i is in zone j, 0 otherwise,
-- $\mathrm{\Delta}_\mathrm{PST}$ is the phase shift transformers angle vector,
+- $\mathrm{\Delta}_\mathrm{PST}$ is the phase shift transformers angle vector. Each PST is required to have a neutral tap position to compute this difference.
 
 ## Flow parts rescaling
 

@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
@@ -24,11 +25,23 @@ public final class NetworkUtil {
     static final String LOOP_FLOWS_COLUMN_PREFIX = "Loop Flow from";
 
     private NetworkUtil() {
-        throw new AssertionError("Utility class should not be instantiated");
+        // Utility class
+    }
+
+    public static String getLoopFlowIdFromCountry(Network network, String identifiableId) {
+        Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
+        if (identifiable instanceof Injection) {
+            return getLoopFlowIdFromCountry(getInjectionCountry((Injection<?>) identifiable));
+        }
+        throw new PowsyblException(String.format("Identifiable %s must be an Injection", identifiableId));
     }
 
     public static String getLoopFlowIdFromCountry(Country country) {
         return String.format("%s %s", LOOP_FLOWS_COLUMN_PREFIX, country.toString());
+    }
+
+    public static Country getInjectionCountry(Injection<?> injection) {
+        return getTerminalCountry(injection.getTerminal());
     }
 
     public static Country getTerminalCountry(Terminal terminal) {
@@ -46,25 +59,10 @@ public final class NetworkUtil {
         return optionalCountry.get();
     }
 
-    static String getLoopFlowIdFromCountry(Network network, String identifiableId) {
-        Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
-        if (identifiable instanceof Injection) {
-            return getLoopFlowIdFromCountry(getInjectionCountry((Injection<?>) identifiable));
-        }
-        throw new PowsyblException(String.format("Identifiable %s must be an Injection", identifiableId));
-    }
-
-    static Map<String, Integer> getIndex(List<String> idList) {
+    public static Map<String, Integer> getIndex(List<String> idList) {
         return IntStream.range(0, idList.size())
             .boxed()
-            .collect(Collectors.toMap(
-                idList::get,
-                Function.identity()
-            ));
-    }
-
-    public static Country getInjectionCountry(Injection<?> injection) {
-        return getTerminalCountry(injection.getTerminal());
+            .collect(Collectors.toMap(idList::get, Function.identity()));
     }
 
     public static List<Branch> getAllValidBranches(Network network) {
@@ -83,11 +81,63 @@ public final class NetworkUtil {
             && isTerminalInMainSynchronousComponent(branch.getTerminal2());
     }
 
-    static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
+    private static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
-    static String getXnecId(String contingencyId, String branchId) {
-        return contingencyId.isEmpty() ? branchId : String.format("%s_%s", branchId, contingencyId);
+    public static List<Injection<?>> getNodeList(Network network) {
+        return getAllNetworkInjections(network)
+            .filter(NetworkUtil::isNotPairedDanglingLine)
+            .filter(NetworkUtil::isInjectionConnected)
+            .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
+            .filter(NetworkUtil::managedInjectionTypes)
+            .toList();
+    }
+
+    public static List<Injection<?>> getXNodeList(Network network) {
+        return network.getDanglingLineStream()
+            .filter(dl -> !dl.isPaired())
+            .filter(NetworkUtil::isInjectionConnected)
+            .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
+            .map(danglingLine -> (Injection<?>) danglingLine)
+            .collect(Collectors.toList());
+    }
+
+    private static boolean managedInjectionTypes(Injection<?> injection) {
+        return !(injection instanceof BusbarSection || injection instanceof ShuntCompensator || injection instanceof StaticVarCompensator); // TODO Remove this fix once the active power computation after a DC load flow is fixed in OLF
+    }
+
+    private static Stream<Injection<?>> getAllNetworkInjections(Network network) {
+        return network.getConnectableStream()
+            .filter(Injection.class::isInstance)
+            .map(connectable -> (Injection<?>) connectable);
+    }
+
+    private static boolean isInjectionConnected(Injection<?> injection) {
+        return injection.getTerminal().isConnected();
+    }
+
+    private static boolean isNotPairedDanglingLine(Injection<?> injection) {
+        return !(injection instanceof DanglingLine danglingLine && danglingLine.isPaired());
+    }
+
+    private static boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {
+        return NetworkUtil.isTerminalInMainSynchronousComponent(injection.getTerminal());
+    }
+
+    public static List<String> getPstIdList(Network network) {
+        return network.getTwoWindingsTransformerStream()
+            .filter(NetworkUtil::isPst)
+            .filter(NetworkUtil::hasNeutralStep)
+            .map(Identifiable::getId)
+            .toList();
+    }
+
+    private static boolean isPst(TwoWindingsTransformer twt) {
+        return twt.getPhaseTapChanger() != null;
+    }
+
+    private static boolean hasNeutralStep(TwoWindingsTransformer pst) {
+        return pst.getPhaseTapChanger().getNeutralStep().isPresent();
     }
 }

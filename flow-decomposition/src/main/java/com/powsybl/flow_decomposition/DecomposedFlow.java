@@ -57,7 +57,7 @@ public class DecomposedFlow {
     }
 
     public String getId() {
-        return NetworkUtil.getXnecId(contingencyId, branchId);
+        return getXnecId(contingencyId, branchId);
     }
 
     public Country getCountry1() {
@@ -127,5 +127,9 @@ public class DecomposedFlow {
         localDecomposedFlowMap.put(INTERNAL_COLUMN_NAME, getInternalFlow());
         localDecomposedFlowMap.putAll(loopFlowsMap);
         return localDecomposedFlowMap;
+    }
+
+    public static String getXnecId(String contingencyId, String branchId) {
+        return contingencyId.isEmpty() ? branchId : String.format("%s_%s", branchId, contingencyId);
     }
 }

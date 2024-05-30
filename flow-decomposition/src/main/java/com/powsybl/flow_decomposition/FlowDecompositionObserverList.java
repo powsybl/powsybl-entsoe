@@ -107,26 +107,25 @@ public class FlowDecompositionObserverList {
         }
     }
 
-    public void computedAcNodalInjections(NetworkMatrixIndexes networkMatrixIndexes, boolean fallbackHasBeenActivated) {
+    public void computedAcNodalInjections(Network network, boolean fallbackHasBeenActivated) {
         if (observers.isEmpty()) {
             return;
         }
-        // in case losses are compensated, losses terminal are not yet defined at this point, therefore we filter them
-        List<Injection<?>> nodeListWithoutCompensatedLosses = networkMatrixIndexes.getNodeList()
-                .stream()
-                .filter(injection -> !injection.getId().startsWith(LossesCompensator.getLossesId("")))
-                .toList();
-        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(nodeListWithoutCompensatedLosses);
+
+        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
+
         for (FlowDecompositionObserver o : observers) {
             o.computedAcNodalInjections(results, fallbackHasBeenActivated);
         }
     }
 
-    public void computedDcNodalInjections(NetworkMatrixIndexes networkMatrixIndexes) {
+    public void computedDcNodalInjections(Network network) {
         if (observers.isEmpty()) {
             return;
         }
-        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(networkMatrixIndexes.getNodeList());
+
+        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
+
         for (FlowDecompositionObserver o : observers) {
             o.computedDcNodalInjections(results);
         }
