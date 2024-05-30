@@ -74,14 +74,13 @@ class LossesCompensator {
     }
 
     private static void addZeroMWLossesLoadForBusBreakerTopology(Bus bus, String lossesId) {
-        Load load = bus.getVoltageLevel().newLoad()
+        bus.getVoltageLevel().newLoad()
             .setId(lossesId)
             .setBus(bus.getId())
             .setP0(0)
             .setQ0(0)
             .setFictitious(true)
             .add();
-        load.getTerminal().setP(0).setQ(0);
     }
 
     private static void addZeroMWLossesLoadForNodeBreakerTopology(Bus bus, String lossesId) {
@@ -92,14 +91,13 @@ class LossesCompensator {
             .setNode1(nodeNum)
             .setNode2(nodeBreakerView.getNodes()[0])
             .add();
-        Load load = voltageLevel.newLoad()
+        voltageLevel.newLoad()
             .setId(lossesId)
             .setNode(nodeNum)
             .setP0(0)
             .setQ0(0)
             .setFictitious(true)
             .add();
-        load.getTerminal().setP(0).setQ(0);
     }
 
     private void compensateLossesOnBranch(Network network, Branch<?> branch) {

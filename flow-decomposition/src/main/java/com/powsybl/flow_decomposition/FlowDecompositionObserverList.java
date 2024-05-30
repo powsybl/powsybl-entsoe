@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.LoadFlowRunningService.Result;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
@@ -110,9 +111,12 @@ public class FlowDecompositionObserverList {
         if (observers.isEmpty()) {
             return;
         }
-
-        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(networkMatrixIndexes.getNodeList());
-
+        // in case losses are compensated, losses terminal are not yet defined at this point, therefore we filter them
+        List<Injection<?>> nodeListWithoutCompensatedLosses = networkMatrixIndexes.getNodeList()
+                .stream()
+                .filter(injection -> !injection.getId().startsWith(LossesCompensator.getLossesId("")))
+                .toList();
+        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(nodeListWithoutCompensatedLosses);
         for (FlowDecompositionObserver o : observers) {
             o.computedAcNodalInjections(results, fallbackHasBeenActivated);
         }
@@ -122,9 +126,7 @@ public class FlowDecompositionObserverList {
         if (observers.isEmpty()) {
             return;
         }
-
         Map<String, Double> results = new ReferenceNodalInjectionComputer().run(networkMatrixIndexes.getNodeList());
-
         for (FlowDecompositionObserver o : observers) {
             o.computedDcNodalInjections(results);
         }
@@ -143,6 +145,6 @@ public class FlowDecompositionObserverList {
 
     @FunctionalInterface
     private interface MatrixNotification {
-        public void sendMatrix(FlowDecompositionObserver o, Map<String, Map<String, Double>> matrix);
+        void sendMatrix(FlowDecompositionObserver o, Map<String, Map<String, Double>> matrix);
     }
 }
