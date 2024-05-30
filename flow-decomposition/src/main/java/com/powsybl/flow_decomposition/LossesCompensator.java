@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 class LossesCompensator {
     private final double epsilon;
     private Integer networkHash;
+    public static final String LOSSES_ID_PREFIX = "LOSSES ";
 
     LossesCompensator(double epsilon) {
         this.epsilon = epsilon;
@@ -34,7 +35,7 @@ class LossesCompensator {
     }
 
     static String getLossesId(String id) {
-        return String.format("LOSSES %s", id);
+        return LOSSES_ID_PREFIX + id;
     }
 
     public void run(Network network) {

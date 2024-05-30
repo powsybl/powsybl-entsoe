@@ -344,8 +344,7 @@ class FlowDecompositionObserverTest {
         flowComputer.run(xnecProvider, network);
 
         // there are no losses in acNodalInjection
-        String lossesId = LossesCompensator.getLossesId("");
-        report.acNodalInjections.forBaseCase().forEach((inj, p) -> assertFalse(inj.startsWith(lossesId)));
+        report.acNodalInjections.forBaseCase().forEach((inj, p) -> assertFalse(inj.startsWith(LossesCompensator.LOSSES_ID_PREFIX)));
     }
 
     private void assertEventsFired(Collection<Event> firedEvents, Event... expectedEvents) {
