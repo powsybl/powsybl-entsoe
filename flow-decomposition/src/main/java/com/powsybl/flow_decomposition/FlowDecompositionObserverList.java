@@ -9,7 +9,6 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.LoadFlowRunningService.Result;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
