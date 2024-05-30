@@ -203,18 +203,12 @@ public class FlowDecompositionComputer {
     }
 
     private DecomposedFlowRescaler getDecomposedFlowRescaler() {
-        switch (parameters.getRescaleMode()) {
-            case NONE -> {
-                return new DecomposedFlowRescalerNoOp();
-            }
-            case ACER_METHODOLOGY -> {
-                return new DecomposedFlowRescalerAcerMethodology();
-            }
-            case PROPORTIONAL -> {
-                return new DecomposedFlowRescalerProportional(parameters.getProportionalRescalerMinFlowTolerance());
-            }
+        return switch (parameters.getRescaleMode()) {
+            case NONE -> new DecomposedFlowRescalerNoOp();
+            case ACER_METHODOLOGY -> new DecomposedFlowRescalerAcerMethodology();
+            case PROPORTIONAL -> new DecomposedFlowRescalerProportional(parameters.getProportionalRescalerMinFlowTolerance());
             default -> throw new PowsyblException("DecomposedFlowRescaler not defined for mode: " + parameters.getRescaleMode());
-        }
+        };
     }
 
     private LoadFlowRunningService.Result runDcLoadFlow(Network network) {

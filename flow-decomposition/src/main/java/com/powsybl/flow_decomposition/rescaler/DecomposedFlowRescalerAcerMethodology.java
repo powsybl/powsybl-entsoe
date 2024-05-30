@@ -36,7 +36,8 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
     @Override
     public DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
         double acTerminal1ReferenceFlow = decomposedFlow.getAcTerminal1ReferenceFlow();
-        if (Double.isNaN(acTerminal1ReferenceFlow)) {
+        double acTerminal2ReferenceFlow = decomposedFlow.getAcTerminal2ReferenceFlow();
+        if (Double.isNaN(acTerminal1ReferenceFlow) || Double.isNaN(acTerminal2ReferenceFlow)) {
             return decomposedFlow;
         }
 
@@ -44,7 +45,6 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
         String contingencyId = decomposedFlow.getContingencyId();
         Country country1 = decomposedFlow.getCountry1();
         Country country2 = decomposedFlow.getCountry2();
-        double acTerminal2ReferenceFlow = decomposedFlow.getAcTerminal2ReferenceFlow();
         double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
         double allocatedFlow = decomposedFlow.getAllocatedFlow();
         double xNodeFlow = decomposedFlow.getXNodeFlow();
@@ -63,18 +63,18 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
 
         return new DecomposedFlowBuilder()
-                .addBranchId(branchId)
-                .addContingencyId(contingencyId)
-                .addCountry1(country1)
-                .addCountry2(country2)
-                .addAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow)
-                .addAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow)
-                .addDcReferenceFlow(dcReferenceFlow)
-                .addAllocatedFlow(rescaledAllocatedFlow)
-                .addXNodeFlow(rescaledXNodeFlow)
-                .addPstFlow(rescaledPstFlow)
-                .addInternalFlow(rescaleInternalFlow)
-                .addLoopFlowsMap(rescaledLoopFlows)
+                .withBranchId(branchId)
+                .withContingencyId(contingencyId)
+                .withCountry1(country1)
+                .withCountry2(country2)
+                .withAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow)
+                .withAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow)
+                .withDcReferenceFlow(dcReferenceFlow)
+                .withAllocatedFlow(rescaledAllocatedFlow)
+                .withXNodeFlow(rescaledXNodeFlow)
+                .withPstFlow(rescaledPstFlow)
+                .withInternalFlow(rescaleInternalFlow)
+                .withLoopFlowsMap(rescaledLoopFlows)
                 .build();
     }
 }

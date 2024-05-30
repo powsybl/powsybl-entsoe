@@ -62,18 +62,18 @@ class RescalingTests {
         Country country1 = Country.FR;
         Country country2 = Country.FR;
         return new DecomposedFlowBuilder()
-                .addBranchId("")
-                .addContingencyId("")
-                .addCountry1(country1)
-                .addCountry2(country2)
-                .addAcTerminal1ReferenceFlow(acReferenceFlow)
-                .addAcTerminal2ReferenceFlow(acReferenceFlow)
-                .addDcReferenceFlow(dcReferenceFlow)
-                .addAllocatedFlow(allocatedFlow)
-                .addXNodeFlow(0)
-                .addPstFlow(pstFlow)
-                .addInternalFlow(internalFlow)
-                .addLoopFlowsMap(loopFlows)
+                .withBranchId("")
+                .withContingencyId("")
+                .withCountry1(country1)
+                .withCountry2(country2)
+                .withAcTerminal1ReferenceFlow(acReferenceFlow)
+                .withAcTerminal2ReferenceFlow(acReferenceFlow)
+                .withDcReferenceFlow(dcReferenceFlow)
+                .withAllocatedFlow(allocatedFlow)
+                .withXNodeFlow(0)
+                .withPstFlow(pstFlow)
+                .withInternalFlow(internalFlow)
+                .withLoopFlowsMap(loopFlows)
                 .build();
     }
 

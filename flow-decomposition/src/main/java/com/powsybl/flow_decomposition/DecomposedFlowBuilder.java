@@ -33,62 +33,62 @@ public class DecomposedFlowBuilder {
         // empty constructor
     }
 
-    public DecomposedFlowBuilder addBranchId(String branchId) {
+    public DecomposedFlowBuilder withBranchId(String branchId) {
         this.branchId = branchId;
         return this;
     }
 
-    public DecomposedFlowBuilder addContingencyId(String contingencyId) {
+    public DecomposedFlowBuilder withContingencyId(String contingencyId) {
         this.contingencyId = contingencyId;
         return this;
     }
 
-    public DecomposedFlowBuilder addCountry1(Country country1) {
+    public DecomposedFlowBuilder withCountry1(Country country1) {
         this.country1 = country1;
         return this;
     }
 
-    public DecomposedFlowBuilder addCountry2(Country country2) {
+    public DecomposedFlowBuilder withCountry2(Country country2) {
         this.country2 = country2;
         return this;
     }
 
-    public DecomposedFlowBuilder addAcTerminal1ReferenceFlow(double acTerminal1ReferenceFlow) {
+    public DecomposedFlowBuilder withAcTerminal1ReferenceFlow(double acTerminal1ReferenceFlow) {
         this.acTerminal1ReferenceFlow = acTerminal1ReferenceFlow;
         return this;
     }
 
-    public DecomposedFlowBuilder addAcTerminal2ReferenceFlow(double acTerminal2ReferenceFlow) {
+    public DecomposedFlowBuilder withAcTerminal2ReferenceFlow(double acTerminal2ReferenceFlow) {
         this.acTerminal2ReferenceFlow = acTerminal2ReferenceFlow;
         return this;
     }
 
-    public DecomposedFlowBuilder addDcReferenceFlow(double dcReferenceFlow) {
+    public DecomposedFlowBuilder withDcReferenceFlow(double dcReferenceFlow) {
         this.dcReferenceFlow = dcReferenceFlow;
         return this;
     }
 
-    public DecomposedFlowBuilder addAllocatedFlow(double allocatedFlow) {
+    public DecomposedFlowBuilder withAllocatedFlow(double allocatedFlow) {
         this.allocatedFlow = allocatedFlow;
         return this;
     }
 
-    public DecomposedFlowBuilder addXNodeFlow(double xNodeFlow) {
+    public DecomposedFlowBuilder withXNodeFlow(double xNodeFlow) {
         this.xNodeFlow = xNodeFlow;
         return this;
     }
 
-    public DecomposedFlowBuilder addPstFlow(double pstFlow) {
+    public DecomposedFlowBuilder withPstFlow(double pstFlow) {
         this.pstFlow = pstFlow;
         return this;
     }
 
-    public DecomposedFlowBuilder addInternalFlow(double internalFlow) {
+    public DecomposedFlowBuilder withInternalFlow(double internalFlow) {
         this.internalFlow = internalFlow;
         return this;
     }
 
-    public DecomposedFlowBuilder addLoopFlowsMap(Map<String, Double> loopFlowsMap) {
+    public DecomposedFlowBuilder withLoopFlowsMap(Map<String, Double> loopFlowsMap) {
         this.loopFlowsMap = loopFlowsMap;
         return this;
     }
