@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES" caseDate="2024-05-30T12:06:22.789+02:00" forecastDistance="0" sourceFormat="UCTE" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="FGEN1 " country="FR">
+        <iidm:voltageLevel id="FGEN1 1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FGEN1 11">
+                    <iidm:property name="geographicalName" value="GEN"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FGEN1 11_generator" energySource="OTHER" minP="-1000.0" maxP="1000.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" targetQ="0.0" bus="FGEN1 11" connectableBus="FGEN1 11">
+                <iidm:minMaxReactiveLimits minQ="-1000.0" maxQ="1000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="BGEN2 " country="BE">
+        <iidm:voltageLevel id="BGEN2 1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BGEN2 11">
+                    <iidm:property name="geographicalName" value="GEN"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="BGEN2 11_generator" energySource="OTHER" minP="-1000.0" maxP="1000.0" voltageRegulatorOn="true" targetP="100.0" targetV="400.0" targetQ="0.0" bus="BGEN2 11" connectableBus="BGEN2 11">
+                <iidm:minMaxReactiveLimits minQ="-1000.0" maxQ="1000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="BLOAD " country="BE">
+        <iidm:voltageLevel id="BLOAD 1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BLOAD 11">
+                    <iidm:property name="geographicalName" value="LOAD"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:load id="BLOAD 11_load" loadType="UNDEFINED" p0="200.0" q0="0.0" bus="BLOAD 11" connectableBus="BLOAD 11"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="X-substation">
+        <iidm:voltageLevel id="X-voltage-level" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="X-bus">
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="FGEN1 11 BLOAD 11 1 FRANCE" r="0.5" x="0.025" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="FGEN1 1" bus1="FGEN1 11" connectableBus1="FGEN1 11" voltageLevelId2="X-voltage-level" bus2="X-bus" connectableBus2="X-bus" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:property name="elementName" value="LINE"/>
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="480.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="480.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="FGEN1 11 BLOAD 11 1 BELGIUM" r="0.5" x="0.025" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="BLOAD 1" bus1="BLOAD 11" connectableBus1="BLOAD 11" voltageLevelId2="X-voltage-level" bus2="X-bus" connectableBus2="X-bus" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:property name="elementName" value="LINE"/>
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="480.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="480.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="BLOAD 11 BGEN2 11 1" r="1.0" x="0.05" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="BLOAD 1" bus1="BLOAD 11" connectableBus1="BLOAD 11" voltageLevelId2="BGEN2 1" bus2="BGEN2 11" connectableBus2="BGEN2 11" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:property name="elementName" value="LINE"/>
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="480.0"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="480.0"/>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:extension id="FGEN1 1">
+        <slt:slackTerminal id="FGEN1 11_generator"/>
+    </iidm:extension>
+</iidm:network>

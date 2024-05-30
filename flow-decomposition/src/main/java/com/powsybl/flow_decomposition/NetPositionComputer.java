@@ -56,16 +56,25 @@ class NetPositionComputer {
     }
 
     private static void addLeavingFlow(Map<Country, Double> netPositions, Line line, Country country) {
+        if (country == null) {
+            return;
+        }
         double previousValue = getPreviousValue(netPositions, country);
         netPositions.put(country, previousValue + getLeavingFlow(line, country));
     }
 
     private static void addLeavingFlow(Map<Country, Double> netPositions, HvdcLine hvdcLine, Country country) {
+        if (country == null) {
+            return;
+        }
         double previousValue = getPreviousValue(netPositions, country);
         netPositions.put(country, previousValue + getLeavingFlow(hvdcLine, country));
     }
 
     private static void addLeavingFlow(Map<Country, Double> netPositions, DanglingLine danglingLine, Country country) {
+        if (country == null) {
+            return;
+        }
         double previousValue = getPreviousValue(netPositions, country);
         netPositions.put(country, previousValue + getLeavingFlow(danglingLine));
     }

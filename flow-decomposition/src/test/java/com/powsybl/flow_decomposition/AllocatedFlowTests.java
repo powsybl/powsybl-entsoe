@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,6 +46,45 @@ class AllocatedFlowTests {
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(100.0935, decomposedFlowMap.get(xnecFrBee).getAllocatedFlow(), EPSILON);
+        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.DEFAULT_RESCALE_ENABLED, flowDecompositionResults);
+    }
+
+    @Test
+    void test1() {
+        String networkFileName = "networkSingleLoadTwoGeneratorsWithCountriesAndXnodeWithoutCountry.xiidm";
+        Network network = TestUtils.importNetwork(networkFileName);
+
+        Set<String> xnecs = network.getLineStream().map(Identifiable::getId).collect(Collectors.toSet());
+        FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer();
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(xnecs).build();
+        FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(xnecProvider, network);
+
+        Set<Country> zones = flowDecompositionResults.getZoneSet();
+        assertTrue(zones.contains(Country.FR));
+        assertTrue(zones.contains(Country.BE));
+        assertEquals(2, zones.size());
+
+        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
+        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.DEFAULT_RESCALE_ENABLED, flowDecompositionResults);
+    }
+
+    @Test
+    void test2() {
+        String networkFileName = "networkSingleLoadTwoGeneratorsWithCountriesAndXnodeWithoutCountry.xiidm";
+        Network network = TestUtils.importNetwork(networkFileName);
+
+        Set<String> xnecs = network.getLineStream().map(Identifiable::getId).collect(Collectors.toSet());
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters().setEnableLossesCompensation(true);
+        FlowDecompositionComputer allocatedFlowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(xnecs).build();
+        FlowDecompositionResults flowDecompositionResults = allocatedFlowComputer.run(xnecProvider, network);
+
+        Set<Country> zones = flowDecompositionResults.getZoneSet();
+        assertTrue(zones.contains(Country.FR));
+        assertTrue(zones.contains(Country.BE));
+        assertEquals(2, zones.size());
+
+        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.DEFAULT_RESCALE_ENABLED, flowDecompositionResults);
     }
 
