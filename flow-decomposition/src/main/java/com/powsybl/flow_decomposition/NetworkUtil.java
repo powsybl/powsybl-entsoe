@@ -53,8 +53,8 @@ public final class NetworkUtil {
 
     static String getLoopFlowIdFromCountry(Network network, String identifiableId) {
         Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
-        if (identifiable instanceof Injection) {
-            return getLoopFlowIdFromCountry(getInjectionCountry((Injection<?>) identifiable));
+        if (identifiable instanceof Injection<?> injection) {
+            return getLoopFlowIdFromCountry(getInjectionCountry(injection));
         }
         throw new PowsyblException(String.format("Identifiable %s must be an Injection", identifiableId));
     }

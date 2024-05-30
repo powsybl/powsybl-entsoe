@@ -82,8 +82,14 @@ class NetPositionComputer {
     private static double getLeavingFlow(Line line, Country country) {
         double flowSide1 = line.getTerminal1().isConnected() && !Double.isNaN(line.getTerminal1().getP()) ? line.getTerminal1().getP() : 0;
         double flowSide2 = line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP()) ? line.getTerminal2().getP() : 0;
-        double directFlow = (flowSide1 - flowSide2) / 2;
-        return country.equals(NetworkUtil.getTerminalCountry(line.getTerminal1())) ? directFlow : -directFlow;
+        if (NetworkUtil.getTerminalCountry(line.getTerminal1()) == null) {
+            return -flowSide1;
+        } else if (NetworkUtil.getTerminalCountry(line.getTerminal2()) == null) {
+            return -flowSide2;
+        } else {
+            double directFlow = (flowSide1 - flowSide2) / 2;
+            return country.equals(NetworkUtil.getTerminalCountry(line.getTerminal1())) ? directFlow : -directFlow;
+        }
     }
 
     private static double getLeavingFlow(HvdcLine hvdcLine, Country country) {

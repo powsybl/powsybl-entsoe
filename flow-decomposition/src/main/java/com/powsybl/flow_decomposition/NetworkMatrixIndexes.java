@@ -100,7 +100,7 @@ class NetworkMatrixIndexes {
     }
 
     private boolean isNotPairedDanglingLine(Injection<?> injection) {
-        return !(injection instanceof DanglingLine && ((DanglingLine) injection).isPaired());
+        return !(injection instanceof DanglingLine danglingLine && danglingLine.isPaired());
     }
 
     private boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {
