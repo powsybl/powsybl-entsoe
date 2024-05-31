@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -53,7 +54,7 @@ public final class NetworkUtil {
         Substation substation = optionalSubstation.get();
         Optional<Country> optionalCountry = substation.getCountry();
         if (optionalCountry.isEmpty()) {
-            throw new PowsyblException(String.format("Substation %s does not have country property" +
+            throw new PowsyblException(String.format("Substation %s does not have country property " +
                     "needed for the algorithm.", substation.getId()));
         }
         return optionalCountry.get();
@@ -68,12 +69,21 @@ public final class NetworkUtil {
     public static List<Branch> getAllValidBranches(Network network) {
         return network.getBranchStream()
             .filter(NetworkUtil::isConnected)
-            .filter(NetworkUtil::isInMainSynchronousComponent) // TODO Is connectedCompenent enough ?
+            .filter(NetworkUtil::hasABusToEachTerminal)
+            .filter(NetworkUtil::isInMainSynchronousComponent)
             .collect(Collectors.toList());
     }
 
     private static boolean isConnected(Branch<?> branch) {
         return branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected();
+    }
+
+    private static boolean hasABusToEachTerminal(Branch branch) {
+        return hasABusInBusBreakerView(branch.getTerminal1()) && hasABusInBusBreakerView(branch.getTerminal2());
+    }
+
+    private static boolean hasABusInBusBreakerView(Terminal terminal1) {
+        return Objects.nonNull(terminal1.getBusBreakerView().getBus());
     }
 
     private static boolean isInMainSynchronousComponent(Branch<?> branch) {
@@ -82,6 +92,7 @@ public final class NetworkUtil {
     }
 
     private static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
+        // Sensitivity analysis does not work outside synchronous component...
         return terminal.getBusBreakerView().getBus().isInMainSynchronousComponent();
     }
 
@@ -90,21 +101,19 @@ public final class NetworkUtil {
             .filter(NetworkUtil::isNotPairedDanglingLine)
             .filter(NetworkUtil::isInjectionConnected)
             .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
-            .filter(NetworkUtil::managedInjectionTypes)
+            .filter(NetworkUtil::isNotABusbarSectionAsTheyDoNotHaveReferenceInjections)
+            .filter(NetworkUtil::isNotAShuntCompensatorAsTheyAreNotValidInjectionsForSensitivityComputation)
+            .filter(NetworkUtil::isNotAStaticVarCompensatorAsTheyAreNotValidInjectionsForSensitivityComputation)
             .toList();
     }
 
     public static List<Injection<?>> getXNodeList(Network network) {
         return network.getDanglingLineStream()
-            .filter(dl -> !dl.isPaired())
+            .filter(NetworkUtil::isNotPairedDanglingLine)
             .filter(NetworkUtil::isInjectionConnected)
             .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
             .map(danglingLine -> (Injection<?>) danglingLine)
             .collect(Collectors.toList());
-    }
-
-    private static boolean managedInjectionTypes(Injection<?> injection) {
-        return !(injection instanceof BusbarSection || injection instanceof ShuntCompensator || injection instanceof StaticVarCompensator); // TODO Remove this fix once the active power computation after a DC load flow is fixed in OLF
     }
 
     private static Stream<Injection<?>> getAllNetworkInjections(Network network) {
@@ -113,28 +122,43 @@ public final class NetworkUtil {
             .map(connectable -> (Injection<?>) connectable);
     }
 
-    private static boolean isInjectionConnected(Injection<?> injection) {
-        return injection.getTerminal().isConnected();
-    }
-
     private static boolean isNotPairedDanglingLine(Injection<?> injection) {
         return !(injection instanceof DanglingLine danglingLine && danglingLine.isPaired());
     }
 
+    private static boolean isInjectionConnected(Injection<?> injection) {
+        return injection.getTerminal().isConnected();
+    }
+
     private static boolean isInjectionInMainSynchronousComponent(Injection<?> injection) {
-        return NetworkUtil.isTerminalInMainSynchronousComponent(injection.getTerminal());
+        return isTerminalInMainSynchronousComponent(injection.getTerminal());
+    }
+
+    private static boolean isNotABusbarSectionAsTheyDoNotHaveReferenceInjections(Injection<?> injection) {
+        return !(injection instanceof BusbarSection);
+    }
+
+    private static boolean isNotAShuntCompensatorAsTheyAreNotValidInjectionsForSensitivityComputation(Injection<?> injection) {
+        return !(injection instanceof ShuntCompensator);
+    }
+
+    private static boolean isNotAStaticVarCompensatorAsTheyAreNotValidInjectionsForSensitivityComputation(Injection<?> injection) {
+        return !(injection instanceof StaticVarCompensator);
     }
 
     public static List<String> getPstIdList(Network network) {
         return network.getTwoWindingsTransformerStream()
-            .filter(NetworkUtil::isPst)
+            .filter(NetworkUtil::isConnected)
+            .filter(NetworkUtil::hasPhaseTapChanger)
             .filter(NetworkUtil::hasNeutralStep)
+            .filter(NetworkUtil::hasABusToEachTerminal)
+            .filter(NetworkUtil::isInMainSynchronousComponent)
             .map(Identifiable::getId)
             .toList();
     }
 
-    private static boolean isPst(TwoWindingsTransformer twt) {
-        return twt.getPhaseTapChanger() != null;
+    private static boolean hasPhaseTapChanger(TwoWindingsTransformer twt) {
+        return Objects.nonNull(twt.getPhaseTapChanger());
     }
 
     private static boolean hasNeutralStep(TwoWindingsTransformer pst) {
