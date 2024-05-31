@@ -38,10 +38,10 @@ class XnodeFlowTests {
             .build();
         FlowDecompositionParameters flowDecompositionParameters = FlowDecompositionParameters.load()
             .setEnableLossesCompensation(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION)
-            .setRescaleEnabled(FlowDecompositionParameters.DISABLE_RESCALED_RESULTS);
+            .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
-        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.isRescaleEnabled(), flowDecompositionResults);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(44.109, decomposedFlowMap.get(branchId1).getXNodeFlow(), EPSILON);

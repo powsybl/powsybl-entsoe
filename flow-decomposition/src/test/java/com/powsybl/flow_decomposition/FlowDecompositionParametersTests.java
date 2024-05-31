@@ -10,6 +10,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerProportional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +51,8 @@ class FlowDecompositionParametersTests {
         assertFalse(parameters.isLossesCompensationEnabled());
         assertEquals(1e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(1e-5, parameters.getSensitivityEpsilon(), EPSILON);
-        assertFalse(parameters.isRescaleEnabled());
+        assertEquals(FlowDecompositionParameters.RescaleMode.NONE, parameters.getRescaleMode());
+        assertEquals(DecomposedFlowRescalerProportional.DEFAULT_MIN_FLOW_TOLERANCE, parameters.getProportionalRescalerMinFlowTolerance(), EPSILON / 100);
         assertTrue(parameters.isDcFallbackEnabledAfterAcDivergence());
         assertEquals(15000, parameters.getSensitivityVariableBatchSize());
     }
@@ -61,7 +63,8 @@ class FlowDecompositionParametersTests {
         mapModuleConfig.setStringProperty("enable-losses-compensation", Boolean.toString(true));
         mapModuleConfig.setStringProperty("losses-compensation-epsilon", Double.toString(2e-5));
         mapModuleConfig.setStringProperty("sensitivity-epsilon", Double.toString(3e-3));
-        mapModuleConfig.setStringProperty("rescale-enabled", Boolean.toString(true));
+        mapModuleConfig.setStringProperty("rescale-mode", FlowDecompositionParameters.RescaleMode.ACER_METHODOLOGY.name());
+        mapModuleConfig.setStringProperty("proportional-rescaler-min-flow-tolerance", Double.toString(1e-2));
         mapModuleConfig.setStringProperty("dc-fallback-enabled-after-ac-divergence", Boolean.toString(false));
         mapModuleConfig.setStringProperty("sensitivity-variable-batch-size", Integer.toString(1234));
 
@@ -69,7 +72,8 @@ class FlowDecompositionParametersTests {
         assertTrue(parameters.isLossesCompensationEnabled());
         assertEquals(2e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(3e-3, parameters.getSensitivityEpsilon(), EPSILON);
-        assertTrue(parameters.isRescaleEnabled());
+        assertEquals(FlowDecompositionParameters.RescaleMode.ACER_METHODOLOGY, parameters.getRescaleMode());
+        assertEquals(1e-2, parameters.getProportionalRescalerMinFlowTolerance(), EPSILON);
         assertFalse(parameters.isDcFallbackEnabledAfterAcDivergence());
         assertEquals(1234, parameters.getSensitivityVariableBatchSize());
     }
@@ -83,7 +87,8 @@ class FlowDecompositionParametersTests {
         assertFalse(parameters.isLossesCompensationEnabled());
         assertEquals(2e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(1e-5, parameters.getSensitivityEpsilon(), EPSILON);
-        assertFalse(parameters.isRescaleEnabled());
+        assertEquals(FlowDecompositionParameters.RescaleMode.NONE, parameters.getRescaleMode());
+        assertEquals(DecomposedFlowRescalerProportional.DEFAULT_MIN_FLOW_TOLERANCE, parameters.getProportionalRescalerMinFlowTolerance(), EPSILON / 100);
         assertTrue(parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 }

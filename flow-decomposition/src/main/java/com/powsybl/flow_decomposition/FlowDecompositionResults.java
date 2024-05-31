@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescaler;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
@@ -44,7 +45,8 @@ public class FlowDecompositionResults {
         private final String contingencyId;
         private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
         private Map<String, Map<String, Double>> pstFlowMap;
-        private Map<String, Double> acReferenceFlow;
+        private Map<String, Double> acTerminal1ReferenceFlow;
+        private Map<String, Double> acTerminal2ReferenceFlow;
         private Map<String, Double> dcReferenceFlow;
 
         PerStateBuilder(String contingencyId, Set<Branch> xnecList) {
@@ -60,23 +62,27 @@ public class FlowDecompositionResults {
             this.pstFlowMap = pstFlowMatrix.toMap();
         }
 
-        void saveAcReferenceFlow(Map<String, Double> acReferenceFlow) {
-            this.acReferenceFlow = acReferenceFlow;
+        void saveAcTerminal1ReferenceFlow(Map<String, Double> acTerminal1ReferenceFlow) {
+            this.acTerminal1ReferenceFlow = acTerminal1ReferenceFlow;
+        }
+
+        void saveAcTerminal2ReferenceFlow(Map<String, Double> acTerminal2ReferenceFlow) {
+            this.acTerminal2ReferenceFlow = acTerminal2ReferenceFlow;
         }
 
         void saveDcReferenceFlow(Map<String, Double> dcReferenceFlow) {
             this.dcReferenceFlow = dcReferenceFlow;
         }
 
-        void build(boolean isRescaleEnable) {
+        void build(DecomposedFlowRescaler decomposedFlowRescaler) {
             allocatedAndLoopFlowsMatrix.toMap()
                 .forEach((branchId, decomposedFlow) -> {
                     String xnecId = NetworkUtil.getXnecId(contingencyId, branchId);
-                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, isRescaleEnable));
+                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, decomposedFlowRescaler));
                 });
         }
 
-        private DecomposedFlow createDecomposedFlow(String branchId, Map<String, Double> allocatedAndLoopFlowMap, boolean isRescaleEnable) {
+        private DecomposedFlow createDecomposedFlow(String branchId, Map<String, Double> allocatedAndLoopFlowMap, DecomposedFlowRescaler decomposedFlowRescaler) {
             Map<String, Double> loopFlowsMap = allocatedAndLoopFlowMap.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -86,11 +92,21 @@ public class FlowDecompositionResults {
             Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
             Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());
             double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
-            DecomposedFlow decomposedFlow = new DecomposedFlow(branchId, contingencyId, country1, country2, acReferenceFlow.get(branchId), dcReferenceFlow.get(branchId), allocatedFlow, xNodeFlow, pstFlow, internalFlow, loopFlowsMap);
-            if (isRescaleEnable) {
-                return DecomposedFlowsRescaler.rescale(decomposedFlow);
-            }
-            return decomposedFlow;
+            DecomposedFlow decomposedFlow = new DecomposedFlowBuilder()
+                    .withBranchId(branchId)
+                    .withContingencyId(contingencyId)
+                    .withCountry1(country1)
+                    .withCountry2(country2)
+                    .withAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow.get(branchId))
+                    .withAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow.get(branchId))
+                    .withDcReferenceFlow(dcReferenceFlow.get(branchId))
+                    .withAllocatedFlow(allocatedFlow)
+                    .withXNodeFlow(xNodeFlow)
+                    .withPstFlow(pstFlow)
+                    .withInternalFlow(internalFlow)
+                    .withLoopFlowsMap(loopFlowsMap)
+                    .build();
+            return decomposedFlowRescaler.rescale(decomposedFlow);
         }
 
         private double extractInternalFlow(Map<String, Double> loopFlowsMap, Country country1, Country country2) {
