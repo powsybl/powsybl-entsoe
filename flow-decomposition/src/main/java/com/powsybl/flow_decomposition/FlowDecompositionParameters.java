@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerProportional;
 
 import java.util.Objects;
 
@@ -15,8 +16,6 @@ import java.util.Objects;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class FlowDecompositionParameters {
-    public static final boolean ENABLE_RESCALED_RESULTS = true;
-    public static final boolean DISABLE_RESCALED_RESULTS = false;
     public static final double DISABLE_SENSITIVITY_EPSILON = -1;
     public static final boolean DISABLE_LOSSES_COMPENSATION = false;
     public static final boolean ENABLE_LOSSES_COMPENSATION = true;
@@ -24,15 +23,23 @@ public class FlowDecompositionParameters {
     public static final boolean DEFAULT_ENABLE_LOSSES_COMPENSATION = DISABLE_LOSSES_COMPENSATION;
     public static final double DEFAULT_LOSSES_COMPENSATION_EPSILON = 1e-5;
     public static final double DEFAULT_SENSITIVITY_EPSILON = 1e-5;
-    public static final boolean DEFAULT_RESCALE_ENABLED = DISABLE_RESCALED_RESULTS;
     public static final boolean DISABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE = false;
     public static final boolean ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE = true;
     public static final boolean DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE = ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE;
     private static final int DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE = 15000;
+
+    public enum RescaleMode {
+        NONE,
+        ACER_METHODOLOGY,
+        PROPORTIONAL
+    }
+
+    public static final RescaleMode DEFAULT_RESCALE_MODE = RescaleMode.NONE;
     private boolean enableLossesCompensation;
     private double lossesCompensationEpsilon;
     private double sensitivityEpsilon;
-    private boolean rescaleEnabled;
+    private RescaleMode rescaleMode;
+    private double proportionalRescalerMinFlowTolerance;
     private boolean dcFallbackEnabledAfterAcDivergence;
     private int sensitivityVariableBatchSize;
 
@@ -53,7 +60,8 @@ public class FlowDecompositionParameters {
             parameters.setEnableLossesCompensation(moduleConfig.getBooleanProperty("enable-losses-compensation", DEFAULT_ENABLE_LOSSES_COMPENSATION));
             parameters.setLossesCompensationEpsilon(moduleConfig.getDoubleProperty("losses-compensation-epsilon", DEFAULT_LOSSES_COMPENSATION_EPSILON));
             parameters.setSensitivityEpsilon(moduleConfig.getDoubleProperty("sensitivity-epsilon", DEFAULT_SENSITIVITY_EPSILON));
-            parameters.setRescaleEnabled(moduleConfig.getBooleanProperty("rescale-enabled", DEFAULT_RESCALE_ENABLED));
+            parameters.setRescaleMode(moduleConfig.getEnumProperty("rescale-mode", RescaleMode.class, DEFAULT_RESCALE_MODE));
+            parameters.setProportionalRescalerMinFlowTolerance(moduleConfig.getDoubleProperty("proportional-rescaler-min-flow-tolerance", DecomposedFlowRescalerProportional.DEFAULT_MIN_FLOW_TOLERANCE));
             parameters.setDcFallbackEnabledAfterAcDivergence(moduleConfig.getBooleanProperty("dc-fallback-enabled-after-ac-divergence", DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE));
             parameters.setSensitivityVariableBatchSize(moduleConfig.getIntProperty("sensitivity-variable-batch-size", DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE));
         });
@@ -63,7 +71,8 @@ public class FlowDecompositionParameters {
         this.enableLossesCompensation = DEFAULT_ENABLE_LOSSES_COMPENSATION;
         this.lossesCompensationEpsilon = DEFAULT_LOSSES_COMPENSATION_EPSILON;
         this.sensitivityEpsilon = DEFAULT_SENSITIVITY_EPSILON;
-        this.rescaleEnabled = DEFAULT_RESCALE_ENABLED;
+        this.rescaleMode = DEFAULT_RESCALE_MODE;
+        this.proportionalRescalerMinFlowTolerance = DecomposedFlowRescalerProportional.DEFAULT_MIN_FLOW_TOLERANCE;
         this.dcFallbackEnabledAfterAcDivergence = DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE;
         this.sensitivityVariableBatchSize = DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE;
     }
@@ -95,13 +104,21 @@ public class FlowDecompositionParameters {
         return this;
     }
 
-    public boolean isRescaleEnabled() {
-        return rescaleEnabled;
+    public RescaleMode getRescaleMode() {
+        return rescaleMode;
     }
 
-    public FlowDecompositionParameters setRescaleEnabled(boolean rescaleEnabled) {
-        this.rescaleEnabled = rescaleEnabled;
+    public FlowDecompositionParameters setRescaleMode(RescaleMode rescaleMode) {
+        this.rescaleMode = rescaleMode;
         return this;
+    }
+
+    public void setProportionalRescalerMinFlowTolerance(double proportionalRescalerMinFlowTolerance) {
+        this.proportionalRescalerMinFlowTolerance = proportionalRescalerMinFlowTolerance;
+    }
+
+    public double getProportionalRescalerMinFlowTolerance() {
+        return proportionalRescalerMinFlowTolerance;
     }
 
     public boolean isDcFallbackEnabledAfterAcDivergence() {
