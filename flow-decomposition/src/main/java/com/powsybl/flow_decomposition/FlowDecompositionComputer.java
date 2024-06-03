@@ -222,7 +222,7 @@ public class FlowDecompositionComputer {
     }
 
     private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList) {
-        flowDecompositionResultBuilder.saveDcReferenceFlow(getBranchReferenceFlows(xnecList, TwoSides.ONE));
+        flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlow(xnecList, TwoSides.ONE));
         observers.computedDcFlows(network);
         observers.computedDcNodalInjections(network);
     }

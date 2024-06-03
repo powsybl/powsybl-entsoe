@@ -78,7 +78,7 @@ public class FlowDecompositionResults {
             allocatedAndLoopFlowsMatrix.toMap()
                 .forEach((branchId, decomposedFlow) -> {
                     String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
-                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, isRescaleEnable));
+                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, decomposedFlowRescaler));
                 });
         }
 

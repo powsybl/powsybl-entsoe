@@ -48,16 +48,18 @@ public final class TestUtils {
             switch (rescaleMode) {
                 case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
                 case PROPORTIONAL -> assertEquals(decomposedFlow.getMaxAbsAcFlow(), decomposedFlow.getTotalFlow(), EPSILON);
-                default -> {
-                    if (Double.isNaN(decomposedFlow.getDcReferenceFlow())) {
-                        LOGGER.error("XNEC \"{}\" is probably not connected", xnec); // TODO: should we decompose such xnecs ?
-                    } else if (decomposedFlow.getTotalFlow() == 0) {
-                        LOGGER.error("XNEC \"{}\" is outside main synchronous component", xnec); // TODO: should we decompose such xnecs ?
-                    } else {
-                        assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
-                    }
-                }
+                default -> assertEqualsWithoutRescaling(xnec, decomposedFlow);
             }
+        }
+    }
+
+    private static void assertEqualsWithoutRescaling(String xnec, DecomposedFlow decomposedFlow) {
+        if (Double.isNaN(decomposedFlow.getDcReferenceFlow())) {
+            LOGGER.error("XNEC \"{}\" is probably not connected", xnec); // TODO: should we decompose such xnecs ?
+        } else if (decomposedFlow.getTotalFlow() == 0) {
+            LOGGER.error("XNEC \"{}\" is outside main synchronous component", xnec); // TODO: should we decompose such xnecs ?
+        } else {
+            assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
         }
     }
 
@@ -126,7 +128,7 @@ public final class TestUtils {
         assertEquals(contingencyId, l1.getContingencyId());
         assertEquals(country1, l1.getCountry1());
         assertEquals(country2, l1.getCountry2());
-        assertEquals(acReferenceFlow, l1.getAcReferenceFlow(), EPSILON);
+        assertEquals(acReferenceFlow, l1.getAcTerminal1ReferenceFlow(), EPSILON);
         assertEquals(dcReferenceFlow, l1.getDcReferenceFlow(), EPSILON);
         assertEquals(allocatedFlow, l1.getAllocatedFlow(), EPSILON);
         assertEquals(xNodeFlow, l1.getXNodeFlow(), EPSILON);
