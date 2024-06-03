@@ -19,7 +19,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
+ * @author Hugo Schindler{@literal <hugo.schindler at rte-france.com>}
  * @author Sebastien Murgey{@literal <sebastien.murgey at rte-france.com>}
  */
 public final class NetworkUtil {
@@ -31,8 +31,8 @@ public final class NetworkUtil {
 
     public static String getLoopFlowIdFromCountry(Network network, String identifiableId) {
         Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
-        if (identifiable instanceof Injection) {
-            return getLoopFlowIdFromCountry(getInjectionCountry((Injection<?>) identifiable));
+        if (identifiable instanceof Injection<?> injection) {
+            return getLoopFlowIdFromCountry(getInjectionCountry(injection));
         }
         throw new PowsyblException(String.format("Identifiable %s must be an Injection", identifiableId));
     }

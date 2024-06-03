@@ -33,6 +33,15 @@ compensated at both sides proportionally to the resistance of each half line.
 
 ## Nodal Injections partitioning
 
+> **_NOTE:_** In PowSyBl terminology, nodal injections are injection connectables that 
+> - are not paired dangling lines, 
+> - are connected to the network,
+> - are in the main synchronous component (for sensitivity computation reasons),
+> - are not a bus bar section (because of a lack of reference injection),
+> - are not shunt compensator or static var compensator (for sensitivity computation reasons).
+
+> **_NOTE:_** In PowSyBl terminology, xnodes are unpaired dangling lines connected to the network and in the main synchronous component. 
+
 In order to distinguish internal/loop flows and allocated flows, the nodal injections in each zone must de decomposed in two parts:
 - Nodal injections for allocated flows
 - Nodal injections for loop flows and internal flows
@@ -63,6 +72,16 @@ where:
 
 ## Sensitivity analysis
 
+> **_NOTE:_** In PowSyBl terminology, only two windings transformers are considered. PSTs must:
+> - be connected to the network,
+> - have a phase tap changer,
+> - having a neutral step on the phase tap changer,
+> - have a bus at each terminal,
+> - be connected to the main synchronous component.
+> Therefore, three windings transformers are not supported. 
+
+> **_NOTE:_** Each element of the sensitivity computation must be connected to the main synchronous component (variables (injections) and functions (branches)). 
+
 In order to assess the linear impact (implied by the DC approximation) of each nodal injection and phase shift transformer
 on the network elements' flow, a sensitivity analysis is run.
 
@@ -89,7 +108,7 @@ where:
 - $\mathrm{F}_\mathrm{PST}$ is the vector of the network element PST (phase shift transformer) flow,
 - $\mathrm{F}_\mathrm{X}$ is the vector of the network element xnode flow,
 - $\mathrm{AM}$ is the allocation matrix, which associates each injection to its zone. $\mathrm{AM}_{ij}$ = 1 if node i is in zone j, 0 otherwise,
-- $\mathrm{\Delta}_\mathrm{PST}$ is the phase shift transformers angle vector. Each PST is required to have a neutral tap position to compute this difference.
+- $\mathrm{\Delta}_\mathrm{PST}$ is the phase shift transformers angle vector. The neutral tap position of each PST is used to compute this difference.
 
 ## Flow parts rescaling
 

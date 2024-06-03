@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
+ * @author Hugo Schindler{@literal <hugo.schindler at rte-france.com>}
  * @author Sebastien Murgey{@literal <sebastien.murgey at rte-france.com>}
  */
 class NetworkMatrixIndexes {

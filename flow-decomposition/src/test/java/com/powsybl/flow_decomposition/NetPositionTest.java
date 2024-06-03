@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Peter Mitri {@literal <peter.mitri at rte-france.com>}
- * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
+ * @author Hugo Schindler{@literal <hugo.schindler at rte-france.com>}
  */
 class NetPositionTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;

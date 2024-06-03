@@ -16,6 +16,9 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ */
 class NetworkUtilTest {
 
     @Test

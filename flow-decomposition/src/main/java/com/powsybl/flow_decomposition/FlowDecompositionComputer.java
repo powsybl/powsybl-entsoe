@@ -146,6 +146,8 @@ public class FlowDecompositionComputer {
 
         // Losses compensation
         compensateLosses(network);
+
+        // DC load flow
         runDcLoadFlow(network);
         saveDcReferenceFlow(flowDecompositionResultsBuilder, network, xnecList);
 
