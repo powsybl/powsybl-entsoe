@@ -26,3 +26,6 @@ org.sonarlint.eclipse.core.prefs
 
 # Log files
 powsybl.log
+
+# Generated readthedocs pages
+build-docs/
