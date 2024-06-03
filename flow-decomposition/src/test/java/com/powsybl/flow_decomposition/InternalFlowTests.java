@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerAcerMethodology;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -90,14 +91,27 @@ class InternalFlowTests {
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Country country1 = Country.FR;
         Country country2 = Country.FR;
-        return new DecomposedFlow("", "", country1, country2, acReferenceFlow, dcReferenceFlow, allocatedFlow, 0, pstFlow, internalFlow, loopFlows);
+        return new DecomposedFlowBuilder()
+                .withBranchId("")
+                .withContingencyId("")
+                .withCountry1(country1)
+                .withCountry2(country2)
+                .withAcTerminal1ReferenceFlow(acReferenceFlow)
+                .withAcTerminal2ReferenceFlow(acReferenceFlow)
+                .withDcReferenceFlow(dcReferenceFlow)
+                .withAllocatedFlow(allocatedFlow)
+                .withXNodeFlow(0)
+                .withPstFlow(pstFlow)
+                .withInternalFlow(internalFlow)
+                .withLoopFlowsMap(loopFlows)
+                .build();
     }
 
     private DecomposedFlow getRescaledFlow(double internalFlow, double acReferenceFlow, double dcReferenceFlow) {
         DecomposedFlow decomposedFlow = getDecomposedFlow(internalFlow, acReferenceFlow, dcReferenceFlow);
         assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
 
-        return DecomposedFlowsRescaler.rescale(decomposedFlow);
+        return new DecomposedFlowRescalerAcerMethodology().rescale(decomposedFlow);
     }
 
     private void checkRescaleAcReference(double acReferenceFlow, double dcReferenceFlow, DecomposedFlow rescaledFlow, double expectedAllocatedFlow, double expectedInternalFlow, double expectedPstFlow, double expectedLoopFlowBE, double expectedLoopFlowES) {
@@ -109,7 +123,7 @@ class InternalFlowTests {
         assertEquals(expectedLoopFlowGE, rescaledFlow.getLoopFlow(Country.GE), EPSILON);
         assertEquals(expectedLoopFlowES, rescaledFlow.getLoopFlow(Country.ES), EPSILON);
         assertEquals(expectedInternalFlow, rescaledFlow.getInternalFlow(), EPSILON);
-        assertEquals(acReferenceFlow, rescaledFlow.getAcReferenceFlow(), EPSILON);
+        assertEquals(acReferenceFlow, rescaledFlow.getAcTerminal1ReferenceFlow(), EPSILON);
         assertEquals(dcReferenceFlow, rescaledFlow.getDcReferenceFlow(), EPSILON);
     }
 }

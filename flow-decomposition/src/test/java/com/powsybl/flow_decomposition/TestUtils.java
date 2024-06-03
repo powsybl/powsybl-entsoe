@@ -42,18 +42,20 @@ public final class TestUtils {
         return GlskDocumentImporters.importGlsk(TestUtils.class.getResourceAsStream(glskName));
     }
 
-    public static void assertCoherenceTotalFlow(boolean enableRescaledResults, FlowDecompositionResults flowDecompositionResults) {
+    public static void assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode rescaleMode, FlowDecompositionResults flowDecompositionResults) {
         for (String xnec : flowDecompositionResults.getDecomposedFlowMap().keySet()) {
             DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnec);
-            if (enableRescaledResults) {
-                assertEquals(Math.abs(decomposedFlow.getAcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
-            } else {
-                if (Double.isNaN(decomposedFlow.getDcReferenceFlow())) {
-                    LOGGER.error("XNEC \"{}\" is probably not connected", xnec); // TODO: should we decompose such xnecs ?
-                } else if (decomposedFlow.getTotalFlow() == 0) {
-                    LOGGER.error("XNEC \"{}\" is outside main synchronous component", xnec); // TODO: should we decompose such xnecs ?
-                } else {
-                    assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
+            switch (rescaleMode) {
+                case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
+                case PROPORTIONAL -> assertEquals(decomposedFlow.getMaxAbsAcFlow(), decomposedFlow.getTotalFlow(), EPSILON);
+                default -> {
+                    if (Double.isNaN(decomposedFlow.getDcReferenceFlow())) {
+                        LOGGER.error("XNEC \"{}\" is probably not connected", xnec); // TODO: should we decompose such xnecs ?
+                    } else if (decomposedFlow.getTotalFlow() == 0) {
+                        LOGGER.error("XNEC \"{}\" is outside main synchronous component", xnec); // TODO: should we decompose such xnecs ?
+                    } else {
+                        assertEquals(Math.abs(decomposedFlow.getDcReferenceFlow()), Math.abs(decomposedFlow.getTotalFlow()), EPSILON);
+                    }
                 }
             }
         }
