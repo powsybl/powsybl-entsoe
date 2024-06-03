@@ -149,16 +149,12 @@ public final class NetworkUtil {
     public static List<String> getPstIdList(Network network) {
         return network.getTwoWindingsTransformerStream()
             .filter(NetworkUtil::isConnected)
-            .filter(NetworkUtil::hasPhaseTapChanger)
+            .filter(PhaseTapChangerHolder::hasPhaseTapChanger)
             .filter(NetworkUtil::hasNeutralStep)
             .filter(NetworkUtil::hasABusToEachTerminal)
             .filter(NetworkUtil::isInMainSynchronousComponent)
             .map(Identifiable::getId)
             .toList();
-    }
-
-    private static boolean hasPhaseTapChanger(TwoWindingsTransformer twt) {
-        return Objects.nonNull(twt.getPhaseTapChanger());
     }
 
     private static boolean hasNeutralStep(TwoWindingsTransformer pst) {
