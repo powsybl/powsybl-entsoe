@@ -65,7 +65,7 @@ class AllocatedFlowTests {
         assertEquals(2, zones.size());
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
-        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.DEFAULT_RESCALE_ENABLED, flowDecompositionResults);
+        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.DEFAULT_RESCALE_MODE, flowDecompositionResults);
     }
 
     @Test
@@ -85,7 +85,7 @@ class AllocatedFlowTests {
         assertEquals(2, zones.size());
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
-        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.DEFAULT_RESCALE_ENABLED, flowDecompositionResults);
+        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.DEFAULT_RESCALE_MODE, flowDecompositionResults);
     }
 
     @Test
