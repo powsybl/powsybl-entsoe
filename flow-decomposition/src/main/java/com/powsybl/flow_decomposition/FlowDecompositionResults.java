@@ -77,7 +77,7 @@ public class FlowDecompositionResults {
         void build(DecomposedFlowRescaler decomposedFlowRescaler) {
             allocatedAndLoopFlowsMatrix.toMap()
                 .forEach((branchId, decomposedFlow) -> {
-                    String xnecId = NetworkUtil.getXnecId(contingencyId, branchId);
+                    String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
                     decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, decomposedFlowRescaler));
                 });
         }

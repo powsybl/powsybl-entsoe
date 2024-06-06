@@ -22,10 +22,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.flow_decomposition.TestUtils.getLossOnBus;
 import static com.powsybl.flow_decomposition.TestUtils.importNetwork;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -277,5 +274,46 @@ class LossesCompensationTests {
             assertNotNull(load);
             assertEquals(losses, load.getP0());
         });
+    }
+
+    /*
+        Test flow decomposition with losses compensation in a simple network
+          FR : bus1
+          BE : bus2, bus3
+                                   ____ bus3
+                                  |      |
+                                 l32     d3 (1)
+                                  |
+                bus1 --- l21 --- bus2
+                 |                |
+                g1 (3)           d2 (2)
+
+         Line l32 is open at side 1 (bus 3)
+         Line characteristics: (r,x,g,b) = (0.01, 0.1, 0.0, 0.5)
+     */
+    @Test
+    void testLossCompensationWithLineConnectedToOnlyOneSide() {
+        String networkFileName = "lossesCompensatorLineConnectedToOneSide.xiidm";
+        Network network = importNetwork(networkFileName);
+        assertEquals(2, network.getLoadStream().count());
+        LoadFlow.run(network, new LoadFlowParameters().setDc(AC_LOAD_FLOW));
+        LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DEFAULT_LOSSES_COMPENSATION_EPSILON);
+        lossesCompensator.run(network);
+        assertEquals(5, network.getLoadStream().count());
+        Load lossesb1 = network.getLoad("LOSSES b1");
+        assertNotNull(lossesb1);
+        assertEquals("b1_vl", lossesb1.getTerminal().getVoltageLevel().getId());
+        assertEquals(0.061171, lossesb1.getP0(), 1e-6);
+        assertTrue(lossesb1.isFictitious());
+        Load lossesb2 = network.getLoad("LOSSES b2");
+        assertNotNull(lossesb2);
+        assertEquals("b2_vl", lossesb2.getTerminal().getVoltageLevel().getId());
+        assertEquals(0.003581, lossesb2.getP0(), 1e-6);
+        assertTrue(lossesb2.isFictitious());
+        Load lossesb3 = network.getLoad("LOSSES b3");
+        assertNotNull(lossesb3);
+        assertEquals("b3_vl", lossesb3.getTerminal().getVoltageLevel().getId());
+        assertEquals(0.0, lossesb3.getP0(), 1e-6);
+        assertTrue(lossesb3.isFictitious());
     }
 }
