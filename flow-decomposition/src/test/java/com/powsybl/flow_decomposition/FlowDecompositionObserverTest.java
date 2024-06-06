@@ -10,6 +10,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -56,8 +57,8 @@ class FlowDecompositionObserverTest {
         private final ContingencyValue<Map<String, Map<String, Double>>> psdfs = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> acNodalInjections = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> dcNodalInjections = new ContingencyValue<>();
-        private final ContingencyValue<Map<String, Double>> acFlows = new ContingencyValue<>();
-        private final ContingencyValue<Map<String, Double>> dcFlows = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Pair<Double, Double>>> acFlows = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Pair<Double, Double>>> dcFlows = new ContingencyValue<>();
 
         public List<Event> allEvents() {
             return events;
@@ -136,13 +137,13 @@ class FlowDecompositionObserverTest {
         }
 
         @Override
-        public void computedAcFlows(Map<String, Double> flows) {
+        public void computedAcFlows(Map<String, Pair<Double, Double>> flows) {
             addEvent(Event.COMPUTED_AC_FLOWS);
             this.acFlows.put(currentContingency, flows);
         }
 
         @Override
-        public void computedDcFlows(Map<String, Double> flows) {
+        public void computedDcFlows(Map<String, Pair<Double, Double>> flows) {
             addEvent(Event.COMPUTED_DC_FLOWS);
             this.dcFlows.put(currentContingency, flows);
         }
