@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
- * @author Hugo Schindler{@literal <hugo.schindler@rte-france.com>}
+ * @author Hugo Schindler{@literal <hugo.schindler at rte-france.com>}
  */
 class NetPositionComputer {
     Map<Country, Double> run(Network network) {

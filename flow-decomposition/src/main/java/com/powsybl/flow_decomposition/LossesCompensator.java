@@ -18,10 +18,12 @@ import java.util.stream.Stream;
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 class LossesCompensator {
     private final double epsilon;
     private Integer networkHash;
+    public static final String LOSSES_ID_PREFIX = "LOSSES ";
 
     LossesCompensator(double epsilon) {
         this.epsilon = epsilon;
@@ -33,7 +35,7 @@ class LossesCompensator {
     }
 
     static String getLossesId(String id) {
-        return String.format("LOSSES %s", id);
+        return LOSSES_ID_PREFIX + id;
     }
 
     public void run(Network network) {
@@ -58,39 +60,17 @@ class LossesCompensator {
 
     private void compensateLossesOnBranches(Network network) {
         network.getBranchStream()
-            .filter(this::hasBuses)
-            .filter(this::hasP0s)
+            .filter(branch -> branch.getTerminal1().isConnected() || branch.getTerminal2().isConnected())
             .forEach(branch -> compensateLossesOnBranch(network, branch));
-    }
-
-    private boolean hasBus(Terminal terminal) {
-        return terminal.getBusBreakerView().getBus() != null;
-    }
-
-    private boolean hasBuses(Branch<?> branch) {
-        return hasBus(branch.getTerminal1()) && hasBus(branch.getTerminal2());
-    }
-
-    private boolean hasP0(Terminal terminal) {
-        return !Double.isNaN(terminal.getP());
-    }
-
-    private boolean hasP0s(Branch<?> branch) {
-        return hasP0(branch.getTerminal1()) && hasP0(branch.getTerminal2());
     }
 
     private static void addZeroMWLossesLoad(Network network, String busId) {
         String lossesId = getLossesId(busId);
         Bus bus = network.getBusBreakerView().getBus(busId);
         switch (bus.getVoltageLevel().getTopologyKind()) {
-            case BUS_BREAKER:
-                addZeroMWLossesLoadForBusBreakerTopology(bus, lossesId);
-                return;
-            case NODE_BREAKER:
-                addZeroMWLossesLoadForNodeTopology(bus, lossesId);
-                return;
-            default:
-                throw new PowsyblException("This topology is not managed by the loss compensation.");
+            case BUS_BREAKER -> addZeroMWLossesLoadForBusBreakerTopology(bus, lossesId);
+            case NODE_BREAKER -> addZeroMWLossesLoadForNodeBreakerTopology(bus, lossesId);
+            default -> throw new PowsyblException("Topology not supported by loss compensation.");
         }
     }
 
@@ -100,10 +80,11 @@ class LossesCompensator {
             .setBus(bus.getId())
             .setP0(0)
             .setQ0(0)
+            .setFictitious(true)
             .add();
     }
 
-    private static void addZeroMWLossesLoadForNodeTopology(Bus bus, String lossesId) {
+    private static void addZeroMWLossesLoadForNodeBreakerTopology(Bus bus, String lossesId) {
         VoltageLevel voltageLevel = bus.getVoltageLevel();
         VoltageLevel.NodeBreakerView nodeBreakerView = voltageLevel.getNodeBreakerView();
         int nodeNum = nodeBreakerView.getMaximumNodeIndex() + 1;
@@ -116,12 +97,13 @@ class LossesCompensator {
             .setNode(nodeNum)
             .setP0(0)
             .setQ0(0)
+            .setFictitious(true)
             .add();
     }
 
     private void compensateLossesOnBranch(Network network, Branch<?> branch) {
-        if (branch instanceof TieLine) {
-            compensateLossesOnTieLine(network, (TieLine) branch);
+        if (branch instanceof TieLine tieLine) {
+            compensateLossesOnTieLine(network, tieLine);
         } else {
             Terminal sendingTerminal = getSendingTerminal(branch);
             double losses = branch.getTerminal1().getP() + branch.getTerminal2().getP();
@@ -144,13 +126,26 @@ class LossesCompensator {
     }
 
     private void updateLoadForLossesOnTerminal(Network network, Terminal terminal, double losses) {
-        if (Math.abs(losses) > epsilon) {
+        if (losses > epsilon) {
             Load load = network.getLoad(getLossesId(terminal.getBusBreakerView().getBus().getId()));
             load.setP0(load.getP0() + losses);
         }
     }
 
     private Terminal getSendingTerminal(Branch<?> branch) {
-        return branch.getTerminal1().getP() > 0 ? branch.getTerminal1() : branch.getTerminal2();
+        Terminal terminal1 = branch.getTerminal1();
+        Terminal terminal2 = branch.getTerminal2();
+
+        // if only one terminal is connected, that is the sending terminal
+        if (!(terminal1.isConnected() && terminal2.isConnected())) {
+            return terminal1.isConnected() ? terminal1 : terminal2;
+        }
+
+        // terminal with greater P is the sending terminal
+        if (terminal1.getP() >= terminal2.getP()) {
+            return terminal1;
+        } else {
+            return terminal2;
+        }
     }
 }

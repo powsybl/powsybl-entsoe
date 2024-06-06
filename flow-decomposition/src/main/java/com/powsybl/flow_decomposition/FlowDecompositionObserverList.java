@@ -107,24 +107,24 @@ public class FlowDecompositionObserverList {
         }
     }
 
-    public void computedAcNodalInjections(NetworkMatrixIndexes networkMatrixIndexes, boolean fallbackHasBeenActivated) {
+    public void computedAcNodalInjections(Network network, boolean fallbackHasBeenActivated) {
         if (observers.isEmpty()) {
             return;
         }
 
-        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(networkMatrixIndexes.getNodeList());
+        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
 
         for (FlowDecompositionObserver o : observers) {
             o.computedAcNodalInjections(results, fallbackHasBeenActivated);
         }
     }
 
-    public void computedDcNodalInjections(NetworkMatrixIndexes networkMatrixIndexes) {
+    public void computedDcNodalInjections(Network network) {
         if (observers.isEmpty()) {
             return;
         }
 
-        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(networkMatrixIndexes.getNodeList());
+        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
 
         for (FlowDecompositionObserver o : observers) {
             o.computedDcNodalInjections(results);

@@ -44,20 +44,20 @@ class FlowDecompositionObserverTest {
      * ObserverReport gathers all observed events from the flow decomposition. It keeps the events occuring, and the
      * matrices
      */
-    private final class ObserverReport implements FlowDecompositionObserver {
+    private static final class ObserverReport implements FlowDecompositionObserver {
 
-        private List<Event> events = new LinkedList<>();
+        private final List<Event> events = new LinkedList<>();
         private String currentContingency = null;
-        private ContingencyValue<List<Event>> eventsPerContingency = new ContingencyValue<>();
+        private final ContingencyValue<List<Event>> eventsPerContingency = new ContingencyValue<>();
         private Map<Country, Map<String, Double>> glsks;
         private Map<Country, Double> netPositions;
-        private ContingencyValue<Map<String, Map<String, Double>>> nodalInjections = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Map<String, Double>>> ptdfs = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Map<String, Double>>> psdfs = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Double>> acNodalInjections = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Double>> dcNodalInjections = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Double>> acFlows = new ContingencyValue<>();
-        private ContingencyValue<Map<String, Double>> dcFlows = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Map<String, Double>>> nodalInjections = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Map<String, Double>>> ptdfs = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Map<String, Double>>> psdfs = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> acNodalInjections = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> dcNodalInjections = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> acFlows = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> dcFlows = new ContingencyValue<>();
 
         public List<Event> allEvents() {
             return events;
@@ -329,15 +329,33 @@ class FlowDecompositionObserverTest {
         assertTrue(reportRemoved.allEvents().isEmpty());
     }
 
+    @Test
+    void testObserverWithEnableLossesCompensation() {
+        String networkFileName = "19700101_0000_FO4_UX1.uct";
+        String branchId = "DB000011 DF000011 1";
+        Network network = TestUtils.importNetwork(networkFileName);
+        XnecProvider xnecProvider = XnecProviderByIds.builder()
+                .addNetworkElementsOnBasecase(Set.of(branchId))
+                .build();
+        var flowDecompositionParameters = FlowDecompositionParameters.load().setEnableLossesCompensation(true);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        var report = new ObserverReport();
+        flowComputer.addObserver(report);
+        flowComputer.run(xnecProvider, network);
+
+        // there are no losses in acNodalInjection
+        report.acNodalInjections.forBaseCase().forEach((inj, p) -> assertFalse(inj.startsWith(LossesCompensator.LOSSES_ID_PREFIX)));
+    }
+
     private void assertEventsFired(Collection<Event> firedEvents, Event... expectedEvents) {
         var missing = new HashSet<Event>();
         Collections.addAll(missing, expectedEvents);
         missing.removeAll(firedEvents);
-        assertTrue(missing.isEmpty(), () -> "Missing events: " + missing.toString());
+        assertTrue(missing.isEmpty(), () -> "Missing events: " + missing);
     }
 
     private static final class ContingencyValue<T> {
-        private Map<String, T> values = new HashMap<>();
+        private final Map<String, T> values = new HashMap<>();
 
         public void put(String contingencyId, T value) {
             values.put(contingencyId, value);
