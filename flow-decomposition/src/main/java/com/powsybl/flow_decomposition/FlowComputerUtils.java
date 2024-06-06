@@ -10,6 +10,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.TwoSides;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collection;
 import java.util.Map;
@@ -34,11 +35,26 @@ public final class FlowComputerUtils {
         return getTerminalReferenceFlow(xnecList, side);
     }
 
+    public static Map<String, Pair<Double, Double>> getBothTerminalsReferenceFlowsAc(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, TwoSides side) {
+        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
+            return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Pair.of(Double.NaN, Double.NaN)));
+        }
+        return getBothTerminalsReferenceFlows(xnecList);
+    }
+
     public static Map<String, Double> getTerminalReferenceFlow(Collection<Branch> xnecList, TwoSides side) {
         return xnecList.stream()
                 .collect(Collectors.toMap(
                         Identifiable::getId,
                         branch -> branch.getTerminal(side).getP()
+                ));
+    }
+
+    public static Map<String, Pair<Double, Double>> getBothTerminalsReferenceFlows(Collection<Branch> xnecList) {
+        return xnecList.stream()
+                .collect(Collectors.toMap(
+                        Identifiable::getId,
+                        branch -> Pair.of(branch.getTerminal1().getP(), branch.getTerminal2().getP())
                 ));
     }
 }
