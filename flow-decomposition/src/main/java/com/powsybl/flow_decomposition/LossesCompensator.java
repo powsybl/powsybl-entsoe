@@ -67,6 +67,11 @@ class LossesCompensator {
     private static void addZeroMWLossesLoad(Network network, String busId) {
         String lossesId = getLossesId(busId);
         Bus bus = network.getBusBreakerView().getBus(busId);
+        Country country = NetworkUtil.getBusCountry(bus);
+        // node without country will not compensate losses
+        if (country == null) {
+            return;
+        }
         switch (bus.getVoltageLevel().getTopologyKind()) {
             case BUS_BREAKER -> addZeroMWLossesLoadForBusBreakerTopology(bus, lossesId);
             case NODE_BREAKER -> addZeroMWLossesLoadForNodeBreakerTopology(bus, lossesId);
@@ -139,6 +144,15 @@ class LossesCompensator {
         // if only one terminal is connected, that is the sending terminal
         if (!(terminal1.isConnected() && terminal2.isConnected())) {
             return terminal1.isConnected() ? terminal1 : terminal2;
+        }
+
+        // attribute loss to physical node in case there is a virtual one
+        Country country1 = NetworkUtil.getTerminalCountry(terminal1);
+        Country country2 = NetworkUtil.getTerminalCountry(terminal2);
+        if (country1 == null) {
+            return terminal2;
+        } else if (country2 == null) {
+            return terminal1;
         }
 
         // terminal with greater P is the sending terminal
