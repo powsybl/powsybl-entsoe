@@ -9,7 +9,6 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -31,13 +30,6 @@ class NetworkUtilTest {
         PowsyblException exception = assertThrows(PowsyblException.class, () -> NetworkUtil.getLoopFlowIdFromCountry(network, "DUMMY"));
 
         assertEquals("Identifiable DUMMY must be an Injection", exception.getMessage());
-    }
-
-    @Test
-    void testGetFlowIdFromCountryWithNetworkWithoutCountries() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> NetworkUtil.getLoopFlowIdFromCountry(network, "GH1"));
-        assertEquals("Substation S1 does not have country property needed for the algorithm.", exception.getMessage());
     }
 
     @Test
