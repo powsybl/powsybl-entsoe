@@ -153,6 +153,8 @@ class LossesCompensator {
             return terminal2;
         } else if (country2 == null) {
             return terminal1;
+        } else if (branch.hasProperty("x_node_side")) {
+            return "1".equals(branch.getProperty("x_node_side")) ? terminal2 : terminal1;
         }
 
         // terminal with greater P is the sending terminal
