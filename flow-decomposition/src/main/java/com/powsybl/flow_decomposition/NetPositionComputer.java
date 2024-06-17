@@ -34,6 +34,10 @@ class NetPositionComputer {
             if (countrySide1.equals(countrySide2)) {
                 return;
             }
+            if (line.hasProperty("hvdc_contribution_to_net_position")) {
+                addHvdcContribution(netPositions, line, countrySide1, countrySide2);
+                return;
+            }
             addLeavingFlow(netPositions, line, countrySide1);
             addLeavingFlow(netPositions, line, countrySide2);
         });
@@ -53,6 +57,13 @@ class NetPositionComputer {
 
     private static double getPreviousValue(Map<Country, Double> netPositions, Country country) {
         return netPositions.getOrDefault(country, 0.);
+    }
+
+    private static void addHvdcContribution(Map<Country, Double> netPositions, Line line, Country countrySide1, Country countrySide2) {
+        double hvdcContribution = Double.parseDouble(line.getProperty("hvdc_contribution_to_net_position"));
+        double sideMultiplier = "1".equals(line.getProperty("x_node_side")) ? -1.0 : 1.0;
+        netPositions.put(countrySide1, getPreviousValue(netPositions, countrySide1) + sideMultiplier * hvdcContribution);
+        netPositions.put(countrySide2, getPreviousValue(netPositions, countrySide2) - sideMultiplier * hvdcContribution);
     }
 
     private static void addLeavingFlow(Map<Country, Double> netPositions, Line line, Country country) {
