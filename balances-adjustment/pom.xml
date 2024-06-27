@@ -49,14 +49,12 @@
             <artifactId>powsybl-time-series-api</artifactId>
         </dependency>
 
-        <!-- Runtime dependencies -->
+        <!-- Test dependencies -->
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
-
-        <!-- Test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
