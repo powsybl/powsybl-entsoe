@@ -55,21 +55,21 @@ class CneExporterTest extends AbstractSerDeTest {
         fileSystem.close();
     }
 
-    void exporterTest(SecurityAnalysisResult resultToExport, Properties parameters) throws IOException {
+    void exporterTest(SecurityAnalysisResult resultToExport, Properties parameters) {
         // Target export file
         Path actualPath = workingDir.resolve("result.xml");
         // Try to export
         SecurityAnalysisResultExporters.export(resultToExport, parameters, actualPath, "CNE-XML");
         // check the exported file and compare it to iidm reference file
         try (InputStream is = Files.newInputStream(actualPath)) {
-            ComparisonUtils.compareXml(getClass().getResourceAsStream("/cne.xml"), is);
+            ComparisonUtils.assertXmlEquals(getClass().getResourceAsStream("/cne.xml"), is);
         } catch (IOException e) {
             Assertions.fail(e.getMessage());
         }
     }
 
     @Test
-    void exportTest() throws IOException {
+    void exportTest() {
         // mRID key is missing in config.yml file
         // Add mRID property because it is required to export
         Properties parameters = new Properties();
@@ -78,7 +78,7 @@ class CneExporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void exportTestWithoutMRID() throws IOException {
+    void exportTestWithoutMRID() {
         // Empty properties
         final Properties parameters = new Properties();
         final SecurityAnalysisResult result = create();
