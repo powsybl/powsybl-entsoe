@@ -73,7 +73,7 @@ class JsonBalanceComputationParametersTest extends AbstractSerDeTest {
     void writeExtension() throws IOException {
         BalanceComputationParameters parameters = new BalanceComputationParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonBalanceComputationParameters::write, ComparisonUtils::compareTxt, "/balanceComputationParametersWithExtension.json");
+        writeTest(parameters, JsonBalanceComputationParameters::write, ComparisonUtils::assertTxtEquals, "/balanceComputationParametersWithExtension.json");
     }
 
     @Test
@@ -87,7 +87,7 @@ class JsonBalanceComputationParametersTest extends AbstractSerDeTest {
         assertTrue(parameters.getLoadFlowParameters().isUseReactiveLimits());
     }
 
-    static class DummyExtension extends AbstractExtension<BalanceComputationParameters> {
+    public static class DummyExtension extends AbstractExtension<BalanceComputationParameters> {
 
         DummyExtension() {
             super();
