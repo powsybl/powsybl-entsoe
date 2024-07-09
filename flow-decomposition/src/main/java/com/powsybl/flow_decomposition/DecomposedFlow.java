@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.CurrentLimits;
 
 import java.util.*;
 
@@ -26,6 +27,10 @@ public class DecomposedFlow {
     private final double xNodeFlow;
     private final double pstFlow;
     private final double internalFlow;
+    private final double acTerminal1Current;
+    private final double acTerminal2Current;
+    private final CurrentLimits currentLimitsTerminal1;
+    private final CurrentLimits currentLimitsTerminal2;
     private final Map<String, Double> loopFlowsMap = new TreeMap<>();
     static final double NO_FLOW = 0.;
     static final String AC_REFERENCE_FLOW_1_COLUMN_NAME = "Reference AC Flow 1";
@@ -49,6 +54,10 @@ public class DecomposedFlow {
         this.pstFlow = builder.pstFlow;
         this.internalFlow = builder.internalFlow;
         this.loopFlowsMap.putAll(Objects.requireNonNull(builder.loopFlowsMap));
+        this.acTerminal1Current = builder.acTerminal1Current;
+        this.acTerminal2Current = builder.acTerminal2Current;
+        this.currentLimitsTerminal1 = builder.currentLimitsTerminal1;
+        this.currentLimitsTerminal2 = builder.currentLimitsTerminal2;
     }
 
     public String getBranchId() {
@@ -121,6 +130,22 @@ public class DecomposedFlow {
 
     public double getMaxAbsAcFlow() {
         return Math.max(Math.abs(acTerminal1ReferenceFlow), Math.abs(acTerminal2ReferenceFlow));
+    }
+
+    public double getAcTerminal1Current() {
+        return acTerminal1Current;
+    }
+
+    public double getAcTerminal2Current() {
+        return acTerminal2Current;
+    }
+
+    public CurrentLimits getCurrentLimitsTerminal1() {
+        return currentLimitsTerminal1;
+    }
+
+    public CurrentLimits getCurrentLimitsTerminal2() {
+        return currentLimitsTerminal2;
     }
 
     @Override

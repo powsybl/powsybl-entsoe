@@ -36,7 +36,8 @@ class FlowDecompositionObserverTest {
         COMPUTED_AC_NODAL_INJECTIONS,
         COMPUTED_DC_NODAL_INJECTIONS,
         COMPUTED_AC_FLOWS,
-        COMPUTED_DC_FLOWS
+        COMPUTED_DC_FLOWS,
+        COMPUTED_AC_CURRENTS
     }
 
     private static final String BASE_CASE = "base-case";
@@ -146,6 +147,12 @@ class FlowDecompositionObserverTest {
         public void computedDcFlows(Map<String, Pair<Double, Double>> flows) {
             addEvent(Event.COMPUTED_DC_FLOWS);
             this.dcFlows.put(currentContingency, flows);
+        }
+
+        @Override
+        public void computedAcCurrents(Map<String, Pair<Double, Double>> currents) {
+            addEvent(Event.COMPUTED_AC_CURRENTS);
+            this.dcFlows.put(currentContingency, currents);
         }
 
         private void addEvent(Event e) {

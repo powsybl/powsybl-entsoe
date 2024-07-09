@@ -166,6 +166,12 @@ class RescalingTests {
         testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.PROPORTIONAL);
     }
 
+    @Test
+    void test() {
+        String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
+        testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.MAX_CURRENT_OVERLOAD);
+    }
+
     static void testNormalizationWithFlowDecompositionResults(String networkFileName, FlowDecompositionParameters.RescaleMode rescaleMode) {
         Network network = TestUtils.importNetwork(networkFileName);
 

@@ -48,6 +48,23 @@ public final class TestUtils {
             switch (rescaleMode) {
                 case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
                 case PROPORTIONAL -> assertEquals(decomposedFlow.getMaxAbsAcFlow(), decomposedFlow.getTotalFlow(), EPSILON);
+                case MAX_CURRENT_OVERLOAD -> {
+                    double acTerminal1Current = decomposedFlow.getAcTerminal1Current();
+                    double acTerminal2Current = decomposedFlow.getAcTerminal2Current();
+                    CurrentLimits currentLimitsTerminal1 = decomposedFlow.getCurrentLimitsTerminal1();
+                    CurrentLimits currentLimitsTerminal2 = decomposedFlow.getCurrentLimitsTerminal2();
+                    double acReferenceFlow;
+                    if (currentLimitsTerminal1 == null || currentLimitsTerminal2 == null) {
+                        acReferenceFlow = acTerminal1Current >= acTerminal2Current ? decomposedFlow.getAcTerminal1ReferenceFlow() : decomposedFlow.getAcTerminal2ReferenceFlow();
+                    } else {
+                        double permanentLimitTerminal1 = currentLimitsTerminal1.getPermanentLimit();
+                        double permanentLimitTerminal2 = currentLimitsTerminal2.getPermanentLimit();
+                        double surchargeTerminal1 = acTerminal1Current / permanentLimitTerminal1;
+                        double surchargeTerminal2 = acTerminal2Current / permanentLimitTerminal2;
+                        acReferenceFlow = surchargeTerminal1 >= surchargeTerminal2 ? decomposedFlow.getAcTerminal1ReferenceFlow() : decomposedFlow.getAcTerminal2ReferenceFlow();
+                    }
+                    assertEquals(Math.abs(acReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
+                }
                 default -> assertEqualsWithoutRescaling(xnec, decomposedFlow);
             }
         }

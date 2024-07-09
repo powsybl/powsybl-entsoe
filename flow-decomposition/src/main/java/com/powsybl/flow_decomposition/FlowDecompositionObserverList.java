@@ -10,7 +10,6 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.flow_decomposition.LoadFlowRunningService.Result;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoSides;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -89,7 +88,7 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        Map<String, Pair<Double, Double>> acFlows = FlowComputerUtils.getBothTerminalsReferenceFlowsAc(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.ONE);
+        Map<String, Pair<Double, Double>> acFlows = FlowComputerUtils.getBothTerminalsReferenceFlowsAc(network.getBranchStream().toList(), loadFlowServiceAcResult);
 
         for (FlowDecompositionObserver o : observers) {
             o.computedAcFlows(acFlows);
@@ -105,6 +104,18 @@ public class FlowDecompositionObserverList {
 
         for (FlowDecompositionObserver o : observers) {
             o.computedDcFlows(dcFlows);
+        }
+    }
+
+    public void computedAcCurrents(Network network, Result loadFlowServiceAcResult) {
+        if (observers.isEmpty()) {
+            return;
+        }
+
+        Map<String, Pair<Double, Double>> acCurrents = FlowComputerUtils.getBothTerminalsCurrentsAc(network.getBranchStream().toList(), loadFlowServiceAcResult);
+
+        for (FlowDecompositionObserver o : observers) {
+            o.computedAcCurrents(acCurrents);
         }
     }
 

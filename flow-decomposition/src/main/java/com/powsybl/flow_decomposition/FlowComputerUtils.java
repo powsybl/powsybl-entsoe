@@ -35,7 +35,7 @@ public final class FlowComputerUtils {
         return getTerminalReferenceFlow(xnecList, side);
     }
 
-    public static Map<String, Pair<Double, Double>> getBothTerminalsReferenceFlowsAc(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, TwoSides side) {
+    public static Map<String, Pair<Double, Double>> getBothTerminalsReferenceFlowsAc(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
             return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Pair.of(Double.NaN, Double.NaN)));
         }
@@ -55,6 +55,36 @@ public final class FlowComputerUtils {
                 .collect(Collectors.toMap(
                         Identifiable::getId,
                         branch -> Pair.of(branch.getTerminal1().getP(), branch.getTerminal2().getP())
+                ));
+    }
+
+    public static Map<String, Double> calculateAcTerminalCurrents(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, TwoSides side) {
+        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
+            return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
+        }
+        return getTerminalCurrent(xnecList, side);
+    }
+
+    public static Map<String, Pair<Double, Double>> getBothTerminalsCurrentsAc(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
+            return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Pair.of(Double.NaN, Double.NaN)));
+        }
+        return getBothTerminalsCurrents(xnecList);
+    }
+
+    public static Map<String, Double> getTerminalCurrent(Collection<Branch> xnecList, TwoSides side) {
+        return xnecList.stream()
+                .collect(Collectors.toMap(
+                        Identifiable::getId,
+                        branch -> branch.getTerminal(side).getI()
+                ));
+    }
+
+    public static Map<String, Pair<Double, Double>> getBothTerminalsCurrents(Collection<Branch> xnecList) {
+        return xnecList.stream()
+                .collect(Collectors.toMap(
+                        Identifiable::getId,
+                        branch -> Pair.of(branch.getTerminal1().getI(), branch.getTerminal2().getI())
                 ));
     }
 }

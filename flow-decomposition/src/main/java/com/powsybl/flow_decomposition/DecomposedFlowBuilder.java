@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.CurrentLimits;
 
 import java.util.Map;
 
@@ -28,6 +29,10 @@ public class DecomposedFlowBuilder {
     protected double pstFlow;
     protected double internalFlow;
     protected Map<String, Double> loopFlowsMap;
+    protected double acTerminal1Current;
+    protected double acTerminal2Current;
+    protected CurrentLimits currentLimitsTerminal1;
+    protected CurrentLimits currentLimitsTerminal2;
 
     public DecomposedFlowBuilder() {
         // empty constructor
@@ -90,6 +95,26 @@ public class DecomposedFlowBuilder {
 
     public DecomposedFlowBuilder withLoopFlowsMap(Map<String, Double> loopFlowsMap) {
         this.loopFlowsMap = loopFlowsMap;
+        return this;
+    }
+
+    public DecomposedFlowBuilder withAcTerminal1Current(double acTerminal1Current) {
+        this.acTerminal1Current = acTerminal1Current;
+        return this;
+    }
+
+    public DecomposedFlowBuilder withAcTerminal2Current(double acTerminal2Current) {
+        this.acTerminal2Current = acTerminal2Current;
+        return this;
+    }
+
+    public DecomposedFlowBuilder withCurrentLimitsTerminal1(CurrentLimits currentLimitsTerminal1) {
+        this.currentLimitsTerminal1 = currentLimitsTerminal1;
+        return this;
+    }
+
+    public DecomposedFlowBuilder withCurrentLimitsTerminal2(CurrentLimits currentLimitsTerminal2) {
+        this.currentLimitsTerminal2 = currentLimitsTerminal2;
         return this;
     }
 

@@ -102,4 +102,11 @@ public interface FlowDecompositionObserver {
      * @param flows the flows for all branches
      */
     void computedDcFlows(Map<String, Pair<Double, Double>> flows);
+
+    /**
+     * Called when the AC loadflow is computed (for base case or contingency)
+     *
+     * @param currents the currents for all branches
+     */
+    void computedAcCurrents(Map<String, Pair<Double, Double>> currents);
 }
