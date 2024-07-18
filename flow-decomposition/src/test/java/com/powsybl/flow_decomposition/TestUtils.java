@@ -48,6 +48,29 @@ public final class TestUtils {
             switch (rescaleMode) {
                 case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
                 case PROPORTIONAL -> assertEquals(decomposedFlow.getMaxAbsAcFlow(), decomposedFlow.getTotalFlow(), EPSILON);
+                case MAX_CURRENT_OVERLOAD -> {
+                    double acCurrentTerminal1 = decomposedFlow.getAcTerminal1Current();
+                    double acCurrentTerminal2 = decomposedFlow.getAcTerminal2Current();
+                    double nominalVoltageTerminal1 = decomposedFlow.getNominalVoltageTerminal1();
+                    double nominalVoltageTerminal2 = decomposedFlow.getNominalVoltageTerminal2();
+                    CurrentLimits currentLimitsTerminal1 = decomposedFlow.getCurrentLimitsTerminal1();
+                    CurrentLimits currentLimitsTerminal2 = decomposedFlow.getCurrentLimitsTerminal2();
+
+                    double pTerminal1ActivePowerOnly = acCurrentTerminal1 * (nominalVoltageTerminal1 / 1000) * Math.sqrt(3);
+                    double pTerminal2ActivePowerOnly = acCurrentTerminal2 * (nominalVoltageTerminal2 / 1000) * Math.sqrt(3);
+
+                    double pActivePowerOnly;
+                    if (currentLimitsTerminal1 == null || currentLimitsTerminal2 == null) {
+                        pActivePowerOnly = acCurrentTerminal1 >= acCurrentTerminal2 ? pTerminal1ActivePowerOnly : pTerminal2ActivePowerOnly;
+                    } else {
+                        double permanentLimitTerminal1 = currentLimitsTerminal1.getPermanentLimit();
+                        double permanentLimitTerminal2 = currentLimitsTerminal2.getPermanentLimit();
+                        double currentOverloadTerminal1 = acCurrentTerminal1 / permanentLimitTerminal1;
+                        double currentOverloadTerminal2 = acCurrentTerminal2 / permanentLimitTerminal2;
+                        pActivePowerOnly = currentOverloadTerminal1 >= currentOverloadTerminal2 ? pTerminal1ActivePowerOnly : pTerminal2ActivePowerOnly;
+                    }
+                    assertEquals(pActivePowerOnly, decomposedFlow.getTotalFlow(), EPSILON);
+                }
                 default -> assertEqualsWithoutRescaling(xnec, decomposedFlow);
             }
         }

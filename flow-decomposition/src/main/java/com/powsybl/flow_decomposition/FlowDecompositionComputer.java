@@ -8,10 +8,7 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
-import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescaler;
-import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerAcerMethodology;
-import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerNoOp;
-import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerProportional;
+import com.powsybl.flow_decomposition.rescaler.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -143,6 +140,7 @@ public class FlowDecompositionComputer {
                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
         // AC load flow
         saveAcReferenceFlows(flowDecompositionResultsBuilder, network, xnecList, loadFlowServiceAcResult);
+        saveAcCurrents(flowDecompositionResultsBuilder, network, xnecList, loadFlowServiceAcResult);
 
         // Losses compensation
         compensateLosses(network);
@@ -165,7 +163,7 @@ public class FlowDecompositionComputer {
         computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);
         computePstFlows(network, flowDecompositionResultsBuilder, networkMatrixIndexes, psdfMatrix);
 
-        flowDecompositionResultsBuilder.build(decomposedFlowRescaler);
+        flowDecompositionResultsBuilder.build(decomposedFlowRescaler, network);
     }
 
     public void addObserver(FlowDecompositionObserver observer) {
@@ -189,6 +187,14 @@ public class FlowDecompositionComputer {
         observers.computedAcNodalInjections(network, loadFlowServiceAcResult.fallbackHasBeenActivated());
     }
 
+    private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+        Map<String, Double> acTerminal1Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, TwoSides.ONE);
+        Map<String, Double> acTerminal2Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, TwoSides.TWO);
+        flowDecompositionResultBuilder.saveAcCurrentTerminal1(acTerminal1Currents);
+        flowDecompositionResultBuilder.saveAcCurrentTerminal2(acTerminal2Currents);
+        observers.computedAcCurrents(network, loadFlowServiceAcResult);
+    }
+
     private Map<Country, Double> getZonesNetPosition(Network network) {
         NetPositionComputer netPositionComputer = new NetPositionComputer();
         return netPositionComputer.run(network);
@@ -205,6 +211,7 @@ public class FlowDecompositionComputer {
             case NONE -> new DecomposedFlowRescalerNoOp();
             case ACER_METHODOLOGY -> new DecomposedFlowRescalerAcerMethodology();
             case PROPORTIONAL -> new DecomposedFlowRescalerProportional(parameters.getProportionalRescalerMinFlowTolerance());
+            case MAX_CURRENT_OVERLOAD -> new DecomposedFlowRescalerMaxCurrentOverload(parameters.getProportionalRescalerMinFlowTolerance());
             default -> throw new PowsyblException("DecomposedFlowRescaler not defined for mode: " + parameters.getRescaleMode());
         };
     }

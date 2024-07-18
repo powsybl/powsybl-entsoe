@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerAcerMethodology;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerMaxCurrentOverload;
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerNoOp;
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerProportional;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
@@ -166,6 +167,12 @@ class RescalingTests {
         testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.PROPORTIONAL);
     }
 
+    @Test
+    void testMaxCurrentOverloadNormalizationWithFlowDecompositionResultsWithPstNetwork() {
+        String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES.uct";
+        testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.MAX_CURRENT_OVERLOAD);
+    }
+
     static void testNormalizationWithFlowDecompositionResults(String networkFileName, FlowDecompositionParameters.RescaleMode rescaleMode) {
         Network network = TestUtils.importNetwork(networkFileName);
 
@@ -239,6 +246,26 @@ class RescalingTests {
         double dcReferenceFlow = 0.001;
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
         DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerProportional(0.5).rescale(decomposedFlow);
+        // check that same object is returned by rescaler
+        assertSame(decomposedFlow, decomposedFlowRescaled);
+    }
+
+    @Test
+    void testRescalingMaxCurrentOverloadDoesNotRescaleNaN() {
+        double acReferenceFlow = Double.NaN;
+        double dcReferenceFlow = 0.9;
+        DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerMaxCurrentOverload().rescale(decomposedFlow);
+        // check that same object is returned by rescaler
+        assertSame(decomposedFlow, decomposedFlowRescaled);
+    }
+
+    @Test
+    void testRescalingMaxCurrentOverloadDoesNotRescaleWithSmallFlow() {
+        double acReferenceFlow = 1.0;
+        double dcReferenceFlow = 0.001;
+        DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerMaxCurrentOverload(0.5).rescale(decomposedFlow);
         // check that same object is returned by rescaler
         assertSame(decomposedFlow, decomposedFlowRescaled);
     }

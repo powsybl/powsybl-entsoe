@@ -8,6 +8,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;
 
@@ -93,12 +94,19 @@ public interface FlowDecompositionObserver {
      *
      * @param flows the flows for all branches
      */
-    void computedAcFlows(Map<String, Double> flows);
+    void computedAcFlows(Map<String, Pair<Double, Double>> flows);
 
     /**
      * Called when the DC loadflow is computed (for base case or contingency)
      *
      * @param flows the flows for all branches
      */
-    void computedDcFlows(Map<String, Double> flows);
+    void computedDcFlows(Map<String, Pair<Double, Double>> flows);
+
+    /**
+     * Called when the AC loadflow is computed (for base case or contingency)
+     *
+     * @param currents the currents for all branches
+     */
+    void computedAcCurrents(Map<String, Pair<Double, Double>> currents);
 }
