@@ -90,7 +90,9 @@ class FlowDecompositionResultsTests {
         nStateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
         nStateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
         nStateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
-        nStateBuilder.build(decomposedFlowRescaler);
+        nStateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
+        nStateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
+        nStateBuilder.build(decomposedFlowRescaler, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());
@@ -119,7 +121,9 @@ class FlowDecompositionResultsTests {
         n1StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
         n1StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
         n1StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
-        n1StateBuilder.build(decomposedFlowRescaler);
+        n1StateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
+        n1StateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
+        n1StateBuilder.build(decomposedFlowRescaler, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());
@@ -148,7 +152,9 @@ class FlowDecompositionResultsTests {
         n2StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
         n2StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
         n2StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
-        n2StateBuilder.build(decomposedFlowRescaler);
+        n2StateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
+        n2StateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
+        n2StateBuilder.build(decomposedFlowRescaler, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());

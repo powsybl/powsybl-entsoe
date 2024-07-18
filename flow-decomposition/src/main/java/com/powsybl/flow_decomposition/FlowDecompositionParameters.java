@@ -31,7 +31,8 @@ public class FlowDecompositionParameters {
     public enum RescaleMode {
         NONE,
         ACER_METHODOLOGY,
-        PROPORTIONAL
+        PROPORTIONAL,
+        MAX_CURRENT_OVERLOAD
     }
 
     public static final RescaleMode DEFAULT_RESCALE_MODE = RescaleMode.NONE;
