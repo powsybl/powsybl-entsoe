@@ -83,6 +83,10 @@ html_theme_options = {
     "source_directory": "docs/",
 }
 
+html_context = {
+    "sidebar_logo_href": "http://powsybl.readthedocs.io/"
+}
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
