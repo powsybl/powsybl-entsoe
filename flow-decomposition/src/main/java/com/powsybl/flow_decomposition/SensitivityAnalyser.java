@@ -90,7 +90,16 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
             @Override
             public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
                 Pair<String, String> factor = factors.get(factorIndex);
-                double referenceOrientedSensitivity = functionReference < 0 ? -value : value;
+                // Add threshold to avoid unwanted ptdf sign flipping
+                // Threshold value = 100 * 1E-13 = 1E-11
+                // 1e-13 -> FUNCTION_REFERENCE_ZER0_THRESHOLD from powsybl-open-loadflow
+                // 100   -> coming from unscaleFunction(factor, functionValue) from powsybl-open-loadflow
+                // Contingency case from flow decomposition bypasses the fixZeroFunctionReference in DcSensitivityAnalysis
+                double fixedFunctionReference = functionReference;
+                if (Math.abs(fixedFunctionReference) < 1E-11) {
+                    fixedFunctionReference = 0.0;
+                }
+                double referenceOrientedSensitivity = fixedFunctionReference < 0 ? -value : value;
                 sensitivityMatrixTriplet.addItem(factor.getFirst(), factor.getSecond(), referenceOrientedSensitivity);
             }
 
