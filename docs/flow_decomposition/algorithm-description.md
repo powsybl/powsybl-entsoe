@@ -85,7 +85,7 @@ where:
 In order to assess the linear impact (implied by the DC approximation) of each nodal injection and phase shift transformer
 on the network elements' flow, a sensitivity analysis is run.
 
-The following matrices are calculated using [sensitivity analysis](https://www.powsybl.org/pages/documentation/simulation/sensitivity/) API:
+The following matrices are calculated using [sensitivity analysis](inv:powsyblcore:std:doc#simulation/sensitivity/index) API:
 - $\mathrm{PTDF}$ is the matrix of the sensitivity of the network element flow to each network injection shift,
 - $\mathrm{PSDF}$ is the matrix of the sensitivity of the network element flow to each phase shift transformer tap angle change,
 

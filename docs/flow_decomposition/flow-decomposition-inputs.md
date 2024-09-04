@@ -2,7 +2,7 @@
 
 ## Network
 
-The first input of the flow decomposition algorithm is a network. As this simulation uses [power flow](https://www.powsybl.org/pages/documentation/simulation/powerflow/)
+The first input of the flow decomposition algorithm is a network. As this simulation uses [power flow](inv:powsyblcore:std:doc#simulation/loadflow/index)
 simulations for losses compensation, this network should converge.
 
 Any available source can be used as a valid input for flow decomposition (including UCTE, CGMES, XIIDM).
