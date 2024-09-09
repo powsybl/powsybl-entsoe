@@ -13,6 +13,7 @@ import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerProportiona
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -53,6 +54,7 @@ class RescalingTests {
     }
 
     private DecomposedFlow getDecomposedFlow(double acReferenceFlow, double dcReferenceFlow) {
+        Line line = TestUtils.importNetwork("NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES_INVERTED.uct").getLine("BLOAD 11 FGEN1 11 1");
         Map<String, Double> loopFlows = new TreeMap<>();
         double allocatedFlow = 100;
         double pstFlow = 200.;
@@ -63,7 +65,7 @@ class RescalingTests {
         Country country1 = Country.FR;
         Country country2 = Country.FR;
         return new DecomposedFlowBuilder()
-                .withBranchId("")
+                .withBranch(line)
                 .withContingencyId("")
                 .withCountry1(country1)
                 .withCountry2(country2)

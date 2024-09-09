@@ -136,7 +136,7 @@ class FlowDecompositionWithContingencyTests {
                                                         DecomposedFlow decomposedFlow,
                                                         double expectedDcReferenceFlow,
                                                         double expectedFrLoopFlow) {
-        assertEquals(branchId, decomposedFlow.getBranchId());
+        assertEquals(branchId, decomposedFlow.getBranch().getId());
         assertEquals(contingencyId, decomposedFlow.getContingencyId());
         assertEquals(xnecId, decomposedFlow.getId());
         assertEquals(expectedDcReferenceFlow, decomposedFlow.getDcReferenceFlow(), EPSILON);

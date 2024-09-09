@@ -51,10 +51,10 @@ public final class TestUtils {
                 case MAX_CURRENT_OVERLOAD -> {
                     double acCurrentTerminal1 = decomposedFlow.getAcTerminal1Current();
                     double acCurrentTerminal2 = decomposedFlow.getAcTerminal2Current();
-                    double nominalVoltageTerminal1 = decomposedFlow.getNominalVoltageTerminal1();
-                    double nominalVoltageTerminal2 = decomposedFlow.getNominalVoltageTerminal2();
-                    CurrentLimits currentLimitsTerminal1 = decomposedFlow.getCurrentLimitsTerminal1();
-                    CurrentLimits currentLimitsTerminal2 = decomposedFlow.getCurrentLimitsTerminal2();
+                    double nominalVoltageTerminal1 = decomposedFlow.getBranch().getTerminal1().getVoltageLevel().getNominalV();
+                    double nominalVoltageTerminal2 = decomposedFlow.getBranch().getTerminal2().getVoltageLevel().getNominalV();
+                    CurrentLimits currentLimitsTerminal1 = decomposedFlow.getBranch().getNullableCurrentLimits1();
+                    CurrentLimits currentLimitsTerminal2 = decomposedFlow.getBranch().getNullableCurrentLimits2();
 
                     double pTerminal1ActivePowerOnly = acCurrentTerminal1 * (nominalVoltageTerminal1 / 1000) * Math.sqrt(3);
                     double pTerminal2ActivePowerOnly = acCurrentTerminal2 * (nominalVoltageTerminal2 / 1000) * Math.sqrt(3);
@@ -147,7 +147,7 @@ public final class TestUtils {
         DecomposedFlow l1 = flowDecompositionResults.getDecomposedFlowMap().get(id);
         assertNotNull(l1);
         assertEquals(id, l1.getId());
-        assertEquals(branchId, l1.getBranchId());
+        assertEquals(branchId, l1.getBranch().getId());
         assertEquals(contingencyId, l1.getContingencyId());
         assertEquals(country1, l1.getCountry1());
         assertEquals(country2, l1.getCountry2());

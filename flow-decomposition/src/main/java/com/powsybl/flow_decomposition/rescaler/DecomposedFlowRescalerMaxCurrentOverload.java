@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition.rescaler;
 
 import com.powsybl.flow_decomposition.DecomposedFlow;
 import com.powsybl.flow_decomposition.DecomposedFlowBuilder;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.CurrentLimits;
 
@@ -44,7 +45,7 @@ public class DecomposedFlowRescalerMaxCurrentOverload implements DecomposedFlowR
             return decomposedFlow;
         }
 
-        String branchId = decomposedFlow.getBranchId();
+        Branch<?> branch = decomposedFlow.getBranch();
         String contingencyId = decomposedFlow.getContingencyId();
         Country country1 = decomposedFlow.getCountry1();
         Country country2 = decomposedFlow.getCountry2();
@@ -56,10 +57,10 @@ public class DecomposedFlowRescalerMaxCurrentOverload implements DecomposedFlowR
 
         double acTerminal1Current = decomposedFlow.getAcTerminal1Current();
         double acTerminal2Current = decomposedFlow.getAcTerminal2Current();
-        double nominalTerminal1Voltage = decomposedFlow.getNominalVoltageTerminal1();
-        double nominalTerminal2Voltage = decomposedFlow.getNominalVoltageTerminal2();
-        CurrentLimits currentLimitsTerminal1 = decomposedFlow.getCurrentLimitsTerminal1();
-        CurrentLimits currentLimitsTerminal2 = decomposedFlow.getCurrentLimitsTerminal2();
+        double nominalTerminal1Voltage = branch.getTerminal1().getVoltageLevel().getNominalV();
+        double nominalTerminal2Voltage = branch.getTerminal2().getVoltageLevel().getNominalV();
+        CurrentLimits currentLimitsTerminal1 = branch.getNullableCurrentLimits1();
+        CurrentLimits currentLimitsTerminal2 = branch.getNullableCurrentLimits2();
 
         // Calculate active power P = sqrt(3) * I * (V/1000) * cos(phi)
         // with cos(phi) = 1, therefore considering active power only
@@ -88,7 +89,7 @@ public class DecomposedFlowRescalerMaxCurrentOverload implements DecomposedFlowR
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleFactor * entry.getValue()));
 
         return new DecomposedFlowBuilder()
-                .withBranchId(branchId)
+                .withBranch(branch)
                 .withContingencyId(contingencyId)
                 .withCountry1(country1)
                 .withCountry2(country2)
@@ -102,10 +103,6 @@ public class DecomposedFlowRescalerMaxCurrentOverload implements DecomposedFlowR
                 .withLoopFlowsMap(rescaledLoopFlows)
                 .withAcCurrentTerminal1(acTerminal1Current)
                 .withAcCurrentTerminal2(acTerminal2Current)
-                .withNominalVoltageTerminal1(nominalTerminal1Voltage)
-                .withNominalVoltageTerminal2(nominalTerminal2Voltage)
-                .withCurrentLimitsTerminal1(currentLimitsTerminal1)
-                .withCurrentLimitsTerminal2(currentLimitsTerminal2)
                 .build();
     }
 }

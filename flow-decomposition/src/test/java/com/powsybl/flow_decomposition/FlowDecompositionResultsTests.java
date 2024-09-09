@@ -98,7 +98,7 @@ class FlowDecompositionResultsTests {
         assertEquals(1, decomposedFlowMap.size());
 
         DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(branchId);
-        assertEquals(branchId, decomposedFlow.getBranchId());
+        assertEquals(branchId, decomposedFlow.getBranch().getId());
         assertEquals("", decomposedFlow.getContingencyId());
         assertEquals(branchId, decomposedFlow.getId());
         assertEquals(10.0, decomposedFlow.getAcTerminal1ReferenceFlow());
@@ -129,7 +129,7 @@ class FlowDecompositionResultsTests {
         assertEquals(1, decomposedFlowMap.size());
 
         DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnecId);
-        assertEquals(branchId, decomposedFlow.getBranchId());
+        assertEquals(branchId, decomposedFlow.getBranch().getId());
         assertEquals(contingencyId2, decomposedFlow.getContingencyId());
         assertEquals(xnecId, decomposedFlow.getId());
         assertEquals(10.0, decomposedFlow.getAcTerminal1ReferenceFlow());
@@ -160,7 +160,7 @@ class FlowDecompositionResultsTests {
         assertEquals(1, decomposedFlowMap.size());
 
         DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnecId);
-        assertEquals(branchId, decomposedFlow.getBranchId());
+        assertEquals(branchId, decomposedFlow.getBranch().getId());
         assertEquals(contingencyId3, decomposedFlow.getContingencyId());
         assertEquals(xnecId, decomposedFlow.getId());
         assertEquals(10.0, decomposedFlow.getAcTerminal1ReferenceFlow());

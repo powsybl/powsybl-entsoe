@@ -6,8 +6,8 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.CurrentLimits;
 
 import java.util.*;
 
@@ -17,7 +17,7 @@ import java.util.*;
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 public class DecomposedFlow {
-    private final String branchId;
+    private final Branch<?> branch;
     private final String contingencyId;
     private final Country country1;
     private final Country country2;
@@ -30,10 +30,6 @@ public class DecomposedFlow {
     private final double internalFlow;
     private final double acTerminal1Current;
     private final double acTerminal2Current;
-    private final double nominalVoltageTerminal1;
-    private final double nominalVoltageTerminal2;
-    private final CurrentLimits currentLimitsTerminal1;
-    private final CurrentLimits currentLimitsTerminal2;
     private final Map<String, Double> loopFlowsMap = new TreeMap<>();
     static final double NO_FLOW = 0.;
     static final String AC_REFERENCE_FLOW_1_COLUMN_NAME = "Reference AC Flow 1";
@@ -45,7 +41,7 @@ public class DecomposedFlow {
     static final String INTERNAL_COLUMN_NAME = "Internal Flow";
 
     protected DecomposedFlow(DecomposedFlowBuilder builder) {
-        this.branchId = Objects.requireNonNull(builder.branchId);
+        this.branch = Objects.requireNonNull(builder.branch);
         this.contingencyId = Objects.requireNonNull(builder.contingencyId);
         this.country1 = Objects.requireNonNull(builder.country1);
         this.country2 = Objects.requireNonNull(builder.country2);
@@ -59,14 +55,10 @@ public class DecomposedFlow {
         this.loopFlowsMap.putAll(Objects.requireNonNull(builder.loopFlowsMap));
         this.acTerminal1Current = builder.acCurrentTerminal1;
         this.acTerminal2Current = builder.acCurrentTerminal2;
-        this.nominalVoltageTerminal1 = builder.nominalVoltageTerminal1;
-        this.nominalVoltageTerminal2 = builder.nominalVoltageTerminal2;
-        this.currentLimitsTerminal1 = builder.currentLimitsTerminal1;
-        this.currentLimitsTerminal2 = builder.currentLimitsTerminal2;
     }
 
-    public String getBranchId() {
-        return branchId;
+    public Branch<?> getBranch() {
+        return branch;
     }
 
     public String getContingencyId() {
@@ -74,7 +66,7 @@ public class DecomposedFlow {
     }
 
     public String getId() {
-        return getXnecId(contingencyId, branchId);
+        return getXnecId(contingencyId, branch.getId());
     }
 
     public Country getCountry1() {
@@ -145,25 +137,9 @@ public class DecomposedFlow {
         return acTerminal2Current;
     }
 
-    public double getNominalVoltageTerminal1() {
-        return nominalVoltageTerminal1;
-    }
-
-    public double getNominalVoltageTerminal2() {
-        return nominalVoltageTerminal2;
-    }
-
-    public CurrentLimits getCurrentLimitsTerminal1() {
-        return currentLimitsTerminal1;
-    }
-
-    public CurrentLimits getCurrentLimitsTerminal2() {
-        return currentLimitsTerminal2;
-    }
-
     @Override
     public String toString() {
-        return String.format("branchId: %s, contingencyId: %s, decomposition: %s", branchId, contingencyId, getAllKeyMap());
+        return String.format("branchId: %s, contingencyId: %s, decomposition: %s", branch.getId(), contingencyId, getAllKeyMap());
     }
 
     private TreeMap<String, Double> getAllKeyMap() {

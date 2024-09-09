@@ -94,22 +94,18 @@ public class FlowDecompositionResults {
         }
 
         private DecomposedFlow createDecomposedFlow(String branchId, Map<String, Double> allocatedAndLoopFlowMap, DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
+            Branch<?> branch = network.getBranch(branchId);
             Map<String, Double> loopFlowsMap = allocatedAndLoopFlowMap.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             double allocatedFlow = allocatedAndLoopFlowMap.get(ALLOCATED_COLUMN_NAME);
             double pstFlow = pstFlowMap.getOrDefault(branchId, Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW);
             double xNodeFlow = allocatedAndLoopFlowMap.getOrDefault(XNODE_COLUMN_NAME, NO_FLOW);
-            Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
-            Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());
+            Country country1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
+            Country country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
             double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
-            Branch branch = network.getBranch(branchId);
-            double nominalVoltageTerminal1 = branch.getTerminal1().getVoltageLevel().getNominalV();
-            double nominalVoltageTerminal2 = branch.getTerminal2().getVoltageLevel().getNominalV();
-            CurrentLimits currentLimitsTerminal1 = branch.getNullableCurrentLimits1();
-            CurrentLimits currentLimitsTerminal2 = branch.getNullableCurrentLimits2();
             DecomposedFlow decomposedFlow = new DecomposedFlowBuilder()
-                    .withBranchId(branchId)
+                    .withBranch(branch)
                     .withContingencyId(contingencyId)
                     .withCountry1(country1)
                     .withCountry2(country2)
@@ -123,10 +119,6 @@ public class FlowDecompositionResults {
                     .withLoopFlowsMap(loopFlowsMap)
                     .withAcCurrentTerminal1(acCurrentTerminal1.get(branchId))
                     .withAcCurrentTerminal2(acCurrentTerminal2.get(branchId))
-                    .withNominalVoltageTerminal1(nominalVoltageTerminal1)
-                    .withNominalVoltageTerminal2(nominalVoltageTerminal2)
-                    .withCurrentLimitsTerminal1(currentLimitsTerminal1)
-                    .withCurrentLimitsTerminal2(currentLimitsTerminal2)
                     .build();
             return decomposedFlowRescaler.rescale(decomposedFlow);
         }

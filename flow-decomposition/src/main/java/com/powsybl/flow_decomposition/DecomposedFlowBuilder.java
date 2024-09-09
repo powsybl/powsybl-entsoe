@@ -6,8 +6,8 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.CurrentLimits;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ import java.util.Map;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class DecomposedFlowBuilder {
-    protected String branchId;
+    protected Branch<?> branch;
     protected String contingencyId;
     protected Country country1;
     protected Country country2;
@@ -31,17 +31,13 @@ public class DecomposedFlowBuilder {
     protected Map<String, Double> loopFlowsMap;
     protected double acCurrentTerminal1;
     protected double acCurrentTerminal2;
-    protected double nominalVoltageTerminal1;
-    protected double nominalVoltageTerminal2;
-    protected CurrentLimits currentLimitsTerminal1;
-    protected CurrentLimits currentLimitsTerminal2;
 
     public DecomposedFlowBuilder() {
         // empty constructor
     }
 
-    public DecomposedFlowBuilder withBranchId(String branchId) {
-        this.branchId = branchId;
+    public DecomposedFlowBuilder withBranch(Branch<?> branch) {
+        this.branch = branch;
         return this;
     }
 
@@ -67,16 +63,6 @@ public class DecomposedFlowBuilder {
 
     public DecomposedFlowBuilder withAcTerminal2ReferenceFlow(double acTerminal2ReferenceFlow) {
         this.acTerminal2ReferenceFlow = acTerminal2ReferenceFlow;
-        return this;
-    }
-
-    public DecomposedFlowBuilder withNominalVoltageTerminal1(double nominalVoltageTerminal1) {
-        this.nominalVoltageTerminal1 = nominalVoltageTerminal1;
-        return this;
-    }
-
-    public DecomposedFlowBuilder withNominalVoltageTerminal2(double nominalVoltageTerminal2) {
-        this.nominalVoltageTerminal2 = nominalVoltageTerminal2;
         return this;
     }
 
@@ -117,16 +103,6 @@ public class DecomposedFlowBuilder {
 
     public DecomposedFlowBuilder withAcCurrentTerminal2(double acCurrentTerminal2) {
         this.acCurrentTerminal2 = acCurrentTerminal2;
-        return this;
-    }
-
-    public DecomposedFlowBuilder withCurrentLimitsTerminal1(CurrentLimits currentLimitsTerminal1) {
-        this.currentLimitsTerminal1 = currentLimitsTerminal1;
-        return this;
-    }
-
-    public DecomposedFlowBuilder withCurrentLimitsTerminal2(CurrentLimits currentLimitsTerminal2) {
-        this.currentLimitsTerminal2 = currentLimitsTerminal2;
         return this;
     }
 
