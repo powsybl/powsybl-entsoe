@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 
 import java.util.Map;
@@ -17,7 +16,7 @@ import java.util.Map;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 public class DecomposedFlowBuilder {
-    protected Branch<?> branch;
+    protected String branchId;
     protected String contingencyId;
     protected Country country1;
     protected Country country2;
@@ -36,8 +35,8 @@ public class DecomposedFlowBuilder {
         // empty constructor
     }
 
-    public DecomposedFlowBuilder withBranch(Branch<?> branch) {
-        this.branch = branch;
+    public DecomposedFlowBuilder withBranchId(String branchId) {
+        this.branchId = branchId;
         return this;
     }
 

@@ -42,19 +42,20 @@ public final class TestUtils {
         return GlskDocumentImporters.importGlsk(TestUtils.class.getResourceAsStream(glskName));
     }
 
-    public static void assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode rescaleMode, FlowDecompositionResults flowDecompositionResults) {
+    public static void assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode rescaleMode, FlowDecompositionResults flowDecompositionResults, Network network) {
         for (String xnec : flowDecompositionResults.getDecomposedFlowMap().keySet()) {
             DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnec);
             switch (rescaleMode) {
                 case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
                 case PROPORTIONAL -> assertEquals(decomposedFlow.getMaxAbsAcFlow(), decomposedFlow.getTotalFlow(), EPSILON);
                 case MAX_CURRENT_OVERLOAD -> {
+                    Branch<?> branch = network.getBranch(decomposedFlow.getBranchId());
                     double acCurrentTerminal1 = decomposedFlow.getAcTerminal1Current();
                     double acCurrentTerminal2 = decomposedFlow.getAcTerminal2Current();
-                    double nominalVoltageTerminal1 = decomposedFlow.getBranch().getTerminal1().getVoltageLevel().getNominalV();
-                    double nominalVoltageTerminal2 = decomposedFlow.getBranch().getTerminal2().getVoltageLevel().getNominalV();
-                    CurrentLimits currentLimitsTerminal1 = decomposedFlow.getBranch().getNullableCurrentLimits1();
-                    CurrentLimits currentLimitsTerminal2 = decomposedFlow.getBranch().getNullableCurrentLimits2();
+                    double nominalVoltageTerminal1 = branch.getTerminal1().getVoltageLevel().getNominalV();
+                    double nominalVoltageTerminal2 = branch.getTerminal2().getVoltageLevel().getNominalV();
+                    CurrentLimits currentLimitsTerminal1 = branch.getNullableCurrentLimits1();
+                    CurrentLimits currentLimitsTerminal2 = branch.getNullableCurrentLimits2();
 
                     double pTerminal1ActivePowerOnly = acCurrentTerminal1 * (nominalVoltageTerminal1 / 1000) * Math.sqrt(3);
                     double pTerminal2ActivePowerOnly = acCurrentTerminal2 * (nominalVoltageTerminal2 / 1000) * Math.sqrt(3);
@@ -147,7 +148,7 @@ public final class TestUtils {
         DecomposedFlow l1 = flowDecompositionResults.getDecomposedFlowMap().get(id);
         assertNotNull(l1);
         assertEquals(id, l1.getId());
-        assertEquals(branchId, l1.getBranch().getId());
+        assertEquals(branchId, l1.getBranchId());
         assertEquals(contingencyId, l1.getContingencyId());
         assertEquals(country1, l1.getCountry1());
         assertEquals(country2, l1.getCountry2());

@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 
 import java.util.*;
@@ -17,7 +16,7 @@ import java.util.*;
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 public class DecomposedFlow {
-    private final Branch<?> branch;
+    private final String branchId;
     private final String contingencyId;
     private final Country country1;
     private final Country country2;
@@ -41,7 +40,7 @@ public class DecomposedFlow {
     static final String INTERNAL_COLUMN_NAME = "Internal Flow";
 
     protected DecomposedFlow(DecomposedFlowBuilder builder) {
-        this.branch = Objects.requireNonNull(builder.branch);
+        this.branchId = Objects.requireNonNull(builder.branchId);
         this.contingencyId = Objects.requireNonNull(builder.contingencyId);
         this.country1 = Objects.requireNonNull(builder.country1);
         this.country2 = Objects.requireNonNull(builder.country2);
@@ -57,8 +56,8 @@ public class DecomposedFlow {
         this.acTerminal2Current = builder.acCurrentTerminal2;
     }
 
-    public Branch<?> getBranch() {
-        return branch;
+    public String getBranchId() {
+        return branchId;
     }
 
     public String getContingencyId() {
@@ -66,7 +65,7 @@ public class DecomposedFlow {
     }
 
     public String getId() {
-        return getXnecId(contingencyId, branch.getId());
+        return getXnecId(contingencyId, branchId);
     }
 
     public Country getCountry1() {
@@ -139,7 +138,7 @@ public class DecomposedFlow {
 
     @Override
     public String toString() {
-        return String.format("branchId: %s, contingencyId: %s, decomposition: %s", branch.getId(), contingencyId, getAllKeyMap());
+        return String.format("branchId: %s, contingencyId: %s, decomposition: %s", branchId, contingencyId, getAllKeyMap());
     }
 
     private TreeMap<String, Double> getAllKeyMap() {

@@ -7,7 +7,6 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescaler;
-import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerMaxCurrentOverload;
 import com.powsybl.iidm.network.*;
 
 import java.text.SimpleDateFormat;
@@ -83,9 +82,6 @@ public class FlowDecompositionResults {
         }
 
         void build(DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
-            if (decomposedFlowRescaler instanceof DecomposedFlowRescalerMaxCurrentOverload) {
-                Objects.requireNonNull(network);
-            }
             allocatedAndLoopFlowsMatrix.toMap()
                 .forEach((branchId, decomposedFlow) -> {
                     String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
@@ -94,18 +90,17 @@ public class FlowDecompositionResults {
         }
 
         private DecomposedFlow createDecomposedFlow(String branchId, Map<String, Double> allocatedAndLoopFlowMap, DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
-            Branch<?> branch = network.getBranch(branchId);
             Map<String, Double> loopFlowsMap = allocatedAndLoopFlowMap.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             double allocatedFlow = allocatedAndLoopFlowMap.get(ALLOCATED_COLUMN_NAME);
             double pstFlow = pstFlowMap.getOrDefault(branchId, Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW);
             double xNodeFlow = allocatedAndLoopFlowMap.getOrDefault(XNODE_COLUMN_NAME, NO_FLOW);
-            Country country1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
-            Country country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
+            Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
+            Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());
             double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
             DecomposedFlow decomposedFlow = new DecomposedFlowBuilder()
-                    .withBranch(branch)
+                    .withBranchId(branchId)
                     .withContingencyId(contingencyId)
                     .withCountry1(country1)
                     .withCountry2(country2)
@@ -120,7 +115,7 @@ public class FlowDecompositionResults {
                     .withAcCurrentTerminal1(acCurrentTerminal1.get(branchId))
                     .withAcCurrentTerminal2(acCurrentTerminal2.get(branchId))
                     .build();
-            return decomposedFlowRescaler.rescale(decomposedFlow);
+            return decomposedFlowRescaler.rescale(decomposedFlow, network);
         }
 
         private double extractInternalFlow(Map<String, Double> loopFlowsMap, Country country1, Country country2) {

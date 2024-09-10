@@ -66,6 +66,6 @@ class CgmesIntegrationTests {
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
         assertNotNull(flowDecompositionResults.getDecomposedFlowMap().get(xnecId));
         assertEquals(1, flowDecompositionResults.getDecomposedFlowMap().size());
-        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults, network);
     }
 }

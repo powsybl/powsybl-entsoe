@@ -41,7 +41,7 @@ class XnodeFlowTests {
             .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
-        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(44.109, decomposedFlowMap.get(branchId1).getXNodeFlow(), EPSILON);

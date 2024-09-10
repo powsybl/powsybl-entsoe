@@ -9,7 +9,6 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerAcerMethodology;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -84,7 +83,6 @@ class InternalFlowTests {
     }
 
     private DecomposedFlow getDecomposedFlow(double internalFlow, double acReferenceFlow, double dcReferenceFlow) {
-        Line line = TestUtils.importNetwork("NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES_INVERTED.uct").getLine("BLOAD 11 FGEN1 11 1");
         Map<String, Double> loopFlows = new TreeMap<>();
         double allocatedFlow = 100;
         double pstFlow = 200.;
@@ -94,7 +92,7 @@ class InternalFlowTests {
         Country country1 = Country.FR;
         Country country2 = Country.FR;
         return new DecomposedFlowBuilder()
-                .withBranch(line)
+                .withBranchId("")
                 .withContingencyId("")
                 .withCountry1(country1)
                 .withCountry2(country2)
@@ -113,7 +111,7 @@ class InternalFlowTests {
         DecomposedFlow decomposedFlow = getDecomposedFlow(internalFlow, acReferenceFlow, dcReferenceFlow);
         assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
 
-        return new DecomposedFlowRescalerAcerMethodology().rescale(decomposedFlow);
+        return new DecomposedFlowRescalerAcerMethodology().rescale(decomposedFlow, null);
     }
 
     private void checkRescaleAcReference(double acReferenceFlow, double dcReferenceFlow, DecomposedFlow rescaledFlow, double expectedAllocatedFlow, double expectedInternalFlow, double expectedPstFlow, double expectedLoopFlowBE, double expectedLoopFlowES) {

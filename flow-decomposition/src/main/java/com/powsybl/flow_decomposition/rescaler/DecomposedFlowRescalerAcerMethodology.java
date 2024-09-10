@@ -9,8 +9,8 @@ package com.powsybl.flow_decomposition.rescaler;
 
 import com.powsybl.flow_decomposition.DecomposedFlow;
 import com.powsybl.flow_decomposition.DecomposedFlowBuilder;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,14 +35,14 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
     }
 
     @Override
-    public DecomposedFlow rescale(DecomposedFlow decomposedFlow) {
+    public DecomposedFlow rescale(DecomposedFlow decomposedFlow, Network network) {
         double acTerminal1ReferenceFlow = decomposedFlow.getAcTerminal1ReferenceFlow();
         double acTerminal2ReferenceFlow = decomposedFlow.getAcTerminal2ReferenceFlow();
         if (Double.isNaN(acTerminal1ReferenceFlow) || Double.isNaN(acTerminal2ReferenceFlow)) {
             return decomposedFlow;
         }
 
-        Branch<?> branch = decomposedFlow.getBranch();
+        String branchId = decomposedFlow.getBranchId();
         String contingencyId = decomposedFlow.getContingencyId();
         Country country1 = decomposedFlow.getCountry1();
         Country country2 = decomposedFlow.getCountry2();
@@ -64,7 +64,7 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
 
         return new DecomposedFlowBuilder()
-                .withBranch(branch)
+                .withBranchId(branchId)
                 .withContingencyId(contingencyId)
                 .withCountry1(country1)
                 .withCountry2(country2)
