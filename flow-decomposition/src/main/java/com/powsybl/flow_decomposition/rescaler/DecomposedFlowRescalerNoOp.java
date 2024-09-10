@@ -15,14 +15,19 @@ import com.powsybl.iidm.network.Network;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
-public class DecomposedFlowRescalerNoOp implements DecomposedFlowRescaler {
+public class DecomposedFlowRescalerNoOp extends AbstractDecomposedRescaler {
 
     public DecomposedFlowRescalerNoOp() {
         // empty constructor
     }
 
     @Override
-    public DecomposedFlow rescale(DecomposedFlow decomposedFlow, Network network) {
-        return decomposedFlow;
+    protected boolean shouldRescaleFlows(DecomposedFlow decomposedFlow) {
+        return false;
+    }
+
+    @Override
+    protected RescaledFlows computeRescaledFlows(DecomposedFlow decomposedFlow, Network network) {
+        return null;
     }
 }

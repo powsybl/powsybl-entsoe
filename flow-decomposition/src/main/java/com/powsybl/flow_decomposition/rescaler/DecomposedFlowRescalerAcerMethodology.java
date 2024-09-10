@@ -8,8 +8,6 @@
 package com.powsybl.flow_decomposition.rescaler;
 
 import com.powsybl.flow_decomposition.DecomposedFlow;
-import com.powsybl.flow_decomposition.DecomposedFlowBuilder;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
@@ -20,7 +18,7 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
-public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowRescaler {
+public class DecomposedFlowRescalerAcerMethodology extends AbstractDecomposedRescaler {
 
     public DecomposedFlowRescalerAcerMethodology() {
         // empty constructor
@@ -35,24 +33,22 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
     }
 
     @Override
-    public DecomposedFlow rescale(DecomposedFlow decomposedFlow, Network network) {
-        double acTerminal1ReferenceFlow = decomposedFlow.getAcTerminal1ReferenceFlow();
-        double acTerminal2ReferenceFlow = decomposedFlow.getAcTerminal2ReferenceFlow();
-        if (Double.isNaN(acTerminal1ReferenceFlow) || Double.isNaN(acTerminal2ReferenceFlow)) {
-            return decomposedFlow;
+    protected boolean shouldRescaleFlows(DecomposedFlow decomposedFlow) {
+        // - if AC flows are NaN
+        if (Double.isNaN(decomposedFlow.getAcTerminal1ReferenceFlow()) || Double.isNaN(decomposedFlow.getAcTerminal2ReferenceFlow())) {
+            return false;
         }
+        return true;
+    }
 
-        String branchId = decomposedFlow.getBranchId();
-        String contingencyId = decomposedFlow.getContingencyId();
-        Country country1 = decomposedFlow.getCountry1();
-        Country country2 = decomposedFlow.getCountry2();
-        double dcReferenceFlow = decomposedFlow.getDcReferenceFlow();
+    @Override
+    protected AbstractDecomposedRescaler.RescaledFlows computeRescaledFlows(DecomposedFlow decomposedFlow, Network network) {
+        double acTerminal1ReferenceFlow = decomposedFlow.getAcTerminal1ReferenceFlow();
         double allocatedFlow = decomposedFlow.getAllocatedFlow();
         double xNodeFlow = decomposedFlow.getXNodeFlow();
         double pstFlow = decomposedFlow.getPstFlow();
         double internalFlow = decomposedFlow.getInternalFlow();
         Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
-
         double deltaToRescale = acTerminal1ReferenceFlow * Math.signum(acTerminal1ReferenceFlow) - decomposedFlow.getTotalFlow();
         double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + reLU(xNodeFlow) + loopFlows.values().stream().mapToDouble(DecomposedFlowRescalerAcerMethodology::reLU).sum() + reLU(internalFlow);
 
@@ -63,19 +59,6 @@ public class DecomposedFlowRescalerAcerMethodology implements DecomposedFlowResc
         Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
 
-        return new DecomposedFlowBuilder()
-                .withBranchId(branchId)
-                .withContingencyId(contingencyId)
-                .withCountry1(country1)
-                .withCountry2(country2)
-                .withAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow)
-                .withAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow)
-                .withDcReferenceFlow(dcReferenceFlow)
-                .withAllocatedFlow(rescaledAllocatedFlow)
-                .withXNodeFlow(rescaledXNodeFlow)
-                .withPstFlow(rescaledPstFlow)
-                .withInternalFlow(rescaleInternalFlow)
-                .withLoopFlowsMap(rescaledLoopFlows)
-                .build();
+        return new AbstractDecomposedRescaler.RescaledFlows(rescaledAllocatedFlow, rescaledXNodeFlow, rescaledPstFlow, rescaleInternalFlow, rescaledLoopFlows);
     }
 }

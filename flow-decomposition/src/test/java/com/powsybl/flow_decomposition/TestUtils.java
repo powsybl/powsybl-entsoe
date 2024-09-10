@@ -64,10 +64,8 @@ public final class TestUtils {
                     if (currentLimitsTerminal1 == null || currentLimitsTerminal2 == null) {
                         pActivePowerOnly = acCurrentTerminal1 >= acCurrentTerminal2 ? pTerminal1ActivePowerOnly : pTerminal2ActivePowerOnly;
                     } else {
-                        double permanentLimitTerminal1 = currentLimitsTerminal1.getPermanentLimit();
-                        double permanentLimitTerminal2 = currentLimitsTerminal2.getPermanentLimit();
-                        double currentOverloadTerminal1 = acCurrentTerminal1 / permanentLimitTerminal1;
-                        double currentOverloadTerminal2 = acCurrentTerminal2 / permanentLimitTerminal2;
+                        double currentOverloadTerminal1 = acCurrentTerminal1 / currentLimitsTerminal1.getPermanentLimit();
+                        double currentOverloadTerminal2 = acCurrentTerminal2 / currentLimitsTerminal2.getPermanentLimit();
                         pActivePowerOnly = currentOverloadTerminal1 >= currentOverloadTerminal2 ? pTerminal1ActivePowerOnly : pTerminal2ActivePowerOnly;
                     }
                     assertEquals(pActivePowerOnly, decomposedFlow.getTotalFlow(), EPSILON);
