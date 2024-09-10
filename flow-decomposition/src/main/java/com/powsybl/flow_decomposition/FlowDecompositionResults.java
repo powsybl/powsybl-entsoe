@@ -107,13 +107,13 @@ public class FlowDecompositionResults {
                     .withAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow.get(branchId))
                     .withAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow.get(branchId))
                     .withDcReferenceFlow(dcReferenceFlow.get(branchId))
+                    .withAcCurrentTerminal1(acCurrentTerminal1.get(branchId))
+                    .withAcCurrentTerminal2(acCurrentTerminal2.get(branchId))
                     .withAllocatedFlow(allocatedFlow)
                     .withXNodeFlow(xNodeFlow)
                     .withPstFlow(pstFlow)
                     .withInternalFlow(internalFlow)
                     .withLoopFlowsMap(loopFlowsMap)
-                    .withAcCurrentTerminal1(acCurrentTerminal1.get(branchId))
-                    .withAcCurrentTerminal2(acCurrentTerminal2.get(branchId))
                     .build();
             return decomposedFlowRescaler.rescale(decomposedFlow, network);
         }
