@@ -10,7 +10,6 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -58,9 +57,12 @@ class FlowDecompositionObserverTest {
         private final ContingencyValue<Map<String, Map<String, Double>>> psdfs = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> acNodalInjections = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> dcNodalInjections = new ContingencyValue<>();
-        private final ContingencyValue<Map<String, Pair<Double, Double>>> acFlows = new ContingencyValue<>();
-        private final ContingencyValue<Map<String, Pair<Double, Double>>> dcFlows = new ContingencyValue<>();
-        private final ContingencyValue<Map<String, Pair<Double, Double>>> acCurrents = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> acFlowsTerminal1 = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> acFlowsTerminal2 = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> dcFlowsTerminal1 = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> dcFlowsTerminal2 = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> acCurrentsTerminal1 = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> acCurrentsTerminal2 = new ContingencyValue<>();
 
         public List<Event> allEvents() {
             return events;
@@ -139,21 +141,39 @@ class FlowDecompositionObserverTest {
         }
 
         @Override
-        public void computedAcFlows(Map<String, Pair<Double, Double>> flows) {
+        public void computedAcFlowsTerminal1(Map<String, Double> flows) {
             addEvent(Event.COMPUTED_AC_FLOWS);
-            this.acFlows.put(currentContingency, flows);
+            this.acFlowsTerminal1.put(currentContingency, flows);
         }
 
         @Override
-        public void computedDcFlows(Map<String, Pair<Double, Double>> flows) {
+        public void computedAcFlowsTerminal2(Map<String, Double> flows) {
+            addEvent(Event.COMPUTED_AC_FLOWS);
+            this.acFlowsTerminal2.put(currentContingency, flows);
+        }
+
+        @Override
+        public void computedDcFlowsTerminal1(Map<String, Double> flows) {
             addEvent(Event.COMPUTED_DC_FLOWS);
-            this.dcFlows.put(currentContingency, flows);
+            this.dcFlowsTerminal1.put(currentContingency, flows);
         }
 
         @Override
-        public void computedAcCurrents(Map<String, Pair<Double, Double>> currents) {
+        public void computedDcFlowsTerminal2(Map<String, Double> flows) {
+            addEvent(Event.COMPUTED_DC_FLOWS);
+            this.dcFlowsTerminal2.put(currentContingency, flows);
+        }
+
+        @Override
+        public void computedAcCurrentsTerminal1(Map<String, Double> currents) {
             addEvent(Event.COMPUTED_AC_CURRENTS);
-            this.acCurrents.put(currentContingency, currents);
+            this.acCurrentsTerminal1.put(currentContingency, currents);
+        }
+
+        @Override
+        public void computedAcCurrentsTerminal2(Map<String, Double> currents) {
+            addEvent(Event.COMPUTED_AC_CURRENTS);
+            this.acCurrentsTerminal2.put(currentContingency, currents);
         }
 
         private void addEvent(Event e) {
@@ -304,12 +324,12 @@ class FlowDecompositionObserverTest {
 
         // Checking AC flows
         for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(allBranches, report.acFlows.forContingency(contingencyId).keySet());
+            assertEquals(allBranches, report.acFlowsTerminal1.forContingency(contingencyId).keySet());
         }
 
         // Checking DC flows
         for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(allBranches, report.dcFlows.forContingency(contingencyId).keySet());
+            assertEquals(allBranches, report.acFlowsTerminal1.forContingency(contingencyId).keySet());
         }
     }
 

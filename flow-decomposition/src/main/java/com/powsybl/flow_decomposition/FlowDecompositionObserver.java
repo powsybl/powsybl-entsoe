@@ -8,7 +8,6 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Map;
 
@@ -92,21 +91,42 @@ public interface FlowDecompositionObserver {
     /**
      * Called when the AC loadflow is computed (for base case or contingency)
      *
-     * @param flows the flows for all branches
+     * @param flows the terminal 1 flow for all branches
      */
-    void computedAcFlows(Map<String, Pair<Double, Double>> flows);
-
-    /**
-     * Called when the DC loadflow is computed (for base case or contingency)
-     *
-     * @param flows the flows for all branches
-     */
-    void computedDcFlows(Map<String, Pair<Double, Double>> flows);
+    void computedAcFlowsTerminal1(Map<String, Double> flows);
 
     /**
      * Called when the AC loadflow is computed (for base case or contingency)
      *
-     * @param currents the currents for all branches
+     * @param flows the terminal 2 flow for all branches
      */
-    void computedAcCurrents(Map<String, Pair<Double, Double>> currents);
+    void computedAcFlowsTerminal2(Map<String, Double> flows);
+
+    /**
+     * Called when the DC loadflow is computed (for base case or contingency)
+     *
+     * @param flows the terminal 1 flow for all branches
+     */
+    void computedDcFlowsTerminal1(Map<String, Double> flows);
+
+    /**
+     * Called when the DC loadflow is computed (for base case or contingency)
+     *
+     * @param flows the terminal 2 flow for all branches
+     */
+    void computedDcFlowsTerminal2(Map<String, Double> flows);
+
+    /**
+     * Called when the AC loadflow is computed (for base case or contingency)
+     *
+     * @param currents the terminal 1 current for all branches
+     */
+    void computedAcCurrentsTerminal1(Map<String, Double> currents);
+
+    /**
+     * Called when the AC loadflow is computed (for base case or contingency)
+     *
+     * @param currents the terminal 1 current for all branches
+     */
+    void computedAcCurrentsTerminal2(Map<String, Double> currents);
 }
