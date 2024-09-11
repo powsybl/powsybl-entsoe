@@ -17,4 +17,4 @@
 Any implementation of load flow provider and sensitivity analysis provider can be used, as the entire algorithm only
 relies on common loadflow API and sensitivity analysis API.
 
-Thus, flow decomposition algorithm relies on [load flow parameters](https://www.powsybl.org/pages/documentation/simulation/powerflow/) and [sensitivity analysis parameters](https://www.powsybl.org/pages/documentation/simulation/sensitivity/).
+Thus, flow decomposition algorithm relies on [load flow parameters](inv:powsyblcore:*:*#loadflow-generic-parameters) and [sensitivity analysis parameters](inv:powsyblcore:*:*#sensitivity-generic-parameter).
