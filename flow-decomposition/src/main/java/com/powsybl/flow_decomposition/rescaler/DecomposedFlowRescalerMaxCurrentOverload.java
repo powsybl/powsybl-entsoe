@@ -34,10 +34,7 @@ public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposed
     protected boolean shouldRescaleFlows(DecomposedFlow decomposedFlow) {
         // - if AC flows are NaN
         // - if dcReferenceFlow is too small
-        if (Double.isNaN(decomposedFlow.getAcTerminal1ReferenceFlow()) || Double.isNaN(decomposedFlow.getAcTerminal2ReferenceFlow()) || Math.abs(decomposedFlow.getDcReferenceFlow()) < minFlowTolerance) {
-            return false;
-        }
-        return true;
+        return !Double.isNaN(decomposedFlow.getAcTerminal1ReferenceFlow()) && !Double.isNaN(decomposedFlow.getAcTerminal2ReferenceFlow()) && !(Math.abs(decomposedFlow.getDcReferenceFlow()) < minFlowTolerance);
     }
 
     @Override

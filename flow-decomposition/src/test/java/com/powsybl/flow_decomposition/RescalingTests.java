@@ -173,6 +173,13 @@ class RescalingTests {
         testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.MAX_CURRENT_OVERLOAD);
     }
 
+    @Test
+    void testMaxCurrentOverloadNormalizationWithFlowDecompositionResults2() {
+        String networkFileName = "19700101_0000_FO4_UX1.uct";
+        testNormalizationWithFlowDecompositionResults(networkFileName, FlowDecompositionParameters.RescaleMode.MAX_CURRENT_OVERLOAD);
+    }
+
+
     static void testNormalizationWithFlowDecompositionResults(String networkFileName, FlowDecompositionParameters.RescaleMode rescaleMode) {
         Network network = TestUtils.importNetwork(networkFileName);
 
