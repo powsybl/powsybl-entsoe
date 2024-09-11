@@ -34,7 +34,7 @@ public class DecomposedFlowRescalerAcerMethodology extends AbstractDecomposedRes
 
     @Override
     protected boolean shouldRescaleFlows(DecomposedFlow decomposedFlow) {
-        // - if AC flows are NaN
+        // - if AC flows are not NaN
         return !Double.isNaN(decomposedFlow.getAcTerminal1ReferenceFlow()) && !Double.isNaN(decomposedFlow.getAcTerminal2ReferenceFlow());
     }
 

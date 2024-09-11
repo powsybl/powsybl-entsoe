@@ -30,9 +30,9 @@ public class DecomposedFlowRescalerProportional extends AbstractDecomposedRescal
 
     @Override
     protected boolean shouldRescaleFlows(DecomposedFlow decomposedFlow) {
-        // - if AC flows are NaN
-        // - if dcReferenceFlow is too small
-        return !Double.isNaN(decomposedFlow.getAcTerminal1ReferenceFlow()) && !Double.isNaN(decomposedFlow.getAcTerminal2ReferenceFlow()) && !(Math.abs(decomposedFlow.getDcReferenceFlow()) < minFlowTolerance);
+        // - if AC flows are not NaN
+        // - if dcReferenceFlow is big enough
+        return !Double.isNaN(decomposedFlow.getAcTerminal1ReferenceFlow()) && !Double.isNaN(decomposedFlow.getAcTerminal2ReferenceFlow()) && Math.abs(decomposedFlow.getDcReferenceFlow()) >= minFlowTolerance;
     }
 
     @Override
