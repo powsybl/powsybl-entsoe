@@ -95,10 +95,11 @@ html_css_files = ['styles/styles.css']
 
 todo_include_todos = True
 
-# Links to external documentations : python 3 and pandas
+# Links to external documentations
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'pandas': ('https://pandas.pydata.org/docs', None),
+    'powsyblcore': ('https://powsybl.readthedocs.io/projects/powsybl-core/en/latest/', None),
 }
 
 # Generate one file per method
