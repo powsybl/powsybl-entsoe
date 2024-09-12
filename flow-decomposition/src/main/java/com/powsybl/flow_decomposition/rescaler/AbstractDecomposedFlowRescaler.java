@@ -16,9 +16,9 @@ import java.util.Map;
 /**
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
-abstract class AbstractDecomposedRescaler implements DecomposedFlowRescaler {
+abstract class AbstractDecomposedFlowRescaler implements DecomposedFlowRescaler {
 
-    protected AbstractDecomposedRescaler() {
+    protected AbstractDecomposedFlowRescaler() {
         // empty constructor
     }
 
@@ -53,4 +53,12 @@ abstract class AbstractDecomposedRescaler implements DecomposedFlowRescaler {
     }
 
     protected record RescaledFlows(double rescaledAllocatedFlow, double rescaledXNodeFlow, double rescaledPstFlow, double rescaleInternalFlow, Map<String, Double> rescaledLoopFlows) { }
+
+    static boolean hasFiniteAcFlowsOnEachTerminal(DecomposedFlow decomposedFlow) {
+        return Double.isFinite(decomposedFlow.getAcTerminal1ReferenceFlow()) && Double.isFinite(decomposedFlow.getAcTerminal2ReferenceFlow());
+    }
+
+    static boolean hasAbsDcFlowGreaterThanTolerance(DecomposedFlow decomposedFlow, double minFlowTolerance) {
+        return Math.abs(decomposedFlow.getDcReferenceFlow()) >= minFlowTolerance;
+    }
 }

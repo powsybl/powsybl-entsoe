@@ -59,8 +59,7 @@ class FlowDecompositionObserverTest {
         private final ContingencyValue<Map<String, Double>> dcNodalInjections = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> acFlowsTerminal1 = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> acFlowsTerminal2 = new ContingencyValue<>();
-        private final ContingencyValue<Map<String, Double>> dcFlowsTerminal1 = new ContingencyValue<>();
-        private final ContingencyValue<Map<String, Double>> dcFlowsTerminal2 = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> dcFlows = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> acCurrentsTerminal1 = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> acCurrentsTerminal2 = new ContingencyValue<>();
 
@@ -153,15 +152,9 @@ class FlowDecompositionObserverTest {
         }
 
         @Override
-        public void computedDcFlowsTerminal1(Map<String, Double> flows) {
+        public void computedDcFlows(Map<String, Double> flows) {
             addEvent(Event.COMPUTED_DC_FLOWS);
-            this.dcFlowsTerminal1.put(currentContingency, flows);
-        }
-
-        @Override
-        public void computedDcFlowsTerminal2(Map<String, Double> flows) {
-            addEvent(Event.COMPUTED_DC_FLOWS);
-            this.dcFlowsTerminal2.put(currentContingency, flows);
+            this.dcFlows.put(currentContingency, flows);
         }
 
         @Override

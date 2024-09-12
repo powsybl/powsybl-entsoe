@@ -107,14 +107,7 @@ public interface FlowDecompositionObserver {
      *
      * @param flows the terminal 1 flow for all branches
      */
-    void computedDcFlowsTerminal1(Map<String, Double> flows);
-
-    /**
-     * Called when the DC loadflow is computed (for base case or contingency)
-     *
-     * @param flows the terminal 2 flow for all branches
-     */
-    void computedDcFlowsTerminal2(Map<String, Double> flows);
+    void computedDcFlows(Map<String, Double> flows);
 
     /**
      * Called when the AC loadflow is computed (for base case or contingency)

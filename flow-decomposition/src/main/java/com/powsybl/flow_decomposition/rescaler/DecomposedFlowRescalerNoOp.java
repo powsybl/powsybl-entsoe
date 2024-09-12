@@ -7,6 +7,7 @@
  */
 package com.powsybl.flow_decomposition.rescaler;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.DecomposedFlow;
 import com.powsybl.iidm.network.Network;
 
@@ -15,7 +16,7 @@ import com.powsybl.iidm.network.Network;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
-public class DecomposedFlowRescalerNoOp extends AbstractDecomposedRescaler {
+public class DecomposedFlowRescalerNoOp extends AbstractDecomposedFlowRescaler {
 
     public DecomposedFlowRescalerNoOp() {
         // empty constructor
@@ -28,6 +29,6 @@ public class DecomposedFlowRescalerNoOp extends AbstractDecomposedRescaler {
 
     @Override
     protected RescaledFlows computeRescaledFlows(DecomposedFlow decomposedFlow, Network network) {
-        return null;
+        throw new PowsyblException("This class is not supposed compute rescaled flows");
     }
 }

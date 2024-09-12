@@ -100,8 +100,7 @@ public class FlowDecompositionObserverList {
         }
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedDcFlowsTerminal1(FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().toList(), TwoSides.ONE));
-            o.computedDcFlowsTerminal2(FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().toList(), TwoSides.TWO));
+            o.computedDcFlows(FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().toList(), TwoSides.ONE));
         }
     }
 

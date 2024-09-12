@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
-public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposedRescaler {
+public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposedFlowRescaler {
 
     private final double minFlowTolerance; // min flow in MW to rescale
 
@@ -32,9 +32,7 @@ public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposed
 
     @Override
     protected boolean shouldRescaleFlows(DecomposedFlow decomposedFlow) {
-        // - if AC flows are not NaN
-        // - if dcReferenceFlow is big enough
-        return !Double.isNaN(decomposedFlow.getAcTerminal1ReferenceFlow()) && !Double.isNaN(decomposedFlow.getAcTerminal2ReferenceFlow()) && Math.abs(decomposedFlow.getDcReferenceFlow()) >= minFlowTolerance;
+        return hasFiniteAcFlowsOnEachTerminal(decomposedFlow) && hasAbsDcFlowGreaterThanTolerance(decomposedFlow, minFlowTolerance);
     }
 
     @Override
