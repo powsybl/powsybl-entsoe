@@ -322,7 +322,7 @@ class FlowDecompositionObserverTest {
 
         // Checking DC flows
         for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(allBranches, report.acFlowsTerminal1.forContingency(contingencyId).keySet());
+            assertEquals(allBranches, report.dcFlows.forContingency(contingencyId).keySet());
         }
     }
 
