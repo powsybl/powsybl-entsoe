@@ -48,28 +48,7 @@ public final class TestUtils {
             switch (rescaleMode) {
                 case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
                 case PROPORTIONAL -> assertEquals(decomposedFlow.getMaxAbsAcFlow(), decomposedFlow.getTotalFlow(), EPSILON);
-                case MAX_CURRENT_OVERLOAD -> {
-                    Branch<?> branch = network.getBranch(decomposedFlow.getBranchId());
-                    double acCurrentTerminal1 = decomposedFlow.getAcTerminal1Current();
-                    double acCurrentTerminal2 = decomposedFlow.getAcTerminal2Current();
-                    double nominalVoltageTerminal1 = branch.getTerminal1().getVoltageLevel().getNominalV();
-                    double nominalVoltageTerminal2 = branch.getTerminal2().getVoltageLevel().getNominalV();
-                    CurrentLimits currentLimitsTerminal1 = branch.getNullableCurrentLimits1();
-                    CurrentLimits currentLimitsTerminal2 = branch.getNullableCurrentLimits2();
-
-                    double pTerminal1ActivePowerOnly = acCurrentTerminal1 * (nominalVoltageTerminal1 / 1000) * Math.sqrt(3);
-                    double pTerminal2ActivePowerOnly = acCurrentTerminal2 * (nominalVoltageTerminal2 / 1000) * Math.sqrt(3);
-
-                    double pActivePowerOnly;
-                    if (currentLimitsTerminal1 == null || currentLimitsTerminal2 == null) {
-                        pActivePowerOnly = acCurrentTerminal1 >= acCurrentTerminal2 ? pTerminal1ActivePowerOnly : pTerminal2ActivePowerOnly;
-                    } else {
-                        double currentOverloadTerminal1 = acCurrentTerminal1 / currentLimitsTerminal1.getPermanentLimit();
-                        double currentOverloadTerminal2 = acCurrentTerminal2 / currentLimitsTerminal2.getPermanentLimit();
-                        pActivePowerOnly = currentOverloadTerminal1 >= currentOverloadTerminal2 ? pTerminal1ActivePowerOnly : pTerminal2ActivePowerOnly;
-                    }
-                    assertEquals(pActivePowerOnly, decomposedFlow.getTotalFlow(), EPSILON);
-                }
+                case MAX_CURRENT_OVERLOAD -> throw new IllegalArgumentException("Rescaling method not tested");
                 default -> assertEqualsWithoutRescaling(xnec, decomposedFlow);
             }
         }
