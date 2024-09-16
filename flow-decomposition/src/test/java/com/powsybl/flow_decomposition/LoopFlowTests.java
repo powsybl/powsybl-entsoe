@@ -35,7 +35,7 @@ class LoopFlowTests {
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(x1, x2, x4, x5)).build();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
-        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode.NONE, flowDecompositionResults, network);
+        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode.NONE, flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(0, decomposedFlowMap.get(x1).getAllocatedFlow(), EPSILON);

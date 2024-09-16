@@ -180,7 +180,7 @@ class RescalingTests {
         XnecProvider xnecProvider = new XnecProviderAllBranches();
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
-        TestUtils.assertCoherenceTotalFlow(rescaleMode, flowDecompositionResults, network);
+        TestUtils.assertCoherenceTotalFlow(rescaleMode, flowDecompositionResults);
     }
 
     @Test

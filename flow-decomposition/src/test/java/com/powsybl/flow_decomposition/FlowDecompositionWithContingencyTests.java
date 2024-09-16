@@ -40,7 +40,7 @@ class FlowDecompositionWithContingencyTests {
             .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
-        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults, network);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -1269.932, 31.943);
@@ -66,7 +66,7 @@ class FlowDecompositionWithContingencyTests {
             .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
-        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults, network);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         validateFlowDecompositionOnXnec(xnecId1, branchId, contingencyId1, decomposedFlowMap.get(xnecId1), -300.420, 22.472);
@@ -92,7 +92,7 @@ class FlowDecompositionWithContingencyTests {
             .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
-        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults, network);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -406.204, 48.362);
@@ -122,7 +122,7 @@ class FlowDecompositionWithContingencyTests {
             .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
-        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults, network);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         validateFlowDecompositionOnXnec(xnecId1, branchId, contingencyId1, decomposedFlowMap.get(xnecId1), -300.420, 22.472);

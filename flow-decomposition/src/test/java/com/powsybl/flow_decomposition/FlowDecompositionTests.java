@@ -204,7 +204,7 @@ public class FlowDecompositionTests {
             .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, new LoadFlowParameters());
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
-        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults, network);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
         return flowDecompositionResults;
     }
 }

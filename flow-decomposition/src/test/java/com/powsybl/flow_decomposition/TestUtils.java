@@ -42,13 +42,13 @@ public final class TestUtils {
         return GlskDocumentImporters.importGlsk(TestUtils.class.getResourceAsStream(glskName));
     }
 
-    public static void assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode rescaleMode, FlowDecompositionResults flowDecompositionResults, Network network) {
+    public static void assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode rescaleMode, FlowDecompositionResults flowDecompositionResults) {
         for (String xnec : flowDecompositionResults.getDecomposedFlowMap().keySet()) {
             DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnec);
             switch (rescaleMode) {
                 case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
                 case PROPORTIONAL -> assertEquals(decomposedFlow.getMaxAbsAcFlow(), decomposedFlow.getTotalFlow(), EPSILON);
-                case MAX_CURRENT_OVERLOAD -> throw new IllegalArgumentException("Rescaling method not tested");
+                case MAX_CURRENT_OVERLOAD -> throw new IllegalArgumentException("Rescaling method not tested by this method");
                 default -> assertEqualsWithoutRescaling(xnec, decomposedFlow);
             }
         }

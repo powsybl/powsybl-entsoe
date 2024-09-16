@@ -32,7 +32,7 @@ class PstFlowTests {
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(x1, x2)).build();
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
-        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode.NONE, flowDecompositionResults, network);
+        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode.NONE, flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(0, decomposedFlowMap.get(x1).getPstFlow(), EPSILON);
@@ -49,7 +49,7 @@ class PstFlowTests {
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer();
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(x1, x2)).build();
         FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
-        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode.NONE, flowDecompositionResults, network);
+        TestUtils.assertCoherenceTotalFlow(FlowDecompositionParameters.RescaleMode.NONE, flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(163.652702605, decomposedFlowMap.get(x1).getPstFlow(), EPSILON);
