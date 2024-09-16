@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Network;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.powsybl.flow_decomposition.FlowDecompositionParameters.DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE;
+
 /**
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
@@ -27,7 +29,7 @@ public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposed
     }
 
     public DecomposedFlowRescalerMaxCurrentOverload() {
-        this(DecomposedFlowRescalerProportional.DEFAULT_MIN_FLOW_TOLERANCE);
+        this(DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE);
     }
 
     @Override

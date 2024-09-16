@@ -13,19 +13,20 @@ import com.powsybl.iidm.network.Network;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.powsybl.flow_decomposition.FlowDecompositionParameters.DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE;
+
 /**
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 public class DecomposedFlowRescalerProportional extends AbstractDecomposedFlowRescaler {
     private final double minFlowTolerance; // min flow in MW to rescale
-    public static final double DEFAULT_MIN_FLOW_TOLERANCE = 1E-6; // default min tolerance is 1 W = 1E-6 MW
 
     public DecomposedFlowRescalerProportional(double minFlowTolerance) {
         this.minFlowTolerance = minFlowTolerance;
     }
 
     public DecomposedFlowRescalerProportional() {
-        this(DEFAULT_MIN_FLOW_TOLERANCE);
+        this(DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE);
     }
 
     @Override
