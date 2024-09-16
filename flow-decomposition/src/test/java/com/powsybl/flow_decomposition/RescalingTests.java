@@ -82,7 +82,7 @@ class RescalingTests {
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
         assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
 
-        return new DecomposedFlowRescalerAcerMethodology().rescale(decomposedFlow, null);
+        return new DecomposedFlowRescalerAcerMethodology().rescale(decomposedFlow);
     }
 
     @Test
@@ -209,7 +209,7 @@ class RescalingTests {
         double acReferenceFlow = 1.0;
         double dcReferenceFlow = 0.9;
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
-        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerNoOp().rescale(decomposedFlow, null);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerNoOp().rescale(decomposedFlow);
         // check that same object is returned by rescaler
         assertSame(decomposedFlow, decomposedFlowRescaled);
     }
@@ -219,7 +219,7 @@ class RescalingTests {
         double acReferenceFlow = Double.NaN;
         double dcReferenceFlow = 0.9;
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
-        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerAcerMethodology().rescale(decomposedFlow, null);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerAcerMethodology().rescale(decomposedFlow);
         // check that same object is returned by rescaler
         assertSame(decomposedFlow, decomposedFlowRescaled);
     }
@@ -229,7 +229,7 @@ class RescalingTests {
         double acReferenceFlow = Double.NaN;
         double dcReferenceFlow = 0.9;
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
-        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerProportional().rescale(decomposedFlow, null);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerProportional().rescale(decomposedFlow);
         // check that same object is returned by rescaler
         assertSame(decomposedFlow, decomposedFlowRescaled);
     }
@@ -239,7 +239,7 @@ class RescalingTests {
         double acReferenceFlow = 1.0;
         double dcReferenceFlow = 0.001;
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
-        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerProportional(0.5).rescale(decomposedFlow, null);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerProportional(0.5).rescale(decomposedFlow);
         // check that same object is returned by rescaler
         assertSame(decomposedFlow, decomposedFlowRescaled);
     }
@@ -249,7 +249,7 @@ class RescalingTests {
         double acReferenceFlow = Double.NaN;
         double dcReferenceFlow = 0.9;
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
-        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerMaxCurrentOverload().rescale(decomposedFlow, null);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerMaxCurrentOverload().rescale(decomposedFlow);
         // check that same object is returned by rescaler
         assertSame(decomposedFlow, decomposedFlowRescaled);
     }
@@ -259,7 +259,7 @@ class RescalingTests {
         double acReferenceFlow = 1.0;
         double dcReferenceFlow = 0.001;
         DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
-        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerMaxCurrentOverload(0.5).rescale(decomposedFlow, null);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerMaxCurrentOverload(0.5).rescale(decomposedFlow);
         // check that same object is returned by rescaler
         assertSame(decomposedFlow, decomposedFlowRescaled);
     }

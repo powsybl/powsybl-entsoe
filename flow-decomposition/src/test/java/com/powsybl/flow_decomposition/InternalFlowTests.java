@@ -111,7 +111,7 @@ class InternalFlowTests {
         DecomposedFlow decomposedFlow = getDecomposedFlow(internalFlow, acReferenceFlow, dcReferenceFlow);
         assertEquals(Math.abs(dcReferenceFlow), decomposedFlow.getTotalFlow(), EPSILON);
 
-        return new DecomposedFlowRescalerAcerMethodology().rescale(decomposedFlow, null);
+        return new DecomposedFlowRescalerAcerMethodology().rescale(decomposedFlow);
     }
 
     private void checkRescaleAcReference(double acReferenceFlow, double dcReferenceFlow, DecomposedFlow rescaledFlow, double expectedAllocatedFlow, double expectedInternalFlow, double expectedPstFlow, double expectedLoopFlowBE, double expectedLoopFlowES) {

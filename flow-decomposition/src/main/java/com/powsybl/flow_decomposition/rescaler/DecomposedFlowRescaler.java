@@ -16,5 +16,10 @@ import com.powsybl.iidm.network.Network;
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 public interface DecomposedFlowRescaler {
+
+    default DecomposedFlow rescale(DecomposedFlow flow) {
+        return rescale(flow, null);
+    }
+
     DecomposedFlow rescale(DecomposedFlow decomposedFlow, Network network);
 }
