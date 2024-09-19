@@ -7,10 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
@@ -106,6 +103,10 @@ class LossesCompensationTests {
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
 
+        TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
+        assertEquals(0.0, tieLine.getDanglingLine1().getB(), EPSILON);
+        assertEquals(0.0, tieLine.getDanglingLine2().getB(), EPSILON);
+
         Load lossesFgenBload = network.getLoad("LOSSES FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
         assertNull(lossesFgenBload);
 
@@ -117,6 +118,33 @@ class LossesCompensationTests {
         assertNotNull(lossesBloadX);
         assertEquals("BLOAD 1", lossesBloadX.getTerminal().getVoltageLevel().getId());
         assertEquals(0.046875, lossesBloadX.getP0(), EPSILON);
+    }
+
+    @Test
+    void checkThatLossesCompensationOnTieLineDoesDispatchLossesProportionallyToEachSideResistanceWithB() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
+
+        Network network = importNetwork(networkFileName);
+        TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
+        tieLine.getDanglingLine1().setB(1E-3);
+        tieLine.getDanglingLine2().setB(1E-3);
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        loadFlowParameters.setDc(AC_LOAD_FLOW);
+        LoadFlow.run(network, loadFlowParameters);
+        LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
+        lossesCompensator.run(network);
+
+        Load lossesFgenBload = network.getLoad("LOSSES FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
+        assertNull(lossesFgenBload);
+
+        Load lossesFgenX = network.getLoad("LOSSES FGEN1 11");
+        assertNotNull(lossesFgenX);
+        assertEquals("FGEN1 1", lossesFgenX.getTerminal().getVoltageLevel().getId());
+        assertEquals(0.044098, lossesFgenX.getP0(), EPSILON);
+        Load lossesBloadX = network.getLoad("LOSSES BLOAD 11");
+        assertNotNull(lossesBloadX);
+        assertEquals("BLOAD 1", lossesBloadX.getTerminal().getVoltageLevel().getId());
+        assertEquals(0.050000, lossesBloadX.getP0(), EPSILON);
     }
 
     @Test
