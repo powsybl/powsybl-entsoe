@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerAcerMethodology;
+import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerMaxCurrentOverload;
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerNoOp;
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerProportional;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
@@ -241,5 +242,76 @@ class RescalingTests {
         DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerProportional(0.5).rescale(decomposedFlow);
         // check that same object is returned by rescaler
         assertSame(decomposedFlow, decomposedFlowRescaled);
+    }
+
+    @Test
+    void testRescalingMaxCurrentOverloadDoesNotRescaleNaN() {
+        double acReferenceFlow = Double.NaN;
+        double dcReferenceFlow = 0.9;
+        DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerMaxCurrentOverload().rescale(decomposedFlow);
+        // check that same object is returned by rescaler
+        assertSame(decomposedFlow, decomposedFlowRescaled);
+    }
+
+    @Test
+    void testRescalingMaxCurrentOverloadDoesNotRescaleWithSmallFlow() {
+        double acReferenceFlow = 1.0;
+        double dcReferenceFlow = 0.001;
+        DecomposedFlow decomposedFlow = getDecomposedFlow(acReferenceFlow, dcReferenceFlow);
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerMaxCurrentOverload(0.5).rescale(decomposedFlow);
+        // check that same object is returned by rescaler
+        assertSame(decomposedFlow, decomposedFlowRescaled);
+    }
+
+    private DecomposedFlow getDecomposedFlowForMaxCurrentOverload(String branchId) {
+        double acReferenceFlow1 = 100;
+        double acReferenceFlow2 = 90;
+        double dcReferenceFlow = 120;
+        double acCurrentTerminal1 = 50;
+        double acCurrentTerminal2 = 40;
+        Map<String, Double> loopFlows = new TreeMap<>();
+        double allocatedFlow = 100;
+        double pstFlow = 200.;
+        double internalFlow = -300.;
+        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.BE), 500.);
+        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
+        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
+        Country country1 = Country.FR;
+        Country country2 = Country.FR;
+        return new DecomposedFlowBuilder()
+                .withBranchId(branchId)
+                .withContingencyId("")
+                .withCountry1(country1)
+                .withCountry2(country2)
+                .withAcTerminal1ReferenceFlow(acReferenceFlow1)
+                .withAcTerminal2ReferenceFlow(acReferenceFlow2)
+                .withDcReferenceFlow(dcReferenceFlow)
+                .withAcCurrentTerminal1(acCurrentTerminal1)
+                .withAcCurrentTerminal2(acCurrentTerminal2)
+                .withAllocatedFlow(allocatedFlow)
+                .withXNodeFlow(0)
+                .withPstFlow(pstFlow)
+                .withInternalFlow(internalFlow)
+                .withLoopFlowsMap(loopFlows)
+                .build();
+    }
+
+    @Test
+    void testRescalingMaxCurrentOverloadWithCurrentLimits() {
+        Network network = TestUtils.importNetwork("19700101_0000_FO4_UX1.uct");
+        DecomposedFlow decomposedFlow = getDecomposedFlowForMaxCurrentOverload("BB000011 BD000011 1");
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerMaxCurrentOverload().rescale(decomposedFlow, network);
+        final double expectedRescaledInternalFlow = -82.27241335952168;
+        assertTrue(Math.abs(decomposedFlowRescaled.getInternalFlow() - expectedRescaledInternalFlow) < 1E-6);
+    }
+
+    @Test
+    void testRescalingMaxCurrentOverloadWithoutCurrentLimits() {
+        Network network = TestUtils.importNetwork("19700101_0000_FO4_UX1.uct");
+        DecomposedFlow decomposedFlow = getDecomposedFlowForMaxCurrentOverload("BB000011 BB000021 1");
+        DecomposedFlow decomposedFlowRescaled = new DecomposedFlowRescalerMaxCurrentOverload().rescale(decomposedFlow, network);
+        final double expectedRescaledInternalFlow = -47.63139720814412;
+        assertTrue(Math.abs(decomposedFlowRescaled.getInternalFlow() - expectedRescaledInternalFlow) < 1E-6);
     }
 }
