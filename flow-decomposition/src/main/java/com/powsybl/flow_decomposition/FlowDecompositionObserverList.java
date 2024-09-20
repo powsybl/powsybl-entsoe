@@ -88,10 +88,9 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        Map<String, Double> acFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.ONE);
-
         for (FlowDecompositionObserver o : observers) {
-            o.computedAcFlows(acFlows);
+            o.computedAcFlowsTerminal1(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.ONE));
+            o.computedAcFlowsTerminal2(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.TWO));
         }
     }
 
@@ -100,10 +99,19 @@ public class FlowDecompositionObserverList {
             return;
         }
 
-        Map<String, Double> dcFlows = FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().toList(), TwoSides.ONE);
+        for (FlowDecompositionObserver o : observers) {
+            o.computedDcFlows(FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().toList(), TwoSides.ONE));
+        }
+    }
+
+    public void computedAcCurrents(Network network, Result loadFlowServiceAcResult) {
+        if (observers.isEmpty()) {
+            return;
+        }
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedDcFlows(dcFlows);
+            o.computedAcCurrentsTerminal1(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.ONE));
+            o.computedAcCurrentsTerminal2(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.TWO));
         }
     }
 

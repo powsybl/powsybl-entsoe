@@ -28,6 +28,8 @@ public class DecomposedFlowBuilder {
     protected double pstFlow;
     protected double internalFlow;
     protected Map<String, Double> loopFlowsMap;
+    protected double acCurrentTerminal1;
+    protected double acCurrentTerminal2;
 
     public DecomposedFlowBuilder() {
         // empty constructor
@@ -90,6 +92,16 @@ public class DecomposedFlowBuilder {
 
     public DecomposedFlowBuilder withLoopFlowsMap(Map<String, Double> loopFlowsMap) {
         this.loopFlowsMap = loopFlowsMap;
+        return this;
+    }
+
+    public DecomposedFlowBuilder withAcCurrentTerminal1(double acCurrentTerminal1) {
+        this.acCurrentTerminal1 = acCurrentTerminal1;
+        return this;
+    }
+
+    public DecomposedFlowBuilder withAcCurrentTerminal2(double acCurrentTerminal2) {
+        this.acCurrentTerminal2 = acCurrentTerminal2;
         return this;
     }
 

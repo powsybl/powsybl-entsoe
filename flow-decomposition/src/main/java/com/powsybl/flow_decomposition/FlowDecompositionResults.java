@@ -7,10 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescaler;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -47,6 +44,8 @@ public class FlowDecompositionResults {
         private Map<String, Map<String, Double>> pstFlowMap;
         private Map<String, Double> acTerminal1ReferenceFlow;
         private Map<String, Double> acTerminal2ReferenceFlow;
+        private Map<String, Double> acCurrentTerminal1;
+        private Map<String, Double> acCurrentTerminal2;
         private Map<String, Double> dcReferenceFlow;
 
         PerStateBuilder(String contingencyId, Set<Branch> xnecList) {
@@ -70,19 +69,27 @@ public class FlowDecompositionResults {
             this.acTerminal2ReferenceFlow = acTerminal2ReferenceFlow;
         }
 
+        void saveAcCurrentTerminal1(Map<String, Double> acTerminal1Current) {
+            this.acCurrentTerminal1 = acTerminal1Current;
+        }
+
+        void saveAcCurrentTerminal2(Map<String, Double> acTerminal2Current) {
+            this.acCurrentTerminal2 = acTerminal2Current;
+        }
+
         void saveDcReferenceFlow(Map<String, Double> dcReferenceFlow) {
             this.dcReferenceFlow = dcReferenceFlow;
         }
 
-        void build(DecomposedFlowRescaler decomposedFlowRescaler) {
+        void build(DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
             allocatedAndLoopFlowsMatrix.toMap()
                 .forEach((branchId, decomposedFlow) -> {
                     String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
-                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, decomposedFlowRescaler));
+                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, decomposedFlowRescaler, network));
                 });
         }
 
-        private DecomposedFlow createDecomposedFlow(String branchId, Map<String, Double> allocatedAndLoopFlowMap, DecomposedFlowRescaler decomposedFlowRescaler) {
+        private DecomposedFlow createDecomposedFlow(String branchId, Map<String, Double> allocatedAndLoopFlowMap, DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
             Map<String, Double> loopFlowsMap = allocatedAndLoopFlowMap.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -100,13 +107,15 @@ public class FlowDecompositionResults {
                     .withAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow.get(branchId))
                     .withAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow.get(branchId))
                     .withDcReferenceFlow(dcReferenceFlow.get(branchId))
+                    .withAcCurrentTerminal1(acCurrentTerminal1.get(branchId))
+                    .withAcCurrentTerminal2(acCurrentTerminal2.get(branchId))
                     .withAllocatedFlow(allocatedFlow)
                     .withXNodeFlow(xNodeFlow)
                     .withPstFlow(pstFlow)
                     .withInternalFlow(internalFlow)
                     .withLoopFlowsMap(loopFlowsMap)
                     .build();
-            return decomposedFlowRescaler.rescale(decomposedFlow);
+            return decomposedFlowRescaler.rescale(decomposedFlow, network);
         }
 
         private double extractInternalFlow(Map<String, Double> loopFlowsMap, Country country1, Country country2) {

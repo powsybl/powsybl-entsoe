@@ -10,7 +10,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerProportional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +51,7 @@ class FlowDecompositionParametersTests {
         assertEquals(1e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(1e-5, parameters.getSensitivityEpsilon(), EPSILON);
         assertEquals(FlowDecompositionParameters.RescaleMode.NONE, parameters.getRescaleMode());
-        assertEquals(DecomposedFlowRescalerProportional.DEFAULT_MIN_FLOW_TOLERANCE, parameters.getProportionalRescalerMinFlowTolerance(), EPSILON / 100);
+        assertEquals(FlowDecompositionParameters.DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE, parameters.getProportionalRescalerMinFlowTolerance(), EPSILON / 100);
         assertTrue(parameters.isDcFallbackEnabledAfterAcDivergence());
         assertEquals(15000, parameters.getSensitivityVariableBatchSize());
     }
@@ -88,7 +87,7 @@ class FlowDecompositionParametersTests {
         assertEquals(2e-5, parameters.getLossesCompensationEpsilon(), EPSILON);
         assertEquals(1e-5, parameters.getSensitivityEpsilon(), EPSILON);
         assertEquals(FlowDecompositionParameters.RescaleMode.NONE, parameters.getRescaleMode());
-        assertEquals(DecomposedFlowRescalerProportional.DEFAULT_MIN_FLOW_TOLERANCE, parameters.getProportionalRescalerMinFlowTolerance(), EPSILON / 100);
+        assertEquals(FlowDecompositionParameters.DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE, parameters.getProportionalRescalerMinFlowTolerance(), EPSILON / 100);
         assertTrue(parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 }

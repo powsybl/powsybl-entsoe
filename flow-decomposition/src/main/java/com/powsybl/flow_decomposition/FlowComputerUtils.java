@@ -41,4 +41,19 @@ public final class FlowComputerUtils {
                         branch -> branch.getTerminal(side).getP()
                 ));
     }
+
+    public static Map<String, Double> calculateAcTerminalCurrents(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, TwoSides side) {
+        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
+            return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
+        }
+        return getTerminalCurrent(xnecList, side);
+    }
+
+    public static Map<String, Double> getTerminalCurrent(Collection<Branch> xnecList, TwoSides side) {
+        return xnecList.stream()
+                .collect(Collectors.toMap(
+                        Identifiable::getId,
+                        branch -> branch.getTerminal(side).getI()
+                ));
+    }
 }
