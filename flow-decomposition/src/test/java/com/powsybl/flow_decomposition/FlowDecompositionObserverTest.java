@@ -35,7 +35,8 @@ class FlowDecompositionObserverTest {
         COMPUTED_AC_NODAL_INJECTIONS,
         COMPUTED_DC_NODAL_INJECTIONS,
         COMPUTED_AC_FLOWS,
-        COMPUTED_DC_FLOWS
+        COMPUTED_DC_FLOWS,
+        COMPUTED_AC_CURRENTS
     }
 
     private static final String BASE_CASE = "base-case";
@@ -56,8 +57,11 @@ class FlowDecompositionObserverTest {
         private final ContingencyValue<Map<String, Map<String, Double>>> psdfs = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> acNodalInjections = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> dcNodalInjections = new ContingencyValue<>();
-        private final ContingencyValue<Map<String, Double>> acFlows = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> acFlowsTerminal1 = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> acFlowsTerminal2 = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> dcFlows = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> acCurrentsTerminal1 = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, Double>> acCurrentsTerminal2 = new ContingencyValue<>();
 
         public List<Event> allEvents() {
             return events;
@@ -136,15 +140,33 @@ class FlowDecompositionObserverTest {
         }
 
         @Override
-        public void computedAcFlows(Map<String, Double> flows) {
+        public void computedAcFlowsTerminal1(Map<String, Double> flows) {
             addEvent(Event.COMPUTED_AC_FLOWS);
-            this.acFlows.put(currentContingency, flows);
+            this.acFlowsTerminal1.put(currentContingency, flows);
+        }
+
+        @Override
+        public void computedAcFlowsTerminal2(Map<String, Double> flows) {
+            addEvent(Event.COMPUTED_AC_FLOWS);
+            this.acFlowsTerminal2.put(currentContingency, flows);
         }
 
         @Override
         public void computedDcFlows(Map<String, Double> flows) {
             addEvent(Event.COMPUTED_DC_FLOWS);
             this.dcFlows.put(currentContingency, flows);
+        }
+
+        @Override
+        public void computedAcCurrentsTerminal1(Map<String, Double> currents) {
+            addEvent(Event.COMPUTED_AC_CURRENTS);
+            this.acCurrentsTerminal1.put(currentContingency, currents);
+        }
+
+        @Override
+        public void computedAcCurrentsTerminal2(Map<String, Double> currents) {
+            addEvent(Event.COMPUTED_AC_CURRENTS);
+            this.acCurrentsTerminal2.put(currentContingency, currents);
         }
 
         private void addEvent(Event e) {
@@ -295,7 +317,7 @@ class FlowDecompositionObserverTest {
 
         // Checking AC flows
         for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(allBranches, report.acFlows.forContingency(contingencyId).keySet());
+            assertEquals(allBranches, report.acFlowsTerminal1.forContingency(contingencyId).keySet());
         }
 
         // Checking DC flows

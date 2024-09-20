@@ -48,6 +48,7 @@ public final class TestUtils {
             switch (rescaleMode) {
                 case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
                 case PROPORTIONAL -> assertEquals(decomposedFlow.getMaxAbsAcFlow(), decomposedFlow.getTotalFlow(), EPSILON);
+                case MAX_CURRENT_OVERLOAD -> throw new IllegalArgumentException("Rescaling method not tested by this method");
                 default -> assertEqualsWithoutRescaling(xnec, decomposedFlow);
             }
         }

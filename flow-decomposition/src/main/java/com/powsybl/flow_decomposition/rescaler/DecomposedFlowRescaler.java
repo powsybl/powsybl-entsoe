@@ -8,6 +8,7 @@
 package com.powsybl.flow_decomposition.rescaler;
 
 import com.powsybl.flow_decomposition.DecomposedFlow;
+import com.powsybl.iidm.network.Network;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -15,5 +16,10 @@ import com.powsybl.flow_decomposition.DecomposedFlow;
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 public interface DecomposedFlowRescaler {
-    DecomposedFlow rescale(DecomposedFlow decomposedFlow);
+
+    default DecomposedFlow rescale(DecomposedFlow flow) {
+        return rescale(flow, null);
+    }
+
+    DecomposedFlow rescale(DecomposedFlow decomposedFlow, Network network);
 }

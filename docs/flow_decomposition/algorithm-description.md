@@ -127,6 +127,20 @@ The difference between reference AC flow and the sum of the parts of the decompo
 parts proportionally to their rectified linear unit ($\mathrm{ReLU}(x) = \mathrm{max}(x, 0)$).
 
 #### Proportional rescaling
-Each flow is rescaled with a proportional coefficient. The coefficient is defined by $$\alpha_{\text{rescale}} = \frac{max(|AC p1|, |AC p2|)}{|DC p1|}$$.
+Each flow is rescaled by a proportional coefficient. The coefficient is defined by $\alpha_{\text{rescale}} = \frac{max(|AC p1|, |AC p2|)}{|DC p1|}$.
 In this way, the DC flow will have the same magnitude as the AC flow.
+Since we divide by the DC flow to calculate the coefficient, lines with a too small DC flow are not rescaled.
+
+#### Max current overload rescaling
+Each flow is rescaled by the same coefficient. The goal is to rescale DC flows in such a way that we find the same level of current overload as in the AC case - the maximum of the two terminals.
+Therefore, we first compare AC current overloads to find which terminal (1 or 2) has the highest current overload. Then, we get the associated active power to rescale DC flows.
+In case there are missing limits, we just compare AC currents instead of overloads.
+Hence, the coefficient is defined as
+1) With current limits:
+- if $\frac{AC I1}{I_{max}1} >= \frac{AC I2}{I_{max}2}$, then $\alpha_{\text{rescale}} = \frac{\sqrt{3} \cdot AC I1 \cdot \frac{V1_{nominal}}{1000}}{|DC p1|}$
+- else, $\alpha_{\text{rescale}} = \frac{\sqrt{3} \cdot AC I2 \cdot \frac{V2_{nominal}}{1000}}{|DC p1|}$
+2) Without current limits:
+- if $AC I1 >= AC I2$, then $\alpha_{\text{rescale}} = \frac{\sqrt{3} \cdot AC I1 \cdot \frac{V1_{nominal}}{1000}}{|DC p1|}$
+- else, $\alpha_{\text{rescale}} = \frac{\sqrt{3} \cdot AC I2 \cdot \frac{V2_{nominal}}{1000}}{|DC p1|}$
+
 Since we divide by the DC flow to calculate the coefficient, lines with a too small DC flow are not rescaled.
