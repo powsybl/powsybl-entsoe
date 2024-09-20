@@ -27,7 +27,8 @@ These losses are then compensated on the sending side of each network element.
 ![Losses compensation on lines](/_static/img/flow_decomposition/lossesCompensationOnLine.svg)
 
 A special treatment is done on tie lines, where instead of compensating the losses on the sending terminal, losses are
-compensated at both sides proportionally to the resistance of each half line.
+compensated at both sides. Losses are calculated for each half line individually by adding its terminal and boundary flows.
+If the half lines have no shunt susceptance, this corresponds to split tie line losses proportionally to the resistance of each half line.
 
 ![Losses compensation on tie lines](/_static/img/flow_decomposition/lossesCompensationOnTieLine.svg)
 
