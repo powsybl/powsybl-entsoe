@@ -131,8 +131,8 @@ class NetPositionTest {
 
         Network network = importNetwork(networkFileName);
         TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
-        tieLine.getDanglingLine1().setB(1E-3);
-        tieLine.getDanglingLine2().setB(1E-3);
+        tieLine.getDanglingLine1().setB(6.815E-3);
+        tieLine.getDanglingLine2().setB(1E-9);
 
         LoadFlow.run(network, new LoadFlowParameters().setDc(false));
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
@@ -144,30 +144,31 @@ class NetPositionTest {
     }
 
     @Test
-    void testTieLineWithDisconnectedDanglingLine() {
-        String networkFileName = "19700101_0000_FO4_UX1.uct";
+    void testLinesSingleSideDisconnected() {
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
+        network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal1().disconnect();
+        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        assertNetPosition(network, 1500.0, 0.0, -2500.0);
+    }
+
+    @Test
+    void testTieLineSingleSideDisconnected() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
+
         Network network = importNetwork(networkFileName);
-        network.getDanglingLineStream().forEach(danglingLine -> {
-            danglingLine.setR(1E-1);
-            danglingLine.setB(1E-3);
-        });
+        TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
+        tieLine.getDanglingLine1().setB(6.815E-3);
+        tieLine.getDanglingLine2().setB(1E-9);
+        tieLine.getTerminal1().disconnect();
 
         LoadFlow.run(network, new LoadFlowParameters().setDc(false));
+        assertEquals(0.0, tieLine.getTerminal1().getP(), DOUBLE_TOLERANCE);
+        assertEquals(7.426, tieLine.getTerminal2().getP(), DOUBLE_TOLERANCE);
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
-        double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
-        double sumAllUnpairedDanglingLines = network.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired())
-                .mapToDouble(danglingLine -> danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getTerminal().getP()) ? danglingLine.getTerminal().getP() : 0.0)
-                .sum();
-        assertEquals(sumAllUnpairedDanglingLines, sumAllNetPositions, DOUBLE_TOLERANCE);
 
-        // disconnect dangling line 1 of a tie line
-        // => dangling line 2's contribution to net position must affect sum of all net positions
-        TieLine tieLine = network.getTieLine("XBF00011 BF000011 1 + XBF00011 FB000011 1");
-        tieLine.getDanglingLine1().getTerminal().disconnect();
-        LoadFlow.run(network, new LoadFlowParameters().setDc(false));
-        netPositions = NetPositionComputer.computeNetPositions(network);
-        sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
-        double deltaNetPosition = tieLine.getDanglingLine2().getTerminal().getP();
-        assertEquals(sumAllUnpairedDanglingLines + deltaNetPosition, sumAllNetPositions, DOUBLE_TOLERANCE);
+        double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
+        assertEquals(0.0, sumAllNetPositions, DOUBLE_TOLERANCE);
+        assertEquals(3.713, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(-3.713, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
     }
 }

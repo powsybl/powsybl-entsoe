@@ -30,24 +30,12 @@ class NetPositionComputer {
             if (countrySide1.equals(countrySide2)) {
                 return;
             }
-            if (branch instanceof TieLine tieLine) {
-                DanglingLine danglingLine1 = tieLine.getDanglingLine1();
-                DanglingLine danglingLine2 = tieLine.getDanglingLine2();
-                // danglinglines are paired but one of them is disconnected => treat them as unpaired
-                if (!danglingLine1.getTerminal().isConnected() || !danglingLine2.getTerminal().isConnected()) {
-                    Country country1 = NetworkUtil.getTerminalCountry(danglingLine1.getTerminal());
-                    addLeavingFlow(netPositions, danglingLine1, country1);
-                    Country country2 = NetworkUtil.getTerminalCountry(danglingLine2.getTerminal());
-                    addLeavingFlow(netPositions, danglingLine2, country2);
-                    return;
-                }
-            }
             addLeavingFlow(netPositions, branch, countrySide1);
             addLeavingFlow(netPositions, branch, countrySide2);
         });
 
         // unpaired dangling lines
-        network.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired()).forEach(danglingLine -> {
+        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).forEach(danglingLine -> {
             Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
             addLeavingFlow(netPositions, danglingLine, country);
         });
