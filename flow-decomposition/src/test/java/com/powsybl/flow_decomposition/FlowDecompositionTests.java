@@ -211,9 +211,47 @@ public class FlowDecompositionTests {
                 .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
                 .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE)
                 .setEnableResultsForPairedHalfLines(true);
-        // TODO test with MAX_CURRENT_OVERLOAD rescaler
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowDecompositionParameters);
         assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
+        validateFlowDecomposition(flowDecompositionResults, "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "", Country.FR, Country.BE, 100.47049345958887, 100.16132637896166, 100.40091974899302, 0.000000, 0.000000, 0.000000, -0.08500982971770546, 0.000000, -0.1545835403136238, 0.000000);
+        // TODO validate other results
+    }
+
+    @Test
+    void testFlowDecompositionWithPairedDanglingLineResultsWithMaxCurrentOverloadRescaler() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
+        Network network = TestUtils.importNetwork(networkFileName);
+        TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
+        tieLine.getDanglingLine1().setB(1E-3);
+        tieLine.getDanglingLine2().setB(2E-3);
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of("FGEN1 11 X     11 1 + X     11 BLOAD 11 1")).build();
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
+                .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+                .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+                .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
+                .setRescaleMode(FlowDecompositionParameters.RescaleMode.MAX_CURRENT_OVERLOAD)
+                .setEnableResultsForPairedHalfLines(true);
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, new LoadFlowParameters());
+        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
+        assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
+    }
+
+    @Test
+    void testFlowDecompositionWithPairedDanglingLineResultsContingencyCase() {
+        Network network = TestUtils.importNetwork("TestCase16NodesWithHvdc.xiidm");
+
+        Set<String> branchIds = network.getBranchStream().map(Identifiable::getId).collect(Collectors.toSet());
+        XnecProvider xnecProviderContingency = XnecProviderByIds.builder()
+                .addContingency("contingency_1", Set.of("DDE2AA11 NNL3AA11 1"))
+                .addContingency("contingency_desync", Set.of("DDE2AA11 NNL3AA11 1", "FFR3AA11 FFR5AA11 1"))
+                .addContingency("contingency_split_network", Set.of("DDE2AA11 NNL3AA11 1", "FFR3AA11 FFR5AA11 1", "NNL2AA11 BBE3AA11 1"))
+                .addNetworkElementsAfterContingencies(branchIds, Set.of("contingency_1", "contingency_desync", "contingency_split_network"))
+                .build();
+        XnecProvider xnecProvider = new XnecProviderUnion(List.of(new XnecProviderAllBranches(), xnecProviderContingency));
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider);
+
+        // TODO
+        assert false;
     }
 
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider) {

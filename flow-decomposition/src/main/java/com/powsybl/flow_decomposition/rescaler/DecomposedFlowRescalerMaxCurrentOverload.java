@@ -10,6 +10,7 @@ package com.powsybl.flow_decomposition.rescaler;
 import com.powsybl.flow_decomposition.DecomposedFlow;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
@@ -42,11 +43,24 @@ public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposed
         double acTerminal1Current = decomposedFlow.getAcTerminal1Current();
         double acTerminal2Current = decomposedFlow.getAcTerminal2Current();
 
+        CurrentLimits currentLimitsTerminal1 = null;
+        CurrentLimits currentLimitsTerminal2 = null;
+        double nominalTerminal1Voltage;
+        double nominalTerminal2Voltage;
         Branch<?> branch = network.getBranch(decomposedFlow.getBranchId());
-        double nominalTerminal1Voltage = branch.getTerminal1().getVoltageLevel().getNominalV();
-        double nominalTerminal2Voltage = branch.getTerminal2().getVoltageLevel().getNominalV();
-        CurrentLimits currentLimitsTerminal1 = branch.getNullableCurrentLimits1();
-        CurrentLimits currentLimitsTerminal2 = branch.getNullableCurrentLimits2();
+        if (branch != null) {
+            currentLimitsTerminal1 = branch.getNullableCurrentLimits1();
+            currentLimitsTerminal2 = branch.getNullableCurrentLimits2();
+            nominalTerminal1Voltage = branch.getTerminal1().getVoltageLevel().getNominalV();
+            nominalTerminal2Voltage = branch.getTerminal2().getVoltageLevel().getNominalV();
+        } else {
+            DanglingLine danglingLine = network.getDanglingLine(decomposedFlow.getBranchId());
+            if (danglingLine == null) {
+                throw new IllegalArgumentException("Id " + decomposedFlow.getBranchId() + " is not a branch nor a dangling line");
+            }
+            nominalTerminal1Voltage = danglingLine.getTerminal().getVoltageLevel().getNominalV();
+            nominalTerminal2Voltage = danglingLine.getBoundary().getNetworkSideVoltageLevel().getNominalV();
+        }
 
         // Calculate active power P = sqrt(3) * I * (V/1000) * cos(phi)
         // with cos(phi) = 1, therefore considering active power only
