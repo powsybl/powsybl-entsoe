@@ -209,8 +209,8 @@ public class FlowDecompositionTests {
                 .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
                 .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
                 .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
-                .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
-        // TODO setEnableResultsForPairedHalfLines(true)
+                .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE)
+                .setEnableResultsForPairedHalfLines(true);
         // TODO test with MAX_CURRENT_OVERLOAD rescaler
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowDecompositionParameters);
         assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());

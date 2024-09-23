@@ -27,6 +27,7 @@ public class FlowDecompositionParameters {
     public static final boolean DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE = ENABLE_DC_FALLBACK_AFTER_AC_DIVERGENCE;
     private static final int DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE = 15000;
     public static final double DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE = 1E-6;
+    public static final boolean DEFAULT_ENABLE_RESULTS_FOR_PAIRED_HALF_LINES = false;
 
     public enum RescaleMode {
         NONE,
@@ -43,6 +44,7 @@ public class FlowDecompositionParameters {
     private double proportionalRescalerMinFlowTolerance;
     private boolean dcFallbackEnabledAfterAcDivergence;
     private int sensitivityVariableBatchSize;
+    private boolean enableResultsForPairedHalfLines;
 
     public static FlowDecompositionParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -65,6 +67,7 @@ public class FlowDecompositionParameters {
             parameters.setProportionalRescalerMinFlowTolerance(moduleConfig.getDoubleProperty("proportional-rescaler-min-flow-tolerance", DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE));
             parameters.setDcFallbackEnabledAfterAcDivergence(moduleConfig.getBooleanProperty("dc-fallback-enabled-after-ac-divergence", DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE));
             parameters.setSensitivityVariableBatchSize(moduleConfig.getIntProperty("sensitivity-variable-batch-size", DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE));
+            parameters.setEnableResultsForPairedHalfLines(moduleConfig.getBooleanProperty("enable-results-for-paired-half-lines", DEFAULT_ENABLE_RESULTS_FOR_PAIRED_HALF_LINES));
         });
     }
 
@@ -76,6 +79,7 @@ public class FlowDecompositionParameters {
         this.proportionalRescalerMinFlowTolerance = DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE;
         this.dcFallbackEnabledAfterAcDivergence = DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE;
         this.sensitivityVariableBatchSize = DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE;
+        this.enableResultsForPairedHalfLines = DEFAULT_ENABLE_RESULTS_FOR_PAIRED_HALF_LINES;
     }
 
     public FlowDecompositionParameters setEnableLossesCompensation(boolean enableLossesCompensation) {
@@ -138,5 +142,14 @@ public class FlowDecompositionParameters {
     public FlowDecompositionParameters setSensitivityVariableBatchSize(int sensitivityVariableBatchSize) {
         this.sensitivityVariableBatchSize = sensitivityVariableBatchSize;
         return this;
+    }
+
+    public FlowDecompositionParameters setEnableResultsForPairedHalfLines(boolean enableResultsForPairedHalfLines) {
+        this.enableResultsForPairedHalfLines = enableResultsForPairedHalfLines;
+        return this;
+    }
+
+    public boolean getEnableResultsForPairedHalfLines() {
+        return this.enableResultsForPairedHalfLines;
     }
 }

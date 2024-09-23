@@ -92,7 +92,7 @@ class FlowDecompositionResultsTests {
         nStateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
         nStateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
         nStateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
-        nStateBuilder.build(decomposedFlowRescaler, network);
+        nStateBuilder.build(decomposedFlowRescaler, network, false);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());
@@ -123,7 +123,7 @@ class FlowDecompositionResultsTests {
         n1StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
         n1StateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
         n1StateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
-        n1StateBuilder.build(decomposedFlowRescaler, network);
+        n1StateBuilder.build(decomposedFlowRescaler, network, false);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());
@@ -154,7 +154,7 @@ class FlowDecompositionResultsTests {
         n2StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
         n2StateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
         n2StateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
-        n2StateBuilder.build(decomposedFlowRescaler, network);
+        n2StateBuilder.build(decomposedFlowRescaler, network, false);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
         assertEquals(1, decomposedFlowMap.size());

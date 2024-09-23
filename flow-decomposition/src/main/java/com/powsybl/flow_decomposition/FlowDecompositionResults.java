@@ -81,8 +81,7 @@ public class FlowDecompositionResults {
             this.dcReferenceFlow = dcReferenceFlow;
         }
 
-        void build(DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
-            boolean enableResultsForPairedHalfLine = true; // TODO
+        void build(DecomposedFlowRescaler decomposedFlowRescaler, Network network, boolean enableResultsForPairedHalfLine) {
             allocatedAndLoopFlowsMatrix.toMap()
                 .forEach((branchId, decomposedFlow) -> {
                     String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
