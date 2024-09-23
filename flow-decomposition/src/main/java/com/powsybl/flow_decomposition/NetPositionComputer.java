@@ -23,19 +23,33 @@ class NetPositionComputer {
     static Map<Country, Double> computeNetPositions(Network network) {
         Map<Country, Double> netPositions = new EnumMap<>(Country.class);
 
-        network.getDanglingLineStream().forEach(danglingLine -> {
-            Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
-            addLeavingFlow(netPositions, danglingLine, country);
-        });
-
-        network.getLineStream().forEach(line -> {
-            Country countrySide1 = NetworkUtil.getTerminalCountry(line.getTerminal1());
-            Country countrySide2 = NetworkUtil.getTerminalCountry(line.getTerminal2());
+        // lines and tielines
+        network.getBranchStream().forEach(branch -> {
+            Country countrySide1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
+            Country countrySide2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
             if (countrySide1.equals(countrySide2)) {
                 return;
             }
-            addLeavingFlow(netPositions, line, countrySide1);
-            addLeavingFlow(netPositions, line, countrySide2);
+            if (branch instanceof TieLine tieLine) {
+                DanglingLine danglingLine1 = tieLine.getDanglingLine1();
+                DanglingLine danglingLine2 = tieLine.getDanglingLine2();
+                // danglinglines are paired but one of them is disconnected => treat them as unpaired
+                if (!danglingLine1.getTerminal().isConnected() || !danglingLine2.getTerminal().isConnected()) {
+                    Country country1 = NetworkUtil.getTerminalCountry(danglingLine1.getTerminal());
+                    addLeavingFlow(netPositions, danglingLine1, country1);
+                    Country country2 = NetworkUtil.getTerminalCountry(danglingLine2.getTerminal());
+                    addLeavingFlow(netPositions, danglingLine2, country2);
+                    return;
+                }
+            }
+            addLeavingFlow(netPositions, branch, countrySide1);
+            addLeavingFlow(netPositions, branch, countrySide2);
+        });
+
+        // unpaired dangling lines
+        network.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired()).forEach(danglingLine -> {
+            Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
+            addLeavingFlow(netPositions, danglingLine, country);
         });
 
         network.getHvdcLineStream().forEach(hvdcLine -> {
@@ -55,9 +69,9 @@ class NetPositionComputer {
         return netPositions.getOrDefault(country, 0.);
     }
 
-    private static void addLeavingFlow(Map<Country, Double> netPositions, Line line, Country country) {
+    private static void addLeavingFlow(Map<Country, Double> netPositions, Branch<?> branch, Country country) {
         double previousValue = getPreviousValue(netPositions, country);
-        netPositions.put(country, previousValue + getLeavingFlow(line, country));
+        netPositions.put(country, previousValue + getLeavingFlow(branch, country));
     }
 
     private static void addLeavingFlow(Map<Country, Double> netPositions, HvdcLine hvdcLine, Country country) {
@@ -70,11 +84,11 @@ class NetPositionComputer {
         netPositions.put(country, previousValue + getLeavingFlow(danglingLine));
     }
 
-    private static double getLeavingFlow(Line line, Country country) {
-        double flowSide1 = line.getTerminal1().isConnected() && !Double.isNaN(line.getTerminal1().getP()) ? line.getTerminal1().getP() : 0;
-        double flowSide2 = line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP()) ? line.getTerminal2().getP() : 0;
+    private static double getLeavingFlow(Branch<?> branch, Country country) {
+        double flowSide1 = branch.getTerminal1().isConnected() && !Double.isNaN(branch.getTerminal1().getP()) ? branch.getTerminal1().getP() : 0;
+        double flowSide2 = branch.getTerminal2().isConnected() && !Double.isNaN(branch.getTerminal2().getP()) ? branch.getTerminal2().getP() : 0;
         double directFlow = (flowSide1 - flowSide2) / 2;
-        return country.equals(NetworkUtil.getTerminalCountry(line.getTerminal1())) ? directFlow : -directFlow;
+        return country.equals(NetworkUtil.getTerminalCountry(branch.getTerminal1())) ? directFlow : -directFlow;
     }
 
     private static double getLeavingFlow(HvdcLine hvdcLine, Country country) {
