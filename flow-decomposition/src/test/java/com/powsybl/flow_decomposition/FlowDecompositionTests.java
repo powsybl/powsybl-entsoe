@@ -13,6 +13,7 @@ import com.powsybl.flow_decomposition.xnec_provider.XnecProviderUnion;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
@@ -196,12 +197,36 @@ public class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
     }
 
+    @Test
+    void testFlowDecompositionWithPairedDanglingLineResults() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
+        Network network = TestUtils.importNetwork(networkFileName);
+        TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
+        tieLine.getDanglingLine1().setB(1E-3);
+        tieLine.getDanglingLine2().setB(2E-3);
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of("FGEN1 11 X     11 1 + X     11 BLOAD 11 1")).build();
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
+                .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+                .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+                .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
+                .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
+        // TODO setEnableResultsForPairedHalfLines(true)
+        // TODO test with MAX_CURRENT_OVERLOAD rescaler
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowDecompositionParameters);
+        assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
+    }
+
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider) {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
             .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
             .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
+        return runFlowDecomposition(network, xnecProvider, flowDecompositionParameters);
+    }
+
+    private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider,
+                                                                 FlowDecompositionParameters flowDecompositionParameters) {
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, new LoadFlowParameters());
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
         TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);

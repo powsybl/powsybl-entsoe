@@ -7,9 +7,7 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
 import java.util.Map;
@@ -27,33 +25,81 @@ public final class FlowComputerUtils {
         // empty constructor
     }
 
-    public static Map<String, Double> calculateAcTerminalReferenceFlows(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, TwoSides side) {
+    public static Map<String, Double> calculateAcTerminalReferenceFlows(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, boolean enableResultsForPairedHalfLine, TwoSides side) {
         if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
-            return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
+            Map<String, Double> acTerminalReferenceFlows = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
+            if (!enableResultsForPairedHalfLine) {
+                return acTerminalReferenceFlows;
+            }
+            xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
+                acTerminalReferenceFlows.put(((TieLine) xnec).getDanglingLine1().getId(), Double.NaN);
+                acTerminalReferenceFlows.put(((TieLine) xnec).getDanglingLine2().getId(), Double.NaN);
+            });
+            return acTerminalReferenceFlows;
         }
-        return getTerminalReferenceFlow(xnecList, side);
+        return getTerminalReferenceFlows(xnecList, enableResultsForPairedHalfLine, side);
     }
 
-    public static Map<String, Double> getTerminalReferenceFlow(Collection<Branch> xnecList, TwoSides side) {
-        return xnecList.stream()
+    public static Map<String, Double> getTerminalReferenceFlows(Collection<Branch> xnecList, boolean enableResultsForPairedHalfLine, TwoSides side) {
+        Map<String, Double> acTerminalReferenceFlows = xnecList.stream()
                 .collect(Collectors.toMap(
                         Identifiable::getId,
                         branch -> branch.getTerminal(side).getP()
                 ));
-    }
-
-    public static Map<String, Double> calculateAcTerminalCurrents(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, TwoSides side) {
-        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
-            return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
+        if (!enableResultsForPairedHalfLine) {
+            return acTerminalReferenceFlows;
         }
-        return getTerminalCurrent(xnecList, side);
+        xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
+            DanglingLine danglingLine1 = ((TieLine) xnec).getDanglingLine1();
+            DanglingLine danglingLine2 = ((TieLine) xnec).getDanglingLine2();
+            acTerminalReferenceFlows.put(danglingLine1.getId(), getDanglingLineAcReferenceFlow(danglingLine1, side));
+            acTerminalReferenceFlows.put(danglingLine2.getId(), getDanglingLineAcReferenceFlow(danglingLine2, side));
+        });
+        return acTerminalReferenceFlows;
     }
 
-    public static Map<String, Double> getTerminalCurrent(Collection<Branch> xnecList, TwoSides side) {
-        return xnecList.stream()
+    private static Double getDanglingLineAcReferenceFlow(DanglingLine danglingLine, TwoSides side) {
+        return side.equals(TwoSides.ONE) ? danglingLine.getTerminal().getP() : danglingLine.getBoundary().getP();
+    }
+
+    public static Map<String, Double> calculateAcTerminalCurrents(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, boolean enableResultsForPairedHalfLine, TwoSides side) {
+        if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
+            Map<String, Double> acTerminalCurrents = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
+            if (!enableResultsForPairedHalfLine) {
+                return acTerminalCurrents;
+            }
+            xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
+                acTerminalCurrents.put(((TieLine) xnec).getDanglingLine1().getId(), Double.NaN);
+                acTerminalCurrents.put(((TieLine) xnec).getDanglingLine2().getId(), Double.NaN);
+            });
+            return acTerminalCurrents;
+        }
+        return getTerminalCurrent(xnecList, enableResultsForPairedHalfLine, side);
+    }
+
+    public static Map<String, Double> getTerminalCurrent(Collection<Branch> xnecList, boolean enableResultsForPairedHalfLine, TwoSides side) {
+        Map<String, Double> acTerminalCurrents = xnecList.stream()
                 .collect(Collectors.toMap(
                         Identifiable::getId,
                         branch -> branch.getTerminal(side).getI()
                 ));
+        if (!enableResultsForPairedHalfLine) {
+            return acTerminalCurrents;
+        }
+        xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
+            DanglingLine danglingLine1 = ((TieLine) xnec).getDanglingLine1();
+            DanglingLine danglingLine2 = ((TieLine) xnec).getDanglingLine2();
+            acTerminalCurrents.put(danglingLine1.getId(), getDanglingLineAcCurrent(danglingLine1, side));
+            acTerminalCurrents.put(danglingLine2.getId(), getDanglingLineAcCurrent(danglingLine2, side));
+        });
+        return acTerminalCurrents;
+    }
+
+    private static Double getDanglingLineAcCurrent(DanglingLine danglingLine, TwoSides side) {
+        if (side.equals(TwoSides.ONE)) {
+            return danglingLine.getTerminal().getI();
+        }
+        Boundary boundary = danglingLine.getBoundary();
+        return Math.hypot(boundary.getP(), boundary.getQ()) / (Math.sqrt(3.) * boundary.getV() / 1000);
     }
 }

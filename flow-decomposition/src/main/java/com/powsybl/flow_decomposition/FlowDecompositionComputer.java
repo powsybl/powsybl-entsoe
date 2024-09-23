@@ -179,8 +179,9 @@ public class FlowDecompositionComputer {
     }
 
     private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acTerminal1ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, TwoSides.ONE);
-        Map<String, Double> acTerminal2ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, TwoSides.TWO);
+        // TODO parameters.getEnableResultsForPairedHalfLine()
+        Map<String, Double> acTerminal1ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, true, TwoSides.ONE);
+        Map<String, Double> acTerminal2ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, true, TwoSides.TWO);
         flowDecompositionResultBuilder.saveAcTerminal1ReferenceFlow(acTerminal1ReferenceFlows);
         flowDecompositionResultBuilder.saveAcTerminal2ReferenceFlow(acTerminal2ReferenceFlows);
         observers.computedAcFlows(network, loadFlowServiceAcResult);
@@ -188,8 +189,9 @@ public class FlowDecompositionComputer {
     }
 
     private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acTerminal1Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, TwoSides.ONE);
-        Map<String, Double> acTerminal2Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, TwoSides.TWO);
+        // TODO parameters.getEnableResultsForPairedHalfLine()
+        Map<String, Double> acTerminal1Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, true, TwoSides.ONE);
+        Map<String, Double> acTerminal2Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, true, TwoSides.TWO);
         flowDecompositionResultBuilder.saveAcCurrentTerminal1(acTerminal1Currents);
         flowDecompositionResultBuilder.saveAcCurrentTerminal2(acTerminal2Currents);
         observers.computedAcCurrents(network, loadFlowServiceAcResult);
@@ -231,7 +233,8 @@ public class FlowDecompositionComputer {
     }
 
     private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList) {
-        flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlow(xnecList, TwoSides.ONE));
+        // TODO parameters.getEnableResultsForPairedHalfLine()
+        flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlows(xnecList, true, TwoSides.ONE));
         observers.computedDcFlows(network);
         observers.computedDcNodalInjections(network);
     }

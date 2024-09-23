@@ -82,10 +82,22 @@ public class FlowDecompositionResults {
         }
 
         void build(DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
+            boolean enableResultsForPairedHalfLine = true; // TODO
             allocatedAndLoopFlowsMatrix.toMap()
                 .forEach((branchId, decomposedFlow) -> {
                     String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
                     decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, decomposedFlowRescaler, network));
+                    if (!enableResultsForPairedHalfLine) {
+                        return;
+                    }
+                    TieLine tieLine = network.getTieLine(xnecId);
+                    if (tieLine == null) {
+                        return;
+                    }
+                    DanglingLine danglingLine1 = tieLine.getDanglingLine1();
+                    DanglingLine danglingLine2 = tieLine.getDanglingLine2();
+                    decomposedFlowMap.put(danglingLine1.getId(), createDecomposedFlowForHalfLine(danglingLine1, decomposedFlow, decomposedFlowRescaler, network));
+                    decomposedFlowMap.put(danglingLine2.getId(), createDecomposedFlowForHalfLine(danglingLine2, decomposedFlow, decomposedFlowRescaler, network));
                 });
         }
 
@@ -113,6 +125,34 @@ public class FlowDecompositionResults {
                     .withXNodeFlow(xNodeFlow)
                     .withPstFlow(pstFlow)
                     .withInternalFlow(internalFlow)
+                    .withLoopFlowsMap(loopFlowsMap)
+                    .build();
+            return decomposedFlowRescaler.rescale(decomposedFlow, network);
+        }
+
+        private DecomposedFlow createDecomposedFlowForHalfLine(DanglingLine danglingLine, Map<String, Double> allocatedAndLoopFlowMap, DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
+            String danglingLineId = danglingLine.getId();
+            Map<String, Double> loopFlowsMap = allocatedAndLoopFlowMap.entrySet().stream()
+                    .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            double allocatedFlow = allocatedAndLoopFlowMap.get(ALLOCATED_COLUMN_NAME);
+            double pstFlow = pstFlowMap.getOrDefault(danglingLineId, Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW);
+            double xNodeFlow = allocatedAndLoopFlowMap.getOrDefault(XNODE_COLUMN_NAME, NO_FLOW);
+            Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
+            DecomposedFlow decomposedFlow = new DecomposedFlowBuilder()
+                    .withBranchId(danglingLine.getId())
+                    .withContingencyId(contingencyId)
+                    .withCountry1(country)
+                    .withCountry2(null)
+                    .withAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow.get(danglingLineId))
+                    .withAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow.get(danglingLineId))
+                    .withDcReferenceFlow(dcReferenceFlow.get(danglingLineId))
+                    .withAcCurrentTerminal1(acCurrentTerminal1.get(danglingLineId))
+                    .withAcCurrentTerminal2(acCurrentTerminal2.get(danglingLineId))
+                    .withAllocatedFlow(allocatedFlow)
+                    .withXNodeFlow(xNodeFlow)
+                    .withPstFlow(pstFlow)
+                    .withInternalFlow(0)
                     .withLoopFlowsMap(loopFlowsMap)
                     .build();
             return decomposedFlowRescaler.rescale(decomposedFlow, network);

@@ -88,9 +88,10 @@ public class FlowDecompositionObserverList {
             return;
         }
 
+        // TODO parameters.getEnableResultsForPairedHalfLine()
         for (FlowDecompositionObserver o : observers) {
-            o.computedAcFlowsTerminal1(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.ONE));
-            o.computedAcFlowsTerminal2(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.TWO));
+            o.computedAcFlowsTerminal1(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, true, TwoSides.ONE));
+            o.computedAcFlowsTerminal2(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, true, TwoSides.TWO));
         }
     }
 
@@ -99,8 +100,9 @@ public class FlowDecompositionObserverList {
             return;
         }
 
+        // TODO parameters.getEnableResultsForPairedHalfLine()
         for (FlowDecompositionObserver o : observers) {
-            o.computedDcFlows(FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().toList(), TwoSides.ONE));
+            o.computedDcFlows(FlowComputerUtils.getTerminalReferenceFlows(network.getBranchStream().toList(), true, TwoSides.ONE));
         }
     }
 
@@ -109,9 +111,10 @@ public class FlowDecompositionObserverList {
             return;
         }
 
+        // TODO parameters.getEnableResultsForPairedHalfLine()
         for (FlowDecompositionObserver o : observers) {
-            o.computedAcCurrentsTerminal1(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.ONE));
-            o.computedAcCurrentsTerminal2(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.TWO));
+            o.computedAcCurrentsTerminal1(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, true, TwoSides.ONE));
+            o.computedAcCurrentsTerminal2(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, true, TwoSides.TWO));
         }
     }
 
