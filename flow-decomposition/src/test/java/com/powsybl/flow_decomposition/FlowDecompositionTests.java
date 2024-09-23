@@ -214,7 +214,8 @@ public class FlowDecompositionTests {
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowDecompositionParameters);
         assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
         validateFlowDecomposition(flowDecompositionResults, "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "", Country.FR, Country.BE, 100.47049345958887, 100.16132637896166, 100.40091974899302, 0.000000, 0.000000, 0.000000, -0.08500982971770546, 0.000000, -0.1545835403136238, 0.000000);
-        // TODO validate other results
+        validateFlowDecomposition(flowDecompositionResults, "FGEN1 11 X     11 1", "FGEN1 11 X     11 1", "", Country.FR, null, 100.47049345958887, 100.16132637896166, 100.40091974899302, 0.000000, 0.000000, 0.000000, -0.08500982971770546, 0.000000, -0.1545835403136238, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "X     11 BLOAD 11 1", "X     11 BLOAD 11 1", "", Country.BE, null, -100.33134603839709, -100.16132637896166, 100.40091974899302, 0.000000, 0.000000, 0.000000, -0.08500982971770546, 0.000000, -0.1545835403136238, 0.000000);
     }
 
     @Test
@@ -234,6 +235,9 @@ public class FlowDecompositionTests {
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, new LoadFlowParameters());
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
         assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
+        validateFlowDecomposition(flowDecompositionResults, "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "", Country.FR, Country.BE, 100.47049345958887, 100.16132637896166, 274.61826973991793, 0.000000, 0.000000, 0.000000, -0.23252030366181453, 0.000000, -0.4228194769263953, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "FGEN1 11 X     11 1", "FGEN1 11 X     11 1", "", Country.FR, null, 100.47049345958887, 100.16132637896166, 274.61826973991793, 0.000000, 0.000000, 0.000000, -0.23252030366181453, 0.000000, -0.4228194769263953, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "X     11 BLOAD 11 1", "X     11 BLOAD 11 1", "", Country.BE, null, -100.33134603839709, -100.16132637896166, 221.16325173395484, 0.000000, 0.000000, 0.000000, -0.18725974240794835, 0.000000, -0.34051678536192725, 0.000000);
     }
 
     @Test
