@@ -242,20 +242,27 @@ public class FlowDecompositionTests {
 
     @Test
     void testFlowDecompositionWithPairedDanglingLineResultsContingencyCase() {
-        Network network = TestUtils.importNetwork("TestCase16NodesWithHvdc.xiidm");
-
-        Set<String> branchIds = network.getBranchStream().map(Identifiable::getId).collect(Collectors.toSet());
+        Network network = TestUtils.importNetwork("19700101_0000_FO4_UX1.uct");
+        XnecProvider xnecProviderBaseCase = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of("XBD00012 BD000011 1 + XBD00012 DB000011 1")).build();
         XnecProvider xnecProviderContingency = XnecProviderByIds.builder()
-                .addContingency("contingency_1", Set.of("DDE2AA11 NNL3AA11 1"))
-                .addContingency("contingency_desync", Set.of("DDE2AA11 NNL3AA11 1", "FFR3AA11 FFR5AA11 1"))
-                .addContingency("contingency_split_network", Set.of("DDE2AA11 NNL3AA11 1", "FFR3AA11 FFR5AA11 1", "NNL2AA11 BBE3AA11 1"))
-                .addNetworkElementsAfterContingencies(branchIds, Set.of("contingency_1", "contingency_desync", "contingency_split_network"))
+                .addContingency("contingency_1", Set.of("FB000011 FD000011 1"))
+                .addNetworkElementsAfterContingencies(Set.of("XBD00012 BD000011 1 + XBD00012 DB000011 1"), Set.of("contingency_1"))
                 .build();
-        XnecProvider xnecProvider = new XnecProviderUnion(List.of(new XnecProviderAllBranches(), xnecProviderContingency));
-        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider);
-
-        // TODO
-        assert false;
+        XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderBaseCase, xnecProviderContingency));
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
+                .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+                .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+                .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
+                .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE)
+                .setEnableResultsForPairedHalfLines(true);
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowDecompositionParameters);
+        assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
+        validateFlowDecomposition(flowDecompositionResults, "XBD00012 BD000011 1 + XBD00012 DB000011 1", "XBD00012 BD000011 1 + XBD00012 DB000011 1", "", Country.BE, Country.DE, 121.82191661306774, 124.68526093363401, 171.51684881384688, -33.1552741312963, 2.951653237766031, 0.000000, 0.2263687796261908, -8.994959443953121E-9, -16.85433575731387, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "XBD00012 BD000011 1", "XBD00012 BD000011 1", "", Country.BE, null, 121.82191661306774, 124.68526093363401, 171.51684881384688, -33.1552741312963, 2.951653237766031, 0.000000, 0.2263687796261908, -8.994959443953121E-9, -16.85433575731387, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "XBD00012 DB000011 1", "XBD00012 DB000011 1", "", Country.DE, null, -121.82191661306774, -124.68526093363401, 171.51684881384688, -33.1552741312963, 2.951653237766031, 0.000000, 0.2263687796261908, -8.994959443953121E-9, -16.85433575731387, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "XBD00012 BD000011 1 + XBD00012 DB000011 1_contingency_1", "XBD00012 BD000011 1 + XBD00012 DB000011 1", "contingency_1", Country.BE, Country.DE, 86.24131179162211, 89.56142681137645, 159.9337003008632, -51.75741209442468, 2.6847349291552915, 0.000000, 1.2738069012087887, -9.044981652550632E-9, -22.57340321638094, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "XBD00012 BD000011 1_contingency_1", "XBD00012 BD000011 1", "contingency_1", Country.BE, null, 86.24131179162211, 89.56142681137645, 159.9337003008632, -51.75741209442468, 2.6847349291552915, 0.000000, 1.2738069012087887, -9.044981652550632E-9, -22.57340321638094, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "XBD00012 DB000011 1_contingency_1", "XBD00012 DB000011 1", "contingency_1", Country.DE, null, -86.24131179162211, -89.56142681137645, 159.9337003008632, -51.75741209442468, 2.6847349291552915, 0.000000, 1.2738069012087887, -9.044981652550632E-9, -22.57340321638094, 0.000000);
     }
 
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider) {
