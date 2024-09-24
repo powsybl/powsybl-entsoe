@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -263,6 +264,27 @@ public class FlowDecompositionTests {
         validateFlowDecomposition(flowDecompositionResults, "XBD00012 BD000011 1 + XBD00012 DB000011 1_contingency_1", "XBD00012 BD000011 1 + XBD00012 DB000011 1", "contingency_1", Country.BE, Country.DE, 86.24131179162211, 89.56142681137645, 159.9337003008632, -51.75741209442468, 2.6847349291552915, 0.000000, 1.2738069012087887, -9.044981652550632E-9, -22.57340321638094, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "XBD00012 BD000011 1_contingency_1", "XBD00012 BD000011 1", "contingency_1", Country.BE, null, 86.24131179162211, 89.56142681137645, 159.9337003008632, -51.75741209442468, 2.6847349291552915, 0.000000, 1.2738069012087887, -9.044981652550632E-9, -22.57340321638094, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "XBD00012 DB000011 1_contingency_1", "XBD00012 DB000011 1", "contingency_1", Country.DE, null, -86.24131179162211, -89.56142681137645, 159.9337003008632, -51.75741209442468, 2.6847349291552915, 0.000000, 1.2738069012087887, -9.044981652550632E-9, -22.57340321638094, 0.000000);
+    }
+
+    @Test
+    void testFlowDecompositionWithPairedDanglingLineResultsFallbackActivated() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
+        Network network = TestUtils.importNetwork(networkFileName);
+        XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of("FGEN1 11 X     11 1 + X     11 BLOAD 11 1")).build();
+        FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
+                .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+                .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+                .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
+                .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE)
+                .setEnableResultsForPairedHalfLines(true);
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        OpenLoadFlowParameters.create(loadFlowParameters).setMaxNewtonRaphsonIterations(1);
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, loadFlowParameters);
+        FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
+        assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
+        validateFlowDecomposition(flowDecompositionResults, "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "", Country.FR, Country.BE, NaN, 100.0, 100.0, 0, 0, 0, 0, 0, 0, 0);
+        validateFlowDecomposition(flowDecompositionResults, "FGEN1 11 X     11 1", "FGEN1 11 X     11 1", "", Country.FR, null, NaN, 100.0, 100.0, 0, 0, 0, 0, 0, 0, 0);
+        validateFlowDecomposition(flowDecompositionResults, "X     11 BLOAD 11 1", "X     11 BLOAD 11 1", "", Country.BE, null, NaN, -100.0, 100.0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider) {
