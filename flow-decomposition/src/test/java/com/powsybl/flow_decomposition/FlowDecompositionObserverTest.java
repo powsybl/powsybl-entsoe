@@ -397,12 +397,12 @@ class FlowDecompositionObserverTest {
         var ptdfs1 = report1.ptdfs.forBaseCase();
         var ptdfs2 = report2.ptdfs.forBaseCase();
 
-        // Ensure that ptdf signs are the same with or without loss compensation
+        // Ensure that ptdfs are the same with or without loss compensation
         ptdfs1.forEach((branchId, ptdfInjections1) -> {
             var ptdfInjections2 = ptdfs2.get(branchId);
             ptdfInjections1.forEach((injectionId, ptdfValue1) -> {
                 var ptdfValue2 = ptdfInjections2.get(injectionId);
-                assertEquals(Math.signum(ptdfValue1), Math.signum(ptdfValue2));
+                assertEquals(ptdfValue1, ptdfValue2, 1E-3);
             });
         });
     }
