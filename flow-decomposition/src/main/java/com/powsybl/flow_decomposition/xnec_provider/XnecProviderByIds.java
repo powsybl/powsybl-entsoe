@@ -60,8 +60,12 @@ public final class XnecProviderByIds implements XnecProvider {
 
         public Builder addContingency(String contingencyId, Set<String> contingencyElementIdSet) {
             Contingency contingency = createContingency(contingencyId, contingencyElementIdSet);
-            contingencyIdToContingencyMap.put(contingencyId, contingency);
-            contingencyToXnecMap.put(contingency, new HashSet<>());
+            return addContingency(contingency);
+        }
+
+        public Builder addContingency(Contingency contingency) {
+            this.contingencyIdToContingencyMap.put(contingency.getId(), contingency);
+            this.contingencyToXnecMap.put(contingency, new HashSet<>());
             return this;
         }
 

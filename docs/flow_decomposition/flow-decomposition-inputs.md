@@ -39,3 +39,6 @@ base case. Basic implementations of this interface are available:
 - Set of all interconnections on the network with the addition of all branches that have a maximum zonal PTDF greater than 5%.
 
 Post contingency network elements can only be given to the algorithm using selection by IDs.
+A Contingency can be defined by its ID and the IDs of the affected equipment, which creates a 
+PowSyBl branch contingency by default. Alternatively, it can be specified directly using the 
+PowSyBl Contingency object. 
