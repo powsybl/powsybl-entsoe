@@ -27,15 +27,7 @@ public final class FlowComputerUtils {
 
     public static Map<String, Double> calculateAcTerminalReferenceFlows(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, boolean enableResultsForPairedHalfLine, TwoSides side) {
         if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
-            Map<String, Double> acTerminalReferenceFlows = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
-            if (!enableResultsForPairedHalfLine) {
-                return acTerminalReferenceFlows;
-            }
-            xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
-                acTerminalReferenceFlows.put(((TieLine) xnec).getDanglingLine1().getId(), Double.NaN);
-                acTerminalReferenceFlows.put(((TieLine) xnec).getDanglingLine2().getId(), Double.NaN);
-            });
-            return acTerminalReferenceFlows;
+            return getFallbackActivatedTerminalResults(xnecList, enableResultsForPairedHalfLine);
         }
         return getTerminalReferenceFlows(xnecList, enableResultsForPairedHalfLine, side);
     }
@@ -46,15 +38,14 @@ public final class FlowComputerUtils {
                         Identifiable::getId,
                         branch -> branch.getTerminal(side).getP()
                 ));
-        if (!enableResultsForPairedHalfLine) {
-            return acTerminalReferenceFlows;
+        if (enableResultsForPairedHalfLine) {
+            xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
+                DanglingLine danglingLine1 = ((TieLine) xnec).getDanglingLine1();
+                DanglingLine danglingLine2 = ((TieLine) xnec).getDanglingLine2();
+                acTerminalReferenceFlows.put(danglingLine1.getId(), getDanglingLineAcReferenceFlow(danglingLine1, side));
+                acTerminalReferenceFlows.put(danglingLine2.getId(), getDanglingLineAcReferenceFlow(danglingLine2, side));
+            });
         }
-        xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
-            DanglingLine danglingLine1 = ((TieLine) xnec).getDanglingLine1();
-            DanglingLine danglingLine2 = ((TieLine) xnec).getDanglingLine2();
-            acTerminalReferenceFlows.put(danglingLine1.getId(), getDanglingLineAcReferenceFlow(danglingLine1, side));
-            acTerminalReferenceFlows.put(danglingLine2.getId(), getDanglingLineAcReferenceFlow(danglingLine2, side));
-        });
         return acTerminalReferenceFlows;
     }
 
@@ -64,34 +55,25 @@ public final class FlowComputerUtils {
 
     public static Map<String, Double> calculateAcTerminalCurrents(Collection<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult, boolean enableResultsForPairedHalfLine, TwoSides side) {
         if (loadFlowServiceAcResult.fallbackHasBeenActivated()) {
-            Map<String, Double> acTerminalCurrents = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
-            if (!enableResultsForPairedHalfLine) {
-                return acTerminalCurrents;
-            }
-            xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
-                acTerminalCurrents.put(((TieLine) xnec).getDanglingLine1().getId(), Double.NaN);
-                acTerminalCurrents.put(((TieLine) xnec).getDanglingLine2().getId(), Double.NaN);
-            });
-            return acTerminalCurrents;
+            return getFallbackActivatedTerminalResults(xnecList, enableResultsForPairedHalfLine);
         }
-        return getTerminalCurrent(xnecList, enableResultsForPairedHalfLine, side);
+        return getTerminalCurrents(xnecList, enableResultsForPairedHalfLine, side);
     }
 
-    public static Map<String, Double> getTerminalCurrent(Collection<Branch> xnecList, boolean enableResultsForPairedHalfLine, TwoSides side) {
+    public static Map<String, Double> getTerminalCurrents(Collection<Branch> xnecList, boolean enableResultsForPairedHalfLine, TwoSides side) {
         Map<String, Double> acTerminalCurrents = xnecList.stream()
                 .collect(Collectors.toMap(
                         Identifiable::getId,
                         branch -> branch.getTerminal(side).getI()
                 ));
-        if (!enableResultsForPairedHalfLine) {
-            return acTerminalCurrents;
+        if (enableResultsForPairedHalfLine) {
+            xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
+                DanglingLine danglingLine1 = ((TieLine) xnec).getDanglingLine1();
+                DanglingLine danglingLine2 = ((TieLine) xnec).getDanglingLine2();
+                acTerminalCurrents.put(danglingLine1.getId(), getDanglingLineAcCurrent(danglingLine1, side));
+                acTerminalCurrents.put(danglingLine2.getId(), getDanglingLineAcCurrent(danglingLine2, side));
+            });
         }
-        xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
-            DanglingLine danglingLine1 = ((TieLine) xnec).getDanglingLine1();
-            DanglingLine danglingLine2 = ((TieLine) xnec).getDanglingLine2();
-            acTerminalCurrents.put(danglingLine1.getId(), getDanglingLineAcCurrent(danglingLine1, side));
-            acTerminalCurrents.put(danglingLine2.getId(), getDanglingLineAcCurrent(danglingLine2, side));
-        });
         return acTerminalCurrents;
     }
 
@@ -101,5 +83,16 @@ public final class FlowComputerUtils {
         }
         Boundary boundary = danglingLine.getBoundary();
         return Math.hypot(boundary.getP(), boundary.getQ()) / (Math.sqrt(3.) * boundary.getV() / 1000);
+    }
+
+    private static Map<String, Double> getFallbackActivatedTerminalResults(Collection<Branch> xnecList, boolean enableResultsForPairedHalfLine) {
+        Map<String, Double> acTerminalResult = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
+        if (enableResultsForPairedHalfLine) {
+            xnecList.stream().filter(TieLine.class::isInstance).forEach(xnec -> {
+                acTerminalResult.put(((TieLine) xnec).getDanglingLine1().getId(), Double.NaN);
+                acTerminalResult.put(((TieLine) xnec).getDanglingLine2().getId(), Double.NaN);
+            });
+        }
+        return acTerminalResult;
     }
 }

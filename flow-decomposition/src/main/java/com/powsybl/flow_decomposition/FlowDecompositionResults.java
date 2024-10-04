@@ -86,19 +86,17 @@ public class FlowDecompositionResults {
                 .forEach((branchId, decomposedFlow) -> {
                     String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
                     decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, decomposedFlowRescaler, network));
-                    if (!enableResultsForPairedHalfLine) {
-                        return;
+                    if (enableResultsForPairedHalfLine) {
+                        TieLine tieLine = network.getTieLine(branchId);
+                        if (tieLine != null) {
+                            DanglingLine danglingLine1 = tieLine.getDanglingLine1();
+                            DanglingLine danglingLine2 = tieLine.getDanglingLine2();
+                            String halfXnec1Id = DecomposedFlow.getXnecId(contingencyId, danglingLine1.getId());
+                            String halfXnec2Id = DecomposedFlow.getXnecId(contingencyId, danglingLine2.getId());
+                            decomposedFlowMap.put(halfXnec1Id, createDecomposedFlowForHalfLine(danglingLine1, branchId, decomposedFlow, decomposedFlowRescaler, network));
+                            decomposedFlowMap.put(halfXnec2Id, createDecomposedFlowForHalfLine(danglingLine2, branchId, decomposedFlow, decomposedFlowRescaler, network));
+                        }
                     }
-                    TieLine tieLine = network.getTieLine(branchId);
-                    if (tieLine == null) {
-                        return;
-                    }
-                    DanglingLine danglingLine1 = tieLine.getDanglingLine1();
-                    DanglingLine danglingLine2 = tieLine.getDanglingLine2();
-                    String halfXnec1Id = DecomposedFlow.getXnecId(contingencyId, danglingLine1.getId());
-                    String halfXnec2Id = DecomposedFlow.getXnecId(contingencyId, danglingLine2.getId());
-                    decomposedFlowMap.put(halfXnec1Id, createDecomposedFlowForHalfLine(danglingLine1, branchId, decomposedFlow, decomposedFlowRescaler, network));
-                    decomposedFlowMap.put(halfXnec2Id, createDecomposedFlowForHalfLine(danglingLine2, branchId, decomposedFlow, decomposedFlowRescaler, network));
                 });
         }
 
