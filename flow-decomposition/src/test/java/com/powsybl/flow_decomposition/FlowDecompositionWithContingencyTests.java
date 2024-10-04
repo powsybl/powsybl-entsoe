@@ -120,6 +120,30 @@ class FlowDecompositionWithContingencyTests {
     }
 
     @Test
+    void testSingleN1PostDanglinLineContingencyState() {
+        String networkFileName = "19700101_0000_FO4_UX1.uct";
+        String branchId = "DB000011 DF000011 1";
+        String contingencyId = "XBF00011 FB000011 1";
+        String xnecId = "DB000011 DF000011 1_XBF00011 FB000011 1";
+
+        Network network = TestUtils.importNetwork(networkFileName);
+        Contingency contingency = Contingency.builder(contingencyId).addDanglingLine(contingencyId).build();
+        XnecProvider xnecProvider = XnecProviderByIds.builder()
+                .addContingency(contingency)
+                .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId))
+                .build();
+        FlowDecompositionParameters flowDecompositionParameters = FlowDecompositionParameters.load()
+                .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+                .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        FlowDecompositionResults flowDecompositionResults = flowComputer.run(xnecProvider, network);
+        TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
+
+        Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
+        validateFlowDecompositionOnXnec(xnecId, branchId, contingencyId, decomposedFlowMap.get(xnecId), -545.584, 32.623);
+    }
+
+    @Test
     void testNStateAndN1PostContingencyState() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         String branchId = "DB000011 DF000011 1";
