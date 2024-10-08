@@ -17,6 +17,8 @@ The net position of a country is calculated as the sum of the mean leaving flow 
 
 Unpaired half lines contribute only to the net position of its physical terminal.
 
+For paired half lines, losses are not shared equally, they are split with respect to the boundary.
+
 ## Losses compensation
 
 In order to mitigate the impact of DC approximation in the flow decomposition process, a dedicated step of losses compensation is implemented.
