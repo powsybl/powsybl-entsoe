@@ -90,7 +90,7 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
             @Override
             public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
                 Pair<String, String> factor = factors.get(factorIndex);
-                double referenceOrientedSensitivity = functionReference < 0 ? -value : value;
+                double referenceOrientedSensitivity = Math.copySign(value, functionReference);
                 sensitivityMatrixTriplet.addItem(factor.getFirst(), factor.getSecond(), referenceOrientedSensitivity);
             }
 

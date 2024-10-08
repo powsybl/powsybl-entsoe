@@ -374,25 +374,25 @@ class FlowDecompositionObserverTest {
     @Test
     void testPtdfsStayTheSameWithLossCompensationAndSlackDistributionOnLoads() {
         String networkFileName = "ptdf_instability.xiidm";
-        Network network = TestUtils.importNetwork(networkFileName);
         XnecProvider xnecProvider = new XnecProviderAllBranches();
 
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
-        loadFlowParameters.setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD).setDistributedSlack(true);
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters().setEnableLossesCompensation(false);
 
         // Without loss compensation
+        Network network1 = TestUtils.importNetwork(networkFileName);
         FlowDecompositionComputer flowDecompositionComputer1 = new FlowDecompositionComputer(flowDecompositionParameters, loadFlowParameters);
         var report1 = new ObserverReport();
         flowDecompositionComputer1.addObserver(report1);
-        flowDecompositionComputer1.run(xnecProvider, network);
+        flowDecompositionComputer1.run(xnecProvider, network1);
 
         // With loss compensations
+        Network network2 = TestUtils.importNetwork(networkFileName);
         flowDecompositionParameters.setEnableLossesCompensation(true);
         FlowDecompositionComputer flowDecompositionComputer2 = new FlowDecompositionComputer(flowDecompositionParameters, loadFlowParameters);
         var report2 = new ObserverReport();
         flowDecompositionComputer2.addObserver(report2);
-        flowDecompositionComputer2.run(xnecProvider, network);
+        flowDecompositionComputer2.run(xnecProvider, network2);
 
         var ptdfs1 = report1.ptdfs.forBaseCase();
         var ptdfs2 = report2.ptdfs.forBaseCase();
@@ -402,7 +402,7 @@ class FlowDecompositionObserverTest {
             var ptdfInjections2 = ptdfs2.get(branchId);
             ptdfInjections1.forEach((injectionId, ptdfValue1) -> {
                 var ptdfValue2 = ptdfInjections2.get(injectionId);
-                assertEquals(ptdfValue1, ptdfValue2, 1E-3);
+                assertEquals(ptdfValue1, ptdfValue2, 1E-9);
             });
         });
     }
