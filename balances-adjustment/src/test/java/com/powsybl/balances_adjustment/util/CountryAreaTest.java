@@ -54,8 +54,7 @@ class CountryAreaTest {
 
     private double getSumFlowCountry(Network network, Country country) {
         double sumFlow = 0;
-        List<Injection> injections = getInjectionStream(network).filter(i -> country.equals(i.getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null)))
-                .collect(Collectors.toList());
+        List<Injection> injections = getInjectionStream(network).filter(i -> country.equals(i.getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null))).toList();
         for (Injection injection : injections) {
             sumFlow += injection.getTerminal().getBusBreakerView().getBus().isInMainConnectedComponent() ? injection.getTerminal().getP() : 0;
 
@@ -107,7 +106,7 @@ class CountryAreaTest {
     void testWithTieLine() {
         Network network = Network.read("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
         CountryArea countryAreaBE = countryAreaFactoryBE.create(network);
-        assertEquals(-261.858, countryAreaBE.getNetPosition(), 1e-3);
+        assertEquals(-261.862, countryAreaBE.getNetPosition(), 1e-3);
     }
 
     @Test

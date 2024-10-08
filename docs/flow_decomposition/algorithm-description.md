@@ -13,7 +13,21 @@ Below is the concrete description of the algorithm implemented in PowSyBl.
 Countries' net position computation is done once for all on base case using AC loadflow in the initial network, before any other alteration of the input.
 
 The net position of a country is calculated as the sum of the mean leaving flow of all AC and HVDC line interconnections
-(losses are shared equally between both countries)
+(losses are shared equally between both countries).
+
+Unpaired half lines contribute only to the net position of its physical terminal.
+
+For paired half lines, losses are not shared equally, they are split with respect to the boundary.
+
+The sum of net positions is equal to the opposite of the sum of the power on the boundary side of each unpaired half line.
+
+$$\sum_{\text{zone }z} \mathrm{NP}(z) = -\sum_{\text{unpaired half line }h} P_{\text{boundary side}}(h)$$
+
+where:
+- $\mathrm{NP}(\text{zone})$ is the net position of the zone $z$.
+- $P_{\text{boundary side}}(h)$ is the power on the boundary side of the unpaired half line $h$
+
+> **_NOTE:_** If all half lines are merged, the sum of net positions is zero.
 
 ## Losses compensation
 
