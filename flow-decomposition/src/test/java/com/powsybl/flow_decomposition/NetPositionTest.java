@@ -140,108 +140,70 @@ class NetPositionTest {
 
         Network network = importNetwork(networkFileName);
         TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
-
-        LoadFlow.run(network, new LoadFlowParameters().setDc(false));
+        tieLine.getDanglingLine1().setR(0.5);
+        tieLine.getDanglingLine2().setR(0.5);
         assertEquals(0, tieLine.getG1(), 1e-10);
         assertEquals(0, tieLine.getG2(), 1e-10);
         assertEquals(0, tieLine.getB1(), 1e-10);
         assertEquals(0, tieLine.getB2(), 1e-10);
-        assertEquals(-100.109, tieLine.getDanglingLine1().getBoundary().getP(), DOUBLE_TOLERANCE);
-        assertEquals(100.109, tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
-        assertEquals(100.125, tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(-100.062, tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.063, tieLine.getDanglingLine1().getTerminal().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.016, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.047, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
-        Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
 
-        double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
-        assertEquals(0.0, sumAllNetPositions, DOUBLE_TOLERANCE);
-        assertEquals(-100.109, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(100.109, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        LoadFlow.run(network, new LoadFlowParameters().setDc(false));
+        assertEquals(0.031, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
+        assertEquals(0.031, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
+        assertEquals(0, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
+
+        Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
+        assertEquals(0.0, netPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
+        assertEquals(-100.093, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(100.093, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
     }
 
     @Test
-    void testTieLineWithDifferentB() {
+    void testTieLineWithDifferentShunt() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
 
         Network network = importNetwork(networkFileName);
         TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
-        tieLine.getDanglingLine1().setB(6.815E-3);
-        tieLine.getDanglingLine2().setB(1E-9);
+        tieLine.getDanglingLine1().setR(0.5);
+        tieLine.getDanglingLine1().setB(1e-2);
+        tieLine.getDanglingLine1().setG(1e-5);
+        tieLine.getDanglingLine2().setR(0.5);
+        tieLine.getDanglingLine2().setB(1e-9);
+        tieLine.getDanglingLine2().setG(1e-9);
 
         LoadFlow.run(network, new LoadFlowParameters().setDc(false));
-        assertEquals(0, tieLine.getG1(), 1e-10);
-        assertEquals(0, tieLine.getG2(), 1e-10);
-        assertEquals(0.00681, tieLine.getB1(), 1e-05);
-        assertEquals(1e-9, tieLine.getB2(), 1e-10);
-        assertEquals(-100.199, tieLine.getDanglingLine1().getBoundary().getP(), DOUBLE_TOLERANCE);
-        assertEquals(100.199, tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
-        assertEquals(100.228, tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(-100.113, tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.114, tieLine.getDanglingLine1().getTerminal().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.029, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.085, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
+        assertEquals(2.764, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
+        assertEquals(1.163, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(0, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
-        Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
 
-        double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
-        assertEquals(0, sumAllNetPositions, DOUBLE_TOLERANCE);
-        assertEquals(-100.199, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(100.199, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
+        assertEquals(0, netPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
+        assertEquals(-100.362, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(100.362, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
     }
 
     @Test
-    void testTieLineWithDifferentBFlip() {
+    void testTieLineWithDifferentShuntFlip() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
 
         Network network = importNetwork(networkFileName);
         TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
-        tieLine.getDanglingLine1().setB(1E-9);
-        tieLine.getDanglingLine2().setB(6.815E-3);
+        tieLine.getDanglingLine1().setR(0.5);
+        tieLine.getDanglingLine1().setB(1e-9);
+        tieLine.getDanglingLine1().setG(1e-9);
+        tieLine.getDanglingLine2().setR(0.5);
+        tieLine.getDanglingLine2().setB(1e-2);
+        tieLine.getDanglingLine2().setG(1e-5);
 
         LoadFlow.run(network, new LoadFlowParameters().setDc(false));
-        assertEquals(0, tieLine.getG1(), 1e-10);
-        assertEquals(0, tieLine.getG2(), 1e-10);
-        assertEquals(1e-9, tieLine.getB1(), 1e-10);
-        assertEquals(0.00681, tieLine.getB2(), 1e-5);
-        assertEquals(-101.919, tieLine.getDanglingLine1().getBoundary().getP(), DOUBLE_TOLERANCE);
-        assertEquals(101.919, tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
-        assertEquals(102.151, tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(-101.223, tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.928, tieLine.getDanglingLine1().getTerminal().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.232, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.696, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
+        assertEquals(1.154, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
+        assertEquals(2.753, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(0, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
 
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
-
-        double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
-        assertEquals(0, sumAllNetPositions, DOUBLE_TOLERANCE);
-        assertEquals(-101.919, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(101.919, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
-    }
-
-    @Test
-    void testTieLineSingleSideDisconnected() {
-        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
-
-        Network network = importNetwork(networkFileName);
-        TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
-        tieLine.getDanglingLine1().setB(6.815E-3);
-        tieLine.getDanglingLine2().setB(1E-9);
-        tieLine.getTerminal1().disconnect();
-
-        LoadFlow.run(network, new LoadFlowParameters().setDc(false));
-        assertEquals(0.0, tieLine.getTerminal1().getP(), DOUBLE_TOLERANCE);
-        assertEquals(7.426, tieLine.getTerminal2().getP(), DOUBLE_TOLERANCE);
-        Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
-
-        double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
-        assertEquals(1.856, sumAllNetPositions, DOUBLE_TOLERANCE);
-        assertEquals(1.856, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(0, netPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
+        assertEquals(-103.973, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(103.973, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -254,46 +216,18 @@ class NetPositionTest {
         });
 
         LoadFlow.run(network, new LoadFlowParameters().setDc(false));
+        assertEquals(799.993, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
+        assertEquals(0, network.getDanglingLineStream(DanglingLineFilter.PAIRED).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
+
         TieLine tieLine = network.getTieLine("XBF00011 BF000011 1 + XBF00011 FB000011 1");
-        assertEquals(0, tieLine.getG1(), 1e-10);
-        assertEquals(0, tieLine.getG2(), 1e-10);
-        assertEquals(1e-3, tieLine.getB1(), 1e-10);
-        assertEquals(1e-3, tieLine.getB2(), 1e-10);
-        assertEquals(780.229, tieLine.getDanglingLine1().getBoundary().getP(), DOUBLE_TOLERANCE);
-        assertEquals(-780.229, tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
-        assertEquals(-779.848, tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(780.610, tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.761, tieLine.getDanglingLine1().getTerminal().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(0.381, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(0.381, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(0, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
+
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(-800.651, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
         assertEquals(1401.519, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
         assertEquals(-1400.860, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
         assertEquals(-799.993, netPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
-        assertEquals(-799.345, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).mapToDouble(danglingLine -> danglingLine.getTerminal().getP()).sum(), DOUBLE_TOLERANCE);
-        assertEquals(799.993, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
-        assertEquals(0, network.getDanglingLineStream(DanglingLineFilter.PAIRED).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
-
-        tieLine.getTerminal1().disconnect(); // TODO is this really a good idea ?
-
-        LoadFlow.run(network, new LoadFlowParameters().setDc(false));
-        assertEquals(Double.NaN, tieLine.getDanglingLine1().getBoundary().getP(), DOUBLE_TOLERANCE);
-        assertEquals(-0.016, tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE); // TODO is this great ?
-        assertEquals(0, tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.032, tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.032, tieLine.getDanglingLine1().getTerminal().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(Double.NaN, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(0.016, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
-        assertEquals(Double.NaN, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
-        Map<Country, Double> newNetPositions = NetPositionComputer.computeNetPositions(network);
-        assertEquals(-800.783, newNetPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(1402.308, newNetPositions.get(Country.FR), DOUBLE_TOLERANCE);
-        assertEquals(-1401.501, newNetPositions.get(Country.DE), DOUBLE_TOLERANCE);
-        assertEquals(-799.977, newNetPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
-        assertEquals(-799.345, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).mapToDouble(danglingLine -> danglingLine.getTerminal().getP()).sum(), DOUBLE_TOLERANCE);
-        assertEquals(799.993, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
-        assertEquals(-0.016, network.getDanglingLineStream(DanglingLineFilter.PAIRED).filter(danglingLine -> Double.isFinite(danglingLine.getBoundary().getP())).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
     }
 }

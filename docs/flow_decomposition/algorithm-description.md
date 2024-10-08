@@ -19,6 +19,16 @@ Unpaired half lines contribute only to the net position of its physical terminal
 
 For paired half lines, losses are not shared equally, they are split with respect to the boundary.
 
+The sum of net positions is equal to the opposite of the sum of the power on the boundary side of each unpaired half line.
+
+$$\sum_{\text{zone }z} \mathrm{NP}(z) = -\sum_{\text{unpaired half line }h} P_{\text{boundary side}}(h)$$
+
+where:
+- $\mathrm{NP}(\text{zone})$ is the net position of the zone $z$.
+- $P_{\text{boundary side}}(h)$ is the power on the boundary side of the unpaired half line $h$
+
+> **_NOTE:_** If all half lines are merged, the sum of net position is null.
+
 ## Losses compensation
 
 In order to mitigate the impact of DC approximation in the flow decomposition process, a dedicated step of losses compensation is implemented.
