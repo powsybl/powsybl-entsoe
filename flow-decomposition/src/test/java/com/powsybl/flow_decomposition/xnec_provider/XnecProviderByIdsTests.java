@@ -143,6 +143,53 @@ class XnecProviderByIdsTests {
     }
 
     @Test
+    void testXnecProviderWithValidMultipleContingencies() {
+        String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES_NON_NEUTRAL.uct";
+        String x1 = "FGEN  11 BLOAD 11 1";
+        String x2 = "FGEN  11 BLOAD 12 1";
+        String g1 = "BLOAD 11_generator";
+
+        Network network = TestUtils.importNetwork(networkFileName);
+        Contingency branchContingency = Contingency.builder(x2).addBranch(x2).build();
+        Contingency genContingency = Contingency.builder(g1).addGenerator(g1).build();
+
+        XnecProvider xnecProvider = XnecProviderByIds.builder()
+                .addContingency(branchContingency)
+                .addContingency(genContingency)
+                .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
+                .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(g1))
+                .build();
+
+        List<Contingency> contingencies = xnecProvider.getContingencies(network);
+        assertEquals(2, contingencies.size());
+        assertTrue(contingencies.contains(Contingency.builder(x2).addBranch(x2).build()));
+        assertTrue(contingencies.contains(Contingency.builder(g1).addGenerator(g1).build()));
+
+        Set<Branch> xnecSet = xnecProvider.getNetworkElements(network);
+        assertTrue(xnecSet.isEmpty());
+
+        Set<Branch> xnecSetX2 = xnecProvider.getNetworkElements(x2, network);
+        assertEquals(1, xnecSetX2.size());
+        assertTrue(xnecSetX2.contains(network.getBranch(x1)));
+
+        Set<Branch> xnecSetG1 = xnecProvider.getNetworkElements(g1, network);
+        assertEquals(1, xnecSetG1.size());
+        assertTrue(xnecSetG1.contains(network.getBranch(x1)));
+
+        Set<Branch> xnecSetX1 = xnecProvider.getNetworkElements(x1, network);
+        assertTrue(xnecSetX1.isEmpty());
+
+        Map<String, Set<Branch>> networkElementsPerContingency = xnecProvider.getNetworkElementsPerContingency(network);
+        assertEquals(2, networkElementsPerContingency.size());
+        assertTrue(networkElementsPerContingency.containsKey(x2));
+        assertTrue(networkElementsPerContingency.containsKey(g1));
+        assertEquals(1, networkElementsPerContingency.get(x2).size());
+        assertEquals(1, networkElementsPerContingency.get(g1).size());
+        assertTrue(networkElementsPerContingency.get(x2).contains(network.getBranch(x1)));
+        assertTrue(networkElementsPerContingency.get(g1).contains(network.getBranch(x1)));
+    }
+
+    @Test
     void testXnecProviderWithValidContingenciesMixedManually() {
         String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES_NON_NEUTRAL.uct";
         String x1 = "FGEN  11 BLOAD 11 1";
