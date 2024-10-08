@@ -7,6 +7,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -201,43 +202,14 @@ class FlowDecompositionObserverTest {
         var flowDecompositionParameters = FlowDecompositionParameters.load();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         var report = new ObserverReport();
-
         flowComputer.addObserver(report);
-
         flowComputer.run(xnecProvider, network);
 
-        assertEventsFired(report.allEvents(), Event.COMPUTED_GLSK, Event.COMPUTED_NET_POSITIONS);
+        validateObserverReportEvents(report, List.of(contingencyId1, contingencyId2), Boolean.TRUE);
+        validateObserverReportGlsk(report, Set.of("DB000011_generator", "DF000011_generator"));
+        validateObserverReportNetPositions(report, Set.of(Country.BE, Country.DE, Country.FR));
 
-        assertEventsFired(
-            report.eventsForBaseCase(),
-            Event.COMPUTED_AC_FLOWS,
-            Event.COMPUTED_AC_NODAL_INJECTIONS,
-            Event.COMPUTED_DC_FLOWS,
-            Event.COMPUTED_DC_NODAL_INJECTIONS,
-            Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
-            Event.COMPUTED_PTDF_MATRIX,
-            Event.COMPUTED_PSDF_MATRIX);
-
-        for (var contingencyId : List.of(contingencyId1, contingencyId2)) {
-            assertEventsFired(
-                report.eventsForContingency(contingencyId),
-                Event.COMPUTED_AC_FLOWS,
-                Event.COMPUTED_AC_NODAL_INJECTIONS,
-                Event.COMPUTED_DC_FLOWS,
-                Event.COMPUTED_DC_NODAL_INJECTIONS,
-                Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
-                Event.COMPUTED_PTDF_MATRIX,
-                Event.COMPUTED_PSDF_MATRIX);
-        }
-
-        // Checking GLSK
-        assertEquals(Set.of(Country.BE, Country.DE, Country.FR), report.glsks.keySet());
-        assertEquals(Set.of("DB000011_generator", "DF000011_generator"), report.glsks.get(Country.DE).keySet());
-
-        // Checking net positions
-        assertEquals(Set.of(Country.BE, Country.DE, Country.FR), report.netPositions.keySet());
-
-        var xnecNodes = Set.of(
+        Set<String> xnecNodes = Set.of(
             "BB000021_load",
             "BF000011_generator",
             "BF000021_load",
@@ -250,42 +222,15 @@ class FlowDecompositionObserverTest {
             "FF000011_generator",
             "XES00011 FD000011 1",
             "XNL00011 BB000011 1");
-
-        // Checking nodal injections
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(xnecNodes, report.nodalInjections.forContingency(contingencyId).keySet());
-            assertEquals(
-                Set.of("Allocated Flow", "Loop Flow from BE"),
-                report.nodalInjections.forContingency(contingencyId).get("BB000021_load").keySet());
-        }
-
-        // Checking PTDFs
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            var branches = Set.of(branchId);
-            assertEquals(branches, report.ptdfs.forContingency(contingencyId).keySet());
-            assertEquals(xnecNodes, report.ptdfs.forContingency(contingencyId).get(branchId).keySet());
-        }
-
-        // Checking PSDFs
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            var branches = Set.of(branchId);
-            var pstNodes = Set.of("BF000011 BF000012 1");
-            assertEquals(branches, report.psdfs.forContingency(contingencyId).keySet());
-            assertEquals(
-                pstNodes,
-                report.psdfs.forContingency(contingencyId).get(branchId).keySet(),
-                "contingency = " + contingencyId);
-        }
-
-        // Checking AC nodal injections
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(xnecNodes, report.acNodalInjections.forContingency(contingencyId).keySet());
-        }
-
-        // Checking DC nodal injections
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(xnecNodes, report.dcNodalInjections.forContingency(contingencyId).keySet());
-        }
+        validateObserverReportNodalInjections(
+                report,
+                List.of(BASE_CASE, contingencyId1, contingencyId2),
+                xnecNodes,
+                "BB000021_load",
+                Set.of("Allocated Flow", "Loop Flow from BE"));
+        validateObserverReportPtdfs(report, List.of(BASE_CASE, contingencyId1, contingencyId2), xnecNodes, branchId);
+        validateObserverReportPsdfs(report, List.of(BASE_CASE, contingencyId1, contingencyId2), branchId, Set.of(
+                "BF000011 BF000012 1"));
 
         var allBranches = Set.of(
             "BB000011 BB000021 1",
@@ -315,13 +260,146 @@ class FlowDecompositionObserverTest {
             "XBF00022 BF000021 1 + XBF00022 FB000022 1",
             "XDF00011 DF000011 1 + XDF00011 FD000011 1");
 
-        // Checking AC flows
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
-            assertEquals(allBranches, report.acFlowsTerminal1.forContingency(contingencyId).keySet());
+        validateObserverReportFlows(report, List.of(BASE_CASE, contingencyId1, contingencyId2), allBranches);
+    }
+
+    @Test
+    void testNStateN1LoadContingencyState() {
+        String networkFileName = "19700101_0000_FO4_UX1.uct";
+        String branchId = "DB000011 DF000011 1";
+        String contingencyId1 = "FD000011_load";
+        Network network = TestUtils.importNetwork(networkFileName);
+        Contingency contingency = Contingency.builder(contingencyId1).addLoad(contingencyId1).build();
+        XnecProvider xnecProvider = XnecProviderByIds.builder()
+                .addContingency(contingency)
+                .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId1))
+                .build();
+        var flowDecompositionParameters = FlowDecompositionParameters.load();
+        FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
+        var report = new ObserverReport();
+        flowComputer.addObserver(report);
+        flowComputer.run(xnecProvider, network);
+
+        validateObserverReportEvents(report, List.of(contingencyId1), Boolean.FALSE);
+        validateObserverReportGlsk(report, Set.of("DB000011_generator", "DF000011_generator"));
+        validateObserverReportNetPositions(report, Set.of(Country.BE, Country.DE, Country.FR));
+
+        Set<String> xnecNodes = Set.of(
+                "BB000021_load",
+                "BF000011_generator",
+                "BF000021_load",
+                "DB000011_generator",
+                "DD000011_load",
+                "DF000011_generator",
+                "FB000021_generator",
+                "FB000022_load",
+                "FF000011_generator",
+                "XES00011 FD000011 1",
+                "XNL00011 BB000011 1");
+        validateObserverReportNodalInjections(
+                report,
+                List.of(contingencyId1),
+                xnecNodes,
+                "BF000021_load",
+                Set.of("Allocated Flow", "Loop Flow from BE"));
+        validateObserverReportPtdfs(report, List.of(contingencyId1), xnecNodes, branchId);
+        validateObserverReportPsdfs(report, List.of(contingencyId1), branchId, Set.of("BF000011 BF000012 1"));
+
+        var allBranches = Set.of(
+                "BB000011 BB000021 1",
+                "BB000011 BD000011 1",
+                "BB000011 BF000012 1",
+                "BB000021 BD000021 1",
+                "BB000021 BF000021 1",
+                "BD000011 BD000021 1",
+                "BD000011 BF000011 1",
+                "BD000021 BF000021 1",
+                "BF000011 BF000012 1",
+                "BF000011 BF000021 1",
+                "DB000011 DD000011 1",
+                "DB000011 DF000011 1",
+                "DD000011 DF000011 1",
+                "FB000011 FB000022 1",
+                "FB000011 FD000011 1",
+                "FB000011 FF000011 1",
+                "FB000021 FD000021 1",
+                "FD000011 FD000021 1",
+                "FD000011 FF000011 1",
+                "FD000011 FF000011 2",
+                "XBD00011 BD000011 1 + XBD00011 DB000011 1",
+                "XBD00012 BD000011 1 + XBD00012 DB000011 1",
+                "XBF00011 BF000011 1 + XBF00011 FB000011 1",
+                "XBF00021 BF000021 1 + XBF00021 FB000021 1",
+                "XBF00022 BF000021 1 + XBF00022 FB000022 1",
+                "XDF00011 DF000011 1 + XDF00011 FD000011 1");
+
+        validateObserverReportFlows(report, List.of(contingencyId1), allBranches);
+    }
+
+    private static void validateObserverReportEvents(ObserverReport report, List<String> contingencyIds, Boolean isBaseCaseExecuted) {
+        assertEventsFired(report.allEvents(), Event.COMPUTED_GLSK, Event.COMPUTED_NET_POSITIONS);
+
+        if (isBaseCaseExecuted) {
+            assertEventsFired(report.eventsForBaseCase(),
+                    Event.COMPUTED_AC_FLOWS,
+                    Event.COMPUTED_AC_NODAL_INJECTIONS,
+                    Event.COMPUTED_DC_FLOWS,
+                    Event.COMPUTED_DC_NODAL_INJECTIONS,
+                    Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
+                    Event.COMPUTED_PTDF_MATRIX,
+                    Event.COMPUTED_PSDF_MATRIX);
         }
 
-        // Checking DC flows
-        for (var contingencyId : List.of(BASE_CASE, contingencyId1, contingencyId2)) {
+        for (var contingencyId : contingencyIds) {
+            assertEventsFired(report.eventsForContingency(contingencyId),
+                    Event.COMPUTED_AC_FLOWS,
+                    Event.COMPUTED_AC_NODAL_INJECTIONS,
+                    Event.COMPUTED_DC_FLOWS,
+                    Event.COMPUTED_DC_NODAL_INJECTIONS,
+                    Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
+                    Event.COMPUTED_PTDF_MATRIX,
+                    Event.COMPUTED_PSDF_MATRIX);
+        }
+    }
+
+    private static void validateObserverReportGlsk(ObserverReport report, Set<String> expectedResources) {
+        assertEquals(Set.of(Country.BE, Country.DE, Country.FR), report.glsks.keySet());
+        assertEquals(expectedResources, report.glsks.get(Country.DE).keySet());
+    }
+
+    private static void validateObserverReportNetPositions(ObserverReport report, Set<Country> expectedCountries) {
+        assertEquals(expectedCountries, report.netPositions.keySet());
+    }
+
+    private static void validateObserverReportNodalInjections(ObserverReport report, List<String> caseIds,
+                                                              Set<String> xnecNodes, String nodeId, Set<String> expectedFields) {
+        for (var contingencyId : caseIds) {
+            assertEquals(xnecNodes, report.nodalInjections.forContingency(contingencyId).keySet());
+            assertEquals(xnecNodes, report.acNodalInjections.forContingency(contingencyId).keySet());
+            assertEquals(xnecNodes, report.dcNodalInjections.forContingency(contingencyId).keySet());
+            assertEquals(expectedFields, report.nodalInjections.forContingency(contingencyId).get(nodeId).keySet());
+        }
+    }
+
+    private static void validateObserverReportPtdfs(ObserverReport report, List<String> caseIds, Set<String> xnecNodes, String branchId) {
+        for (var contingencyId : caseIds) {
+            var branches = Set.of(branchId);
+            assertEquals(branches, report.ptdfs.forContingency(contingencyId).keySet());
+            assertEquals(xnecNodes, report.ptdfs.forContingency(contingencyId).get(branchId).keySet());
+        }
+    }
+
+    private static void validateObserverReportPsdfs(ObserverReport report, List<String> caseIds, String branchId, Set<String> pstNodes) {
+        for (var contingencyId : caseIds) {
+            var branches = Set.of(branchId);
+            assertEquals(branches, report.psdfs.forContingency(contingencyId).keySet());
+            assertEquals(pstNodes, report.psdfs.forContingency(contingencyId).get(branchId).keySet(), "contingency = " + contingencyId);
+        }
+    }
+
+    private static void validateObserverReportFlows(ObserverReport report, List<String> caseIds, Set<String> allBranches) {
+        for (var contingencyId : caseIds) {
+            assertEquals(allBranches, report.acFlowsTerminal1.forContingency(contingencyId).keySet());
             assertEquals(allBranches, report.dcFlows.forContingency(contingencyId).keySet());
         }
     }
@@ -369,7 +447,7 @@ class FlowDecompositionObserverTest {
         report.acNodalInjections.forBaseCase().forEach((inj, p) -> assertFalse(inj.startsWith(LossesCompensator.LOSSES_ID_PREFIX)));
     }
 
-    private void assertEventsFired(Collection<Event> firedEvents, Event... expectedEvents) {
+    private static void assertEventsFired(Collection<Event> firedEvents, Event... expectedEvents) {
         var missing = new HashSet<Event>();
         Collections.addAll(missing, expectedEvents);
         missing.removeAll(firedEvents);
