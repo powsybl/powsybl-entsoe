@@ -27,7 +27,7 @@ where:
 - $\mathrm{NP}(\text{zone})$ is the net position of the zone $z$.
 - $P_{\text{boundary side}}(h)$ is the power on the boundary side of the unpaired half line $h$
 
-> **_NOTE:_** If all half lines are merged, the sum of net position is null.
+> **_NOTE:_** If all half lines are merged, the sum of net positions is zero.
 
 ## Losses compensation
 

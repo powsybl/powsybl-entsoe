@@ -207,7 +207,7 @@ class NetPositionTest {
     }
 
     @Test
-    void testTieLineWithDisconnectedDanglingLine() {
+    void testTieLineWithNonZeroSumOfNetPositions() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         Network network = importNetwork(networkFileName);
         network.getDanglingLineStream().forEach(danglingLine -> {
