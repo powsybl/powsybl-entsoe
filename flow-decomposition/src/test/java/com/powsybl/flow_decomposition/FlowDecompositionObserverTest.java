@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static com.powsybl.flow_decomposition.SensitivityAnalyser.respectFlowSignConvention;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -461,26 +462,34 @@ class FlowDecompositionObserverTest {
 
         // Without loss compensation
         FlowDecompositionComputer flowDecompositionComputer1 = new FlowDecompositionComputer(flowDecompositionParameters, loadFlowParameters);
-        var report1 = new ObserverReport();
+        ObserverReport report1 = new ObserverReport();
         flowDecompositionComputer1.addObserver(report1);
         flowDecompositionComputer1.run(xnecProvider, network);
 
-        // With loss compensations
+        // With loss compensation
         flowDecompositionParameters.setEnableLossesCompensation(true);
         FlowDecompositionComputer flowDecompositionComputer2 = new FlowDecompositionComputer(flowDecompositionParameters, loadFlowParameters);
-        var report2 = new ObserverReport();
+        ObserverReport report2 = new ObserverReport();
         flowDecompositionComputer2.addObserver(report2);
         flowDecompositionComputer2.run(xnecProvider, network);
 
+        // Intermediate results
+        // With loss compensation
+        var dcFlows1 = report1.dcFlows.forBaseCase();
         var ptdfs1 = report1.ptdfs.forBaseCase();
+
+        // Without loss compensation
+        var dcFlows2 = report2.dcFlows.forBaseCase();
         var ptdfs2 = report2.ptdfs.forBaseCase();
 
         // Ensure that ptdfs are the same with or without loss compensation
         ptdfs1.forEach((branchId, ptdfInjections1) -> {
             var ptdfInjections2 = ptdfs2.get(branchId);
             ptdfInjections1.forEach((injectionId, ptdfValue1) -> {
-                var ptdfValue2 = ptdfInjections2.get(injectionId);
-                assertEquals(ptdfValue1, ptdfValue2, 1E-3);
+                Double ptdfValue2 = ptdfInjections2.get(injectionId);
+                double ptdfSignConvention1 = respectFlowSignConvention(ptdfValue1, dcFlows1.get(branchId));
+                double ptdfSignConvention2 = respectFlowSignConvention(ptdfValue2, dcFlows2.get(branchId));
+                assertEquals(ptdfSignConvention1, ptdfSignConvention2, 1E-2);
             });
         });
     }

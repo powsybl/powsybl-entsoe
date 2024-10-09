@@ -85,13 +85,16 @@ class SensitivityAnalyser extends AbstractSensitivityAnalyser {
         runSensitivityAnalysis(network, factorReader, valueWriter, EMPTY_SENSITIVITY_VARIABLE_SETS);
     }
 
+    public static double respectFlowSignConvention(double ptdfValue, double referenceFlow) {
+        return referenceFlow < 0 ? -ptdfValue : ptdfValue;
+    }
+
     private static SensitivityResultWriter getSensitivityResultWriter(List<Pair<String, String>> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet) {
         return new SensitivityResultWriter() {
             @Override
             public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
                 Pair<String, String> factor = factors.get(factorIndex);
-                double referenceOrientedSensitivity = functionReference < 0 ? -value : value;
-                sensitivityMatrixTriplet.addItem(factor.getFirst(), factor.getSecond(), referenceOrientedSensitivity);
+                sensitivityMatrixTriplet.addItem(factor.getFirst(), factor.getSecond(), respectFlowSignConvention(value, functionReference));
             }
 
             @Override
