@@ -51,8 +51,9 @@ public class FlowDecompositionComputer {
         this.parameters = flowDecompositionParameters;
         this.loadFlowParameters = loadFlowParameters;
         if (!LoadFlowParameters.ConnectedComponentMode.MAIN.equals(loadFlowParameters.getConnectedComponentMode())) {
+            LOGGER.warn("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode from {} to MAIN.",
+                    loadFlowParameters.getConnectedComponentMode());
             loadFlowParameters.setConnectedComponentMode(LoadFlowParameters.ConnectedComponentMode.MAIN);
-            LOGGER.warn("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode to main.");
         }
         this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
         this.sensitivityAnalysisRunner = SensitivityAnalysis.find(sensitivityAnalysisProvider);

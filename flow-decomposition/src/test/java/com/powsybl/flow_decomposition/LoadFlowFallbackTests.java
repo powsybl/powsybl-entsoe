@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class LoadFlowFallbackTests {
 
-    public static final String FALLBACK_MESSAGE = "AC loadfow divergence without fallback procedure enabled";
+    public static final String FALLBACK_MESSAGE = "AC loadflow divergence without fallback procedure enabled.";
 
     @Test
     void testIntegrationOfDisabledFallbackOnNetworkThatDoesNotConvergeInAc() {
@@ -38,7 +38,7 @@ class LoadFlowFallbackTests {
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of("UNUSED")).build();
         Executable flowComputerExecutable = () -> flowComputer.run(xnecProvider, network);
         Exception exception = assertThrows(PowsyblException.class, flowComputerExecutable, FALLBACK_MESSAGE);
-        assertEquals("AC loadflow divergence without fallback procedure enabled.", exception.getMessage());
+        assertEquals(FALLBACK_MESSAGE, exception.getMessage());
     }
 
     @Test
@@ -82,6 +82,6 @@ class LoadFlowFallbackTests {
         Executable loadFlowRunningServiceExecutable = () -> loadFlowRunningService.runAcLoadflow(
             network, new LoadFlowParameters(), LoadFlowRunningService.FALLBACK_HAS_NOT_BEEN_ACTIVATED);
         Exception exception = assertThrows(PowsyblException.class, loadFlowRunningServiceExecutable, FALLBACK_MESSAGE);
-        assertEquals("AC loadflow divergence without fallback procedure enabled.", exception.getMessage());
+        assertEquals(FALLBACK_MESSAGE, exception.getMessage());
     }
 }
