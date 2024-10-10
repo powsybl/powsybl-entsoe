@@ -17,6 +17,8 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityVariableType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -28,6 +30,7 @@ import java.util.Set;
  */
 public class FlowDecompositionComputer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     static final String DEFAULT_LOAD_FLOW_PROVIDER = null;
     static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = null;
     private final LoadFlowParameters loadFlowParameters;
@@ -47,6 +50,10 @@ public class FlowDecompositionComputer {
                                      String loadFlowProvider, String sensitivityAnalysisProvider) {
         this.parameters = flowDecompositionParameters;
         this.loadFlowParameters = loadFlowParameters;
+        if (!LoadFlowParameters.ConnectedComponentMode.MAIN.equals(loadFlowParameters.getConnectedComponentMode())) {
+            loadFlowParameters.setConnectedComponentMode(LoadFlowParameters.ConnectedComponentMode.MAIN);
+            LOGGER.warn("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode to main.");
+        }
         this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
         this.sensitivityAnalysisRunner = SensitivityAnalysis.find(sensitivityAnalysisProvider);
         this.lossesCompensator = parameters.isLossesCompensationEnabled() ? new LossesCompensator(parameters) : null;
