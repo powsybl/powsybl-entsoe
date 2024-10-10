@@ -18,3 +18,5 @@ Observers are notified of the following events:
 
 Note that these observers are meant to be used for testing purposes only.
 Using observers impacts calculation performance and therefore are not suitable in production environment.
+
+Note also that PTDFs and PSDFs respect the [flow sign convention](../flow_decomposition/flow-decomposition-outputs.md#flow-sign-conventions).

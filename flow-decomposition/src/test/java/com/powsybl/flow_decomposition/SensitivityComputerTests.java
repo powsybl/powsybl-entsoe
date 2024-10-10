@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.powsybl.flow_decomposition.SensitivityAnalyser.respectFlowSignConvention;
 import static com.powsybl.flow_decomposition.TestUtils.importNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -120,5 +121,19 @@ class SensitivityComputerTests {
         Map<String, Map<String, Double>> psdf = psdfMatrix.toMap();
         assertEquals(-420.042573, psdf.get(x1).get(pst), EPSILON);
         assertEquals(420.042573, psdf.get(x2).get(pst), EPSILON);
+    }
+
+    @Test
+    void testRespectFlowSignConventionIsAnInvolution() {
+        assertEquals(0.5, applyRespectFlowSignConventionTwice(0.5, 1.0));
+        assertEquals(0.5, applyRespectFlowSignConventionTwice(0.5, 0.0));
+        assertEquals(0.5, applyRespectFlowSignConventionTwice(0.5, -1.0));
+        assertEquals(-0.5, applyRespectFlowSignConventionTwice(-0.5, 1.0));
+        assertEquals(-0.5, applyRespectFlowSignConventionTwice(-0.5, 0.0));
+        assertEquals(-0.5, applyRespectFlowSignConventionTwice(-0.5, -1.0));
+    }
+
+    private double applyRespectFlowSignConventionTwice(double ptdfValue, double referenceFlow) {
+        return respectFlowSignConvention(respectFlowSignConvention(ptdfValue, referenceFlow), referenceFlow);
     }
 }
