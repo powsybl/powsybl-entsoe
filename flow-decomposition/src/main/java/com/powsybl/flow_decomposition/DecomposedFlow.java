@@ -43,7 +43,7 @@ public class DecomposedFlow {
         this.branchId = Objects.requireNonNull(builder.branchId);
         this.contingencyId = Objects.requireNonNull(builder.contingencyId);
         this.country1 = Objects.requireNonNull(builder.country1);
-        this.country2 = Objects.requireNonNull(builder.country2);
+        this.country2 = builder.country2;
         this.acTerminal1ReferenceFlow = builder.acTerminal1ReferenceFlow;
         this.acTerminal2ReferenceFlow = builder.acTerminal2ReferenceFlow;
         this.dcReferenceFlow = builder.dcReferenceFlow;
