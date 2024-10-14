@@ -21,6 +21,7 @@ class CountryEICodeTest {
         assertEquals(Country.AT, new CountryEICode("10YAT-APG------L").getCountry());
         assertEquals(Country.BE, new CountryEICode("10YBE----------2").getCountry());
         assertEquals(Country.CZ, new CountryEICode("10YCZ-CEPS-----N").getCountry());
+        assertEquals(Country.DE, new CountryEICode("10YDE-VE-------2").getCountry());
         assertEquals(Country.DE, new CountryEICode("10YCB-GERMANY--8").getCountry());
         assertEquals(Country.FR, new CountryEICode("10YFR-RTE------C").getCountry());
         assertEquals(Country.HR, new CountryEICode("10YHR-HEP------M").getCountry());
@@ -32,17 +33,23 @@ class CountryEICodeTest {
         assertEquals(Country.SK, new CountryEICode("10YSK-SEPS-----K").getCountry());
         assertEquals(Country.ES, new CountryEICode("10YES-REE------0").getCountry());
         assertEquals(Country.RS, new CountryEICode("10YCS-SERBIATSOV").getCountry());
+        assertEquals(Country.CH, new CountryEICode("10YCB-SWITZERL-D").getCountry());
         assertEquals(Country.CH, new CountryEICode("10YCH-SWISSGRIDZ").getCountry());
         assertEquals(Country.PT, new CountryEICode("10YPT-REN------W").getCountry());
         assertEquals(Country.BG, new CountryEICode("10YCA-BULGARIA-R").getCountry());
+        assertEquals(Country.BG, new CountryEICode("10YCB-BULGARIA-F").getCountry());
         assertEquals(Country.AL, new CountryEICode("10YAL-KESH-----5").getCountry());
+        assertEquals(Country.AL, new CountryEICode("10YCB-ALBANIA--1").getCountry());
         assertEquals(Country.TR, new CountryEICode("10YTR-TEIAS----W").getCountry());
+        assertEquals(Country.TR, new CountryEICode("10YCB-TURKEY---V").getCountry());
         assertEquals(Country.UA, new CountryEICode("10Y1001C--00003F").getCountry());
         assertEquals(Country.MK, new CountryEICode("10YMK-MEPSO----8").getCountry());
         assertEquals(Country.BA, new CountryEICode("10YBA-JPCC-----D").getCountry());
         assertEquals(Country.ME, new CountryEICode("10YCS-CG-TSO---S").getCountry());
         assertEquals(Country.GR, new CountryEICode("10YGR-HTSO-----Y").getCountry());
+        assertEquals(Country.GR, new CountryEICode("10YCB-GREECE---2").getCountry());
         assertEquals(Country.IT, new CountryEICode("10YIT-GRTN-----B").getCountry());
+        assertEquals(Country.IT, new CountryEICode("10YCB-ITALY----1").getCountry());
     }
 
     @Test
