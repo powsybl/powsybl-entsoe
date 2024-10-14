@@ -140,11 +140,11 @@ class LossesCompensationTests {
         Load lossesFgenX = network.getLoad("LOSSES FGEN1 11");
         assertNotNull(lossesFgenX);
         assertEquals("FGEN1 1", lossesFgenX.getTerminal().getVoltageLevel().getId());
-        assertEquals(0.044098, lossesFgenX.getP0(), EPSILON);
+        assertEquals(0.020389, lossesFgenX.getP0(), EPSILON);
         Load lossesBloadX = network.getLoad("LOSSES BLOAD 11");
         assertNotNull(lossesBloadX);
         assertEquals("BLOAD 1", lossesBloadX.getTerminal().getVoltageLevel().getId());
-        assertEquals(0.050000, lossesBloadX.getP0(), EPSILON);
+        assertEquals(0.061168, lossesBloadX.getP0(), EPSILON);
     }
 
     @Test
