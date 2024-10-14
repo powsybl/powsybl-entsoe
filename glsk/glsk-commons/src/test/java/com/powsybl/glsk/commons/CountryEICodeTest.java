@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey@rte-france.com>}
@@ -50,6 +51,9 @@ class CountryEICodeTest {
         assertEquals(Country.GR, new CountryEICode("10YCB-GREECE---2").getCountry());
         assertEquals(Country.IT, new CountryEICode("10YIT-GRTN-----B").getCountry());
         assertEquals(Country.IT, new CountryEICode("10YCB-ITALY----1").getCountry());
+        assertEquals(Country.DK, new CountryEICode("10YDK-1--------W").getCountry());
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new CountryEICode("invalid code"));
+        assertEquals("Unknown CountryEICode: invalid code.", e.getMessage());
     }
 
     @Test
@@ -79,6 +83,9 @@ class CountryEICodeTest {
         assertEquals("10YCS-CG-TSO---S", new CountryEICode(Country.ME).getCode());
         assertEquals("10YGR-HTSO-----Y", new CountryEICode(Country.GR).getCode());
         assertEquals("10YIT-GRTN-----B", new CountryEICode(Country.IT).getCode());
+        assertEquals("10YDK-1--------W", new CountryEICode(Country.DK).getCode());
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new CountryEICode(Country.BR));
+        assertEquals("Unknown CountryEICode for Country BR.", e.getMessage());
     }
 
 }

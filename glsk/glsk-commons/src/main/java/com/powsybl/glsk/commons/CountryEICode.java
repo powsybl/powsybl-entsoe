@@ -72,7 +72,7 @@ public class CountryEICode {
             case "10YGR-HTSO-----Y", "10YCB-GREECE---2" -> Country.GR;
             case "10YIT-GRTN-----B", "10YCB-ITALY----1" -> Country.IT;
             case "10YDK-1--------W" -> Country.DK;
-            default -> throw new IllegalArgumentException(String.format("Unknown CountryEICode: %s.", codeString));
+            default -> throw new IllegalArgumentException("Unknown CountryEICode: " + codeString + ".");
         };
     }
 
