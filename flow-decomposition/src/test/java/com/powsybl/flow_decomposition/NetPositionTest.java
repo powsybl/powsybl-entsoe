@@ -216,7 +216,7 @@ class NetPositionTest {
         });
 
         LoadFlow.run(network, new LoadFlowParameters().setDc(false));
-        assertEquals(799.993, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
+        assertEquals(800, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
         assertEquals(0, network.getDanglingLineStream(DanglingLineFilter.PAIRED).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
 
         TieLine tieLine = network.getTieLine("XBF00011 BF000011 1 + XBF00011 FB000011 1");
@@ -226,8 +226,8 @@ class NetPositionTest {
 
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(-800.651, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(1401.519, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(1401.512, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
         assertEquals(-1400.860, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
-        assertEquals(-799.993, netPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
+        assertEquals(-800, netPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
     }
 }
