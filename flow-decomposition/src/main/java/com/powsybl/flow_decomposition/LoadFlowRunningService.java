@@ -32,13 +32,13 @@ class LoadFlowRunningService {
     Result runAcLoadflow(Network network, LoadFlowParameters loadFlowParameters, boolean isDcFallbackEnabledAfterAcDivergence) {
         LoadFlowParameters acEnforcedParameters = enforceAcLoadFlowCalculation(loadFlowParameters);
         LoadFlowResult acLoadFlowResult = runner.run(network, acEnforcedParameters);
-        if (!acLoadFlowResult.isOk() && isDcFallbackEnabledAfterAcDivergence) {
+        if (!acLoadFlowResult.isFullyConverged() && isDcFallbackEnabledAfterAcDivergence) {
             LOGGER.warn("AC loadflow divergence. Running DC loadflow as fallback procedure.");
             return runDcLoadflow(network, loadFlowParameters)
                 .setFallbackHasBeenActivated(FALLBACK_HAS_BEEN_ACTIVATED);
         }
-        if (!acLoadFlowResult.isOk()) {
-            throw new PowsyblException("AC loadfow divergence without fallback procedure enabled.");
+        if (!acLoadFlowResult.isFullyConverged()) {
+            throw new PowsyblException("AC loadflow divergence without fallback procedure enabled.");
         }
         return new Result(acLoadFlowResult, FALLBACK_HAS_NOT_BEEN_ACTIVATED);
     }
@@ -46,8 +46,8 @@ class LoadFlowRunningService {
     Result runDcLoadflow(Network network, LoadFlowParameters loadFlowParameters) {
         LoadFlowParameters dcEnforcedParameters = enforceDcLoadFlowCalculation(loadFlowParameters);
         LoadFlowResult dcLoadFlowResult = runner.run(network, dcEnforcedParameters);
-        if (!dcLoadFlowResult.isOk()) {
-            throw new PowsyblException("DC loadfow divergence.");
+        if (!dcLoadFlowResult.isFullyConverged()) {
+            throw new PowsyblException("DC loadflow divergence.");
         }
         return new Result(dcLoadFlowResult, FALLBACK_HAS_NOT_BEEN_ACTIVATED);
     }

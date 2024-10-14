@@ -120,9 +120,9 @@ class FlowDecompositionObserverTest {
         }
 
         @Override
-        public void computedPtdfMatrix(Map<String, Map<String, Double>> pdtfMatrix) {
+        public void computedPtdfMatrix(Map<String, Map<String, Double>> ptdfMatrix) {
             addEvent(Event.COMPUTED_PTDF_MATRIX);
-            this.ptdfs.put(currentContingency, pdtfMatrix);
+            this.ptdfs.put(currentContingency, ptdfMatrix);
         }
 
         @Override

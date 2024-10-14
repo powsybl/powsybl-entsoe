@@ -17,6 +17,8 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityVariableType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -28,8 +30,10 @@ import java.util.Set;
  */
 public class FlowDecompositionComputer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     static final String DEFAULT_LOAD_FLOW_PROVIDER = null;
     static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = null;
+    public static final LoadFlowParameters.ConnectedComponentMode MAIN_CONNECTED_COMPONENT = LoadFlowParameters.ConnectedComponentMode.MAIN;
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
     private final LoadFlowRunningService loadFlowRunningService;
@@ -46,7 +50,12 @@ public class FlowDecompositionComputer {
                                      LoadFlowParameters loadFlowParameters,
                                      String loadFlowProvider, String sensitivityAnalysisProvider) {
         this.parameters = flowDecompositionParameters;
-        this.loadFlowParameters = loadFlowParameters;
+        this.loadFlowParameters = loadFlowParameters.copy();
+        if (!MAIN_CONNECTED_COMPONENT.equals(this.loadFlowParameters.getConnectedComponentMode())) {
+            LOGGER.warn("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode from {} to MAIN.",
+                    this.loadFlowParameters.getConnectedComponentMode());
+            this.loadFlowParameters.setConnectedComponentMode(MAIN_CONNECTED_COMPONENT);
+        }
         this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
         this.sensitivityAnalysisRunner = SensitivityAnalysis.find(sensitivityAnalysisProvider);
         this.lossesCompensator = parameters.isLossesCompensationEnabled() ? new LossesCompensator(parameters) : null;
@@ -272,5 +281,9 @@ public class FlowDecompositionComputer {
         PstFlowComputer pstFlowComputer = new PstFlowComputer();
         SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
         flowDecompositionResultBuilder.savePstFlowMatrix(pstFlowMatrix);
+    }
+
+    protected LoadFlowParameters getLoadFlowParameters() {
+        return this.loadFlowParameters;
     }
 }
