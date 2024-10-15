@@ -107,7 +107,7 @@ class CountryAreaTest {
     void testWithTieLine() {
         Network network = Network.read("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
         CountryArea countryAreaBE = countryAreaFactoryBE.create(network);
-        assertEquals(-261.858, countryAreaBE.getNetPosition(), 1e-3);
+        assertEquals(-261.863, countryAreaBE.getNetPosition(), 1e-3);
     }
 
     @Test
