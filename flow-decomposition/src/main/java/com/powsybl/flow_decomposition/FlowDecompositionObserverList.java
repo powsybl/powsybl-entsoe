@@ -7,10 +7,8 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.flow_decomposition.LoadFlowRunningService.Result;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoSides;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +16,7 @@ import java.util.Map;
 
 /**
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
+ * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 public class FlowDecompositionObserverList {
 
@@ -83,59 +82,23 @@ public class FlowDecompositionObserverList {
         sendMatrix(FlowDecompositionObserver::computedPsdfMatrix, matrix);
     }
 
-    public void computedAcFlows(Network network, Result loadFlowServiceAcResult) {
+    public void computedAcLoadFlowResults(Network network, boolean isFallBackActivated) {
         if (observers.isEmpty()) {
             return;
         }
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedAcFlowsTerminal1(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.ONE));
-            o.computedAcFlowsTerminal2(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.TWO));
+            o.computedAcLoadFlowResults(network, isFallBackActivated);
         }
     }
 
-    public void computedDcFlows(Network network) {
+    public void computedDcLoadFlowResults(Network network) {
         if (observers.isEmpty()) {
             return;
         }
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedDcFlows(FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().toList(), TwoSides.ONE));
-        }
-    }
-
-    public void computedAcCurrents(Network network, Result loadFlowServiceAcResult) {
-        if (observers.isEmpty()) {
-            return;
-        }
-
-        for (FlowDecompositionObserver o : observers) {
-            o.computedAcCurrentsTerminal1(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.ONE));
-            o.computedAcCurrentsTerminal2(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.TWO));
-        }
-    }
-
-    public void computedAcNodalInjections(Network network, boolean fallbackHasBeenActivated) {
-        if (observers.isEmpty()) {
-            return;
-        }
-
-        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
-
-        for (FlowDecompositionObserver o : observers) {
-            o.computedAcNodalInjections(results, fallbackHasBeenActivated);
-        }
-    }
-
-    public void computedDcNodalInjections(Network network) {
-        if (observers.isEmpty()) {
-            return;
-        }
-
-        Map<String, Double> results = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
-
-        for (FlowDecompositionObserver o : observers) {
-            o.computedDcNodalInjections(results);
+            o.computedDcLoadFlowResults(network);
         }
     }
 

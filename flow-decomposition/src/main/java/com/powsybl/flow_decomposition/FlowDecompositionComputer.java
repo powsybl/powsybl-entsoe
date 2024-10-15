@@ -27,6 +27,7 @@ import java.util.Set;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 public class FlowDecompositionComputer {
 
@@ -148,15 +149,14 @@ public class FlowDecompositionComputer {
                                        Map<Country, Map<String, Double>> glsks,
                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
         // AC load flow
-        saveAcReferenceFlows(flowDecompositionResultsBuilder, network, xnecList, loadFlowServiceAcResult);
-        saveAcCurrents(flowDecompositionResultsBuilder, network, xnecList, loadFlowServiceAcResult);
+        saveAcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecList, loadFlowServiceAcResult.fallbackHasBeenActivated());
 
         // Losses compensation
         compensateLosses(network);
 
         // DC load flow
         runDcLoadFlow(network);
-        saveDcReferenceFlow(flowDecompositionResultsBuilder, network, xnecList);
+        saveDcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecList);
 
         // Nodal injections
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecList));
@@ -187,21 +187,24 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
-    private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acTerminal1ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, TwoSides.ONE);
-        Map<String, Double> acTerminal2ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, TwoSides.TWO);
-        flowDecompositionResultBuilder.saveAcTerminal1ReferenceFlow(acTerminal1ReferenceFlows);
-        flowDecompositionResultBuilder.saveAcTerminal2ReferenceFlow(acTerminal2ReferenceFlows);
-        observers.computedAcFlows(network, loadFlowServiceAcResult);
-        observers.computedAcNodalInjections(network, loadFlowServiceAcResult.fallbackHasBeenActivated());
+    private void saveAcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Network network, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
+        saveAcReferenceFlows(flowDecompositionResultsBuilder, network, xnecList, fallbackHasBeenActivated);
+        saveAcCurrents(flowDecompositionResultsBuilder, network, xnecList, fallbackHasBeenActivated);
+        observers.computedAcLoadFlowResults(network, fallbackHasBeenActivated);
     }
 
-    private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acTerminal1Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, TwoSides.ONE);
-        Map<String, Double> acTerminal2Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, TwoSides.TWO);
+    private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Network network, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
+        Map<String, Double> acTerminal1ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, fallbackHasBeenActivated, TwoSides.ONE);
+        Map<String, Double> acTerminal2ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, fallbackHasBeenActivated, TwoSides.TWO);
+        flowDecompositionResultsBuilder.saveAcTerminal1ReferenceFlow(acTerminal1ReferenceFlows);
+        flowDecompositionResultsBuilder.saveAcTerminal2ReferenceFlow(acTerminal2ReferenceFlows);
+    }
+
+    private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
+        Map<String, Double> acTerminal1Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, fallbackHasBeenActivated, TwoSides.ONE);
+        Map<String, Double> acTerminal2Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, fallbackHasBeenActivated, TwoSides.TWO);
         flowDecompositionResultBuilder.saveAcCurrentTerminal1(acTerminal1Currents);
         flowDecompositionResultBuilder.saveAcCurrentTerminal2(acTerminal2Currents);
-        observers.computedAcCurrents(network, loadFlowServiceAcResult);
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network) {
@@ -239,10 +242,9 @@ public class FlowDecompositionComputer {
         return nodalInjectionsMatrix;
     }
 
-    private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList) {
+    private void saveDcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList) {
         flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlow(xnecList, TwoSides.ONE));
-        observers.computedDcFlows(network);
-        observers.computedDcNodalInjections(network);
+        observers.computedDcLoadFlowResults(network);
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {

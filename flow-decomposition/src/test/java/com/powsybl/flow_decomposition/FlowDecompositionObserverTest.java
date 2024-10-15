@@ -12,6 +12,7 @@ import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
+ * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 class FlowDecompositionObserverTest {
     private enum Event {
@@ -132,44 +134,59 @@ class FlowDecompositionObserverTest {
         }
 
         @Override
-        public void computedAcNodalInjections(Map<String, Double> positions, boolean fallbackHasBeenActivated) {
+        public void computedAcLoadFlowResults(Network network, boolean fallbackHasBeenActivated) {
+            computedAcNodalInjections(network);
+            computedAcFlowsTerminal1(network, fallbackHasBeenActivated);
+            computedAcFlowsTerminal2(network, fallbackHasBeenActivated);
+            computedAcCurrentsTerminal1(network, fallbackHasBeenActivated);
+            computedAcCurrentsTerminal2(network, fallbackHasBeenActivated);
+        }
+
+        @Override
+        public void computedDcLoadFlowResults(Network network) {
+            computedDcNodalInjections(network);
+            computedDcFlows(network);
+        }
+
+        private void computedAcNodalInjections(Network network) {
             addEvent(Event.COMPUTED_AC_NODAL_INJECTIONS);
-            this.acNodalInjections.put(currentContingency, positions);
+            Map<String, Double> nodalInjections = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
+            this.acNodalInjections.put(currentContingency, nodalInjections);
         }
 
-        @Override
-        public void computedDcNodalInjections(Map<String, Double> positions) {
+        private void computedDcNodalInjections(Network network) {
             addEvent(Event.COMPUTED_DC_NODAL_INJECTIONS);
-            this.dcNodalInjections.put(currentContingency, positions);
+            Map<String, Double> nodalInjections = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
+            this.dcNodalInjections.put(currentContingency, nodalInjections);
         }
 
-        @Override
-        public void computedAcFlowsTerminal1(Map<String, Double> flows) {
+        private void computedAcFlowsTerminal1(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_FLOWS);
+            Map<String, Double> flows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), fallbackHasBeenActivated, TwoSides.ONE);
             this.acFlowsTerminal1.put(currentContingency, flows);
         }
 
-        @Override
-        public void computedAcFlowsTerminal2(Map<String, Double> flows) {
+        private void computedAcFlowsTerminal2(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_FLOWS);
+            Map<String, Double> flows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), fallbackHasBeenActivated, TwoSides.TWO);
             this.acFlowsTerminal2.put(currentContingency, flows);
         }
 
-        @Override
-        public void computedDcFlows(Map<String, Double> flows) {
+        private void computedDcFlows(Network network) {
             addEvent(Event.COMPUTED_DC_FLOWS);
+            Map<String, Double> flows = FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().toList(), TwoSides.ONE);
             this.dcFlows.put(currentContingency, flows);
         }
 
-        @Override
-        public void computedAcCurrentsTerminal1(Map<String, Double> currents) {
+        private void computedAcCurrentsTerminal1(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_CURRENTS);
+            Map<String, Double> currents = FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), fallbackHasBeenActivated, TwoSides.ONE);
             this.acCurrentsTerminal1.put(currentContingency, currents);
         }
 
-        @Override
-        public void computedAcCurrentsTerminal2(Map<String, Double> currents) {
+        private void computedAcCurrentsTerminal2(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_CURRENTS);
+            Map<String, Double> currents = FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), fallbackHasBeenActivated, TwoSides.TWO);
             this.acCurrentsTerminal2.put(currentContingency, currents);
         }
 
