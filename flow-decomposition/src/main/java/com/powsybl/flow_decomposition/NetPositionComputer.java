@@ -85,6 +85,6 @@ class NetPositionComputer {
     }
 
     private static double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getTerminal().getP()) ? danglingLine.getTerminal().getP() : 0;
+        return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getBoundary().getP()) ? -danglingLine.getBoundary().getP() : 0;
     }
 }

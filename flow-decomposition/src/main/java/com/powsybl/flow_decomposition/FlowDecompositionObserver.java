@@ -62,9 +62,9 @@ public interface FlowDecompositionObserver {
     /**
      * Called when the PTDF matrix is computed (for base case or contingency)
      *
-     * @param pdtfMatrix the matrix of ptdf indexed by (line, node)
+     * @param ptdfMatrix the matrix of ptdf indexed by (line, node)
      */
-    void computedPtdfMatrix(Map<String, Map<String, Double>> pdtfMatrix);
+    void computedPtdfMatrix(Map<String, Map<String, Double>> ptdfMatrix);
 
     /**
      * Called when the PSDF matrix is computed (for base case or contingency)

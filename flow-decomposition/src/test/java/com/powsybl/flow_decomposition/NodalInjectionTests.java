@@ -94,7 +94,7 @@ class NodalInjectionTests {
     private static Map<String, Map<String, Double>> getNodalInjections(String networkFileName) {
         Network network = importNetwork(networkFileName);
         LoadFlowResult loadFlowResult = LoadFlow.run(network);
-        if (!loadFlowResult.isOk()) {
+        if (!loadFlowResult.isFullyConverged()) {
             LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         }
         AutoGlskProvider glskProvider = new AutoGlskProvider();
@@ -111,7 +111,7 @@ class NodalInjectionTests {
     private static Map<String, Double> getReferenceNodalInjections(String networkFileName) {
         Network network = importNetwork(networkFileName);
         LoadFlowResult loadFlowResult = LoadFlow.run(network);
-        if (!loadFlowResult.isOk()) {
+        if (!loadFlowResult.isFullyConverged()) {
             LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         }
         List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());

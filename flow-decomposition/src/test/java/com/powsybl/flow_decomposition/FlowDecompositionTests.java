@@ -38,11 +38,11 @@ public class FlowDecompositionTests {
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches());
         assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
-        validateFlowDecomposition(flowDecompositionResults, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "", Country.BE, Country.BE, 105.349165, 115.128500, -8.066714, 30.705093, 33.029749, 59.460372, 0.000000, 0.000000, 0.000000, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "", Country.BE, Country.BE, 105.349165, 115.128500, -8.895784, 30.705093, 33.029749, 60.289442, 0.000000, 0.000000, 0.000000, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "", Country.BE, Country.BE, -116.324382, -118.550024, -0.000000, 126.160372, -0.000000, -7.610348, 0.000000, 0.000000, 0.000000, 0.000000);
-        validateFlowDecomposition(flowDecompositionResults, "b94318f6-6d24-4f56-96b9-df2531ad6543", "b94318f6-6d24-4f56-96b9-df2531ad6543", "", Country.BE, Country.BE, 0.298603, 0.288925, -4.992229, 76.274497, -33.029749, -37.963594, 0.000000, 0.000000, 0.000000, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "b94318f6-6d24-4f56-96b9-df2531ad6543", "b94318f6-6d24-4f56-96b9-df2531ad6543", "", Country.BE, Country.BE, 0.298603, 0.288925, -5.505314, 76.274497, -33.029749, -37.450509, 0.000000, 0.000000, 0.000000, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "df16b3dd-c905-4a6f-84ee-f067be86f5da", "df16b3dd-c905-4a6f-84ee-f067be86f5da", "", Country.BE, Country.BE, -99.797280, -103.741300, 0.000000, 103.741300, -0.000000, -0.000000, 0.000000, 0.000000, 0.000000, 0.000000);
-        validateFlowDecomposition(flowDecompositionResults, "e482b89a-fa84-4ea9-8e70-a83d44790957", "e482b89a-fa84-4ea9-8e70-a83d44790957", "", Country.BE, Country.BE, -94.889551, -84.582575, 13.058943, -106.979590, -0.000000, 178.503222, 0.000000, 0.000000, 0.000000, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "e482b89a-fa84-4ea9-8e70-a83d44790957", "e482b89a-fa84-4ea9-8e70-a83d44790957", "", Country.BE, Country.BE, -94.889551, -84.582575, 14.401099, -106.979590, -0.000000, 177.161067, 0.000000, 0.000000, 0.000000, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "", Country.BE, Country.BE, -53.551022, -57.104378, -0.000000, 60.770208, -0.000000, -3.665830, 0.000000, 0.000000, 0.000000, 0.000000);
         assertEquals(1, flowDecompositionResults.getZoneSet().size());
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
@@ -55,11 +55,11 @@ public class FlowDecompositionTests {
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches());
         assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
-        validateFlowDecomposition(flowDecompositionResults, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "", Country.BE, Country.BE, 105.203730, 115.160115, -8.062263, 30.705093, 33.029749, 59.487535, 0.000000, 0.000000, 0.000000, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "", Country.BE, Country.BE, 105.203730, 115.160115, -8.895784, 30.705093, 33.029749, 60.321057, 0.000000, 0.000000, 0.000000, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "", Country.BE, Country.BE, -116.309968, -118.537339, -0.000000, 126.160372, -0.000000, -7.623033, 0.000000, 0.000000, 0.000000, 0.000000);
-        validateFlowDecomposition(flowDecompositionResults, "b94318f6-6d24-4f56-96b9-df2531ad6543", "b94318f6-6d24-4f56-96b9-df2531ad6543", "", Country.BE, Country.BE, -0.732804, 0.247626, -4.989475, 76.274497, -33.029749, -38.007647, 0.000000, 0.000000, 0.000000, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "b94318f6-6d24-4f56-96b9-df2531ad6543", "b94318f6-6d24-4f56-96b9-df2531ad6543", "", Country.BE, Country.BE, -0.732804, 0.247626, -5.505314, 76.274497, -33.029749, -37.491807, 0.000000, 0.000000, 0.000000, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "df16b3dd-c905-4a6f-84ee-f067be86f5da", "df16b3dd-c905-4a6f-84ee-f067be86f5da", "", Country.BE, Country.BE, -99.793176, -103.741300, 0.000000, 103.741300, -0.000000, -0.000000, 0.000000, 0.000000, 0.000000, 0.000000);
-        validateFlowDecomposition(flowDecompositionResults, "e482b89a-fa84-4ea9-8e70-a83d44790957", "e482b89a-fa84-4ea9-8e70-a83d44790957", "", Country.BE, Country.BE, -95.900991, -84.604242, 13.051737, -106.979590, -0.000000, 178.532095, 0.000000, 0.000000, 0.000000, 0.000000);
+        validateFlowDecomposition(flowDecompositionResults, "e482b89a-fa84-4ea9-8e70-a83d44790957", "e482b89a-fa84-4ea9-8e70-a83d44790957", "", Country.BE, Country.BE, -95.900991, -84.604242, 14.401099, -106.979590, -0.000000, 177.182734, 0.000000, 0.000000, 0.000000, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "", Country.BE, Country.BE, -53.539743, -57.098268, -0.000000, 60.770208, -0.000000, -3.671940, 0.000000, 0.000000, 0.000000, 0.000000);
         assertEquals(1, flowDecompositionResults.getZoneSet().size());
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
@@ -194,6 +194,16 @@ public class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.DE));
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
+    }
+
+    @Test
+    void testConnectedComponentModeChangesFromAllToMain() {
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters().setConnectedComponentMode(LoadFlowParameters.ConnectedComponentMode.ALL);
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(new FlowDecompositionParameters(), loadFlowParameters);
+        // lfParameters inside flow decomposition changed from all to main
+        assertEquals(FlowDecompositionComputer.MAIN_CONNECTED_COMPONENT, flowDecompositionComputer.getLoadFlowParameters().getConnectedComponentMode());
+        // original lfParameters didn't change
+        assertEquals(LoadFlowParameters.ConnectedComponentMode.ALL, loadFlowParameters.getConnectedComponentMode());
     }
 
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider) {
