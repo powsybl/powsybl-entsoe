@@ -65,11 +65,11 @@
             ../../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml,
             ../../../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
-        <ejml.version>0.41</ejml.version>
-        <commonscsv.version>1.9.0</commonscsv.version>
-        <maven.jaxb2.version>3.1.0</maven.jaxb2.version>
-        <jakarta.xml.bind.version>4.0.1</jakarta.xml.bind.version>
-        <jaxb.runtime.version>4.0.3</jaxb.runtime.version>
+        <ejml.version>0.43.1</ejml.version>
+        <commonscsv.version>1.12.0</commonscsv.version>
+        <maven.jaxb2.version>3.2.0</maven.jaxb2.version>
+        <jakarta.xml.bind.version>4.0.2</jakarta.xml.bind.version>
+        <jaxb.runtime.version>4.0.5</jaxb.runtime.version>
     </properties>
 
     <modules>
