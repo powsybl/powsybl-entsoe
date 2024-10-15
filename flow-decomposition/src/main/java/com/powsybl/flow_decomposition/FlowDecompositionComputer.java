@@ -31,8 +31,8 @@ import java.util.Set;
 public class FlowDecompositionComputer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
-    static final String DEFAULT_LOAD_FLOW_PROVIDER = null;
-    static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = null;
+    static final String DEFAULT_LOAD_FLOW_PROVIDER = "OpenLoadFlow";
+    static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = "OpenLoadFlow";
     public static final LoadFlowParameters.ConnectedComponentMode MAIN_CONNECTED_COMPONENT = LoadFlowParameters.ConnectedComponentMode.MAIN;
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
