@@ -28,8 +28,8 @@ import java.util.Set;
  */
 public class FlowDecompositionComputer {
 
-    static final String DEFAULT_LOAD_FLOW_PROVIDER = null;
-    static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = null;
+    static final String DEFAULT_LOAD_FLOW_PROVIDER = "OpenLoadFlow";
+    static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = "OpenLoadFlow";
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
     private final LoadFlowRunningService loadFlowRunningService;
