@@ -196,6 +196,16 @@ public class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
     }
 
+    @Test
+    void testConnectedComponentModeChangesFromAllToMain() {
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters().setConnectedComponentMode(LoadFlowParameters.ConnectedComponentMode.ALL);
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(new FlowDecompositionParameters(), loadFlowParameters);
+        // lfParameters inside flow decomposition changed from all to main
+        assertEquals(FlowDecompositionComputer.MAIN_CONNECTED_COMPONENT, flowDecompositionComputer.getLoadFlowParameters().getConnectedComponentMode());
+        // original lfParameters didn't change
+        assertEquals(LoadFlowParameters.ConnectedComponentMode.ALL, loadFlowParameters.getConnectedComponentMode());
+    }
+
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider) {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
