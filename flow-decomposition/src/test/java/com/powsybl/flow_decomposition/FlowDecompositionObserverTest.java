@@ -150,14 +150,14 @@ class FlowDecompositionObserverTest {
 
         private void computedAcNodalInjections(Network network) {
             addEvent(Event.COMPUTED_AC_NODAL_INJECTIONS);
-            Map<String, Double> nodalInjections = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
-            this.acNodalInjections.put(currentContingency, nodalInjections);
+            Map<String, Double> injections = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
+            this.acNodalInjections.put(currentContingency, injections);
         }
 
         private void computedDcNodalInjections(Network network) {
             addEvent(Event.COMPUTED_DC_NODAL_INJECTIONS);
-            Map<String, Double> nodalInjections = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
-            this.dcNodalInjections.put(currentContingency, nodalInjections);
+            Map<String, Double> injections = new ReferenceNodalInjectionComputer().run(NetworkUtil.getNodeList(network));
+            this.dcNodalInjections.put(currentContingency, injections);
         }
 
         private void computedAcFlowsTerminal1(Network network, boolean fallbackHasBeenActivated) {

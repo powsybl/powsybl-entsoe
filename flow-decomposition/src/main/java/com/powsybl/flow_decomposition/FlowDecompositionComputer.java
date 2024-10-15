@@ -188,19 +188,19 @@ public class FlowDecompositionComputer {
     }
 
     private void saveAcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Network network, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
-        saveAcReferenceFlows(flowDecompositionResultsBuilder, network, xnecList, fallbackHasBeenActivated);
-        saveAcCurrents(flowDecompositionResultsBuilder, network, xnecList, fallbackHasBeenActivated);
+        saveAcReferenceFlows(flowDecompositionResultsBuilder, xnecList, fallbackHasBeenActivated);
+        saveAcCurrents(flowDecompositionResultsBuilder, xnecList, fallbackHasBeenActivated);
         observers.computedAcLoadFlowResults(network, fallbackHasBeenActivated);
     }
 
-    private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Network network, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
+    private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
         Map<String, Double> acTerminal1ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, fallbackHasBeenActivated, TwoSides.ONE);
         Map<String, Double> acTerminal2ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, fallbackHasBeenActivated, TwoSides.TWO);
         flowDecompositionResultsBuilder.saveAcTerminal1ReferenceFlow(acTerminal1ReferenceFlows);
         flowDecompositionResultsBuilder.saveAcTerminal2ReferenceFlow(acTerminal2ReferenceFlows);
     }
 
-    private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
+    private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
         Map<String, Double> acTerminal1Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, fallbackHasBeenActivated, TwoSides.ONE);
         Map<String, Double> acTerminal2Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, fallbackHasBeenActivated, TwoSides.TWO);
         flowDecompositionResultBuilder.saveAcCurrentTerminal1(acTerminal1Currents);
