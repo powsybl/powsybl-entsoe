@@ -83,35 +83,35 @@ public class FlowDecompositionObserverList {
         sendMatrix(FlowDecompositionObserver::computedPsdfMatrix, matrix);
     }
 
-    public void computedAcFlows(Network network, Result loadFlowServiceAcResult) {
+    public void computedAcFlows(Network network, Result loadFlowServiceAcResult, boolean enableResultsForPairedHalfLines) {
         if (observers.isEmpty()) {
             return;
         }
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedAcFlowsTerminal1(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.ONE));
-            o.computedAcFlowsTerminal2(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.TWO));
+            o.computedAcFlowsTerminal1(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, enableResultsForPairedHalfLines, TwoSides.ONE));
+            o.computedAcFlowsTerminal2(FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), loadFlowServiceAcResult, enableResultsForPairedHalfLines, TwoSides.TWO));
         }
     }
 
-    public void computedDcFlows(Network network) {
+    public void computedDcFlows(Network network, boolean enableResultsForPairedHalfLines) {
         if (observers.isEmpty()) {
             return;
         }
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedDcFlows(FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().toList(), TwoSides.ONE));
+            o.computedDcFlows(FlowComputerUtils.getTerminalReferenceFlows(network.getBranchStream().toList(), enableResultsForPairedHalfLines, TwoSides.ONE));
         }
     }
 
-    public void computedAcCurrents(Network network, Result loadFlowServiceAcResult) {
+    public void computedAcCurrents(Network network, Result loadFlowServiceAcResult, boolean enableResultsForPairedHalfLines) {
         if (observers.isEmpty()) {
             return;
         }
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedAcCurrentsTerminal1(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.ONE));
-            o.computedAcCurrentsTerminal2(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, TwoSides.TWO));
+            o.computedAcCurrentsTerminal1(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, enableResultsForPairedHalfLines, TwoSides.ONE));
+            o.computedAcCurrentsTerminal2(FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), loadFlowServiceAcResult, enableResultsForPairedHalfLines, TwoSides.TWO));
         }
     }
 

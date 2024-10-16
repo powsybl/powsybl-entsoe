@@ -172,7 +172,7 @@ public class FlowDecompositionComputer {
         computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);
         computePstFlows(network, flowDecompositionResultsBuilder, networkMatrixIndexes, psdfMatrix);
 
-        flowDecompositionResultsBuilder.build(decomposedFlowRescaler, network);
+        flowDecompositionResultsBuilder.build(decomposedFlowRescaler, network, parameters.getEnableResultsForPairedHalfLines());
     }
 
     public void addObserver(FlowDecompositionObserver observer) {
@@ -188,20 +188,20 @@ public class FlowDecompositionComputer {
     }
 
     private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acTerminal1ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, TwoSides.ONE);
-        Map<String, Double> acTerminal2ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, TwoSides.TWO);
+        Map<String, Double> acTerminal1ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, parameters.getEnableResultsForPairedHalfLines(), TwoSides.ONE);
+        Map<String, Double> acTerminal2ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, parameters.getEnableResultsForPairedHalfLines(), TwoSides.TWO);
         flowDecompositionResultBuilder.saveAcTerminal1ReferenceFlow(acTerminal1ReferenceFlows);
         flowDecompositionResultBuilder.saveAcTerminal2ReferenceFlow(acTerminal2ReferenceFlows);
-        observers.computedAcFlows(network, loadFlowServiceAcResult);
+        observers.computedAcFlows(network, loadFlowServiceAcResult, parameters.getEnableResultsForPairedHalfLines());
         observers.computedAcNodalInjections(network, loadFlowServiceAcResult.fallbackHasBeenActivated());
     }
 
     private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        Map<String, Double> acTerminal1Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, TwoSides.ONE);
-        Map<String, Double> acTerminal2Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, TwoSides.TWO);
+        Map<String, Double> acTerminal1Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, parameters.getEnableResultsForPairedHalfLines(), TwoSides.ONE);
+        Map<String, Double> acTerminal2Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, parameters.getEnableResultsForPairedHalfLines(), TwoSides.TWO);
         flowDecompositionResultBuilder.saveAcCurrentTerminal1(acTerminal1Currents);
         flowDecompositionResultBuilder.saveAcCurrentTerminal2(acTerminal2Currents);
-        observers.computedAcCurrents(network, loadFlowServiceAcResult);
+        observers.computedAcCurrents(network, loadFlowServiceAcResult, parameters.getEnableResultsForPairedHalfLines());
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network) {
@@ -240,8 +240,8 @@ public class FlowDecompositionComputer {
     }
 
     private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList) {
-        flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlow(xnecList, TwoSides.ONE));
-        observers.computedDcFlows(network);
+        flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlows(xnecList, parameters.getEnableResultsForPairedHalfLines(), TwoSides.ONE));
+        observers.computedDcFlows(network, parameters.getEnableResultsForPairedHalfLines());
         observers.computedDcNodalInjections(network);
     }
 
