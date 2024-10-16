@@ -10,8 +10,6 @@ Observers are notified of the following events:
 * when the nodal injection matrix is computed (for base case or contingency)
 * when the PTDF matrix is computed (for base case or contingency)
 * when the PSDF matrix is computed (for base case or contingency)
-* when the AC nodal injections matrix is computed (for base case or contingency)
-* when the DC nodal injections matrix is computed (for base case or contingency)
 * when the AC loadflow is computed (for base case or contingency)
 * when the DC loadflow is computed (for base case or contingency)
 * when the computation is done
