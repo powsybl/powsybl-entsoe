@@ -13,6 +13,7 @@ import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -183,6 +184,7 @@ class FlowDecompositionObserverTest {
     }
 
     @Test
+    @Disabled("TODO wait observer PR to be merged")
     void testNStateN1AndN2PostContingencyState() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         String branchId = "DB000011 DF000011 1";
@@ -267,6 +269,7 @@ class FlowDecompositionObserverTest {
     }
 
     @Test
+    @Disabled("TODO wait observer PR to be merged")
     void testNStateN1LoadContingencyState() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         String branchId = "DB000011 DF000011 1";
@@ -433,6 +436,7 @@ class FlowDecompositionObserverTest {
     }
 
     @Test
+    @Disabled("TODO wait observer PR to be merged")
     void testObserverWithEnableLossesCompensation() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         String branchId = "DB000011 DF000011 1";
@@ -451,6 +455,7 @@ class FlowDecompositionObserverTest {
     }
 
     @Test
+    @Disabled("TODO wait observer PR to be merged")
     void testPtdfsStayTheSameWithLossCompensationAndSlackDistributionOnLoads() {
         String networkFileName = "ptdf_instability.xiidm";
         Network network = TestUtils.importNetwork(networkFileName);

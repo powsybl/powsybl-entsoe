@@ -7,8 +7,8 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -100,7 +100,9 @@ class NodalInjectionTests {
         AutoGlskProvider glskProvider = new AutoGlskProvider();
         Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
-        List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
+        List<Identifiable<?>> xnecList = network.getBranchStream()
+                .map(e -> (Identifiable<?>) e)
+                .collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = nodalInjectionComputer.run(network,
@@ -114,7 +116,9 @@ class NodalInjectionTests {
         if (!loadFlowResult.isFullyConverged()) {
             LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         }
-        List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
+        List<Identifiable<?>> xnecList = network.getBranchStream()
+                .map(e -> (Identifiable<?>) e)
+                .collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
         return referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());

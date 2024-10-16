@@ -9,10 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.flow_decomposition.rescaler.*;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -114,7 +111,7 @@ public class FlowDecompositionComputer {
 
     private void decomposeFlowForNState(Network network,
                                         FlowDecompositionResults flowDecompositionResults,
-                                        Set<Branch> xnecList,
+                                        Set<Identifiable<?>> xnecList,
                                         Map<Country, Double> netPositions,
                                         Map<Country, Map<String, Double>> glsks,
                                         LoadFlowRunningService.Result loadFlowServiceAcResult) {
@@ -129,7 +126,7 @@ public class FlowDecompositionComputer {
                                                   FlowDecompositionResults flowDecompositionResults,
                                                   NetworkStateManager networkStateManager,
                                                   String contingencyId,
-                                                  Set<Branch> xnecList,
+                                                  Set<Identifiable<?>> xnecList,
                                                   Map<Country, Double> netPositions,
                                                   Map<Country, Map<String, Double>> glsks) {
         if (!xnecList.isEmpty()) {
@@ -142,7 +139,7 @@ public class FlowDecompositionComputer {
     }
 
     private void decomposeFlowForState(Network network,
-                                       Set<Branch> xnecList,
+                                       Set<Identifiable<?>> xnecList,
                                        FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder,
                                        Map<Country, Double> netPositions,
                                        Map<Country, Map<String, Double>> glsks,
@@ -187,21 +184,20 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
-    private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+    private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Identifiable<?>> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         Map<String, Double> acTerminal1ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, TwoSides.ONE);
         Map<String, Double> acTerminal2ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, loadFlowServiceAcResult, TwoSides.TWO);
         flowDecompositionResultBuilder.saveAcTerminal1ReferenceFlow(acTerminal1ReferenceFlows);
         flowDecompositionResultBuilder.saveAcTerminal2ReferenceFlow(acTerminal2ReferenceFlows);
-        observers.computedAcFlows(network, loadFlowServiceAcResult);
-        observers.computedAcNodalInjections(network, loadFlowServiceAcResult.fallbackHasBeenActivated());
+        // TODO wait observer PR to be merged
     }
 
-    private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+    private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Identifiable<?>> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         Map<String, Double> acTerminal1Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, TwoSides.ONE);
         Map<String, Double> acTerminal2Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, loadFlowServiceAcResult, TwoSides.TWO);
         flowDecompositionResultBuilder.saveAcCurrentTerminal1(acTerminal1Currents);
         flowDecompositionResultBuilder.saveAcCurrentTerminal2(acTerminal2Currents);
-        observers.computedAcCurrents(network, loadFlowServiceAcResult);
+        // TODO wait observer PR to be merged
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network) {
@@ -239,10 +235,9 @@ public class FlowDecompositionComputer {
         return nodalInjectionsMatrix;
     }
 
-    private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList) {
+    private void saveDcReferenceFlow(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Identifiable<?>> xnecList) {
         flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlow(xnecList, TwoSides.ONE));
-        observers.computedDcFlows(network);
-        observers.computedDcNodalInjections(network);
+        // TODO wait observer PR to be merged
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {

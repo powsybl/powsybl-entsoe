@@ -12,6 +12,8 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyBuilder;
 import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +34,12 @@ public final class XnecProviderByIds implements XnecProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(XnecProviderByIds.class);
     private final Map<String, Contingency> contingencyIdToContingencyMap;
     private final Map<Contingency, Set<String>> contingencyToXnecMap;
-    private final Set<String> bestCaseBranches;
+    private final Set<String> baseCaseBranches;
 
-    private XnecProviderByIds(Map<String, Contingency> contingencyIdToContingencyMap, Map<Contingency, Set<String>> contingencyToXnecMap, Set<String> bestCaseBranches) {
+    private XnecProviderByIds(Map<String, Contingency> contingencyIdToContingencyMap, Map<Contingency, Set<String>> contingencyToXnecMap, Set<String> baseCaseBranches) {
         this.contingencyIdToContingencyMap = contingencyIdToContingencyMap;
         this.contingencyToXnecMap = contingencyToXnecMap;
-        this.bestCaseBranches = bestCaseBranches;
+        this.baseCaseBranches = baseCaseBranches;
     }
 
     public static Builder builder() {
@@ -47,7 +49,7 @@ public final class XnecProviderByIds implements XnecProvider {
     public static final class Builder {
         private final Map<String, Contingency> contingencyIdToContingencyMap = new HashMap<>();
         private final Map<Contingency, Set<String>> contingencyToXnecMap = new HashMap<>();
-        private final Set<String> bestCaseBranches = new HashSet<>();
+        private final Set<String> baseCaseBranches = new HashSet<>();
 
         private Builder() {
             //private Builder, use XnecProviderByIds.builder()
@@ -94,35 +96,48 @@ public final class XnecProviderByIds implements XnecProvider {
         }
 
         public Builder addNetworkElementsOnBasecase(Set<String> branchIds) {
-            bestCaseBranches.addAll(branchIds);
+            baseCaseBranches.addAll(branchIds);
             return this;
         }
 
         public XnecProviderByIds build() {
-            return new XnecProviderByIds(contingencyIdToContingencyMap, contingencyToXnecMap, bestCaseBranches);
+            return new XnecProviderByIds(contingencyIdToContingencyMap, contingencyToXnecMap, baseCaseBranches);
         }
     }
 
-    private Set<Branch> mapBranchSetToList(Set<String> branchSet, Network network) {
+    private Set<Identifiable<?>> mapBranchSetToList(Set<String> branchSet, Network network) {
         return branchSet.stream()
             .map(xnecId -> {
-                Branch branch = network.getBranch(xnecId);
-                if (branch == null) {
-                    LOGGER.warn("Branch {} without contingency was not found in network {}", xnecId, network.getId());
+                // check if provided id is a branch
+                Branch<?> branch = network.getBranch(xnecId);
+                if (branch != null) {
+                    return branch;
                 }
-                return branch;
+                // check if provided id is a dangling line
+                DanglingLine danglingLine = network.getDanglingLine(xnecId);
+                if (danglingLine == null) {
+                    LOGGER.warn("Branch {} was not found in network {}", xnecId, network.getId());
+                    return null;
+                }
+                // check if dangling line is duly paired
+                if (danglingLine.isPaired()) {
+                    return danglingLine;
+                } else {
+                    LOGGER.warn("DanglingLine {} is not paired: will not decompose such flows", xnecId);
+                    return null;
+                }
             })
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Branch> getNetworkElements(Network network) {
-        return mapBranchSetToList(bestCaseBranches, network);
+    public Set<Identifiable<?>> getNetworkElements(Network network) {
+        return mapBranchSetToList(baseCaseBranches, network);
     }
 
     @Override
-    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
+    public Set<Identifiable<?>> getNetworkElements(String contingencyId, Network network) {
         Objects.requireNonNull(contingencyId, "Contingency Id must be specified");
         if (!contingencyIdToContingencyMap.containsKey(contingencyId)) {
             return Collections.emptySet();
@@ -131,8 +146,8 @@ public final class XnecProviderByIds implements XnecProvider {
     }
 
     @Override
-    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
-        Map<String, Set<Branch>> contingencyIdToXnec = new HashMap<>();
+    public Map<String, Set<Identifiable<?>>> getNetworkElementsPerContingency(Network network) {
+        Map<String, Set<Identifiable<?>>> contingencyIdToXnec = new HashMap<>();
         contingencyIdToContingencyMap.forEach((contingencyId, contingency) -> contingencyIdToXnec.put(contingencyId, mapBranchSetToList(contingencyToXnecMap.get(contingency), network)));
         return contingencyIdToXnec;
     }
@@ -140,7 +155,7 @@ public final class XnecProviderByIds implements XnecProvider {
     @Override
     public List<Contingency> getContingencies(Network network) {
         return contingencyToXnecMap.keySet().stream()
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                .filter(Objects::nonNull)
+                .toList();
     }
 }

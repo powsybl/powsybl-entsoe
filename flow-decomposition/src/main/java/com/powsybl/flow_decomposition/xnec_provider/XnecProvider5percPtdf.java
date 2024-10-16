@@ -11,6 +11,7 @@ import com.powsybl.flow_decomposition.*;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -49,28 +50,29 @@ public class XnecProvider5percPtdf implements XnecProvider {
             && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
     }
 
-    public Set<Branch> getBranches(Network network) {
+    public Set<Identifiable<?>> getBranches(Network network) {
         Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
         ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(LoadFlowParameters.load(), SensitivityAnalysis.find());
         Map<String, Map<Country, Double>> zonalPtdf = zonalSensitivityAnalyser.run(network, glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
         return NetworkUtil.getAllValidBranches(network)
-            .stream()
-            .filter(branch -> isAXnec(branch, zonalPtdf))
-            .collect(Collectors.toSet());
+                .stream()
+                .filter(branch -> isAXnec(branch, zonalPtdf))
+                .map(e -> (Identifiable<?>) e)
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Branch> getNetworkElements(Network network) {
+    public Set<Identifiable<?>> getNetworkElements(Network network) {
         return getBranches(network);
     }
 
     @Override
-    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
+    public Set<Identifiable<?>> getNetworkElements(String contingencyId, Network network) {
         return Collections.emptySet();
     }
 
     @Override
-    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
+    public Map<String, Set<Identifiable<?>>> getNetworkElementsPerContingency(Network network) {
         return Collections.emptyMap();
     }
 

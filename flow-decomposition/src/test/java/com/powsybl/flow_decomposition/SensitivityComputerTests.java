@@ -7,8 +7,8 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -41,7 +41,9 @@ class SensitivityComputerTests {
         LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         FlowDecompositionParameters parameters = FlowDecompositionParameters.load();
         SensitivityAnalysis.Runner sensitivityAnalysisRunner = SensitivityAnalysis.find();
-        List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
+        List<Identifiable<?>> xnecList = network.getBranchStream()
+                .map(e -> (Identifiable<?>) e)
+                .collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         SensitivityAnalyser sensitivityAnalyser = new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet ptdfMatrix =
@@ -113,7 +115,9 @@ class SensitivityComputerTests {
         LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         FlowDecompositionParameters parameters = FlowDecompositionParameters.load();
         SensitivityAnalysis.Runner sensitivityAnalysisRunner = SensitivityAnalysis.find();
-        List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
+        List<Identifiable<?>> xnecList = network.getBranchStream()
+                .map(e -> (Identifiable<?>) e)
+                .collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         SensitivityAnalyser sensitivityAnalyser = new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.run(networkMatrixIndexes.getPstList(),

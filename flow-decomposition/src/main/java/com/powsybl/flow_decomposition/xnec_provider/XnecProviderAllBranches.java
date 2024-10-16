@@ -8,7 +8,7 @@ package com.powsybl.flow_decomposition.xnec_provider;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.flow_decomposition.XnecProvider;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
@@ -22,17 +22,19 @@ import java.util.stream.Collectors;
  */
 public class XnecProviderAllBranches implements XnecProvider {
     @Override
-    public Set<Branch> getNetworkElements(Network network) {
-        return network.getBranchStream().collect(Collectors.toSet());
+    public Set<Identifiable<?>> getNetworkElements(Network network) {
+        return network.getBranchStream()
+                .map(e -> (Identifiable<?>) e)
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
+    public Set<Identifiable<?>> getNetworkElements(String contingencyId, Network network) {
         return Collections.emptySet();
     }
 
     @Override
-    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
+    public Map<String, Set<Identifiable<?>>> getNetworkElementsPerContingency(Network network) {
         return Collections.emptyMap();
     }
 

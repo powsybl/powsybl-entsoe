@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescaler;
 import com.powsybl.iidm.network.*;
 
@@ -38,7 +39,7 @@ public class FlowDecompositionResults {
     private final Map<String, DecomposedFlow> decomposedFlowMap = new HashMap<>();
 
     class PerStateBuilder {
-        private final Map<String, Branch> xnecMap;
+        private final Map<String, Identifiable<?>> xnecMap;
         private final String contingencyId;
         private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
         private Map<String, Map<String, Double>> pstFlowMap;
@@ -48,7 +49,7 @@ public class FlowDecompositionResults {
         private Map<String, Double> acCurrentTerminal2;
         private Map<String, Double> dcReferenceFlow;
 
-        PerStateBuilder(String contingencyId, Set<Branch> xnecList) {
+        PerStateBuilder(String contingencyId, Set<Identifiable<?>> xnecList) {
             this.xnecMap = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
             this.contingencyId = contingencyId;
         }
@@ -96,8 +97,17 @@ public class FlowDecompositionResults {
             double allocatedFlow = allocatedAndLoopFlowMap.get(ALLOCATED_COLUMN_NAME);
             double pstFlow = pstFlowMap.getOrDefault(branchId, Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW);
             double xNodeFlow = allocatedAndLoopFlowMap.getOrDefault(XNODE_COLUMN_NAME, NO_FLOW);
-            Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
-            Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());
+            Identifiable<?> identifiable = xnecMap.get(branchId);
+            Country country1 = null;
+            Country country2 = null;
+            if (identifiable instanceof Branch<?> branch) {
+                country1 = NetworkUtil.getTerminalCountry(branch.getTerminal1());
+                country2 = NetworkUtil.getTerminalCountry(branch.getTerminal2());
+            } else if (identifiable instanceof DanglingLine danglingLine) {
+                country1 = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
+            } else {
+                throw new PowsyblException("xnecList should contain only Branches and paired DanglingLines");
+            }
             double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
             DecomposedFlow decomposedFlow = new DecomposedFlowBuilder()
                     .withBranchId(branchId)
@@ -163,11 +173,11 @@ public class FlowDecompositionResults {
         return decomposedFlowMap;
     }
 
-    PerStateBuilder getBuilder(String contingencyId, Set<Branch> xnecList) {
+    PerStateBuilder getBuilder(String contingencyId, Set<Identifiable<?>> xnecList) {
         return new PerStateBuilder(contingencyId, xnecList);
     }
 
-    public PerStateBuilder getBuilder(Set<Branch> xnecList) {
+    public PerStateBuilder getBuilder(Set<Identifiable<?>> xnecList) {
         return new PerStateBuilder(NO_CONTINGENCY_ID, xnecList);
     }
 }

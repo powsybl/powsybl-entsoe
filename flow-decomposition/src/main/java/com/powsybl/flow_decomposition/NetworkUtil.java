@@ -68,10 +68,10 @@ public final class NetworkUtil {
 
     public static List<Branch> getAllValidBranches(Network network) {
         return network.getBranchStream()
-            .filter(NetworkUtil::isConnected)
-            .filter(NetworkUtil::hasABusToEachTerminal)
-            .filter(NetworkUtil::isInMainSynchronousComponent)
-            .collect(Collectors.toList());
+                .filter(NetworkUtil::isConnected)
+                .filter(NetworkUtil::hasABusToEachTerminal)
+                .filter(NetworkUtil::isInMainSynchronousComponent)
+                .toList();
     }
 
     private static boolean isConnected(Branch<?> branch) {

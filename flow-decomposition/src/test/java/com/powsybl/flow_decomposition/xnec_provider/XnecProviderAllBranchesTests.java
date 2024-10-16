@@ -8,7 +8,7 @@ package com.powsybl.flow_decomposition.xnec_provider;
 
 import com.powsybl.flow_decomposition.TestUtils;
 import com.powsybl.flow_decomposition.XnecProvider;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +28,7 @@ class XnecProviderAllBranchesTests {
         String xnecFrBe = "FGEN1 11 BLOAD 11 1";
         String xnecBeBe = "BLOAD 11 BGEN2 11 1";
         XnecProvider xnecProvider = new XnecProviderAllBranches();
-        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
+        Set<Identifiable<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
         assertTrue(branchSet.contains(network.getBranch(xnecBeBe)));
         assertEquals(2, branchSet.size());
