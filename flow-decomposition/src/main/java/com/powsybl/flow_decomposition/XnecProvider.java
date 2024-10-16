@@ -7,7 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
@@ -23,7 +23,7 @@ public interface XnecProvider extends ContingenciesProvider {
      * @param network network used to find branches.
      * @return a set of branches to monitor
      */
-    Set<Branch> getNetworkElements(Network network);
+    Set<Identifiable<?>> getNetworkElements(Network network);
 
     /**
      * Return XNEC given contingency
@@ -33,7 +33,7 @@ public interface XnecProvider extends ContingenciesProvider {
      * @param network network used to find branches.
      * @return a set of branches to monitor
      */
-    Set<Branch> getNetworkElements(String contingencyId, Network network);
+    Set<Identifiable<?>> getNetworkElements(String contingencyId, Network network);
 
     /**
      * Return all XNECs mapped by contingency (basecase not included)
@@ -41,5 +41,5 @@ public interface XnecProvider extends ContingenciesProvider {
      * @param network network used to find branches
      * @return
      */
-    Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network);
+    Map<String, Set<Identifiable<?>>> getNetworkElementsPerContingency(Network network);
 }

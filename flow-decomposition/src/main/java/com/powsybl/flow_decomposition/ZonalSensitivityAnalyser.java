@@ -6,8 +6,8 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -40,7 +40,10 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     public Map<String, Map<Country, Double>> run(Network network,
                                                  Map<Country, Map<String, Double>> glsks,
                                                  SensitivityVariableType sensitivityVariableType) {
-        List<Branch> functionList = NetworkUtil.getAllValidBranches(network);
+        List<Identifiable<?>> functionList = NetworkUtil.getAllValidBranches(network)
+                .stream()
+                .map(e -> (Identifiable<?>) e)
+                .collect(Collectors.toList());
         List<String> variableList = getVariableList(glsks);
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);
         List<Pair<String, String>> factors = getFunctionVariableFactors(variableList, functionList);

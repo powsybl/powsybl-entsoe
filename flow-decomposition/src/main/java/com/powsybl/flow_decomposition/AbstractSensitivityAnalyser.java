@@ -10,7 +10,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
@@ -52,7 +52,7 @@ abstract class AbstractSensitivityAnalyser {
     }
 
     protected List<Pair<String, String>> getFunctionVariableFactors(List<String> variableList,
-                                                                    List<Branch> functionList) {
+                                                                    List<Identifiable<?>> functionList) {
         List<Pair<String, String>> factors = new ArrayList<>();
         variableList.forEach(
             variable -> functionList.forEach(

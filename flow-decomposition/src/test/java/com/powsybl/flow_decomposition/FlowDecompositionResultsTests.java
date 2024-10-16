@@ -10,8 +10,8 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescaler;
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescalerNoOp;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import org.ejml.data.DMatrixSparseCSC;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,7 +81,7 @@ class FlowDecompositionResultsTests {
 
     @Test
     void testBuilderNState() {
-        Set<Branch> nStateXnecList = xnecProvider.getNetworkElements(network);
+        Set<Identifiable<?>> nStateXnecList = xnecProvider.getNetworkElements(network);
         FlowDecompositionResults.PerStateBuilder nStateBuilder = flowDecompositionResults.getBuilder(nStateXnecList);
         DecomposedFlowRescaler decomposedFlowRescaler = new DecomposedFlowRescalerNoOp();
 
@@ -111,7 +111,7 @@ class FlowDecompositionResultsTests {
 
     @Test
     void testBuilderN1State() {
-        Set<Branch> n1StateContingency2XnecList = xnecProvider.getNetworkElements(contingencyId2, network);
+        Set<Identifiable<?>> n1StateContingency2XnecList = xnecProvider.getNetworkElements(contingencyId2, network);
         FlowDecompositionResults.PerStateBuilder n1StateBuilder = flowDecompositionResults.getBuilder(contingencyId2, n1StateContingency2XnecList);
         String xnecId = "DB000011 DF000011 1_DD000011 DF000011 1";
         DecomposedFlowRescaler decomposedFlowRescaler = new DecomposedFlowRescalerNoOp();
@@ -142,7 +142,7 @@ class FlowDecompositionResultsTests {
 
     @Test
     void testBuilderN2State() {
-        Set<Branch> n1StateContingency3XnecList = xnecProvider.getNetworkElements(contingencyId3, network);
+        Set<Identifiable<?>> n1StateContingency3XnecList = xnecProvider.getNetworkElements(contingencyId3, network);
         FlowDecompositionResults.PerStateBuilder n2StateBuilder = flowDecompositionResults.getBuilder(contingencyId3, n1StateContingency3XnecList);
         String xnecId = "DB000011 DF000011 1_FB000011 FD000011 1_FB000021 FD000021 1";
         DecomposedFlowRescaler decomposedFlowRescaler = new DecomposedFlowRescalerNoOp();
