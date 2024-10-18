@@ -8,11 +8,14 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.Map;
 
 /**
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
+ * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
 public interface FlowDecompositionObserver {
 
@@ -74,52 +77,19 @@ public interface FlowDecompositionObserver {
     void computedPsdfMatrix(Map<String, Map<String, Double>> psdfMatrix);
 
     /**
-     * Called when the AC nodal injections matrix is computed (for base case or contingency)
+     * Called after an AC loadflow has been computed
      *
-     * @param positions the positions after AC loadflow
+     * @param network the network after AC loadflow
+     * @param loadFlowResult loadflow result after AC loadflow
      * @param fallbackHasBeenActivated true if AC loadflow didn't converge
      */
-    void computedAcNodalInjections(Map<String, Double> positions, boolean fallbackHasBeenActivated);
+    void computedAcLoadFlowResults(Network network, LoadFlowResult loadFlowResult, boolean fallbackHasBeenActivated);
 
     /**
-     * Called when the DC nodal injections matrix is computed (for base case or contingency)
+     * Called after a DC loadflow has been computed
      *
-     * @param positions the positions after DC loadflow
+     * @param network the network after DC loadflow
+     * @param loadFlowResult loadflow result after DC loadflow
      */
-    void computedDcNodalInjections(Map<String, Double> positions);
-
-    /**
-     * Called when the AC loadflow is computed (for base case or contingency)
-     *
-     * @param flows the terminal 1 flow for all branches
-     */
-    void computedAcFlowsTerminal1(Map<String, Double> flows);
-
-    /**
-     * Called when the AC loadflow is computed (for base case or contingency)
-     *
-     * @param flows the terminal 2 flow for all branches
-     */
-    void computedAcFlowsTerminal2(Map<String, Double> flows);
-
-    /**
-     * Called when the DC loadflow is computed (for base case or contingency)
-     *
-     * @param flows the flows for all branches
-     */
-    void computedDcFlows(Map<String, Double> flows);
-
-    /**
-     * Called when the AC loadflow is computed (for base case or contingency)
-     *
-     * @param currents the terminal 1 current for all branches
-     */
-    void computedAcCurrentsTerminal1(Map<String, Double> currents);
-
-    /**
-     * Called when the AC loadflow is computed (for base case or contingency)
-     *
-     * @param currents the terminal 1 current for all branches
-     */
-    void computedAcCurrentsTerminal2(Map<String, Double> currents);
+    void computedDcLoadFlowResults(Network network, LoadFlowResult loadFlowResult);
 }
