@@ -134,7 +134,7 @@ class FlowDecompositionObserverTest {
         }
 
         @Override
-        public void computedAcLoadFlowResults(Network network, boolean fallbackHasBeenActivated) {
+        public void computedAcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowResult, boolean fallbackHasBeenActivated) {
             computedAcNodalInjections(network);
             computedAcFlowsTerminal1(network, fallbackHasBeenActivated);
             computedAcFlowsTerminal2(network, fallbackHasBeenActivated);
@@ -143,7 +143,7 @@ class FlowDecompositionObserverTest {
         }
 
         @Override
-        public void computedDcLoadFlowResults(Network network) {
+        public void computedDcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowResult) {
             computedDcNodalInjections(network);
             computedDcFlows(network);
         }

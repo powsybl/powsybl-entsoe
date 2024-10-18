@@ -82,23 +82,23 @@ public class FlowDecompositionObserverList {
         sendMatrix(FlowDecompositionObserver::computedPsdfMatrix, matrix);
     }
 
-    public void computedAcLoadFlowResults(Network network, boolean isFallBackActivated) {
+    public void computedAcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         if (observers.isEmpty()) {
             return;
         }
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedAcLoadFlowResults(network, isFallBackActivated);
+            o.computedAcLoadFlowResults(network, loadFlowServiceAcResult, loadFlowServiceAcResult.fallbackHasBeenActivated());
         }
     }
 
-    public void computedDcLoadFlowResults(Network network) {
+    public void computedDcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         if (observers.isEmpty()) {
             return;
         }
 
         for (FlowDecompositionObserver o : observers) {
-            o.computedDcLoadFlowResults(network);
+            o.computedDcLoadFlowResults(network, loadFlowServiceAcResult);
         }
     }
 

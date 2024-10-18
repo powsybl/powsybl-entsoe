@@ -14,6 +14,9 @@ Observers are notified of the following events:
 * when the DC loadflow is computed (for base case or contingency)
 * when the computation is done
 
+After AC and DC loadflows the observer has access to the network at that stage, as well as the loadflow result.
+In this manner, it is possible to retrieve any information of the network after loadflow calculations.
+
 Note that these observers are meant to be used for testing purposes only.
 Using observers impacts calculation performance and therefore are not suitable in production environment.
 

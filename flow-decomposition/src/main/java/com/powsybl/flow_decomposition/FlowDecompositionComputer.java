@@ -149,14 +149,14 @@ public class FlowDecompositionComputer {
                                        Map<Country, Map<String, Double>> glsks,
                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
         // AC load flow
-        saveAcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecList, loadFlowServiceAcResult.fallbackHasBeenActivated());
+        saveAcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecList, loadFlowServiceAcResult);
 
         // Losses compensation
         compensateLosses(network);
 
         // DC load flow
         runDcLoadFlow(network);
-        saveDcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecList);
+        saveDcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecList, loadFlowServiceAcResult);
 
         // Nodal injections
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecList));
@@ -187,10 +187,10 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
-    private void saveAcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Network network, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
-        saveAcReferenceFlows(flowDecompositionResultsBuilder, xnecList, fallbackHasBeenActivated);
-        saveAcCurrents(flowDecompositionResultsBuilder, xnecList, fallbackHasBeenActivated);
-        observers.computedAcLoadFlowResults(network, fallbackHasBeenActivated);
+    private void saveAcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+        saveAcReferenceFlows(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult.fallbackHasBeenActivated());
+        saveAcCurrents(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult.fallbackHasBeenActivated());
+        observers.computedAcLoadFlowResults(network, loadFlowServiceAcResult);
     }
 
     private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
@@ -242,9 +242,9 @@ public class FlowDecompositionComputer {
         return nodalInjectionsMatrix;
     }
 
-    private void saveDcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList) {
+    private void saveDcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlow(xnecList, TwoSides.ONE));
-        observers.computedDcLoadFlowResults(network);
+        observers.computedDcLoadFlowResults(network, loadFlowServiceAcResult);
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {

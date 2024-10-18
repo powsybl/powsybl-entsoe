@@ -76,17 +76,19 @@ public interface FlowDecompositionObserver {
     void computedPsdfMatrix(Map<String, Map<String, Double>> psdfMatrix);
 
     /**
-     * Called after an AC loadflow is launched and terminated
+     * Called after an AC loadflow has been computed
      *
      * @param network the network after AC loadflow
+     * @param loadFlowResult loadflow result after AC loadflow
      * @param fallbackHasBeenActivated true if AC loadflow didn't converge
      */
-    void computedAcLoadFlowResults(Network network, boolean fallbackHasBeenActivated);
+    void computedAcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowResult, boolean fallbackHasBeenActivated);
 
     /**
-     * Called after a DC loadflow is launched and terminated
+     * Called after a DC loadflow has been computed
      *
      * @param network the network after DC loadflow
+     * @param loadFlowResult loadflow result after DC loadflow
      */
-    void computedDcLoadFlowResults(Network network);
+    void computedDcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowResult);
 }
