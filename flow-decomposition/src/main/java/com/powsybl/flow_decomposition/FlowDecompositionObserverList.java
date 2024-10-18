@@ -83,20 +83,12 @@ public class FlowDecompositionObserverList {
     }
 
     public void computedAcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        if (observers.isEmpty()) {
-            return;
-        }
-
         for (FlowDecompositionObserver o : observers) {
             o.computedAcLoadFlowResults(network, loadFlowServiceAcResult, loadFlowServiceAcResult.fallbackHasBeenActivated());
         }
     }
 
     public void computedDcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowServiceAcResult) {
-        if (observers.isEmpty()) {
-            return;
-        }
-
         for (FlowDecompositionObserver o : observers) {
             o.computedDcLoadFlowResults(network, loadFlowServiceAcResult);
         }

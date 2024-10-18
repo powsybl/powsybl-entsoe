@@ -155,8 +155,8 @@ public class FlowDecompositionComputer {
         compensateLosses(network);
 
         // DC load flow
-        runDcLoadFlow(network);
-        saveDcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecList, loadFlowServiceAcResult);
+        LoadFlowRunningService.Result loadFlowServiceDcResult = runDcLoadFlow(network);
+        saveDcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecList, loadFlowServiceDcResult);
 
         // Nodal injections
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecList));
@@ -242,9 +242,9 @@ public class FlowDecompositionComputer {
         return nodalInjectionsMatrix;
     }
 
-    private void saveDcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+    private void saveDcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceDcResult) {
         flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlow(xnecList, TwoSides.ONE));
-        observers.computedDcLoadFlowResults(network, loadFlowServiceAcResult);
+        observers.computedDcLoadFlowResults(network, loadFlowServiceDcResult);
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {

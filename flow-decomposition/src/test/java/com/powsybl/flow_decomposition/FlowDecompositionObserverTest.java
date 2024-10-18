@@ -58,6 +58,9 @@ class FlowDecompositionObserverTest {
         private final ContingencyValue<List<Event>> eventsPerContingency = new ContingencyValue<>();
         private Map<Country, Map<String, Double>> glsks;
         private Map<Country, Double> netPositions;
+        private final ContingencyValue<LoadFlowRunningService.Result> acLoadFlowResult = new ContingencyValue<>();
+        private final ContingencyValue<Boolean> acLoadFlowFallbackHasBeenActivated = new ContingencyValue<>();
+        private final ContingencyValue<LoadFlowRunningService.Result> dcLoadFlowResult = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Map<String, Double>>> nodalInjections = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Map<String, Double>>> ptdfs = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Map<String, Double>>> psdfs = new ContingencyValue<>();
@@ -135,6 +138,8 @@ class FlowDecompositionObserverTest {
 
         @Override
         public void computedAcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowResult, boolean fallbackHasBeenActivated) {
+            this.acLoadFlowResult.put(currentContingency, loadFlowResult);
+            this.acLoadFlowFallbackHasBeenActivated.put(currentContingency, fallbackHasBeenActivated);
             computedAcNodalInjections(network);
             computedAcFlowsTerminal1(network, fallbackHasBeenActivated);
             computedAcFlowsTerminal2(network, fallbackHasBeenActivated);
@@ -144,6 +149,7 @@ class FlowDecompositionObserverTest {
 
         @Override
         public void computedDcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowResult) {
+            this.dcLoadFlowResult.put(currentContingency, loadFlowResult);
             computedDcNodalInjections(network);
             computedDcFlows(network);
         }
@@ -225,7 +231,8 @@ class FlowDecompositionObserverTest {
         flowComputer.addObserver(report);
         flowComputer.run(xnecProvider, network);
 
-        validateObserverReportEvents(report, List.of(contingencyId1, contingencyId2), Boolean.TRUE);
+        validateObserverReportLoadFlowResult(report, List.of(BASE_CASE, contingencyId1, contingencyId2));
+        validateObserverReportEvents(report, List.of(BASE_CASE, contingencyId1, contingencyId2), Boolean.TRUE);
         validateObserverReportGlsk(report, Set.of("DB000011_generator", "DF000011_generator"));
         validateObserverReportNetPositions(report, Set.of(Country.BE, Country.DE, Country.FR));
 
@@ -300,6 +307,7 @@ class FlowDecompositionObserverTest {
         flowComputer.addObserver(report);
         flowComputer.run(xnecProvider, network);
 
+        validateObserverReportLoadFlowResult(report, List.of(contingencyId1));
         validateObserverReportEvents(report, List.of(contingencyId1), Boolean.FALSE);
         validateObserverReportGlsk(report, Set.of("DB000011_generator", "DF000011_generator"));
         validateObserverReportNetPositions(report, Set.of(Country.BE, Country.DE, Country.FR));
@@ -354,6 +362,17 @@ class FlowDecompositionObserverTest {
                 "XDF00011 DF000011 1 + XDF00011 FD000011 1");
 
         validateObserverReportFlows(report, List.of(contingencyId1), allBranches);
+    }
+
+    private static void validateObserverReportLoadFlowResult(ObserverReport report, List<String> contingencyIds) {
+        for (var contingencyId : contingencyIds) {
+            LoadFlowRunningService.Result contingencyAcLoadFlowResult = report.acLoadFlowResult.forContingency(contingencyId);
+            boolean contingencyAcLoadFlowFallbackHasBeenActivated = report.acLoadFlowFallbackHasBeenActivated.forContingency(contingencyId);
+            LoadFlowRunningService.Result contingencyDcLoadFlowResult = report.dcLoadFlowResult.forContingency(contingencyId);
+            assertTrue(contingencyAcLoadFlowResult.getLoadFlowResult().isFullyConverged());
+            assertEquals(contingencyAcLoadFlowResult.fallbackHasBeenActivated(), contingencyAcLoadFlowFallbackHasBeenActivated);
+            assertTrue(contingencyDcLoadFlowResult.getLoadFlowResult().isFullyConverged());
+        }
     }
 
     private static void validateObserverReportEvents(ObserverReport report, List<String> contingencyIds, Boolean isBaseCaseExecuted) {
