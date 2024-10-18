@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -58,9 +59,9 @@ class FlowDecompositionObserverTest {
         private final ContingencyValue<List<Event>> eventsPerContingency = new ContingencyValue<>();
         private Map<Country, Map<String, Double>> glsks;
         private Map<Country, Double> netPositions;
-        private final ContingencyValue<LoadFlowRunningService.Result> acLoadFlowResult = new ContingencyValue<>();
+        private final ContingencyValue<LoadFlowResult> acLoadFlowResult = new ContingencyValue<>();
         private final ContingencyValue<Boolean> acLoadFlowFallbackHasBeenActivated = new ContingencyValue<>();
-        private final ContingencyValue<LoadFlowRunningService.Result> dcLoadFlowResult = new ContingencyValue<>();
+        private final ContingencyValue<LoadFlowResult> dcLoadFlowResult = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Map<String, Double>>> nodalInjections = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Map<String, Double>>> ptdfs = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Map<String, Double>>> psdfs = new ContingencyValue<>();
@@ -137,7 +138,7 @@ class FlowDecompositionObserverTest {
         }
 
         @Override
-        public void computedAcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowResult, boolean fallbackHasBeenActivated) {
+        public void computedAcLoadFlowResults(Network network, LoadFlowResult loadFlowResult, boolean fallbackHasBeenActivated) {
             this.acLoadFlowResult.put(currentContingency, loadFlowResult);
             this.acLoadFlowFallbackHasBeenActivated.put(currentContingency, fallbackHasBeenActivated);
             computedAcNodalInjections(network);
@@ -148,7 +149,7 @@ class FlowDecompositionObserverTest {
         }
 
         @Override
-        public void computedDcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowResult) {
+        public void computedDcLoadFlowResults(Network network, LoadFlowResult loadFlowResult) {
             this.dcLoadFlowResult.put(currentContingency, loadFlowResult);
             computedDcNodalInjections(network);
             computedDcFlows(network);
@@ -366,12 +367,12 @@ class FlowDecompositionObserverTest {
 
     private static void validateObserverReportLoadFlowResult(ObserverReport report, List<String> contingencyIds) {
         for (var contingencyId : contingencyIds) {
-            LoadFlowRunningService.Result contingencyAcLoadFlowResult = report.acLoadFlowResult.forContingency(contingencyId);
+            LoadFlowResult contingencyAcLoadFlowResult = report.acLoadFlowResult.forContingency(contingencyId);
             boolean contingencyAcLoadFlowFallbackHasBeenActivated = report.acLoadFlowFallbackHasBeenActivated.forContingency(contingencyId);
-            LoadFlowRunningService.Result contingencyDcLoadFlowResult = report.dcLoadFlowResult.forContingency(contingencyId);
-            assertTrue(contingencyAcLoadFlowResult.getLoadFlowResult().isFullyConverged());
-            assertEquals(contingencyAcLoadFlowResult.fallbackHasBeenActivated(), contingencyAcLoadFlowFallbackHasBeenActivated);
-            assertTrue(contingencyDcLoadFlowResult.getLoadFlowResult().isFullyConverged());
+            LoadFlowResult contingencyDcLoadFlowResult = report.dcLoadFlowResult.forContingency(contingencyId);
+            assertTrue(contingencyAcLoadFlowResult.isFullyConverged());
+            assertFalse(contingencyAcLoadFlowFallbackHasBeenActivated);
+            assertTrue(contingencyDcLoadFlowResult.isFullyConverged());
         }
     }
 

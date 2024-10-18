@@ -84,13 +84,13 @@ public class FlowDecompositionObserverList {
 
     public void computedAcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         for (FlowDecompositionObserver o : observers) {
-            o.computedAcLoadFlowResults(network, loadFlowServiceAcResult, loadFlowServiceAcResult.fallbackHasBeenActivated());
+            o.computedAcLoadFlowResults(network, loadFlowServiceAcResult.getLoadFlowResult(), loadFlowServiceAcResult.fallbackHasBeenActivated());
         }
     }
 
-    public void computedDcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+    public void computedDcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowServiceDcResult) {
         for (FlowDecompositionObserver o : observers) {
-            o.computedDcLoadFlowResults(network, loadFlowServiceAcResult);
+            o.computedDcLoadFlowResults(network, loadFlowServiceDcResult.getLoadFlowResult());
         }
     }
 

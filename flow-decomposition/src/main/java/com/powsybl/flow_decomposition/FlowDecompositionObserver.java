@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowResult;
 
 import java.util.Map;
 
@@ -82,7 +83,7 @@ public interface FlowDecompositionObserver {
      * @param loadFlowResult loadflow result after AC loadflow
      * @param fallbackHasBeenActivated true if AC loadflow didn't converge
      */
-    void computedAcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowResult, boolean fallbackHasBeenActivated);
+    void computedAcLoadFlowResults(Network network, LoadFlowResult loadFlowResult, boolean fallbackHasBeenActivated);
 
     /**
      * Called after a DC loadflow has been computed
@@ -90,5 +91,5 @@ public interface FlowDecompositionObserver {
      * @param network the network after DC loadflow
      * @param loadFlowResult loadflow result after DC loadflow
      */
-    void computedDcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowResult);
+    void computedDcLoadFlowResults(Network network, LoadFlowResult loadFlowResult);
 }
