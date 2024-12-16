@@ -8,7 +8,8 @@
                Network balance: active generation=4000.0 MW, active load=4000.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
                Angle reference bus: VOLTAGE_LEVEL_BE_0
                Slack bus: VOLTAGE_LEVEL_BE_0
-            DC load flow completed (status=true)
+            Slack bus active power (-0.0 MW) distributed in 0 distribution iteration(s)
+            DC load flow completed (solverSuccess=true, outerloopStatus=STABLE)
       + Checking load flow status
          Network CC0 SC0 Load flow complete with status 'CONVERGED'
       + Mismatch
@@ -25,7 +26,8 @@
                Network balance: active generation=3940.0 MW, active load=4040.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
                Angle reference bus: VOLTAGE_LEVEL_BE_0
                Slack bus: VOLTAGE_LEVEL_BE_0
-            DC load flow completed (status=true)
+            Slack bus active power (100.0 MW) distributed in 1 distribution iteration(s)
+            DC load flow completed (solverSuccess=true, outerloopStatus=STABLE)
       + Checking load flow status
          Network CC0 SC0 Load flow complete with status 'CONVERGED'
       + Mismatch
@@ -42,7 +44,8 @@
                Network balance: active generation=3880.0 MW, active load=4080.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
                Angle reference bus: VOLTAGE_LEVEL_BE_0
                Slack bus: VOLTAGE_LEVEL_BE_0
-            DC load flow completed (status=true)
+            Slack bus active power (200.0 MW) distributed in 1 distribution iteration(s)
+            DC load flow completed (solverSuccess=true, outerloopStatus=STABLE)
       + Checking load flow status
          Network CC0 SC0 Load flow complete with status 'CONVERGED'
       + Mismatch
@@ -59,7 +62,8 @@
                Network balance: active generation=3820.0 MW, active load=4120.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
                Angle reference bus: VOLTAGE_LEVEL_BE_0
                Slack bus: VOLTAGE_LEVEL_BE_0
-            DC load flow completed (status=true)
+            Slack bus active power (300.0 MW) distributed in 1 distribution iteration(s)
+            DC load flow completed (solverSuccess=true, outerloopStatus=STABLE)
       + Checking load flow status
          Network CC0 SC0 Load flow complete with status 'CONVERGED'
       + Mismatch
@@ -76,7 +80,8 @@
                Network balance: active generation=3760.0 MW, active load=4160.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
                Angle reference bus: VOLTAGE_LEVEL_BE_0
                Slack bus: VOLTAGE_LEVEL_BE_0
-            DC load flow completed (status=true)
+            Slack bus active power (399.99999999999983 MW) distributed in 1 distribution iteration(s)
+            DC load flow completed (solverSuccess=true, outerloopStatus=STABLE)
       + Checking load flow status
          Network CC0 SC0 Load flow complete with status 'CONVERGED'
       + Mismatch
