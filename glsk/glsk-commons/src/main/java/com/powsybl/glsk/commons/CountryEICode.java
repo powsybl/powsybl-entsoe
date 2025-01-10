@@ -72,6 +72,7 @@ public class CountryEICode {
             case "10YGR-HTSO-----Y", "10YCB-GREECE---2" -> Country.GR;
             case "10YIT-GRTN-----B", "10YCB-ITALY----1" -> Country.IT;
             case "10YDK-1--------W" -> Country.DK;
+            case "10Y1001C--00100H" -> Country.XK;
             default -> throw new IllegalArgumentException("Unknown CountryEICode: " + codeString + ".");
         };
     }
@@ -104,6 +105,7 @@ public class CountryEICode {
             case GR -> "10YGR-HTSO-----Y";
             case IT -> "10YIT-GRTN-----B";
             case DK -> "10YDK-1--------W";
+            case XK -> "10Y1001C--00100H";
             default -> throw new IllegalArgumentException("Unknown CountryEICode for Country " + country + ".");
         };
     }
