@@ -94,6 +94,12 @@ public class FlowDecompositionObserverList {
         }
     }
 
+    public void computedPreRescalingDecomposedFlows(DecomposedFlow decomposedFlow) {
+        for (FlowDecompositionObserver o : observers) {
+            o.computedPreRescalingDecomposedFlows(decomposedFlow);
+        }
+    }
+
     private void sendMatrix(MatrixNotification notification, SparseMatrixWithIndexesTriplet matrix) {
         if (observers.isEmpty()) {
             return;

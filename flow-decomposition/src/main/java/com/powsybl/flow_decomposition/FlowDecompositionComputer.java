@@ -172,6 +172,8 @@ public class FlowDecompositionComputer {
         computeAllocatedAndLoopFlows(flowDecompositionResultsBuilder, nodalInjectionsMatrix, ptdfMatrix);
         computePstFlows(network, flowDecompositionResultsBuilder, networkMatrixIndexes, psdfMatrix);
 
+        // Save the observers list to keep the decomposed flows before rescaling
+        flowDecompositionResultsBuilder.saveObserversList(observers);
         flowDecompositionResultsBuilder.build(decomposedFlowRescaler, network);
     }
 
