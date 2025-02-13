@@ -12,7 +12,7 @@ Observers are notified of the following events:
 * when the PSDF matrix is computed (for base case or contingency)
 * when the AC loadflow is computed (for base case or contingency)
 * when the DC loadflow is computed (for base case or contingency)
-* when the flow decomposition result is being built (for base case or contingency)
+* when the flow decomposition results before rescaling are being built (for base case or contingency)
 * when the computation is done
 
 After AC and DC loadflows the observer has access to the network at that stage, as well as the loadflow result.

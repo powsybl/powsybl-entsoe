@@ -47,7 +47,7 @@ public class FlowDecompositionResults {
         private Map<String, Double> acCurrentTerminal1;
         private Map<String, Double> acCurrentTerminal2;
         private Map<String, Double> dcReferenceFlow;
-        private FlowDecompositionObserverList observers = new FlowDecompositionObserverList();
+        private final FlowDecompositionObserverList observers = new FlowDecompositionObserverList();
 
         PerStateBuilder(String contingencyId, Set<Branch> xnecList) {
             this.xnecMap = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
@@ -82,8 +82,8 @@ public class FlowDecompositionResults {
             this.dcReferenceFlow = dcReferenceFlow;
         }
 
-        void saveObserversList(FlowDecompositionObserverList observers) {
-            this.observers = observers;
+        void addObserversList(FlowDecompositionObserverList observers) {
+            this.observers.addObserversFrom(observers);
         }
 
         void build(DecomposedFlowRescaler decomposedFlowRescaler, Network network) {

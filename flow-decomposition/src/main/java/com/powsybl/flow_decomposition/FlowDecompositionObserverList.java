@@ -18,7 +18,7 @@ import java.util.Map;
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
-public class FlowDecompositionObserverList {
+class FlowDecompositionObserverList {
 
     private final List<FlowDecompositionObserver> observers;
 
@@ -32,6 +32,16 @@ public class FlowDecompositionObserverList {
 
     public void removeObserver(FlowDecompositionObserver o) {
         this.observers.remove(o);
+    }
+
+    public void addObserversFrom(FlowDecompositionObserverList otherList) {
+        for (FlowDecompositionObserver o : otherList.getObservers()) {
+            this.addObserver(o);
+        }
+    }
+
+    public List<FlowDecompositionObserver> getObservers() {
+        return this.observers;
     }
 
     public void runStart() {
