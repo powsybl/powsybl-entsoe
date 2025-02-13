@@ -52,8 +52,8 @@ class CgmesBoundariesAreaTest {
     }
 
     @Test
-    void testWithAreaWithoutAreaExtension() {
-        Network network = Network.read("controlAreaWithoutExtension.xml", getClass().getResourceAsStream("/controlAreaWithoutExtension.xml"));
+    void testWithIidmArea() {
+        Network network = Network.read("iidmControlArea.xml", getClass().getResourceAsStream("/iidmControlArea.xml"));
         NetworkAreaFactory factory = new CgmesBoundariesAreaFactory(network.getAreaStream().toList());
         NetworkArea area = factory.create(network);
 
