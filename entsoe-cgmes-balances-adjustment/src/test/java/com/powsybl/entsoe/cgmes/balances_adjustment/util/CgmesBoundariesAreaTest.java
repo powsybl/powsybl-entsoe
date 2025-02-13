@@ -24,6 +24,22 @@ class CgmesBoundariesAreaTest {
 
     static double DELTA_POWER = 1e-5;
 
+    private static void extracted(Network network) {
+        NetworkAreaFactory factory = new CgmesBoundariesAreaFactory(network.getAreaStream().toList());
+        NetworkArea area = factory.create(network);
+
+        double sum = -Stream.of(
+                        network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6"),
+                        network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da"),
+                        network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006"),
+                        network.getDanglingLine("TL_1"))
+                .mapToDouble(dl -> dl.getBoundary().getP()).sum();
+        // FIXME: we miss the line "_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_2" because it is not a tie line.
+
+        assertEquals(sum, area.getNetPosition(), DELTA_POWER);
+        assertTrue(area.getContainedBusViewBuses().isEmpty());
+    }
+
     @Test
     void testWithNoArea() {
         Network network = DanglingLineNetworkFactory.create();
@@ -36,34 +52,12 @@ class CgmesBoundariesAreaTest {
     @Test
     void testWithAreaFromOldExtension() {
         Network network = Network.read("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
-        NetworkAreaFactory factory = new CgmesBoundariesAreaFactory(network.getAreaStream().toList());
-        NetworkArea area = factory.create(network);
-
-        double sum = Stream.of(
-                        network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6"),
-                        network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da"),
-                        network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006"))
-                .mapToDouble(dl -> dl.getBoundary().getP()).sum();
-
-        sum = sum + network.getTieLine("TL_fict").getDanglingLine1().getBoundary().getP();
-        // FIXME: we miss the line "_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_2" because it is not a tie line.
-        assertEquals(-sum, area.getNetPosition(), DELTA_POWER);
-        assertTrue(area.getContainedBusViewBuses().isEmpty());
+        extracted(network);
     }
 
     @Test
     void testWithIidmArea() {
         Network network = Network.read("iidmControlArea.xml", getClass().getResourceAsStream("/iidmControlArea.xml"));
-        NetworkAreaFactory factory = new CgmesBoundariesAreaFactory(network.getAreaStream().toList());
-        NetworkArea area = factory.create(network);
-
-        double sum = Stream.of(
-                        network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6"),
-                        network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da"),
-                        network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006"))
-                .mapToDouble(dl -> dl.getBoundary().getP()).sum();
-
-        assertEquals(-sum, area.getNetPosition(), DELTA_POWER);
-        assertTrue(area.getContainedBusViewBuses().isEmpty());
+        extracted(network);
     }
 }

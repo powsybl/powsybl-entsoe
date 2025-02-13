@@ -22,6 +22,10 @@
             <iidm:load id="FICTITIOUS_LOAD" loadType="FICTITIOUS" p0="1.0" q0="0.0" bus="FICTITIOUS_BUS" connectableBus="FICTITIOUS_BUS" p="1.0" q="0.0"/>
             <iidm:danglingLine id="FICTITIOUS_DL" p0="-26.805006" q0="1.489867" r="4.6" x="69.0" g="5.75E-5" b="2.1677E-5" pairingKey="TN_Border_ST24" bus="FICTITIOUS_BUS" connectableBus="FICTITIOUS_BUS" p="-23.837678435181406" q="1.2706014141616382">
             </iidm:danglingLine>
+            <iidm:danglingLine id="TL_2" p0="0.0" q0="0.0" r="1.5" x="13" g="0.0" b="1.93E-5" pairingKey="XNODE"
+                               bus="FICTITIOUS_BUS" connectableBus="FICTITIOUS_BUS"
+                               p="75.805006" q="0.0">
+            </iidm:danglingLine>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="_d0486169-2205-40b2-895e-b672ecb9e5fc" name="220.0" nominalV="225.0" lowVoltageLimit="202.5" highVoltageLimit="247.5" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -43,6 +47,10 @@
                 <iidm:alias type="CGMES.EquivalentInjectionTerminal">_d238885e-d9b6-4edc-8567-6a68c605ed67</iidm:alias>
                 <iidm:alias type="CGMES.EquivalentInjection">_87ea56f3-962a-427a-85d6-13b1f9295174</iidm:alias>
                 <iidm:alias type="CGMES.TopologicalNode">_8d7bad8bcc634e0796e362390d9040b6</iidm:alias>
+            </iidm:danglingLine>
+            <iidm:danglingLine id="TL_1" p0="0.0" q0="0.0" r="1.5" x="20" g="0.0" b="1.93E-5" pairingKey="XNODE"
+                               bus="_f70f6bad-eb8d-4b8f-8431-4ab93581514e" connectableBus="_f70f6bad-eb8d-4b8f-8431-4ab93581514e"
+                               p="-75.805006" q="0.0">
             </iidm:danglingLine>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -264,7 +272,7 @@
     <iidm:line id="_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_3" name="BE-Line_2_fict_3" r="1.935" x="34.2" g1="3.375E-5" b1="2.120575E-5" g2="3.375E-5" b2="2.120575E-5" connectableBus1="_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e" voltageLevelId1="_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386" connectableBus2="_f96d552a-618d-4d0c-a39a-2dea3c411dee" voltageLevelId2="_929ba893-c9dc-44d7-b1fd-30834bd3ab85"/>
     <iidm:line id="_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_4" name="BE-Line_2_fict_4" r="1.935" x="34.2" g1="3.375E-5" b1="2.120575E-5" g2="3.375E-5" b2="2.120575E-5" bus1="_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e" connectableBus1="_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e" voltageLevelId1="_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386" connectableBus2="_f96d552a-618d-4d0c-a39a-2dea3c411dee" voltageLevelId2="_929ba893-c9dc-44d7-b1fd-30834bd3ab85"/>
     <!-- no matter which values for q1, q2, we are only interested in p -->
-    <iidm:tieLine id="TL_fict" danglingLineId1="_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4" danglingLineId2="FICTITIOUS_DL"/>
+    <iidm:tieLine id="TL_fict" danglingLineId1="TL_1" danglingLineId2="TL_2"/>
     <iidm:area id="_BECONTROLAREA" name="BE" areaType="ControlAreaTypeKind.Interchange" interchangeTarget="-205.90011555672567">
         <iidm:alias type="energyIdentCodeEic" >10BE------1</iidm:alias>
         <iidm:property name="pTolerance" value="45"/>
@@ -272,8 +280,8 @@
         <iidm:areaBoundary ac="true" type="terminalRef" id="_78736387-5f60-4832-b3fe-d50daf81b0a6"/>
         <iidm:areaBoundary ac="true" type="terminalRef" id="_17086487-56ba-4979-b8de-064025a6b4da"/>
         <iidm:areaBoundary ac="true" type="terminalRef" id="_b58bf21a-096a-4dae-9a01-3f03b60c24c7_fict_2" side="TWO"/>
-        <iidm:areaBoundary ac="true" type="terminalRef" id="_b18cd1aa-7808-49b9-a7cf-605eaf07b006"/>
-        <iidm:areaBoundary ac="true" type="boundaryRef" id="_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4" side="ONE"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="_b18cd1aa-7808-49b9-a7cf-605eaf07b006"/>
+        <iidm:areaBoundary ac="true" type="boundaryRef" id="TL_1" side="ONE"/>
     </iidm:area>
     <iidm:extension id="_550ebe0d-f2b2-48c1-991f-cebea43a21aa">
         <crc:coordinatedReactiveControl qPercent="100.0"/>
