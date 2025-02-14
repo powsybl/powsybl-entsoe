@@ -43,7 +43,8 @@ class FlowDecompositionObserverTest {
         COMPUTED_DC_NODAL_INJECTIONS,
         COMPUTED_AC_FLOWS,
         COMPUTED_DC_FLOWS,
-        COMPUTED_AC_CURRENTS
+        COMPUTED_AC_CURRENTS,
+        COMPUTED_PRE_RESCALING_DECOMPOSED_FLOWS
     }
 
     private static final String BASE_CASE = "base-case";
@@ -72,6 +73,7 @@ class FlowDecompositionObserverTest {
         private final ContingencyValue<Map<String, Double>> dcFlows = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> acCurrentsTerminal1 = new ContingencyValue<>();
         private final ContingencyValue<Map<String, Double>> acCurrentsTerminal2 = new ContingencyValue<>();
+        private final ContingencyValue<Map<String, DecomposedFlow>> preRescalingDecomposedFlows = new ContingencyValue<>();
 
         public List<Event> allEvents() {
             return events;
@@ -197,6 +199,12 @@ class FlowDecompositionObserverTest {
             this.acCurrentsTerminal2.put(currentContingency, currents);
         }
 
+        @Override
+        public void computedPreRescalingDecomposedFlows(DecomposedFlow decomposedFlow) {
+            addEvent(Event.COMPUTED_PRE_RESCALING_DECOMPOSED_FLOWS);
+            this.preRescalingDecomposedFlows.put(currentContingency, Map.of(decomposedFlow.getBranchId(), decomposedFlow));
+        }
+
         private void addEvent(Event e) {
             if (currentContingency != null) {
                 eventsPerContingency.putIfAbsent(currentContingency, new LinkedList<>());
@@ -289,6 +297,9 @@ class FlowDecompositionObserverTest {
             "XDF00011 DF000011 1 + XDF00011 FD000011 1");
 
         validateObserverReportFlows(report, List.of(BASE_CASE, contingencyId1, contingencyId2), allBranches);
+
+        var decomposedFlowBranches = Set.of("DB000011 DF000011 1");
+        validateObserverReportDecomposedFlows(report, List.of(contingencyId1), decomposedFlowBranches);
     }
 
     @Test
@@ -363,6 +374,9 @@ class FlowDecompositionObserverTest {
                 "XDF00011 DF000011 1 + XDF00011 FD000011 1");
 
         validateObserverReportFlows(report, List.of(contingencyId1), allBranches);
+
+        var decomposedFlowBranches = Set.of("DB000011 DF000011 1");
+        validateObserverReportDecomposedFlows(report, List.of(contingencyId1), decomposedFlowBranches);
     }
 
     private static void validateObserverReportLoadFlowResult(ObserverReport report, List<String> contingencyIds) {
@@ -387,7 +401,8 @@ class FlowDecompositionObserverTest {
                     Event.COMPUTED_DC_NODAL_INJECTIONS,
                     Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
                     Event.COMPUTED_PTDF_MATRIX,
-                    Event.COMPUTED_PSDF_MATRIX);
+                    Event.COMPUTED_PSDF_MATRIX,
+                    Event.COMPUTED_PRE_RESCALING_DECOMPOSED_FLOWS);
         }
 
         for (var contingencyId : contingencyIds) {
@@ -398,7 +413,8 @@ class FlowDecompositionObserverTest {
                     Event.COMPUTED_DC_NODAL_INJECTIONS,
                     Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
                     Event.COMPUTED_PTDF_MATRIX,
-                    Event.COMPUTED_PSDF_MATRIX);
+                    Event.COMPUTED_PSDF_MATRIX,
+                    Event.COMPUTED_PRE_RESCALING_DECOMPOSED_FLOWS);
         }
     }
 
@@ -441,6 +457,12 @@ class FlowDecompositionObserverTest {
         for (var contingencyId : caseIds) {
             assertEquals(allBranches, report.acFlowsTerminal1.forContingency(contingencyId).keySet());
             assertEquals(allBranches, report.dcFlows.forContingency(contingencyId).keySet());
+        }
+    }
+
+    private static void validateObserverReportDecomposedFlows(ObserverReport report, List<String> caseIds, Set<String> allBranches) {
+        for (var contingencyId : caseIds) {
+            assertEquals(allBranches, report.preRescalingDecomposedFlows.forContingency(contingencyId).keySet());
         }
     }
 
