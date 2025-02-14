@@ -24,7 +24,7 @@ class CgmesBoundariesAreaTest {
 
     static double DELTA_POWER = 1e-5;
 
-    private static void extracted(Network network) {
+    private static void testWithArea(Network network) {
         NetworkAreaFactory factory = new CgmesBoundariesAreaFactory(network.getAreaStream().toList());
         NetworkArea area = factory.create(network);
 
@@ -52,12 +52,12 @@ class CgmesBoundariesAreaTest {
     @Test
     void testWithAreaFromOldExtension() {
         Network network = Network.read("controlArea.xiidm", getClass().getResourceAsStream("/controlArea.xiidm"));
-        extracted(network);
+        testWithArea(network);
     }
 
     @Test
     void testWithIidmArea() {
         Network network = Network.read("iidmControlArea.xml", getClass().getResourceAsStream("/iidmControlArea.xml"));
-        extracted(network);
+        testWithArea(network);
     }
 }
