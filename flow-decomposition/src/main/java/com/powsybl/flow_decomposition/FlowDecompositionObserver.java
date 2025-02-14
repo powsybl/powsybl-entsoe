@@ -86,6 +86,13 @@ public interface FlowDecompositionObserver {
     void computedAcLoadFlowResults(Network network, LoadFlowResult loadFlowResult, boolean fallbackHasBeenActivated);
 
     /**
+     * Called before the scaling is performed
+     *
+     * @param decomposedFlow the decomposed flow on which the scaling is performed
+     */
+    void computedPreRescalingDecomposedFlows(DecomposedFlow decomposedFlow);
+
+    /**
      * Called after a DC loadflow has been computed
      *
      * @param network the network after DC loadflow
