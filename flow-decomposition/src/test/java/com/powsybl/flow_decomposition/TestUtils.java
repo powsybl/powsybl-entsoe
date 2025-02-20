@@ -79,6 +79,7 @@ public final class TestUtils {
         Network network = Importers.importData("CGMES", CgmesConformity3ModifiedCatalog.microGridBE3DanglingLinesSameBoundary1Disconnected().dataSource(), null);
         network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da").remove();
         network.getShuntCompensator("002b0a40-3957-46db-b84a-30420083558f").remove();
+        network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4").remove();
         assertEquals(5, network.getBusbarSectionCount());
         assertEquals(0, network.getShuntCompensatorCount());
         assertEquals(0, network.getStaticVarCompensatorCount());
@@ -92,6 +93,7 @@ public final class TestUtils {
         network.getBusbarSection("364c9ca2-0d1d-4363-8f46-e586f8f66a8c").remove();
         network.getBusbarSection("ef45b632-3028-4afe-bc4c-a4fa323d83fe").remove();
         network.getBusbarSection("fd649fe1-bdf5-4062-98ea-bbb66f50402d").remove();
+        network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4").remove();
         assertEquals(0, network.getBusbarSectionCount());
         assertEquals(2, network.getShuntCompensatorCount());
         assertEquals(0, network.getStaticVarCompensatorCount());
