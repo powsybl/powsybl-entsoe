@@ -7,14 +7,11 @@
 package com.powsybl.entsoe.cgmes.balances_adjustment.util;
 
 import com.powsybl.balances_adjustment.util.NetworkArea;
-import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNode;
-import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,22 +23,16 @@ class CgmesBoundariesArea implements NetworkArea {
 
     private final Set<DanglingLine> danglingLinesCache;
 
-    CgmesBoundariesArea(Network network, List<CgmesControlArea> areas) {
+    CgmesBoundariesArea(Network network, List<Area> areas) {
         danglingLinesCache = network.getDanglingLineStream()
                 .filter(dl -> dl.getExtension(CgmesDanglingLineBoundaryNode.class) == null || !dl.getExtension(CgmesDanglingLineBoundaryNode.class).isHvdc())
                 .filter(dl -> dl.getTerminal().getBusView().getBus() != null && dl.getTerminal().getBusView().getBus().isInMainSynchronousComponent())
-                .filter(dl -> areas.isEmpty() || areas.stream().anyMatch(area -> area.getTerminals().stream().anyMatch(t -> t.getConnectable().getId().equals(dl.getId()))
-                        || area.getBoundaries().stream().anyMatch(b -> b.getDanglingLine().getId().equals(dl.getId()))))
+                .filter(dl -> areas.isEmpty() || areas.stream().anyMatch(area -> CgmesAreaUtils.isIdInAreaBoundaryTerminals(dl.getId(), area) || CgmesAreaUtils.isIdInAreaBoundariesDanglingLines(dl.getId(), area)))
                 .collect(Collectors.toSet());
     }
 
     @Override
     public double getNetPosition() {
         return danglingLinesCache.parallelStream().mapToDouble(dl -> dl.getTerminal().isConnected() ? -dl.getBoundary().getP() : 0).sum();
-    }
-
-    @Override
-    public Collection<Bus> getContainedBusViewBuses() {
-        return Collections.emptyList();
     }
 }
