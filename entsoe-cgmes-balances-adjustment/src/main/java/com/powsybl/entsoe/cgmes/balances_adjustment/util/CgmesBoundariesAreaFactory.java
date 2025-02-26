@@ -8,7 +8,7 @@ package com.powsybl.entsoe.cgmes.balances_adjustment.util;
 
 import com.powsybl.balances_adjustment.util.NetworkArea;
 import com.powsybl.balances_adjustment.util.NetworkAreaFactory;
-import com.powsybl.cgmes.extensions.CgmesControlArea;
+import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
@@ -20,12 +20,12 @@ import java.util.Objects;
  */
 public class CgmesBoundariesAreaFactory implements NetworkAreaFactory {
 
-    private final List<CgmesControlArea> areas = new ArrayList<>();
+    private final List<Area> areas = new ArrayList<>();
 
     public CgmesBoundariesAreaFactory() {
     }
 
-    public CgmesBoundariesAreaFactory(List<CgmesControlArea> areas) {
+    public CgmesBoundariesAreaFactory(List<Area> areas) {
         this.areas.addAll(Objects.requireNonNull(areas));
     }
 
