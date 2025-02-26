@@ -8,7 +8,7 @@ package com.powsybl.entsoe.cgmes.balances_adjustment.util;
 
 import com.powsybl.balances_adjustment.util.NetworkArea;
 import com.powsybl.balances_adjustment.util.NetworkAreaFactory;
-import com.powsybl.cgmes.extensions.CgmesControlArea;
+import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
@@ -20,15 +20,15 @@ import java.util.Objects;
  */
 public class CgmesVoltageLevelsAreaFactory implements NetworkAreaFactory {
 
-    private final CgmesControlArea area;
+    private final Area area;
     private final List<String> excludedXnodes;
     private final List<String> voltageLevelIds;
 
-    public CgmesVoltageLevelsAreaFactory(CgmesControlArea area, String... voltageLevelIds) {
+    public CgmesVoltageLevelsAreaFactory(Area area, String... voltageLevelIds) {
         this(area, Arrays.asList(voltageLevelIds));
     }
 
-    public CgmesVoltageLevelsAreaFactory(CgmesControlArea area, List<String> voltageLevelIds) {
+    public CgmesVoltageLevelsAreaFactory(Area area, List<String> voltageLevelIds) {
         this(area, null, voltageLevelIds);
     }
 
@@ -36,7 +36,7 @@ public class CgmesVoltageLevelsAreaFactory implements NetworkAreaFactory {
         this(null, excludedXnodes, voltageLevelIds);
     }
 
-    public CgmesVoltageLevelsAreaFactory(CgmesControlArea area, List<String> excludedXnodes, List<String> voltageLevelIds) {
+    public CgmesVoltageLevelsAreaFactory(Area area, List<String> excludedXnodes, List<String> voltageLevelIds) {
         this.area = area;
         this.excludedXnodes = excludedXnodes;
         this.voltageLevelIds = Objects.requireNonNull(voltageLevelIds);
