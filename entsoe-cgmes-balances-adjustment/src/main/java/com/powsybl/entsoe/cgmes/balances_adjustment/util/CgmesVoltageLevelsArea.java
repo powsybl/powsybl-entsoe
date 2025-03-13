@@ -7,7 +7,6 @@
 package com.powsybl.entsoe.cgmes.balances_adjustment.util;
 
 import com.powsybl.balances_adjustment.util.NetworkArea;
-import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNode;
 import com.powsybl.iidm.network.*;
 
@@ -26,7 +25,7 @@ class CgmesVoltageLevelsArea implements NetworkArea {
 
     private final Set<Bus> busesCache;
 
-    CgmesVoltageLevelsArea(Network network, CgmesControlArea area, List<String> excludedXnodes, List<String> voltageLevelIds) {
+    CgmesVoltageLevelsArea(Network network, Area area, List<String> excludedXnodes, List<String> voltageLevelIds) {
         this.voltageLevelIds.addAll(voltageLevelIds);
 
         danglingLineBordersCache = createDanglingLinesCache(network, area, excludedXnodes);
@@ -38,14 +37,15 @@ class CgmesVoltageLevelsArea implements NetworkArea {
                 .collect(Collectors.toSet());
     }
 
-    private List<DanglingLine> createDanglingLinesCache(Network network, CgmesControlArea area, List<String> excludedXnodes) {
+    private List<DanglingLine> createDanglingLinesCache(Network network, Area area, List<String> excludedXnodes) {
         return network.getDanglingLineStream()
                 .filter(this::isAreaBorder)
                 .filter(dl -> dl.getTerminal().getBusView().getBus() != null && dl.getTerminal().getBusView().getBus().isInMainSynchronousComponent()) // Only consider connected dangling lines in main synchronous component (other synchronous components are not considered)
                 .filter(dl -> dl.getExtension(CgmesDanglingLineBoundaryNode.class) == null || !dl.getExtension(CgmesDanglingLineBoundaryNode.class).isHvdc()) // Dangling lines connected to DC boundary points are disregarded
                 .filter(dl -> {
-                    if (area != null && (!area.getTerminals().isEmpty() || !area.getBoundaries().isEmpty())) { // if CgmesControlArea is defined, dangling lines with no associated tie flows are disregarded
-                        return area.getTerminals().stream().anyMatch(t -> t.getConnectable().getId().equals(dl.getId())) || area.getBoundaries().stream().anyMatch(bd -> bd.getDanglingLine().getId().equals(dl.getId()));
+                    if (area != null && (CgmesAreaUtils.hasAreaBoundaryTerminals(area) || CgmesAreaUtils.hasAreaBoundaries(area))) { // if CgmesControlArea is defined, dangling lines with no associated tie flows are disregarded
+                        return CgmesAreaUtils.isIdInAreaBoundaryTerminals(dl.getId(), area) ||
+                                CgmesAreaUtils.isIdInAreaBoundariesDanglingLines(dl.getId(), area);
                     }
                     return true;
                 })
@@ -58,15 +58,15 @@ class CgmesVoltageLevelsArea implements NetworkArea {
                 .toList();
     }
 
-    private List<? extends Branch<?>> createBranchesCache(Network network, CgmesControlArea area) {
+    private List<? extends Branch<?>> createBranchesCache(Network network, Area area) {
         return network.getLineStream()
                 .filter(this::isAreaBorder)
                 .filter(b -> b.getTerminal1().getBusView().getBus() != null && b.getTerminal1().getBusView().getBus().isInMainSynchronousComponent()
                         && b.getTerminal2().getBusView().getBus() != null && b.getTerminal2().getBusView().getBus().isInMainSynchronousComponent())  // Only consider branches connected on both sides and in main synchronous component (other synchronous components are not considered)
                 .filter(b -> !b.hasProperty("isHvdc")) // necessary as extensions of merged lines are not well handled. FIXME: when it is merged on mergingview, this should be deleted.
                 .filter(b -> {
-                    if (area != null && (!area.getTerminals().isEmpty() || !area.getBoundaries().isEmpty())) { // if CgmesControlArea is defined, branches with no associated tie flows are disregarded
-                        return area.getTerminals().stream().anyMatch(t -> b.getId().contains(t.getConnectable().getId()));
+                    if (area != null && CgmesAreaUtils.hasAreaBoundaryTerminals(area)) { // if CgmesControlArea is defined, branches with no associated tie flows are disregarded
+                        return CgmesAreaUtils.isIdInAreaBoundaryTerminals(b.getId(), area);
                     }
                     return true;
                 })
