@@ -89,11 +89,11 @@ public class BalanceComputationImpl implements BalanceComputation {
             ReportNode iterationReportNode = Reports.createBalanceComputationIterationReporter(reportNode, context.getIterationNum());
             context.setIterationReportNode(iterationReportNode);
             // Step 1: Perform the scaling
-            ReportNode scalingReportNode = iterationReportNode.newReportNode().withMessageTemplate("scaling", "Scaling").add();
+            ReportNode scalingReportNode = Reports.createScalingReporter(iterationReportNode);
             context.getBalanceOffsets().forEach((area, offset) -> {
                 Scalable scalable = area.getScalable();
                 double done = scalable.scale(network, offset, parameters.getScalingParameters());
-                Reports.reportScaling(scalingReportNode, area.getName(), offset, done);
+                Reports.reportAreaScaling(scalingReportNode, area.getName(), offset, done);
                 LOGGER.info("Iteration={}, Scaling for area {}: offset={}, done={}", context.getIterationNum(), area.getName(), offset, done);
             });
 
@@ -106,7 +106,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
 
             // Step 3: Compute balance and mismatch for each area
-            ReportNode mismatchReportNode = iterationReportNode.newReportNode().withMessageTemplate("mismatch", "Mismatch").add();
+            ReportNode mismatchReportNode = Reports.createMismatchReporter(iterationReportNode);
             for (BalanceComputationArea area : areas) {
                 NetworkArea na = context.getNetworkArea(area);
                 double target = area.getTargetNetPosition();
@@ -128,7 +128,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
         } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
 
-        ReportNode statusReportNode = reportNode.newReportNode().withMessageTemplate("status", "Status").add();
+        ReportNode statusReportNode = Reports.createStatusReporter(reportNode);
         if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
             List<String> networkAreasName = areas.stream()
                     .map(BalanceComputationArea::getName).collect(Collectors.toList());
@@ -182,7 +182,7 @@ public class BalanceComputationImpl implements BalanceComputation {
                         return false;
                     }
                     final var cr = list.get(0);
-                    ReportNode lfStatusReportNode = context.getIterationReportNode().newReportNode().withMessageTemplate("loadFlowStatus", "Checking load flow status").add();
+                    ReportNode lfStatusReportNode = Reports.createLoadFlowStatusReporter(context.getIterationReportNode());
                     final var severity = cr.getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED ? TypedValue.INFO_SEVERITY : TypedValue.ERROR_SEVERITY;
                     Reports.reportLfStatus(lfStatusReportNode, cr.getConnectedComponentNum(), cr.getSynchronousComponentNum(), cr.getStatus().name(), severity);
                     return cr.getStatus() == LoadFlowResult.ComponentResult.Status.CONVERGED;
