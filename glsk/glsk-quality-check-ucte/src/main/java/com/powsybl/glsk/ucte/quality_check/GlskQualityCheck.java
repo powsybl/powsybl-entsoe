@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.powsybl.commons.report.TypedValue.WARN_SEVERITY;
+import static com.powsybl.glsk.commons.GlskReports.*;
 
 /**
  * @author Marc Erkol {@literal <marc.erkol at rte-france.com>}
@@ -29,12 +29,6 @@ class GlskQualityCheck {
     private static final String GENERATOR = "A04";
 
     private static final String LOAD = "A05";
-
-    public static final String NODE_ID_KEY = "NodeId";
-
-    public static final String TYPE_KEY = "Type";
-
-    public static final String TSO_KEY = "TSO";
 
     public static void gskQualityCheck(GlskQualityCheckInput input, ReportNode reportNode) {
         new GlskQualityCheck().generateReport(input, reportNode);
@@ -110,31 +104,15 @@ class GlskQualityCheck {
 
     private void checkResource(GlskRegisteredResource registeredResource, Injection<?> injection, String type, Network network, String tso, ReportNode reportNode) {
         if (injection == null) {
-
             if (network.getBusBreakerView().getBus(registeredResource.getmRID()) == null) {
-                reportNode.newReportNode().withMessageTemplate("1", "GLSK node is not found in CGM")
-                    .withTypedValue(NODE_ID_KEY, registeredResource.getmRID(), "")
-                    .withTypedValue(TYPE_KEY, type, "")
-                    .withTypedValue(TSO_KEY, tso, "")
-                    .withSeverity(WARN_SEVERITY)
-                    .add();
+                reportNodeNotFound(registeredResource.getmRID(), type, tso, reportNode);
             } else {
-                reportNode.newReportNode().withMessageTemplate("2", "GLSK node is present but has no running Generator or Load")
-                    .withTypedValue(NODE_ID_KEY, registeredResource.getmRID(), "")
-                    .withTypedValue(TYPE_KEY, type, "")
-                    .withTypedValue(TSO_KEY, tso, "")
-                    .withSeverity(WARN_SEVERITY)
-                    .add();
+                reportNoRunningGeneratorOrLoad(registeredResource.getmRID(), type, tso, reportNode);
             }
         } else {
             if (!injection.getTerminal().isConnected()
                     || !injection.getTerminal().getBusBreakerView().getBus().isInMainSynchronousComponent()) {
-                reportNode.newReportNode().withMessageTemplate("3", "GLSK node is connected to an island")
-                    .withTypedValue(NODE_ID_KEY, registeredResource.getmRID(), "")
-                    .withTypedValue(TYPE_KEY, type, "")
-                    .withTypedValue(TSO_KEY, tso, "")
-                    .withSeverity(WARN_SEVERITY)
-                    .add();
+                reportConnectedToAnIsland(registeredResource.getmRID(), type, tso, reportNode);
             }
         }
     }
