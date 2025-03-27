@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import java.io.InputStream;
 import java.time.Instant;
 
+import static com.powsybl.glsk.commons.GlskReports.NODE_ID_KEY;
+import static com.powsybl.glsk.commons.GlskReports.TSO_KEY;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -48,12 +50,12 @@ class GlskQualityProcessorTest {
         assertEquals(1, reporter.getChildren().size());
         ReportNode r = reporter.getChildren().stream().findFirst().get();
         assertEquals("GLSK node is not found in CGM", r.getMessage());
-        assertEquals("FFR2AA2 ", r.getValue(GlskQualityCheck.NODE_ID_KEY).get().toString());
-        assertEquals("10YFR-RTE------C", r.getValue(GlskQualityCheck.TSO_KEY).get().toString());
+        assertEquals("FFR2AA2 ", r.getValue(NODE_ID_KEY).get().toString());
+        assertEquals("10YFR-RTE------C", r.getValue(TSO_KEY).get().toString());
         //Get unique TSO count in logs
-        assertEquals(1, reporter.getChildren().stream().filter(rep -> rep.getValue(GlskQualityCheck.TSO_KEY).get().toString().equals("10YFR-RTE------C")).count());
+        assertEquals(1, reporter.getChildren().stream().filter(rep -> rep.getValue(TSO_KEY).get().toString().equals("10YFR-RTE------C")).count());
         //Get log count for RTE
-        assertEquals(1, reporter.getChildren().stream().map(rep -> rep.getValue(GlskQualityCheck.TSO_KEY).get().toString()).distinct().count());
+        assertEquals(1, reporter.getChildren().stream().map(rep -> rep.getValue(TSO_KEY).get().toString()).distinct().count());
 
     }
 
@@ -67,8 +69,8 @@ class GlskQualityProcessorTest {
         assertEquals(1, reporter.getChildren().size());
         ReportNode r = reporter.getChildren().stream().findFirst().get();
         assertEquals("GLSK node is present but has no running Generator or Load", r.getMessage());
-        assertEquals("FFR2AA1 ", r.getValue(GlskQualityCheck.NODE_ID_KEY).get().toString());
-        assertEquals("10YFR-RTE------C", r.getValue(GlskQualityCheck.TSO_KEY).get().toString());
+        assertEquals("FFR2AA1 ", r.getValue(NODE_ID_KEY).get().toString());
+        assertEquals("10YFR-RTE------C", r.getValue(TSO_KEY).get().toString());
     }
 
     @Test
@@ -81,8 +83,8 @@ class GlskQualityProcessorTest {
         assertEquals(1, reporter.getChildren().size());
         ReportNode r = reporter.getChildren().stream().findFirst().get();
         assertEquals("GLSK node is connected to an island", r.getMessage());
-        assertEquals("FFR2AA1 ", r.getValue(GlskQualityCheck.NODE_ID_KEY).get().toString());
-        assertEquals("10YFR-RTE------C", r.getValue(GlskQualityCheck.TSO_KEY).get().toString());
+        assertEquals("FFR2AA1 ", r.getValue(NODE_ID_KEY).get().toString());
+        assertEquals("10YFR-RTE------C", r.getValue(TSO_KEY).get().toString());
     }
 
     @Test
@@ -95,8 +97,8 @@ class GlskQualityProcessorTest {
         assertEquals(1, reporter.getChildren().size());
         ReportNode r = reporter.getChildren().stream().findFirst().get();
         assertEquals("GLSK node is connected to an island", r.getMessage());
-        assertEquals("FFR2AA1 ", r.getValue(GlskQualityCheck.NODE_ID_KEY).get().toString());
-        assertEquals("10YFR-RTE------C", r.getValue(GlskQualityCheck.TSO_KEY).get().toString());
+        assertEquals("FFR2AA1 ", r.getValue(NODE_ID_KEY).get().toString());
+        assertEquals("10YFR-RTE------C", r.getValue(TSO_KEY).get().toString());
     }
 
 }
