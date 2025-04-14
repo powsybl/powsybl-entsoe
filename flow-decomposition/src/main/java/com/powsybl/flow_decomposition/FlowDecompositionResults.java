@@ -40,7 +40,7 @@ public class FlowDecompositionResults {
     class PerStateBuilder {
         private final Map<String, Branch> xnecMap;
         private final String contingencyId;
-        private SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix;
+        private Map<String, Map<String, Double>> fullDecompositionMap;
         private Map<String, Map<String, Double>> pstFlowMap;
         private Map<String, Double> acTerminal1ReferenceFlow;
         private Map<String, Double> acTerminal2ReferenceFlow;
@@ -55,7 +55,11 @@ public class FlowDecompositionResults {
         }
 
         void saveAllocatedAndLoopFlowsMatrix(SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix) {
-            this.allocatedAndLoopFlowsMatrix = allocatedAndLoopFlowsMatrix;
+            this.fullDecompositionMap = allocatedAndLoopFlowsMatrix.toMap();
+        }
+
+        void saveFullDecompositionMap(Map<String, Map<String, Double>> fullDecompositionMap) {
+            this.fullDecompositionMap = fullDecompositionMap;
         }
 
         void savePstFlowMatrix(SparseMatrixWithIndexesCSC pstFlowMatrix) {
@@ -87,7 +91,7 @@ public class FlowDecompositionResults {
         }
 
         void build(DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
-            allocatedAndLoopFlowsMatrix.toMap()
+            fullDecompositionMap
                 .forEach((branchId, decomposedFlow) -> {
                     String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
                     decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, decomposedFlowRescaler, network));
@@ -99,7 +103,7 @@ public class FlowDecompositionResults {
                 .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             double allocatedFlow = allocatedAndLoopFlowMap.get(ALLOCATED_COLUMN_NAME);
-            double pstFlow = pstFlowMap.getOrDefault(branchId, Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW);
+            double pstFlow = allocatedAndLoopFlowMap.containsKey(PST_COLUMN_NAME) ? allocatedAndLoopFlowMap.get(PST_COLUMN_NAME) : pstFlowMap.getOrDefault(branchId, Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW);
             double xNodeFlow = allocatedAndLoopFlowMap.getOrDefault(XNODE_COLUMN_NAME, NO_FLOW);
             Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
             Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());

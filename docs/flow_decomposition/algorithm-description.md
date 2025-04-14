@@ -104,6 +104,9 @@ The following matrices are calculated using [sensitivity analysis](inv:powsyblco
 - $\mathrm{PTDF}$ is the matrix of the sensitivity of the network element flow to each network injection shift,
 - $\mathrm{PSDF}$ is the matrix of the sensitivity of the network element flow to each phase shift transformer tap angle change,
 
+> **_NOTE:_** When fast mode is enabled, those matrices aren't calculated explicitely, and both sensitivity analysis and flow partitioning is done "at once".
+> As a result, PTDF and PSDF matrices cannot be reported anymore.
+
 ## Flow partitioning
 
 Based on previously calculated elements, flow partitioning can now be calculated as follows:
