@@ -18,6 +18,7 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
+@Deprecated
 public class CgmesBoundariesAreaFactory implements NetworkAreaFactory {
 
     private final List<Area> areas = new ArrayList<>();

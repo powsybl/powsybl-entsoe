@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
+@Deprecated
 class CgmesBoundariesArea implements NetworkArea {
 
     private final Set<DanglingLine> danglingLinesCache;

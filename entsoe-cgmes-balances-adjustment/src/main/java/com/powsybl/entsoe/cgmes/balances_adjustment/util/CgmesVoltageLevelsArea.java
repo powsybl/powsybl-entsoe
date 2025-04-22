@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
+@Deprecated
 class CgmesVoltageLevelsArea implements NetworkArea {
 
     private final List<String> voltageLevelIds = new ArrayList<>();

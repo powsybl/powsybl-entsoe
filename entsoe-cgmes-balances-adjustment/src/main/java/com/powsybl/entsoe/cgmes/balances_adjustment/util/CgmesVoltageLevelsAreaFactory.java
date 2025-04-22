@@ -18,6 +18,7 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
+@Deprecated
 public class CgmesVoltageLevelsAreaFactory implements NetworkAreaFactory {
 
     private final Area area;

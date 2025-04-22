@@ -14,6 +14,7 @@ import java.util.Optional;
 /**
  * @author Hugo Schindler{@literal <hugo.schindler at rte-france.com>}
  */
+@Deprecated
 public final class CgmesAreaUtils {
     private CgmesAreaUtils() {
         // Utility class
