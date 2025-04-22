@@ -12,9 +12,11 @@ import com.powsybl.iidm.network.*;
 import java.util.Optional;
 
 /**
+ * @deprecated Use module powsybl-balances-adjustment instead of this class
+ *
  * @author Hugo Schindler{@literal <hugo.schindler at rte-france.com>}
  */
-@Deprecated
+@Deprecated(since = "2.14", forRemoval = true)
 public final class CgmesAreaUtils {
     private CgmesAreaUtils() {
         // Utility class

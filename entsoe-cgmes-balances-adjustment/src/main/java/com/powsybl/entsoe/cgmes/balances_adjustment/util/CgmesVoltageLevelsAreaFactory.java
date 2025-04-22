@@ -16,9 +16,11 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * @deprecated Use module powsybl-balances-adjustment instead of this class
+ *
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-@Deprecated
+@Deprecated(since = "2.14", forRemoval = true)
 public class CgmesVoltageLevelsAreaFactory implements NetworkAreaFactory {
 
     private final Area area;
