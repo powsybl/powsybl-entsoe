@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.*;
 import com.powsybl.math.matrix.DenseMatrixFactory;
 import com.powsybl.openloadflow.OpenLoadFlowProvider;
+import com.powsybl.openloadflow.util.report.PowsyblOpenLoadFlowReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -290,7 +291,8 @@ class BalanceComputationSimpleDcTest {
 
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testBalancedNetworkReport", "Test balanced network report").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withResourceBundles(PowsyblOpenLoadFlowReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testBalancedNetworkReport", "Test balanced network report").build();
         balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
         BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reportNode);
     }
@@ -303,7 +305,8 @@ class BalanceComputationSimpleDcTest {
 
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testUnbalancedNetworkReport", "Test unbalanced network report").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withResourceBundles(PowsyblOpenLoadFlowReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testUnbalancedNetworkReport", "Test unbalanced network report").build();
         balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
         BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
     }
