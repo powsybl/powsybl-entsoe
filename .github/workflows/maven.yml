@@ -18,25 +18,48 @@ jobs:
 
     steps:
     - name: Checkout sources
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        path: main
+
+    - name: Checkout powsybl-core branch
+      uses: actions/checkout@v4
+      with:
+        repository: powsybl/powsybl-core
+        ref: refs/heads/main
+        path: powsybl-core
+
+    - name: Checkout powsybl-open-loadflow branch
+      uses: actions/checkout@v4
+      with:
+        repository: powsybl/powsybl-open-loadflow
+        ref: refs/heads/main
+        path: powsybl-open-loadflow
 
     - name: Set up JDK 17
       uses: actions/setup-java@v1
       with:
         java-version: 17
 
+
+    - name: Build and install powsybl-core with Maven
+      run: mvn --batch-mode -DskipTests=true --file ./powsybl-core/pom.xml install
+
+    - name: Build and install powsybl-open-loadflow with Maven
+      run: mvn --batch-mode -DskipTests=true --file ./powsybl-open-loadflow/pom.xml install
+
     - name: Build with Maven
       if: matrix.os == 'ubuntu-latest'
-      run: mvn --batch-mode -Pjacoco install
+      run: mvn --batch-mode -Pjacoco --file ./main/pom.xml install
 
     - name: Build with Maven
       if: matrix.os != 'ubuntu-latest'
-      run: mvn --batch-mode install
+      run: mvn --batch-mode --file ./main/pom.xml install
 
     - name: Run SonarCloud analysis
       if: matrix.os == 'ubuntu-latest'
       run: >
-        mvn --batch-mode -DskipTests sonar:sonar
+        mvn --batch-mode -DskipTests --file ./main/pom.xml sonar:sonar
         -Dsonar.host.url=https://sonarcloud.io
         -Dsonar.organization=powsybl-ci-github
         -Dsonar.projectKey=com.powsybl:powsybl-entsoe
