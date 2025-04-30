@@ -4,8 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.flow_decomposition;
+package com.powsybl.flow_decomposition.partitioners;
 
+import com.powsybl.flow_decomposition.AbstractSensitivityAnalyser;
+import com.powsybl.flow_decomposition.FlowDecompositionParameters;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -27,7 +29,7 @@ import java.util.Map;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class SensitivityAnalyser extends AbstractSensitivityAnalyser {
+public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalyser.class);
     private static final boolean SENSITIVITY_VARIABLE_SET = false;
     public static final List<SensitivityVariableSet> EMPTY_SENSITIVITY_VARIABLE_SETS = Collections.emptyList();

@@ -15,12 +15,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.powsybl.flow_decomposition.DecomposedFlow.ALLOCATED_COLUMN_NAME;
-import static com.powsybl.flow_decomposition.DecomposedFlow.NO_FLOW;
-import static com.powsybl.flow_decomposition.DecomposedFlow.PST_COLUMN_NAME;
-import static com.powsybl.flow_decomposition.DecomposedFlow.XNODE_COLUMN_NAME;
-import static com.powsybl.flow_decomposition.NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX;
-
 /**
  * This class provides flow decomposition results from a network.
  * Those results are returned by a flowDecompositionComputer when run on a network.
@@ -37,33 +31,20 @@ public class FlowDecompositionResults {
     private final Set<Country> zoneSet;
     private final Map<String, DecomposedFlow> decomposedFlowMap = new HashMap<>();
 
-    class PerStateBuilder {
+    public class PerStateBuilder {
         private final Map<String, Branch> xnecMap;
         private final String contingencyId;
-        private Map<String, Map<String, Double>> fullDecompositionMap;
-        private Map<String, Map<String, Double>> pstFlowMap;
         private Map<String, Double> acTerminal1ReferenceFlow;
         private Map<String, Double> acTerminal2ReferenceFlow;
         private Map<String, Double> acCurrentTerminal1;
         private Map<String, Double> acCurrentTerminal2;
         private Map<String, Double> dcReferenceFlow;
+        private Map<String, FlowPartition> flowPartitions = new HashMap<>();
         private final FlowDecompositionObserverList observers = new FlowDecompositionObserverList();
 
         PerStateBuilder(String contingencyId, Set<Branch> xnecList) {
             this.xnecMap = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
             this.contingencyId = contingencyId;
-        }
-
-        void saveAllocatedAndLoopFlowsMatrix(SparseMatrixWithIndexesCSC allocatedAndLoopFlowsMatrix) {
-            this.fullDecompositionMap = allocatedAndLoopFlowsMatrix.toMap();
-        }
-
-        void saveFullDecompositionMap(Map<String, Map<String, Double>> fullDecompositionMap) {
-            this.fullDecompositionMap = fullDecompositionMap;
-        }
-
-        void savePstFlowMatrix(SparseMatrixWithIndexesCSC pstFlowMatrix) {
-            this.pstFlowMap = pstFlowMatrix.toMap();
         }
 
         void saveAcTerminal1ReferenceFlow(Map<String, Double> acTerminal1ReferenceFlow) {
@@ -86,28 +67,25 @@ public class FlowDecompositionResults {
             this.dcReferenceFlow = dcReferenceFlow;
         }
 
+        public void saveFlowPartitions(Map<String, FlowPartition> flowPartitions) {
+            this.flowPartitions = flowPartitions;
+        }
+
         void addObserversList(FlowDecompositionObserverList observers) {
             this.observers.addObserversFrom(observers);
         }
 
         void build(DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
-            fullDecompositionMap
-                .forEach((branchId, decomposedFlow) -> {
+            flowPartitions
+                .forEach((branchId, flowPartition) -> {
                     String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
-                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, decomposedFlow, decomposedFlowRescaler, network));
+                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, flowPartition, decomposedFlowRescaler, network));
                 });
         }
 
-        private DecomposedFlow createDecomposedFlow(String branchId, Map<String, Double> allocatedAndLoopFlowMap, DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
-            Map<String, Double> loopFlowsMap = allocatedAndLoopFlowMap.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            double allocatedFlow = allocatedAndLoopFlowMap.get(ALLOCATED_COLUMN_NAME);
-            double pstFlow = allocatedAndLoopFlowMap.containsKey(PST_COLUMN_NAME) ? allocatedAndLoopFlowMap.get(PST_COLUMN_NAME) : pstFlowMap.getOrDefault(branchId, Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW);
-            double xNodeFlow = allocatedAndLoopFlowMap.getOrDefault(XNODE_COLUMN_NAME, NO_FLOW);
+        private DecomposedFlow createDecomposedFlow(String branchId, FlowPartition flowPartition, DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
             Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
             Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());
-            double internalFlow = extractInternalFlow(loopFlowsMap, country1, country2);
             DecomposedFlow decomposedFlow = new DecomposedFlowBuilder()
                     .withBranchId(branchId)
                     .withContingencyId(contingencyId)
@@ -118,22 +96,10 @@ public class FlowDecompositionResults {
                     .withDcReferenceFlow(dcReferenceFlow.get(branchId))
                     .withAcCurrentTerminal1(acCurrentTerminal1.get(branchId))
                     .withAcCurrentTerminal2(acCurrentTerminal2.get(branchId))
-                    .withAllocatedFlow(allocatedFlow)
-                    .withXNodeFlow(xNodeFlow)
-                    .withPstFlow(pstFlow)
-                    .withInternalFlow(internalFlow)
-                    .withLoopFlowsMap(loopFlowsMap)
+                    .withFlowPartition(flowPartition)
                     .build();
             observers.computedPreRescalingDecomposedFlows(decomposedFlow);
             return decomposedFlowRescaler.rescale(decomposedFlow, network);
-        }
-
-        private double extractInternalFlow(Map<String, Double> loopFlowsMap, Country country1, Country country2) {
-            if (Objects.equals(country1, country2)) {
-                return Optional.ofNullable(loopFlowsMap.remove(NetworkUtil.getLoopFlowIdFromCountry(country1)))
-                    .orElse(NO_FLOW);
-            }
-            return NO_FLOW;
         }
     }
 

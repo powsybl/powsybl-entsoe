@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-abstract class AbstractSensitivityAnalyser {
+public abstract class AbstractSensitivityAnalyser {
     public static final SensitivityFunctionType SENSITIVITY_FUNCTION_TYPE = SensitivityFunctionType.BRANCH_ACTIVE_POWER_1;
     public static final List<Contingency> CONTINGENCIES = Collections.emptyList();
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSensitivityAnalyser.class);
@@ -33,7 +33,7 @@ abstract class AbstractSensitivityAnalyser {
     protected final SensitivityAnalysisParameters sensitivityAnalysisParameters;
     protected final SensitivityAnalysis.Runner runner;
 
-    AbstractSensitivityAnalyser(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner runner) {
+    protected AbstractSensitivityAnalyser(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner runner) {
         this.sensitivityAnalysisParameters = initSensitivityAnalysisParameters(loadFlowParameters);
         this.runner = runner;
     }

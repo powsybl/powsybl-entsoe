@@ -4,9 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.flow_decomposition;
+package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.flow_decomposition.AbstractSensitivityAnalyser;
+import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -101,12 +103,12 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
             Map<String, Double> flowDecomposition = results.computeIfAbsent(factor.getFirst(), s -> new HashMap<>());
             for (String flowPart : flowParts) {
                 if (factor.getSecond().equals(getPositiveFlowPartName(flowPart))) {
-                    double allocatedFlow = flowDecomposition.getOrDefault(flowPart, 0.0);
-                    flowDecomposition.put(flowPart, allocatedFlow + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getPositiveFlowPartName(flowPart)), functionReference));
+                    double partialFlowPartValue = flowDecomposition.getOrDefault(flowPart, 0.0);
+                    flowDecomposition.put(flowPart, partialFlowPartValue + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getPositiveFlowPartName(flowPart)), functionReference));
                     return;
                 } else if (factor.getSecond().equals(getNegativeFlowPartName(flowPart))) {
-                    double allocatedFlow = flowDecomposition.getOrDefault(flowPart, 0.0);
-                    flowDecomposition.put(flowPart, allocatedFlow + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getNegativeFlowPartName(flowPart)), functionReference));
+                    double partialFlowPartValue = flowDecomposition.getOrDefault(flowPart, 0.0);
+                    flowDecomposition.put(flowPart, partialFlowPartValue + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getNegativeFlowPartName(flowPart)), functionReference));
                     return;
                 }
             }

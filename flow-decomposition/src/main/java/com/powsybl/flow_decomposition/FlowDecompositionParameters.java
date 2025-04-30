@@ -36,7 +36,13 @@ public class FlowDecompositionParameters {
         MAX_CURRENT_OVERLOAD
     }
 
+    public enum FlowPartitionMode {
+        MATRIX_BASED,
+        DIRECT_SENSITIVITY_BASED
+    }
+
     public static final RescaleMode DEFAULT_RESCALE_MODE = RescaleMode.NONE;
+    public static final FlowPartitionMode DEFAULT_FLOW_PARTITIONER = FlowPartitionMode.MATRIX_BASED;
     private boolean enableLossesCompensation;
     private double lossesCompensationEpsilon;
     private double sensitivityEpsilon;
@@ -45,6 +51,7 @@ public class FlowDecompositionParameters {
     private boolean dcFallbackEnabledAfterAcDivergence;
     private int sensitivityVariableBatchSize;
     private boolean usingFastMode;
+    private FlowPartitionMode flowPartitionMode;
 
     public static FlowDecompositionParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -68,6 +75,7 @@ public class FlowDecompositionParameters {
             parameters.setDcFallbackEnabledAfterAcDivergence(moduleConfig.getBooleanProperty("dc-fallback-enabled-after-ac-divergence", DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE));
             parameters.setSensitivityVariableBatchSize(moduleConfig.getIntProperty("sensitivity-variable-batch-size", DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE));
             parameters.setUsingFastMode(moduleConfig.getBooleanProperty("using-fast-mode", DEFAULT_USING_FAST_MODE));
+            parameters.setFlowPartitioner(moduleConfig.getEnumProperty("flow-partitioner", FlowPartitionMode.class, DEFAULT_FLOW_PARTITIONER));
         });
     }
 
@@ -80,6 +88,7 @@ public class FlowDecompositionParameters {
         this.dcFallbackEnabledAfterAcDivergence = DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE;
         this.sensitivityVariableBatchSize = DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE;
         this.usingFastMode = DEFAULT_USING_FAST_MODE;
+        this.flowPartitionMode = DEFAULT_FLOW_PARTITIONER;
     }
 
     public FlowDecompositionParameters setEnableLossesCompensation(boolean enableLossesCompensation) {
@@ -150,6 +159,15 @@ public class FlowDecompositionParameters {
 
     public FlowDecompositionParameters setUsingFastMode(boolean usingFastMode) {
         this.usingFastMode = usingFastMode;
+        return this;
+    }
+
+    public FlowPartitionMode getFlowPartitioner() {
+        return flowPartitionMode;
+    }
+
+    public FlowDecompositionParameters setFlowPartitioner(FlowPartitionMode flowPartitionMode) {
+        this.flowPartitionMode = flowPartitionMode;
         return this;
     }
 }

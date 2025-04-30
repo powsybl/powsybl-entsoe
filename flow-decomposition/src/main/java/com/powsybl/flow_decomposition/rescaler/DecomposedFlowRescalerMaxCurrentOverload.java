@@ -8,7 +8,9 @@
 package com.powsybl.flow_decomposition.rescaler;
 
 import com.powsybl.flow_decomposition.DecomposedFlow;
+import com.powsybl.flow_decomposition.FlowPartition;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Network;
 
@@ -38,7 +40,8 @@ public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposed
     }
 
     @Override
-    protected RescaledFlows computeRescaledFlows(DecomposedFlow decomposedFlow, Network network) {
+    protected FlowPartition computeRescaledFlowsPartition(DecomposedFlow decomposedFlow, Network network) {
+        FlowPartition initialFlowPartition = decomposedFlow.getFlowPartition();
         double acTerminal1Current = decomposedFlow.getAcTerminal1Current();
         double acTerminal2Current = decomposedFlow.getAcTerminal2Current();
 
@@ -65,13 +68,12 @@ public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposed
         }
         double rescaleFactor = Math.abs(pActivePowerOnly / decomposedFlow.getDcReferenceFlow());
 
-        double rescaledAllocatedFlow = rescaleFactor * decomposedFlow.getAllocatedFlow();
-        double rescaledXNodeFlow = rescaleFactor * decomposedFlow.getXNodeFlow();
-        double rescaledPstFlow = rescaleFactor * decomposedFlow.getPstFlow();
-        double rescaleInternalFlow = rescaleFactor * decomposedFlow.getInternalFlow();
-        Map<String, Double> rescaledLoopFlows = decomposedFlow.getLoopFlows().entrySet().stream()
+        double rescaledAllocatedFlow = rescaleFactor * initialFlowPartition.allocatedFlow();
+        double rescaledXNodeFlow = rescaleFactor * initialFlowPartition.xNodeFlow();
+        double rescaledPstFlow = rescaleFactor * initialFlowPartition.pstFlow();
+        double rescaleInternalFlow = rescaleFactor * initialFlowPartition.internalFlow();
+        Map<Country, Double> rescaledLoopFlows = initialFlowPartition.loopFlowPerCountry().entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleFactor * entry.getValue()));
-
-        return new RescaledFlows(rescaledAllocatedFlow, rescaledXNodeFlow, rescaledPstFlow, rescaleInternalFlow, rescaledLoopFlows);
+        return new FlowPartition(rescaleInternalFlow, rescaledAllocatedFlow, rescaledLoopFlows, rescaledPstFlow, rescaledXNodeFlow);
     }
 }

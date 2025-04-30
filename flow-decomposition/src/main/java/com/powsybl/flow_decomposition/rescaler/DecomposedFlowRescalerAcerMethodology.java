@@ -8,6 +8,8 @@
 package com.powsybl.flow_decomposition.rescaler;
 
 import com.powsybl.flow_decomposition.DecomposedFlow;
+import com.powsybl.flow_decomposition.FlowPartition;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Map;
@@ -38,13 +40,14 @@ public class DecomposedFlowRescalerAcerMethodology extends AbstractDecomposedFlo
     }
 
     @Override
-    protected AbstractDecomposedFlowRescaler.RescaledFlows computeRescaledFlows(DecomposedFlow decomposedFlow, Network network) {
+    protected FlowPartition computeRescaledFlowsPartition(DecomposedFlow decomposedFlow, Network network) {
+        FlowPartition initialPartition = decomposedFlow.getFlowPartition();
         double acTerminal1ReferenceFlow = decomposedFlow.getAcTerminal1ReferenceFlow();
-        double allocatedFlow = decomposedFlow.getAllocatedFlow();
-        double xNodeFlow = decomposedFlow.getXNodeFlow();
-        double pstFlow = decomposedFlow.getPstFlow();
-        double internalFlow = decomposedFlow.getInternalFlow();
-        Map<String, Double> loopFlows = decomposedFlow.getLoopFlows();
+        double allocatedFlow = initialPartition.allocatedFlow();
+        double xNodeFlow = initialPartition.xNodeFlow();
+        double pstFlow = initialPartition.pstFlow();
+        double internalFlow = initialPartition.internalFlow();
+        Map<Country, Double> loopFlows = initialPartition.loopFlowPerCountry();
         double deltaToRescale = acTerminal1ReferenceFlow * Math.signum(acTerminal1ReferenceFlow) - decomposedFlow.getTotalFlow();
         double sumOfReLUFlows = reLU(allocatedFlow) + reLU(pstFlow) + reLU(xNodeFlow) + loopFlows.values().stream().mapToDouble(DecomposedFlowRescalerAcerMethodology::reLU).sum() + reLU(internalFlow);
 
@@ -52,9 +55,8 @@ public class DecomposedFlowRescalerAcerMethodology extends AbstractDecomposedFlo
         double rescaledXNodeFlow = rescaleValue(xNodeFlow, deltaToRescale, sumOfReLUFlows);
         double rescaledPstFlow = rescaleValue(pstFlow, deltaToRescale, sumOfReLUFlows);
         double rescaleInternalFlow = rescaleValue(internalFlow, deltaToRescale, sumOfReLUFlows);
-        Map<String, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
+        Map<Country, Double> rescaledLoopFlows = loopFlows.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleValue(entry.getValue(), deltaToRescale, sumOfReLUFlows)));
-
-        return new AbstractDecomposedFlowRescaler.RescaledFlows(rescaledAllocatedFlow, rescaledXNodeFlow, rescaledPstFlow, rescaleInternalFlow, rescaledLoopFlows);
+        return new FlowPartition(rescaleInternalFlow, rescaledAllocatedFlow, rescaledLoopFlows, rescaledPstFlow, rescaledXNodeFlow);
     }
 }

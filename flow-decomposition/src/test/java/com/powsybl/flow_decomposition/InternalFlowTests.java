@@ -89,6 +89,10 @@ class InternalFlowTests {
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.BE), 500.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
         loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
+        Map<Country, Double> loopFlowsPerCountry = new TreeMap<>();
+        loopFlowsPerCountry.put(Country.BE, 500.);
+        loopFlowsPerCountry.put(Country.GE, -100.);
+        loopFlowsPerCountry.put(Country.ES, 700.);
         Country country1 = Country.FR;
         Country country2 = Country.FR;
         return new DecomposedFlowBuilder()
@@ -99,11 +103,7 @@ class InternalFlowTests {
                 .withAcTerminal1ReferenceFlow(acReferenceFlow)
                 .withAcTerminal2ReferenceFlow(acReferenceFlow)
                 .withDcReferenceFlow(dcReferenceFlow)
-                .withAllocatedFlow(allocatedFlow)
-                .withXNodeFlow(0)
-                .withPstFlow(pstFlow)
-                .withInternalFlow(internalFlow)
-                .withLoopFlowsMap(loopFlows)
+                .withFlowPartition(new FlowPartition(internalFlow, allocatedFlow, loopFlowsPerCountry, pstFlow, 0))
                 .build();
     }
 

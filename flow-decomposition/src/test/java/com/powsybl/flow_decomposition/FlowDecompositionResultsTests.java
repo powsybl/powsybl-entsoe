@@ -17,6 +17,7 @@ import org.ejml.data.DMatrixSparseCSC;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,8 +89,7 @@ class FlowDecompositionResultsTests {
         nStateBuilder.saveAcTerminal1ReferenceFlow(Map.of(branchId, 10.0));
         nStateBuilder.saveAcTerminal2ReferenceFlow(Map.of(branchId, 10.0));
         nStateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
-        nStateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
-        nStateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
+        nStateBuilder.saveFlowPartitions(Map.of(branchId, new FlowPartition(0.,20., Map.of(FR, 12.), 2.,0.)));
         nStateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
         nStateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
         nStateBuilder.build(decomposedFlowRescaler, network);
@@ -119,10 +119,9 @@ class FlowDecompositionResultsTests {
         n1StateBuilder.saveAcTerminal1ReferenceFlow(Map.of(branchId, 10.0));
         n1StateBuilder.saveAcTerminal2ReferenceFlow(Map.of(branchId, 10.0));
         n1StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
-        n1StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
-        n1StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
         n1StateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
         n1StateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
+        n1StateBuilder.saveFlowPartitions(Map.of(branchId, new FlowPartition(0.,20., Map.of(FR, 12.), 2.,0.)));
         n1StateBuilder.build(decomposedFlowRescaler, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
@@ -150,8 +149,7 @@ class FlowDecompositionResultsTests {
         n2StateBuilder.saveAcTerminal1ReferenceFlow(Map.of(branchId, 10.0));
         n2StateBuilder.saveAcTerminal2ReferenceFlow(Map.of(branchId, 10.0));
         n2StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
-        n2StateBuilder.saveAllocatedAndLoopFlowsMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(ALLOCATED_COLUMN_NAME, 0, NetworkUtil.getLoopFlowIdFromCountry(FR), 1), alloMatrix));
-        n2StateBuilder.savePstFlowMatrix(new SparseMatrixWithIndexesCSC(xnecMap, Map.of(PST_COLUMN_NAME, 0), pstMatrix));
+        n2StateBuilder.saveFlowPartitions(Map.of(branchId, new FlowPartition(0.,20., Map.of(FR, 12.), 2.,0.)));
         n2StateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
         n2StateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
         n2StateBuilder.build(decomposedFlowRescaler, network);

@@ -15,12 +15,12 @@ import java.util.Map;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Hugo Schindler{@literal <hugo.schindler at rte-france.com>}
  */
-class NetPositionComputer {
+public class NetPositionComputer {
     Map<Country, Double> run(Network network) {
         return computeNetPositions(network);
     }
 
-    static Map<Country, Double> computeNetPositions(Network network) {
+    public static Map<Country, Double> computeNetPositions(Network network) {
         Map<Country, Double> netPositions = new EnumMap<>(Country.class);
 
         network.getDanglingLineStream().forEach(danglingLine -> {

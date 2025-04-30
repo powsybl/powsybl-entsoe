@@ -55,6 +55,7 @@ class FlowDecompositionParametersTests {
         assertTrue(parameters.isDcFallbackEnabledAfterAcDivergence());
         assertEquals(15000, parameters.getSensitivityVariableBatchSize());
         assertFalse(parameters.isUsingFastMode());
+        assertEquals(FlowDecompositionParameters.FlowPartitionMode.MATRIX_BASED, parameters.getFlowPartitioner());
     }
 
     @Test
@@ -68,6 +69,7 @@ class FlowDecompositionParametersTests {
         mapModuleConfig.setStringProperty("dc-fallback-enabled-after-ac-divergence", Boolean.toString(false));
         mapModuleConfig.setStringProperty("sensitivity-variable-batch-size", Integer.toString(1234));
         mapModuleConfig.setStringProperty("using-fast-mode", Boolean.toString(true));
+        mapModuleConfig.setStringProperty("flow-partitioner", FlowDecompositionParameters.FlowPartitionMode.DIRECT_SENSITIVITY_BASED.name());
 
         FlowDecompositionParameters parameters = FlowDecompositionParameters.load(platformConfig);
         assertTrue(parameters.isLossesCompensationEnabled());
@@ -78,6 +80,7 @@ class FlowDecompositionParametersTests {
         assertFalse(parameters.isDcFallbackEnabledAfterAcDivergence());
         assertEquals(1234, parameters.getSensitivityVariableBatchSize());
         assertTrue(parameters.isUsingFastMode());
+        assertEquals(FlowDecompositionParameters.FlowPartitionMode.DIRECT_SENSITIVITY_BASED, parameters.getFlowPartitioner());
     }
 
     @Test
@@ -93,5 +96,6 @@ class FlowDecompositionParametersTests {
         assertEquals(FlowDecompositionParameters.DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE, parameters.getProportionalRescalerMinFlowTolerance(), EPSILON / 100);
         assertTrue(parameters.isDcFallbackEnabledAfterAcDivergence());
         assertFalse(parameters.isUsingFastMode());
+        assertEquals(FlowDecompositionParameters.FlowPartitionMode.MATRIX_BASED, parameters.getFlowPartitioner());
     }
 }
