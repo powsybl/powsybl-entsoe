@@ -1,3 +1,0 @@
-open-loadflow-default-parameters:
-  slackBusPMaxMismatch: 1e-5
-
