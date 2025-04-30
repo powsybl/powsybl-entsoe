@@ -46,15 +46,17 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
         Map<String, Double> nodalInjectionsPartitionSumByFlowPart = new HashMap<>();
         for (String flowPart : flowParts) {
             String positiveFlowPartName = getPositiveFlowPartName(flowPart);
+            double positiveFlowPartSum = nodalInjectionPartitions.values().stream().filter(stringDoubleMap -> stringDoubleMap.containsKey(flowPart) && stringDoubleMap.get(flowPart) > 0).mapToDouble(stringDoubleMap -> stringDoubleMap.get(flowPart)).sum();
             String negativeFlowPartName = getNegativeFlowPartName(flowPart);
+            double negativeFlowPartSum = nodalInjectionPartitions.values().stream().filter(stringDoubleMap -> stringDoubleMap.containsKey(flowPart) && stringDoubleMap.get(flowPart) < 0).mapToDouble(stringDoubleMap -> stringDoubleMap.get(flowPart)).sum();
             sensitivityVariableSets.add(new SensitivityVariableSet(
                     positiveFlowPartName,
-                    nodalInjectionPartitions.entrySet().stream().filter(entry -> entry.getValue().containsKey(flowPart) && entry.getValue().get(flowPart) > 0).map(entry -> new WeightedSensitivityVariable(entry.getKey(), entry.getValue().get(flowPart))).toList()));
-            nodalInjectionsPartitionSumByFlowPart.put(positiveFlowPartName, nodalInjectionPartitions.values().stream().filter(stringDoubleMap -> stringDoubleMap.containsKey(flowPart) && stringDoubleMap.get(flowPart) > 0).mapToDouble(stringDoubleMap -> stringDoubleMap.get(flowPart)).sum());
+                    nodalInjectionPartitions.entrySet().stream().filter(entry -> entry.getValue().containsKey(flowPart) && entry.getValue().get(flowPart) > 0).map(entry -> new WeightedSensitivityVariable(entry.getKey(), entry.getValue().get(flowPart) / positiveFlowPartSum)).toList()));
+            nodalInjectionsPartitionSumByFlowPart.put(positiveFlowPartName, positiveFlowPartSum);
             sensitivityVariableSets.add(new SensitivityVariableSet(
                     negativeFlowPartName,
-                    nodalInjectionPartitions.entrySet().stream().filter(entry -> entry.getValue().containsKey(flowPart) && entry.getValue().get(flowPart) < 0).map(entry -> new WeightedSensitivityVariable(entry.getKey(), entry.getValue().get(flowPart))).toList()));
-            nodalInjectionsPartitionSumByFlowPart.put(negativeFlowPartName, nodalInjectionPartitions.values().stream().filter(stringDoubleMap -> stringDoubleMap.containsKey(flowPart) && stringDoubleMap.get(flowPart) < 0).mapToDouble(stringDoubleMap -> stringDoubleMap.get(flowPart)).sum());
+                    nodalInjectionPartitions.entrySet().stream().filter(entry -> entry.getValue().containsKey(flowPart) && entry.getValue().get(flowPart) < 0).map(entry -> new WeightedSensitivityVariable(entry.getKey(), entry.getValue().get(flowPart) / negativeFlowPartSum)).toList()));
+            nodalInjectionsPartitionSumByFlowPart.put(negativeFlowPartName, negativeFlowPartSum);
         }
 
         SensitivityFactorReader factorReader = new FastModeSensitivityFactorReader(flowParts, sensitivityFactors);
@@ -104,7 +106,7 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
                     return;
                 } else if (factor.getSecond().equals(getNegativeFlowPartName(flowPart))) {
                     double allocatedFlow = flowDecomposition.getOrDefault(flowPart, 0.0);
-                    flowDecomposition.put(flowPart, allocatedFlow - respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getNegativeFlowPartName(flowPart)), functionReference));
+                    flowDecomposition.put(flowPart, allocatedFlow + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getNegativeFlowPartName(flowPart)), functionReference));
                     return;
                 }
             }
