@@ -30,12 +30,14 @@ import java.time.Duration;
 import java.util.*;
 
 /**
+ * @deprecated This module has not either been maintained nor used. We will remove it soon. Please report on Slack if you are using it.
  * Pan European Verification Function (PEVF) &
  * Common Grid Model Alignment (CGMA)
  * XML parser.
  *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
+@Deprecated(since = "2.14", forRemoval = true)
 public final class DataExchangesXml {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataExchangesXml.class);

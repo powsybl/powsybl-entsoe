@@ -21,12 +21,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * @deprecated This module has not either been maintained nor used. We will remove it soon. Please report on Slack if you are using it.
  *  Pan European Verification Function (PEVF) &
  *  Common Grid Model Alignment (CGMA)
  *  data.
  *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
+@Deprecated(since = "2.14", forRemoval = true)
 public class DataExchanges {
 
     // RequireNonNull messages
