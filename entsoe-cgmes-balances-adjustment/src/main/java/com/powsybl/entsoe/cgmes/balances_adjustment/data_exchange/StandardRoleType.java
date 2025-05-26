@@ -7,6 +7,7 @@
 package com.powsybl.entsoe.cgmes.balances_adjustment.data_exchange;
 
 /**
+ * @deprecated This module has not either been maintained nor used. We will remove it soon. Please report on Slack if you are using it.
  * Electronic Data Interchange.
  * Identification of the role played by a party.
  *
@@ -14,6 +15,7 @@ package com.powsybl.entsoe.cgmes.balances_adjustment.data_exchange;
  *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
+@Deprecated(since = "2.14", forRemoval = true)
 public enum StandardRoleType {
     /**
      * Market information aggregator.

@@ -7,6 +7,7 @@
 package com.powsybl.entsoe.cgmes.balances_adjustment.data_exchange;
 
 /**
+ * @deprecated This module has not either been maintained nor used. We will remove it soon. Please report on Slack if you are using it.
  * Electronic Data Interchange.
  * The coded type of a document. The message type describes the principal characteristic of a document.
  * This enumeration is used in the XML instances based on IEC 62325.
@@ -15,6 +16,7 @@ package com.powsybl.entsoe.cgmes.balances_adjustment.data_exchange;
  *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
+@Deprecated(since = "2.14", forRemoval = true)
 public enum StandardMessageType {
     /**
      * Reporting information market document.

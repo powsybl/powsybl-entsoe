@@ -14,8 +14,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * @deprecated Use module powsybl-balances-adjustment instead of this class
+ *
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
+@Deprecated(since = "2.14", forRemoval = true)
 class CgmesVoltageLevelsArea implements NetworkArea {
 
     private final List<String> voltageLevelIds = new ArrayList<>();
