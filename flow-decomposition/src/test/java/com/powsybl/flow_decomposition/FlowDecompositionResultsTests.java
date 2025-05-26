@@ -17,13 +17,10 @@ import org.ejml.data.DMatrixSparseCSC;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.flow_decomposition.DecomposedFlow.ALLOCATED_COLUMN_NAME;
-import static com.powsybl.flow_decomposition.DecomposedFlow.PST_COLUMN_NAME;
 import static com.powsybl.iidm.network.Country.BE;
 import static com.powsybl.iidm.network.Country.DE;
 import static com.powsybl.iidm.network.Country.FR;
@@ -89,7 +86,7 @@ class FlowDecompositionResultsTests {
         nStateBuilder.saveAcTerminal1ReferenceFlow(Map.of(branchId, 10.0));
         nStateBuilder.saveAcTerminal2ReferenceFlow(Map.of(branchId, 10.0));
         nStateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
-        nStateBuilder.saveFlowPartitions(Map.of(branchId, new FlowPartition(0.,20., Map.of(FR, 12.), 2.,0.)));
+        nStateBuilder.saveFlowPartitions(Map.of(branchId, new FlowPartition(0., 20., Map.of(FR, 12.), 2., 0.)));
         nStateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
         nStateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
         nStateBuilder.build(decomposedFlowRescaler, network);
@@ -121,7 +118,7 @@ class FlowDecompositionResultsTests {
         n1StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
         n1StateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
         n1StateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
-        n1StateBuilder.saveFlowPartitions(Map.of(branchId, new FlowPartition(0.,20., Map.of(FR, 12.), 2.,0.)));
+        n1StateBuilder.saveFlowPartitions(Map.of(branchId, new FlowPartition(0., 20., Map.of(FR, 12.), 2., 0.)));
         n1StateBuilder.build(decomposedFlowRescaler, network);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
@@ -149,7 +146,7 @@ class FlowDecompositionResultsTests {
         n2StateBuilder.saveAcTerminal1ReferenceFlow(Map.of(branchId, 10.0));
         n2StateBuilder.saveAcTerminal2ReferenceFlow(Map.of(branchId, 10.0));
         n2StateBuilder.saveDcReferenceFlow(Map.of(branchId, 11.0));
-        n2StateBuilder.saveFlowPartitions(Map.of(branchId, new FlowPartition(0.,20., Map.of(FR, 12.), 2.,0.)));
+        n2StateBuilder.saveFlowPartitions(Map.of(branchId, new FlowPartition(0., 20., Map.of(FR, 12.), 2., 0.)));
         n2StateBuilder.saveAcCurrentTerminal1(Map.of(branchId, 5.0));
         n2StateBuilder.saveAcCurrentTerminal2(Map.of(branchId, 5.0));
         n2StateBuilder.build(decomposedFlowRescaler, network);
