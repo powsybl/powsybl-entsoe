@@ -169,7 +169,7 @@ public class FlowDecompositionComputer {
             case DIRECT_SENSITIVITY_BASED ->
                     new DirectSensitivityPartitioner(loadFlowParameters, sensitivityAnalysisRunner, observers);
             default ->
-                    throw new RuntimeException("FlowPartitioner not defined for mode: " + parameters.getFlowPartitioner());
+                    throw new PowsyblException("FlowPartitioner not defined for mode: " + parameters.getFlowPartitioner());
         };
     }
 
