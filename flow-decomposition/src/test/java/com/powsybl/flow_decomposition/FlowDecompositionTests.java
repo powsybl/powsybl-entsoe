@@ -79,12 +79,12 @@ public class FlowDecompositionTests {
 
     @Test
     void testFlowDecompositionOnHvdcNetwork() {
-        testFlowDecompositionOnHvdcNetwork(false);
+        testFlowDecompositionOnHvdcNetwork(FlowDecompositionParameters.FlowPartitionMode.MATRIX_BASED);
     }
 
     @Test
     void testFlowDecompositionOnHvdcNetworkUsingFastMode() {
-        testFlowDecompositionOnHvdcNetwork(true);
+        testFlowDecompositionOnHvdcNetwork(FlowDecompositionParameters.FlowPartitionMode.DIRECT_SENSITIVITY_BASED);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class FlowDecompositionTests {
         assertEquals(LoadFlowParameters.ConnectedComponentMode.ALL, loadFlowParameters.getConnectedComponentMode());
     }
 
-    void testFlowDecompositionOnHvdcNetwork(boolean usingFastMode) {
+    void testFlowDecompositionOnHvdcNetwork(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         Network network = TestUtils.importNetwork("TestCase16NodesWithHvdc.xiidm");
 
         Set<String> branchIds = network.getBranchStream().map(Identifiable::getId).collect(Collectors.toSet());
@@ -108,7 +108,7 @@ public class FlowDecompositionTests {
                 .addNetworkElementsAfterContingencies(branchIds, Set.of("contingency_1", "contingency_desync", "contingency_split_network"))
                 .build();
         XnecProvider xnecProvider = new XnecProviderUnion(List.of(new XnecProviderAllBranches(), xnecProviderContingency));
-        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, usingFastMode);
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowPartitionMode);
         assertEquals(98, flowDecompositionResults.getDecomposedFlowMap().size());
         validateFlowDecomposition(flowDecompositionResults, "BBE1AA11 BBE3AA11 1_contingency_split_network", "BBE1AA11 BBE3AA11 1", "contingency_split_network", Country.BE, Country.BE, -571.575251, -571.428571, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "FFR2AA11 FFR3AA11 2", "FFR2AA11 FFR3AA11 2", "", Country.FR, Country.FR, -1048.852694, -1044.697128, 418.391705, 0.000000, 38.815350, 611.949424, -16.125814, -4.610042, 0.000000, -3.723495);
@@ -215,13 +215,13 @@ public class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
     }
 
-    private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider, boolean usingFastMode) {
+    private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
                 .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
                 .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
                 .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
                 .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE)
-                .setUsingFastMode(usingFastMode);
+                .setFlowPartitioner(flowPartitionMode);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, new LoadFlowParameters());
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
         TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
@@ -229,6 +229,6 @@ public class FlowDecompositionTests {
     }
 
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider) {
-        return runFlowDecomposition(network, xnecProvider, false);
+        return runFlowDecomposition(network, xnecProvider, FlowDecompositionParameters.FlowPartitionMode.MATRIX_BASED);
     }
 }
