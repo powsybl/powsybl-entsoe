@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -85,10 +84,11 @@ class InternalFlowTests {
     private DecomposedFlow getDecomposedFlow(double internalFlow, double acReferenceFlow, double dcReferenceFlow) {
         double allocatedFlow = 100;
         double pstFlow = 200.;
-        Map<Country, Double> loopFlowsPerCountry = new TreeMap<>();
-        loopFlowsPerCountry.put(Country.BE, 500.);
-        loopFlowsPerCountry.put(Country.GE, -100.);
-        loopFlowsPerCountry.put(Country.ES, 700.);
+        Map<Country, Double> loopFlowsPerCountry = Map.of(
+                Country.BE, 500.,
+                Country.GE, -100.,
+                Country.ES, 700.
+        );
         Country country1 = Country.FR;
         Country country2 = Country.FR;
         return new DecomposedFlowBuilder()
