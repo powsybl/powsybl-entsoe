@@ -7,6 +7,7 @@
 package com.powsybl.entsoe.cgmes.balances_adjustment.data_exchange;
 
 /**
+ * @deprecated This module has not either been maintained nor used. We will remove it soon. Please report on Slack if you are using it.
  * Electronic Data Interchange.
  * The exact business nature identifying the principal characteristic of a time series.
  *
@@ -14,6 +15,7 @@ package com.powsybl.entsoe.cgmes.balances_adjustment.data_exchange;
  *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
+@Deprecated(since = "2.14", forRemoval = true)
 public enum StandardBusinessType {
 
     /**
