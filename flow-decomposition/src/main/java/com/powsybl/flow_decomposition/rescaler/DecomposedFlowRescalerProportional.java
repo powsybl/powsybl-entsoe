@@ -31,6 +31,18 @@ public class DecomposedFlowRescalerProportional extends AbstractDecomposedFlowRe
         this(DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE);
     }
 
+    static FlowPartition getFlowPartition(DecomposedFlow decomposedFlow, FlowPartition initialFlowPartition, double pActivePowerOnly) {
+        double rescaleFactor = Math.abs(pActivePowerOnly / decomposedFlow.getDcReferenceFlow());
+
+        double rescaledAllocatedFlow = rescaleFactor * initialFlowPartition.allocatedFlow();
+        double rescaledXNodeFlow = rescaleFactor * initialFlowPartition.xNodeFlow();
+        double rescaledPstFlow = rescaleFactor * initialFlowPartition.pstFlow();
+        double rescaleInternalFlow = rescaleFactor * initialFlowPartition.internalFlow();
+        Map<Country, Double> rescaledLoopFlows = initialFlowPartition.loopFlowPerCountry().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleFactor * entry.getValue()));
+        return new FlowPartition(rescaleInternalFlow, rescaledAllocatedFlow, rescaledLoopFlows, rescaledPstFlow, rescaledXNodeFlow);
+    }
+
     @Override
     protected boolean shouldRescaleFlows(DecomposedFlow decomposedFlow) {
         return hasFiniteAcFlowsOnEachTerminal(decomposedFlow) && hasAbsDcFlowGreaterThanTolerance(decomposedFlow, minFlowTolerance);
@@ -41,14 +53,6 @@ public class DecomposedFlowRescalerProportional extends AbstractDecomposedFlowRe
         // rescale proportionally to max (abs) ac flow
         FlowPartition initialFlowPartition = decomposedFlow.getFlowPartition();
         double acMaxAbsFlow = decomposedFlow.getMaxAbsAcFlow();
-        double rescaleFactor = Math.abs(acMaxAbsFlow / decomposedFlow.getDcReferenceFlow());
-
-        double rescaledAllocatedFlow = rescaleFactor * initialFlowPartition.allocatedFlow();
-        double rescaledXNodeFlow = rescaleFactor * initialFlowPartition.xNodeFlow();
-        double rescaledPstFlow = rescaleFactor * initialFlowPartition.pstFlow();
-        double rescaleInternalFlow = rescaleFactor * initialFlowPartition.internalFlow();
-        Map<Country, Double> rescaledLoopFlows = initialFlowPartition.loopFlowPerCountry().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleFactor * entry.getValue()));
-        return new FlowPartition(rescaleInternalFlow, rescaledAllocatedFlow, rescaledLoopFlows, rescaledPstFlow, rescaledXNodeFlow);
+        return getFlowPartition(decomposedFlow, initialFlowPartition, acMaxAbsFlow);
     }
 }
