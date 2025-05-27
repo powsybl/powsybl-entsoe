@@ -154,23 +154,23 @@ public class FlowDecompositionComputer {
         LoadFlowRunningService.Result loadFlowServiceDcResult = runDcLoadFlow(network);
         saveDcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecs, loadFlowServiceDcResult);
 
-        Map<String, FlowPartition> flowPartitions = getFlowPartitioner().computeFlowPartitions(network, xnecs, flowDecompositionResultsBuilder, netPositions, glsks);
+        Map<String, FlowPartition> flowPartitions = getFlowPartitioner().computeFlowPartitions(network, xnecs, netPositions, glsks);
         flowDecompositionResultsBuilder.saveFlowPartitions(flowPartitions);
 
-        // Add the observes to keep the decomposed flows before rescaling
+        // Add the observers to keep the decomposed flows before rescaling
         flowDecompositionResultsBuilder.addObserversList(observers);
         flowDecompositionResultsBuilder.build(decomposedFlowRescaler, network);
     }
 
     private FlowPartitioner getFlowPartitioner() {
-        switch (parameters.getFlowPartitioner()) {
-            case MATRIX_BASED:
-                return new MatrixBasedPartitioner(loadFlowParameters, parameters, sensitivityAnalysisRunner, observers);
-            case DIRECT_SENSITIVITY_BASED:
-                return new DirectSensitivityPartitioner(loadFlowParameters, sensitivityAnalysisRunner, observers);
-            default:
-                throw new RuntimeException("FlowPartitioner not defined for mode: " + parameters.getFlowPartitioner());
-        }
+        return switch (parameters.getFlowPartitioner()) {
+            case MATRIX_BASED ->
+                    new MatrixBasedPartitioner(loadFlowParameters, parameters, sensitivityAnalysisRunner, observers);
+            case DIRECT_SENSITIVITY_BASED ->
+                    new DirectSensitivityPartitioner(loadFlowParameters, sensitivityAnalysisRunner, observers);
+            default ->
+                    throw new RuntimeException("FlowPartitioner not defined for mode: " + parameters.getFlowPartitioner());
+        };
     }
 
     public void addObserver(FlowDecompositionObserver observer) {

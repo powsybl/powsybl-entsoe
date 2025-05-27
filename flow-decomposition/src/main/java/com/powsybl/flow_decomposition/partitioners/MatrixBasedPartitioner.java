@@ -10,6 +10,7 @@ package com.powsybl.flow_decomposition.partitioners;
 import com.powsybl.flow_decomposition.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -19,7 +20,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.flow_decomposition.DecomposedFlow.*;
-import static com.powsybl.flow_decomposition.DecomposedFlow.XNODE_COLUMN_NAME;
 import static com.powsybl.flow_decomposition.NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX;
 
 /**
@@ -29,7 +29,7 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
-    private FlowDecompositionObserverList observers;
+    private final FlowDecompositionObserverList observers;
 
     public MatrixBasedPartitioner(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters, SensitivityAnalysis.Runner sensitivityAnalysisRunner, FlowDecompositionObserverList observers) {
         this.loadFlowParameters = loadFlowParameters;
@@ -39,7 +39,7 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
     }
 
     @Override
-    public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch> xnecs, FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
+    public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecs));
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network, netPositions,
                 networkMatrixIndexes, glsks);
@@ -53,7 +53,7 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
         PstFlowComputer pstFlowComputer = new PstFlowComputer();
         SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
         return xnecs.stream().collect(Collectors.toMap(
-                xnec -> xnec.getId(),
+                Identifiable::getId,
                 xnec -> flowPartitionForXnec(xnec, allocatedLoopFlowsMatrix.toMap().getOrDefault(xnec.getId(), Collections.emptyMap()), pstFlowMatrix.toMap().getOrDefault(xnec.getId(), Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW))
         ));
     }

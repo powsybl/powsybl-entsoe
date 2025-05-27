@@ -53,13 +53,9 @@ class RescalingTests {
     }
 
     private DecomposedFlow getDecomposedFlow(double acReferenceFlow, double dcReferenceFlow) {
-        Map<String, Double> loopFlows = new TreeMap<>();
         double allocatedFlow = 100;
         double pstFlow = 200.;
         double internalFlow = -300.;
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.BE), 500.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Map<Country, Double> loopFlowsPerCountry = new TreeMap<>();
         loopFlowsPerCountry.put(Country.BE, 500.);
         loopFlowsPerCountry.put(Country.GE, -100.);
@@ -270,13 +266,9 @@ class RescalingTests {
         double dcReferenceFlow = 120;
         double acCurrentTerminal1 = 50;
         double acCurrentTerminal2 = 40;
-        Map<String, Double> loopFlows = new TreeMap<>();
         double allocatedFlow = 100;
         double pstFlow = 200.;
         double internalFlow = -300.;
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.BE), 500.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.GE), -100.);
-        loopFlows.put(NetworkUtil.getLoopFlowIdFromCountry(Country.ES), 700.);
         Map<Country, Double> loopFlowsPerCountry = new TreeMap<>();
         loopFlowsPerCountry.put(Country.BE, 500.);
         loopFlowsPerCountry.put(Country.GE, -100.);

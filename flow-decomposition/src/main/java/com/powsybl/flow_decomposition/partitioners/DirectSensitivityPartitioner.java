@@ -10,6 +10,7 @@ package com.powsybl.flow_decomposition.partitioners;
 import com.powsybl.flow_decomposition.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
@@ -20,7 +21,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.flow_decomposition.DecomposedFlow.*;
-import static com.powsybl.flow_decomposition.DecomposedFlow.NO_FLOW;
 import static com.powsybl.flow_decomposition.NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX;
 
 /**
@@ -30,7 +30,7 @@ public class DirectSensitivityPartitioner implements FlowPartitioner {
     private static final Logger LOGGER = LoggerFactory.getLogger(DirectSensitivityPartitioner.class);
     private final LoadFlowParameters loadFlowParameters;
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
-    private FlowDecompositionObserverList observers;
+    private final FlowDecompositionObserverList observers;
 
     public DirectSensitivityPartitioner(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner sensitivityAnalysisRunner, FlowDecompositionObserverList observers) {
         this.loadFlowParameters = loadFlowParameters;
@@ -39,7 +39,7 @@ public class DirectSensitivityPartitioner implements FlowPartitioner {
     }
 
     @Override
-    public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch> xnecs, FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
+    public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
         LOGGER.warn("Using fast mode of flow decomposition, detailed info (as nodal PTDF and PSDF matrices) won't be reported");
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecs));
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network, netPositions,
@@ -47,7 +47,7 @@ public class DirectSensitivityPartitioner implements FlowPartitioner {
         FastModeSensitivityAnalyser sensitivityAnalyser = new FastModeSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner, network, xnecs, nodalInjectionsMatrix);
         Map<String, Map<String, Double>> decomposedFlow = sensitivityAnalyser.run();
         return xnecs.stream().collect(Collectors.toMap(
-                xnec -> xnec.getId(),
+                Identifiable::getId,
                 xnec -> buildFlowPartition(xnec, decomposedFlow.getOrDefault(xnec.getId(), Collections.emptyMap()))
         ));
     }

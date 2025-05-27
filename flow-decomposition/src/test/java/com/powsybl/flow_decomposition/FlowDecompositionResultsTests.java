@@ -13,11 +13,9 @@ import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import org.ejml.data.DMatrixSparseCSC;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,9 +35,6 @@ class FlowDecompositionResultsTests {
     private Network network;
     private XnecProviderByIds xnecProvider;
     private FlowDecompositionResults flowDecompositionResults;
-    private DMatrixSparseCSC alloMatrix;
-    private DMatrixSparseCSC pstMatrix;
-    private Map<String, Integer> xnecMap;
 
     @BeforeEach
     void setup() {
@@ -57,13 +52,6 @@ class FlowDecompositionResultsTests {
             .addNetworkElementsOnBasecase(Set.of(branchId))
             .build();
         flowDecompositionResults = new FlowDecompositionResults(network);
-
-        xnecMap = NetworkUtil.getIndex(List.of(branchId));
-        alloMatrix = new DMatrixSparseCSC(1, 2);
-        alloMatrix.set(0, 0, 20.0);
-        alloMatrix.set(0, 1, 12.0);
-        pstMatrix = new DMatrixSparseCSC(1, 1);
-        pstMatrix.set(0, 0, 2);
     }
 
     @Test

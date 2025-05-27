@@ -59,10 +59,10 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     private SensitivityVariableSet getSensitivityVariableSet(Map.Entry<Country, Map<String, Double>> countryMapEntry) {
         return new SensitivityVariableSet(countryMapEntry.getKey().toString(),
-            getWeighteitedSensitivityVariables(countryMapEntry.getValue()));
+            getWeightedSensitivityVariables(countryMapEntry.getValue()));
     }
 
-    private List<WeightedSensitivityVariable> getWeighteitedSensitivityVariables(Map<String, Double> singleCountryGlsks) {
+    private List<WeightedSensitivityVariable> getWeightedSensitivityVariables(Map<String, Double> singleCountryGlsks) {
         return singleCountryGlsks.entrySet().stream().map(this::getWeightedSensitivityVariable).collect(Collectors.toList());
     }
 

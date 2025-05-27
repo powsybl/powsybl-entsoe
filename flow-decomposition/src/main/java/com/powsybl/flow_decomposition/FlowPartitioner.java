@@ -18,5 +18,5 @@ import java.util.Set;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public interface FlowPartitioner {
-    Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch> xnecs, FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks);
+    Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks);
 }

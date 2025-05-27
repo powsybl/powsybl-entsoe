@@ -75,7 +75,7 @@ public class XnecProviderUnion implements XnecProvider {
                 .getContingencies(network)
                 .stream()
                 .filter(contingency -> Objects.equals(contingency.getId(), contingencyId))
-                .collect(Collectors.toList())
+                .toList()
                 .hashCode();
         }
 
@@ -94,7 +94,7 @@ public class XnecProviderUnion implements XnecProvider {
         }
     }
 
-    private void initizializeContingencyConsistencyCache(Network network) {
+    private void initializeContingencyConsistencyCache(Network network) {
         if (contingencyConsistencyCache == null || !contingencyConsistencyCache.isValid(network)) {
             contingencyConsistencyCache = new ContingencyConsistencyCache(network);
         }
@@ -114,13 +114,13 @@ public class XnecProviderUnion implements XnecProvider {
 
     @Override
     public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
-        initizializeContingencyConsistencyCache(network);
+        initializeContingencyConsistencyCache(network);
         return contingencyConsistencyCache.getContingencyIdToXnec();
     }
 
     @Override
     public List<Contingency> getContingencies(Network network) {
-        initizializeContingencyConsistencyCache(network);
+        initializeContingencyConsistencyCache(network);
         return contingencyConsistencyCache.getContingencies();
     }
 }

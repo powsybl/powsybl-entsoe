@@ -30,8 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class FlowDecompositionTests {
 
-    public static final double EPSILON = 1e-6;
-
     @Test
     void testFlowDecompositionOnNetworkWithBusBarSectionOnly() {
         Network network = TestUtils.getMicroGridNetworkWithBusBarSectionOnly();
