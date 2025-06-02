@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  *     The calculation starts with defined network and areas and consists
  *     of several stages :
  * <ul>
- *     <li>LoadFlow computation</li>
+ *     <li>LoadFlow computation (optional)</li>
  *     <li>Comparison of network area's net position with the target value</li>
  *     <li>Apply injections scaling</li>
  * </ul>
@@ -85,9 +85,13 @@ public class BalanceComputationImpl implements BalanceComputation {
         network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId);
         network.getVariantManager().setWorkingVariant(workingVariantCopyId);
 
+        // When skipLoadFlow is true, limit to one iteration
+        final int maxIterations = parameters.isSkipLoadFlow() ? 1 : parameters.getMaxNumberIterations();
+
         do {
             ReportNode iterationReportNode = Reports.createBalanceComputationIterationReporter(reportNode, context.getIterationNum());
             context.setIterationReportNode(iterationReportNode);
+
             // Step 1: Perform the scaling
             ReportNode scalingReportNode = iterationReportNode.newReportNode().withMessageTemplate("scaling", "Scaling").add();
             context.getBalanceOffsets().forEach((area, offset) -> {
@@ -97,12 +101,21 @@ public class BalanceComputationImpl implements BalanceComputation {
                 LOGGER.info("Iteration={}, Scaling for area {}: offset={}, done={}", context.getIterationNum(), area.getName(), offset, done);
             });
 
-            // Step 2: compute Load Flow
-            LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), iterationReportNode);
-            if (!isLoadFlowResultOk(context, loadFlowResult)) {
-                LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
-                result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
-                return CompletableFuture.completedFuture(result);
+            // Step 2: compute Load Flow (skip if skipLoadFlow is true)
+            if (!parameters.isSkipLoadFlow()) {
+                LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), iterationReportNode);
+                if (!isLoadFlowResultOk(context, loadFlowResult)) {
+                    LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
+                    result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
+                    return CompletableFuture.completedFuture(result);
+                }
+            } else {
+                // Report that LoadFlow was skipped
+                iterationReportNode.newReportNode()
+                        .withMessageTemplate("skipLoadFlow", "Load flow computation skipped")
+                        .withSeverity(TypedValue.INFO_SEVERITY)
+                        .add();
+                LOGGER.info("Iteration={}, LoadFlow computation skipped as per configuration", context.getIterationNum());
             }
 
             // Step 3: Compute balance and mismatch for each area
@@ -118,15 +131,30 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
 
             // Step 4: Checks balance adjustment results
-            if (computeTotalMismatch(context) < parameters.getThresholdNetPosition()) {
-                result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, context.nextIteration(), context.getBalanceOffsets());
-                network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
+            boolean isConverged = computeTotalMismatch(context) < parameters.getThresholdNetPosition();
+
+            // When skipLoadFlow is true, always return after one iteration
+            if (parameters.isSkipLoadFlow() || isConverged) {
+                if (isConverged) {
+                    result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, context.nextIteration(), context.getBalanceOffsets());
+                    network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
+                } else {
+                    // When skipLoadFlow is true and not converged, still apply the scaling but mark as FAILED
+                    if (parameters.isSkipLoadFlow()) {
+                        // Apply the scaling to the working state
+                        network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
+                    } else {
+                        // Reset current variant with initial state
+                        network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId, true);
+                    }
+                    result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.nextIteration(), context.getBalanceOffsets());
+                }
             } else {
-                // Reset current variant with initial state
+                // Reset current variant with initial state for next iteration
                 network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId, true);
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.nextIteration(), context.getBalanceOffsets());
             }
-        } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
+        } while (context.getIterationNum() < maxIterations && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
 
         ReportNode statusReportNode = reportNode.newReportNode().withMessageTemplate("status", "Status").add();
         if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
@@ -137,8 +165,18 @@ public class BalanceComputationImpl implements BalanceComputation {
 
         } else {
             BigDecimal totalMismatch = BigDecimal.valueOf(computeTotalMismatch(context)).setScale(2, RoundingMode.UP);
-            Reports.reportUnbalancedAreas(statusReportNode, context.getIterationNum(), totalMismatch);
-            LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), totalMismatch);
+            if (parameters.isSkipLoadFlow()) {
+                statusReportNode.newReportNode()
+                        .withMessageTemplate("unbalancedAreasNoLoadFlow",
+                                "Areas scaling applied without load flow verification, total mismatch is ${totalMismatch}")
+                        .withUntypedValue("totalMismatch", totalMismatch.toString())
+                        .withSeverity(TypedValue.WARN_SEVERITY)
+                        .add();
+                LOGGER.warn("Areas scaling applied without load flow verification, total mismatch is {}", totalMismatch);
+            } else {
+                Reports.reportUnbalancedAreas(statusReportNode, context.getIterationNum(), totalMismatch);
+                LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), totalMismatch);
+            }
         }
 
         network.getVariantManager().removeVariant(workingVariantCopyId);
