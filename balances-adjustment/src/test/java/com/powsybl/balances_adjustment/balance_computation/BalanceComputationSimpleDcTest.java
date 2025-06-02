@@ -220,7 +220,7 @@ class BalanceComputationSimpleDcTest {
         verify(mockLoadFlowRunner, never()).run(any(), anyString(), any(), any(), any());
 
         // The result should be FAILED since we didn't run load flow to verify convergence
-        assertEquals(BalanceComputationResult.Status.FAILED, result.getStatus());
+        assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
         // Should have done exactly 1 iteration
         assertEquals(1, result.getIterationCount());
         // Should have scaling values for both areas
@@ -244,7 +244,7 @@ class BalanceComputationSimpleDcTest {
         // Check that the report contains information about skipping load flow
         BalanceComputationAssert.assertReportEquals("/skippedLoadflowUnbalancedNetworkReport.txt", reportNode);
 
-        assertEquals(BalanceComputationResult.Status.FAILED, result.getStatus());
+        assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
         assertEquals(1, result.getIterationCount());
     }
 

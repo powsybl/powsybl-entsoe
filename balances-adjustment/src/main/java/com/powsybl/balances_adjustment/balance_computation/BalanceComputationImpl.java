@@ -153,18 +153,8 @@ public class BalanceComputationImpl implements BalanceComputation {
 
         } else {
             BigDecimal totalMismatch = BigDecimal.valueOf(computeTotalMismatch(context)).setScale(2, RoundingMode.UP);
-            if (parameters.isSkipLoadFlow()) {
-                statusReportNode.newReportNode()
-                        .withMessageTemplate("unbalancedAreasNoLoadFlow",
-                                "Areas scaling applied without load flow verification, total mismatch is ${totalMismatch}")
-                        .withUntypedValue("totalMismatch", totalMismatch.toString())
-                        .withSeverity(TypedValue.WARN_SEVERITY)
-                        .add();
-                LOGGER.warn("Areas scaling applied without load flow verification, total mismatch is {}", totalMismatch);
-            } else {
-                Reports.reportUnbalancedAreas(statusReportNode, context.getIterationNum(), totalMismatch);
-                LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), totalMismatch);
-            }
+            Reports.reportUnbalancedAreas(statusReportNode, context.getIterationNum(), totalMismatch);
+            LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), totalMismatch);
         }
 
         network.getVariantManager().removeVariant(workingVariantCopyId);
