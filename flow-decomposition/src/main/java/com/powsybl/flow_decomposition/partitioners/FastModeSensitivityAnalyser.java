@@ -8,6 +8,7 @@ package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.flow_decomposition.AbstractSensitivityAnalyser;
+import com.powsybl.flow_decomposition.FunctionVariableFactor;
 import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -15,7 +16,6 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
-import org.jgrapht.alg.util.Pair;
 
 import java.util.*;
 
@@ -42,9 +42,21 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
         this.nodalInjectionPartitions = nodalInjectionsMatrix.toMap();
     }
 
+    private static String getNegativeFlowPartName(String flowPart) {
+        return "Negative " + flowPart;
+    }
+
+    private static String getPositiveFlowPartName(String flowPart) {
+        return "Positive " + flowPart;
+    }
+
+    private static double respectFlowSignConvention(double ptdfValue, double referenceFlow) {
+        return referenceFlow < 0 ? -ptdfValue : ptdfValue;
+    }
+
     public Map<String, Map<String, Double>> run() {
         List<SensitivityVariableSet> sensitivityVariableSets = new ArrayList<>();
-        List<Pair<String, String>> sensitivityFactors = new ArrayList<>();
+        List<FunctionVariableFactor> sensitivityFactors = new ArrayList<>();
         Map<String, Double> nodalInjectionsPartitionSumByFlowPart = new HashMap<>();
         for (String flowPart : flowParts) {
             String positiveFlowPartName = getPositiveFlowPartName(flowPart);
@@ -68,26 +80,14 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
         return results;
     }
 
-    private static String getNegativeFlowPartName(String flowPart) {
-        return "Negative " + flowPart;
-    }
-
-    private static String getPositiveFlowPartName(String flowPart) {
-        return "Positive " + flowPart;
-    }
-
-    public static double respectFlowSignConvention(double ptdfValue, double referenceFlow) {
-        return referenceFlow < 0 ? -ptdfValue : ptdfValue;
-    }
-
     private class FastModeSensitivityResultWriter implements SensitivityResultWriter {
 
-        private final List<Pair<String, String>> factors;
+        private final List<FunctionVariableFactor> factors;
         private final Map<String, Map<String, Double>> results;
         private final Set<String> flowParts;
         private final Map<String, Double> nodalInjectionsPartitionSumByFlowPart;
 
-        public FastModeSensitivityResultWriter(List<Pair<String, String>> factors, Map<String, Map<String, Double>> results, Set<String> flowParts, Map<String, Double> nodalInjectionsPartitionSumByFlowPart) {
+        public FastModeSensitivityResultWriter(List<FunctionVariableFactor> factors, Map<String, Map<String, Double>> results, Set<String> flowParts, Map<String, Double> nodalInjectionsPartitionSumByFlowPart) {
             this.factors = factors;
             this.results = results;
             this.flowParts = flowParts;
@@ -99,21 +99,21 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
             if (Double.isNaN(value)) {
                 return;
             }
-            Pair<String, String> factor = factors.get(factorIndex);
-            Map<String, Double> flowDecomposition = results.computeIfAbsent(factor.getFirst(), s -> new HashMap<>());
+            FunctionVariableFactor factor = factors.get(factorIndex);
+            Map<String, Double> flowDecomposition = results.computeIfAbsent(factor.functionId(), s -> new HashMap<>());
             for (String flowPart : flowParts) {
-                if (factor.getSecond().equals(getPositiveFlowPartName(flowPart))) {
+                if (factor.variableId().equals(getPositiveFlowPartName(flowPart))) {
                     double partialFlowPartValue = flowDecomposition.getOrDefault(flowPart, 0.0);
                     flowDecomposition.put(flowPart, partialFlowPartValue + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getPositiveFlowPartName(flowPart)), functionReference));
                     return;
-                } else if (factor.getSecond().equals(getNegativeFlowPartName(flowPart))) {
+                } else if (factor.variableId().equals(getNegativeFlowPartName(flowPart))) {
                     double partialFlowPartValue = flowDecomposition.getOrDefault(flowPart, 0.0);
                     flowDecomposition.put(flowPart, partialFlowPartValue + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getNegativeFlowPartName(flowPart)), functionReference));
                     return;
                 }
             }
 
-            PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(factor.getSecond()).getPhaseTapChanger();
+            PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer(factor.variableId()).getPhaseTapChanger();
             Optional<PhaseTapChangerStep> neutralStep = phaseTapChanger.getNeutralStep();
             double deltaTap = 0.0;
             if (neutralStep.isPresent()) {
@@ -131,9 +131,9 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     private class FastModeSensitivityFactorReader implements SensitivityFactorReader {
         private final Set<String> flowParts;
-        private final List<Pair<String, String>> factors;
+        private final List<FunctionVariableFactor> factors;
 
-        public FastModeSensitivityFactorReader(Set<String> flowParts, List<Pair<String, String>> factors) {
+        public FastModeSensitivityFactorReader(Set<String> flowParts, List<FunctionVariableFactor> factors) {
             this.flowParts = flowParts;
             this.factors = factors;
         }
@@ -142,14 +142,14 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
         public void read(Handler handler) {
             for (Branch xnec : xnecs) {
                 for (String flowPart : flowParts) {
-                    factors.add(Pair.of(xnec.getId(), getPositiveFlowPartName(flowPart)));
+                    factors.add(new FunctionVariableFactor(xnec.getId(), getPositiveFlowPartName(flowPart)));
                     handler.onFactor(SENSITIVITY_FUNCTION_TYPE, xnec.getId(), SensitivityVariableType.INJECTION_ACTIVE_POWER, getPositiveFlowPartName(flowPart), true, ContingencyContext.none());
-                    factors.add(Pair.of(xnec.getId(), getNegativeFlowPartName(flowPart)));
+                    factors.add(new FunctionVariableFactor(xnec.getId(), getNegativeFlowPartName(flowPart)));
                     handler.onFactor(SENSITIVITY_FUNCTION_TYPE, xnec.getId(), SensitivityVariableType.INJECTION_ACTIVE_POWER, getNegativeFlowPartName(flowPart), true, ContingencyContext.none());
                 }
 
                 for (String pst : NetworkUtil.getPstIdList(network)) {
-                    factors.add(Pair.of(xnec.getId(), pst));
+                    factors.add(new FunctionVariableFactor(xnec.getId(), pst));
                     handler.onFactor(SENSITIVITY_FUNCTION_TYPE, xnec.getId(), SensitivityVariableType.TRANSFORMER_PHASE, pst, false, ContingencyContext.none());
                 }
             }

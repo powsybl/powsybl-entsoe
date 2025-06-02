@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class ReferenceNodalInjectionComputer {
-    public ReferenceNodalInjectionComputer() {
-    }
 
     public Map<String, Double> run(List<Injection<?>> nodeList) {
         return nodeList.stream()

@@ -115,9 +115,4 @@ public class FlowDecompositionObserverList {
             o.computedPreRescalingDecomposedFlows(decomposedFlow);
         }
     }
-
-    @FunctionalInterface
-    private interface MatrixNotification {
-        void sendMatrix(FlowDecompositionObserver o, Map<String, Map<String, Double>> matrix);
-    }
 }

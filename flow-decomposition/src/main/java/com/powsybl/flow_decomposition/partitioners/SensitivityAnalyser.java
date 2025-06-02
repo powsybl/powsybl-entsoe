@@ -8,6 +8,7 @@ package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.flow_decomposition.AbstractSensitivityAnalyser;
 import com.powsybl.flow_decomposition.FlowDecompositionParameters;
+import com.powsybl.flow_decomposition.FunctionVariableFactor;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -17,7 +18,6 @@ import com.powsybl.sensitivity.SensitivityFactorReader;
 import com.powsybl.sensitivity.SensitivityResultWriter;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.SensitivityVariableType;
-import org.jgrapht.alg.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,11 +77,11 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private void partialFillSensitivityMatrix(SensitivityVariableType sensitivityVariableType,
                                               SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet,
                                               List<String> variableList) {
-        List<Pair<String, String>> factors = getFunctionVariableFactors(variableList, functionList);
+        List<FunctionVariableFactor> factors = getFunctionVariableFactors(variableList, functionList);
         fillSensitivityAnalysisResult(factors, sensitivityMatrixTriplet, sensitivityVariableType);
     }
 
-    private void fillSensitivityAnalysisResult(List<Pair<String, String>> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet, SensitivityVariableType sensitivityVariableType) {
+    private void fillSensitivityAnalysisResult(List<FunctionVariableFactor> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet, SensitivityVariableType sensitivityVariableType) {
         SensitivityFactorReader factorReader = getSensitivityFactorReader(factors, sensitivityVariableType, SENSITIVITY_VARIABLE_SET);
         SensitivityResultWriter valueWriter = getSensitivityResultWriter(factors, sensitivityMatrixTriplet);
         runSensitivityAnalysis(network, factorReader, valueWriter, EMPTY_SENSITIVITY_VARIABLE_SETS);
@@ -91,12 +91,12 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
         return referenceFlow < 0 ? -ptdfValue : ptdfValue;
     }
 
-    private static SensitivityResultWriter getSensitivityResultWriter(List<Pair<String, String>> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet) {
+    private static SensitivityResultWriter getSensitivityResultWriter(List<FunctionVariableFactor> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet) {
         return new SensitivityResultWriter() {
             @Override
             public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
-                Pair<String, String> factor = factors.get(factorIndex);
-                sensitivityMatrixTriplet.addItem(factor.getFirst(), factor.getSecond(), respectFlowSignConvention(value, functionReference));
+                FunctionVariableFactor factor = factors.get(factorIndex);
+                sensitivityMatrixTriplet.addItem(factor.functionId(), factor.variableId(), respectFlowSignConvention(value, functionReference));
             }
 
             @Override
