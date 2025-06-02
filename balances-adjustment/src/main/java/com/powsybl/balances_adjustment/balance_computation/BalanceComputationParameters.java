@@ -31,7 +31,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
     public static final double DEFAULT_THRESHOLD_NET_POSITION = 1;
     public static final int DEFAULT_MAX_NUMBER_ITERATIONS = 5;
     public static final MismatchMode DEFAULT_MISMATCH_MODE = MismatchMode.SQUARED;
-    public static final boolean DEFAULT_SKIP_LOAD_FLOW = false;
+    public static final boolean DEFAULT_WITH_LOAD_FLOW = true;
 
     /**
      * how overall mismatch is to be computed from individual area mismatches
@@ -64,15 +64,15 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
     private MismatchMode mismatchMode;
 
     /**
-     * Skip load flow computation and perform only one iteration
+     * Skip load flow computation and perform only one iteration if false.
      */
-    private boolean skipLoadFlow;
+    private boolean withLoadFlow;
 
     /**
      * Constructor with default parameters
      */
     public BalanceComputationParameters() {
-        this(DEFAULT_THRESHOLD_NET_POSITION, DEFAULT_MAX_NUMBER_ITERATIONS, DEFAULT_MISMATCH_MODE, DEFAULT_SKIP_LOAD_FLOW);
+        this(DEFAULT_THRESHOLD_NET_POSITION, DEFAULT_MAX_NUMBER_ITERATIONS, DEFAULT_MISMATCH_MODE, DEFAULT_WITH_LOAD_FLOW);
     }
 
     /**
@@ -80,13 +80,13 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      * @param threshold Threshold for comparing net positions (given in MW)
      * @param maxNumberIterations Maximum iteration number for balances adjustment
      * @param mismatchMode How overall mismatch is to be computed from individual area mismatches
-     * @param skipLoadFlow Skip load flow computation and perform only one iteration
+     * @param withLoadFlow Skip load flow computation and perform only one iteration if false.
      */
-    public BalanceComputationParameters(double threshold, int maxNumberIterations, MismatchMode mismatchMode, boolean skipLoadFlow) {
+    public BalanceComputationParameters(double threshold, int maxNumberIterations, MismatchMode mismatchMode, boolean withLoadFlow) {
         this.thresholdNetPosition = checkThresholdNetPosition(threshold);
         this.maxNumberIterations = checkMaxNumberIterations(maxNumberIterations);
         this.mismatchMode = mismatchMode;
-        this.skipLoadFlow = skipLoadFlow;
+        this.withLoadFlow = withLoadFlow;
     }
 
     /**
@@ -96,7 +96,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      * @param mismatchMode How overall mismatch is to be computed from individual area mismatches
      */
     public BalanceComputationParameters(double threshold, int maxNumberIterations, MismatchMode mismatchMode) {
-        this(threshold, maxNumberIterations, mismatchMode, DEFAULT_SKIP_LOAD_FLOW);
+        this(threshold, maxNumberIterations, mismatchMode, DEFAULT_WITH_LOAD_FLOW);
     }
 
     /**
@@ -105,7 +105,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      * @param maxNumberIterations Maximum iteration number for balances adjustment
      */
     public BalanceComputationParameters(double threshold, int maxNumberIterations) {
-        this(threshold, maxNumberIterations, DEFAULT_MISMATCH_MODE, DEFAULT_SKIP_LOAD_FLOW);
+        this(threshold, maxNumberIterations, DEFAULT_MISMATCH_MODE, DEFAULT_WITH_LOAD_FLOW);
     }
 
     /**
@@ -113,7 +113,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      */
     @Deprecated(since = "2.3.0")
     public BalanceComputationParameters(double threshold, int maxNumberIterations, boolean loadPowerFactorConstant) {
-        this(threshold, maxNumberIterations, DEFAULT_MISMATCH_MODE, DEFAULT_SKIP_LOAD_FLOW);
+        this(threshold, maxNumberIterations, DEFAULT_MISMATCH_MODE, DEFAULT_WITH_LOAD_FLOW);
         scalingParameters.setConstantPowerFactor(loadPowerFactorConstant);
     }
 
@@ -149,12 +149,12 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
         return this;
     }
 
-    public boolean isSkipLoadFlow() {
-        return skipLoadFlow;
+    public boolean isWithLoadFlow() {
+        return withLoadFlow;
     }
 
-    public BalanceComputationParameters setSkipLoadFlow(boolean skipLoadFlow) {
-        this.skipLoadFlow = skipLoadFlow;
+    public BalanceComputationParameters setWithLoadFlow(boolean withLoadFlow) {
+        this.withLoadFlow = withLoadFlow;
         return this;
     }
 
@@ -208,7 +208,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
                 .setMaxNumberIterations(config.getIntProperty("maxNumberIterations", DEFAULT_MAX_NUMBER_ITERATIONS))
                 .setThresholdNetPosition(config.getDoubleProperty("thresholdNetPosition", DEFAULT_THRESHOLD_NET_POSITION))
                 .setMismatchMode(config.getEnumProperty("mismatchMode", MismatchMode.class, DEFAULT_MISMATCH_MODE))
-                .setSkipLoadFlow(config.getBooleanProperty("skipLoadFlow", DEFAULT_SKIP_LOAD_FLOW)));
+                .setWithLoadFlow(config.getBooleanProperty("withLoadFlow", DEFAULT_WITH_LOAD_FLOW)));
         parameters.readExtensions(platformConfig);
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));

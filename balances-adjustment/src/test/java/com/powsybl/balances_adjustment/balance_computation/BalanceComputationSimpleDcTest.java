@@ -203,7 +203,7 @@ class BalanceComputationSimpleDcTest {
     @Test
     void testSkipLoadFlowSingleIteration() {
         // Setup parameters to skip load flow
-        parameters.setSkipLoadFlow(true);
+        parameters.setWithLoadFlow(false);
 
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
@@ -230,7 +230,7 @@ class BalanceComputationSimpleDcTest {
     @Test
     void testSkipLoadFlowWithReportNode() throws IOException {
         // Setup parameters to skip load flow
-        parameters.setSkipLoadFlow(true);
+        parameters.setWithLoadFlow(false);
 
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));

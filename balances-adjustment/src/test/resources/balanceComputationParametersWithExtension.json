@@ -3,7 +3,7 @@
   "maxNumberIterations" : 5,
   "thresholdNetPosition" : 1.0,
   "mismatchMode" : "SQUARED",
-  "skipLoadFlow" : false,
+  "withLoadFlow" : true,
   "load-flow-parameters" : {
     "version" : "1.9",
     "voltageInitMode" : "UNIFORM_VALUES",

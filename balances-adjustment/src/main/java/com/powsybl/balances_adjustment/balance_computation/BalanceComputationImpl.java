@@ -85,8 +85,8 @@ public class BalanceComputationImpl implements BalanceComputation {
         network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId);
         network.getVariantManager().setWorkingVariant(workingVariantCopyId);
 
-        // When skipLoadFlow is true, limit to one iteration
-        final int maxIterations = parameters.isSkipLoadFlow() ? 1 : parameters.getMaxNumberIterations();
+        // When isWithLoadFlow is false, limit to one iteration
+        final int maxIterations = !parameters.isWithLoadFlow() ? 1 : parameters.getMaxNumberIterations();
 
         do {
             ReportNode iterationReportNode = Reports.createBalanceComputationIterationReporter(reportNode, context.getIterationNum());
@@ -101,8 +101,8 @@ public class BalanceComputationImpl implements BalanceComputation {
                 LOGGER.info("Iteration={}, Scaling for area {}: offset={}, done={}", context.getIterationNum(), area.getName(), offset, done);
             });
 
-            // Step 2: compute Load Flow (skip if skipLoadFlow is true)
-            if (!parameters.isSkipLoadFlow()) {
+            // Step 2: compute Load Flow (skip if isWithLoadFlow is false)
+            if (parameters.isWithLoadFlow()) {
                 LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), iterationReportNode);
                 if (!isLoadFlowResultOk(context, loadFlowResult)) {
                     LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
@@ -133,12 +133,12 @@ public class BalanceComputationImpl implements BalanceComputation {
             // Step 4: Checks balance adjustment results
             boolean isConverged = computeTotalMismatch(context) < parameters.getThresholdNetPosition();
 
-            // When skipLoadFlow is true, always return after one iteration
-            if (parameters.isSkipLoadFlow() || isConverged) {
+            // When isWithLoadFlow is false, always return after one iteration
+            if (!parameters.isWithLoadFlow() || isConverged) {
                 result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, context.nextIteration(), context.getBalanceOffsets());
                 network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
             } else {
-                // Reset current variant with initial state for next iteration
+                // Reset current variant with initial state
                 network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId, true);
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.nextIteration(), context.getBalanceOffsets());
             }
