@@ -11,6 +11,7 @@ import com.powsybl.balances_adjustment.util.CountryAreaFactory;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.entsoe.commons.PowsyblEntsoeReportResourceBundle;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.*;
@@ -48,6 +49,7 @@ class BalanceComputationSimpleDcTest {
     private Branch branchFrBe2;
     private String initialState = "InitialState";
     private String initialVariantNew = "InitialVariantNew";
+    private static final String TEST_BASE_NAME = "i18n.reports";
 
     @BeforeEach
     void setUp() {
@@ -284,28 +286,46 @@ class BalanceComputationSimpleDcTest {
 
     @Test
     void testBalancedNetworkAfter1ScalingReport() throws IOException {
-        List<BalanceComputationArea> areas = new ArrayList<>();
-        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
-        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1300.));
+        Locale previousLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.US);
+            List<BalanceComputationArea> areas = new ArrayList<>();
+            areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
+            areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1300.));
 
-        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+            BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testBalancedNetworkReport", "Test balanced network report").build();
-        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
-        BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reportNode);
+            ReportNode reportNode = ReportNode.newRootReportNode()
+                    .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME)
+                    .withMessageTemplate("testBalancedNetworkReport")
+                    .build();
+            balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
+            BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reportNode);
+        } finally {
+            Locale.setDefault(previousLocale);
+        }
     }
 
     @Test
     void testUnBalancedNetworkReport() throws IOException {
-        List<BalanceComputationArea> areas = new ArrayList<>();
-        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
-        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1400.));
+        Locale previousLocale = Locale.getDefault();
+        try {
+            Locale.setDefault(Locale.US);
+            List<BalanceComputationArea> areas = new ArrayList<>();
+            areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
+            areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1400.));
 
-        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+            BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testUnbalancedNetworkReport", "Test unbalanced network report").build();
-        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
-        BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
+            ReportNode reportNode = ReportNode.newRootReportNode()
+                    .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME)
+                    .withMessageTemplate("testUnbalancedNetworkReport")
+                    .build();
+            balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
+            BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
+        } finally {
+            Locale.setDefault(previousLocale);
+        }
     }
 
     private abstract class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {

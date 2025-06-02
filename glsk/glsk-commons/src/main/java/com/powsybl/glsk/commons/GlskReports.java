@@ -25,7 +25,7 @@ public final class GlskReports {
 
     public static void reportNodeNotFound(String nodeId, String type, String tso, ReportNode reportNode) {
         reportNode.newReportNode()
-                .withMessageTemplate("entsoe.glsk.nodeNotFound", "GLSK node is not found in CGM")
+                .withMessageTemplate("entsoe.glsk.nodeNotFound")
                 .withTypedValue(NODE_ID_KEY, nodeId, "")
                 .withTypedValue(TYPE_KEY, type, "")
                 .withTypedValue(TSO_KEY, tso, "")
@@ -35,7 +35,7 @@ public final class GlskReports {
 
     public static void reportNoRunningGeneratorOrLoad(String nodeId, String type, String tso, ReportNode reportNode) {
         reportNode.newReportNode()
-                .withMessageTemplate("entsoe.glsk.noRunningGeneratorOrLoad", "GLSK node is present but has no running Generator or Load")
+                .withMessageTemplate("entsoe.glsk.noRunningGeneratorOrLoad")
                 .withTypedValue(NODE_ID_KEY, nodeId, "")
                 .withTypedValue(TYPE_KEY, type, "")
                 .withTypedValue(TSO_KEY, tso, "")
@@ -45,7 +45,7 @@ public final class GlskReports {
 
     public static void reportConnectedToAnIsland(String nodeId, String type, String tso, ReportNode reportNode) {
         reportNode.newReportNode()
-                .withMessageTemplate("entsoe.glsk.connectedToAnIsland", "GLSK node is connected to an island")
+                .withMessageTemplate("entsoe.glsk.connectedToAnIsland")
                 .withTypedValue(NODE_ID_KEY, nodeId, "")
                 .withTypedValue(TYPE_KEY, type, "")
                 .withTypedValue(TSO_KEY, tso, "")
