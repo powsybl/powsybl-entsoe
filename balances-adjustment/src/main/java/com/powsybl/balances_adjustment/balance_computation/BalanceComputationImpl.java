@@ -135,20 +135,8 @@ public class BalanceComputationImpl implements BalanceComputation {
 
             // When skipLoadFlow is true, always return after one iteration
             if (parameters.isSkipLoadFlow() || isConverged) {
-                if (isConverged) {
-                    result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, context.nextIteration(), context.getBalanceOffsets());
-                    network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
-                } else {
-                    // When skipLoadFlow is true and not converged, still apply the scaling but mark as FAILED
-                    if (parameters.isSkipLoadFlow()) {
-                        // Apply the scaling to the working state
-                        network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
-                    } else {
-                        // Reset current variant with initial state
-                        network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId, true);
-                    }
-                    result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.nextIteration(), context.getBalanceOffsets());
-                }
+                result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, context.nextIteration(), context.getBalanceOffsets());
+                network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
             } else {
                 // Reset current variant with initial state for next iteration
                 network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId, true);
