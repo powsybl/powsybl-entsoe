@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class XnecProviderUnionTests {
     @Test
-    void testUnionSinglepProviderOnBasecase() {
+    void testUnionSingleProviderOnBasecase() {
         String networkFileName = "NETWORK_PARALLEL_LINES_PTDF.uct";
         Network network = TestUtils.importNetwork(networkFileName);
         String lineFrBe = "FLOAD 11 BLOAD 11 1";

@@ -4,8 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.flow_decomposition;
+package com.powsybl.flow_decomposition.partitioners;
 
+import com.powsybl.flow_decomposition.FlowDecompositionParameters;
+import com.powsybl.flow_decomposition.ZonalSensitivityAnalyser;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.powsybl.flow_decomposition.SensitivityAnalyser.respectFlowSignConvention;
+import static com.powsybl.flow_decomposition.partitioners.SensitivityAnalyser.respectFlowSignConvention;
 import static com.powsybl.flow_decomposition.TestUtils.importNetwork;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

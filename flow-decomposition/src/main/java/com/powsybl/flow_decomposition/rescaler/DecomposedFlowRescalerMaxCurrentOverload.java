@@ -8,12 +8,10 @@
 package com.powsybl.flow_decomposition.rescaler;
 
 import com.powsybl.flow_decomposition.DecomposedFlow;
+import com.powsybl.flow_decomposition.FlowPartition;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Network;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.powsybl.flow_decomposition.FlowDecompositionParameters.DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE;
 
@@ -38,11 +36,17 @@ public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposed
     }
 
     @Override
-    protected RescaledFlows computeRescaledFlows(DecomposedFlow decomposedFlow, Network network) {
+    protected FlowPartition computeRescaledFlowsPartition(DecomposedFlow decomposedFlow, Network network) {
+        FlowPartition initialFlowPartition = decomposedFlow.getFlowPartition();
         double acTerminal1Current = decomposedFlow.getAcTerminal1Current();
         double acTerminal2Current = decomposedFlow.getAcTerminal2Current();
 
         Branch<?> branch = network.getBranch(decomposedFlow.getBranchId());
+        double pActivePowerOnly = getPActivePowerOnly(branch, acTerminal1Current, acTerminal2Current);
+        return DecomposedFlowRescalerProportional.getFlowPartition(decomposedFlow, initialFlowPartition, pActivePowerOnly);
+    }
+
+    private static double getPActivePowerOnly(Branch<?> branch, double acTerminal1Current, double acTerminal2Current) {
         double nominalTerminal1Voltage = branch.getTerminal1().getVoltageLevel().getNominalV();
         double nominalTerminal2Voltage = branch.getTerminal2().getVoltageLevel().getNominalV();
         CurrentLimits currentLimitsTerminal1 = branch.getNullableCurrentLimits1();
@@ -53,7 +57,7 @@ public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposed
         double pTerminal1ActivePowerOnly = acTerminal1Current * (nominalTerminal1Voltage / 1000) * Math.sqrt(3);
         double pTerminal2ActivePowerOnly = acTerminal2Current * (nominalTerminal2Voltage / 1000) * Math.sqrt(3);
 
-        // if branch has limits, compare current overloads
+        // if the branch has limits, compare current overloads
         // if it doesn't, compare currents
         double pActivePowerOnly;
         if (currentLimitsTerminal1 == null || currentLimitsTerminal2 == null) {
@@ -63,15 +67,6 @@ public class DecomposedFlowRescalerMaxCurrentOverload extends AbstractDecomposed
             double currentOverloadTerminal2 = acTerminal2Current / currentLimitsTerminal2.getPermanentLimit();
             pActivePowerOnly = currentOverloadTerminal1 >= currentOverloadTerminal2 ? pTerminal1ActivePowerOnly : pTerminal2ActivePowerOnly;
         }
-        double rescaleFactor = Math.abs(pActivePowerOnly / decomposedFlow.getDcReferenceFlow());
-
-        double rescaledAllocatedFlow = rescaleFactor * decomposedFlow.getAllocatedFlow();
-        double rescaledXNodeFlow = rescaleFactor * decomposedFlow.getXNodeFlow();
-        double rescaledPstFlow = rescaleFactor * decomposedFlow.getPstFlow();
-        double rescaleInternalFlow = rescaleFactor * decomposedFlow.getInternalFlow();
-        Map<String, Double> rescaledLoopFlows = decomposedFlow.getLoopFlows().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> rescaleFactor * entry.getValue()));
-
-        return new RescaledFlows(rescaledAllocatedFlow, rescaledXNodeFlow, rescaledPstFlow, rescaleInternalFlow, rescaledLoopFlows);
+        return pActivePowerOnly;
     }
 }

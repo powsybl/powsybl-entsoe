@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.iidm.network.Country;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -23,21 +24,17 @@ public class DecomposedFlow {
     private final double acTerminal1ReferenceFlow;
     private final double acTerminal2ReferenceFlow;
     private final double dcReferenceFlow;
-    private final double allocatedFlow;
-    private final double xNodeFlow;
-    private final double pstFlow;
-    private final double internalFlow;
     private final double acTerminal1Current;
     private final double acTerminal2Current;
-    private final Map<String, Double> loopFlowsMap = new TreeMap<>();
-    static final double NO_FLOW = 0.;
-    static final String AC_REFERENCE_FLOW_1_COLUMN_NAME = "Reference AC Flow 1";
-    static final String AC_REFERENCE_FLOW_2_COLUMN_NAME = "Reference AC Flow 2";
-    static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
-    static final String ALLOCATED_COLUMN_NAME = "Allocated Flow";
-    static final String XNODE_COLUMN_NAME = "Xnode Flow";
-    static final String PST_COLUMN_NAME = "PST Flow";
-    static final String INTERNAL_COLUMN_NAME = "Internal Flow";
+    private final FlowPartition flowPartition;
+    public static final double NO_FLOW = 0.;
+    public static final String AC_REFERENCE_FLOW_1_COLUMN_NAME = "Reference AC Flow 1";
+    public static final String AC_REFERENCE_FLOW_2_COLUMN_NAME = "Reference AC Flow 2";
+    public static final String DC_REFERENCE_FLOW_COLUMN_NAME = "Reference DC Flow";
+    public static final String ALLOCATED_COLUMN_NAME = "Allocated Flow";
+    public static final String XNODE_COLUMN_NAME = "Xnode Flow";
+    public static final String PST_COLUMN_NAME = "PST Flow";
+    public static final String INTERNAL_COLUMN_NAME = "Internal Flow";
 
     protected DecomposedFlow(DecomposedFlowBuilder builder) {
         this.branchId = Objects.requireNonNull(builder.branchId);
@@ -47,13 +44,9 @@ public class DecomposedFlow {
         this.acTerminal1ReferenceFlow = builder.acTerminal1ReferenceFlow;
         this.acTerminal2ReferenceFlow = builder.acTerminal2ReferenceFlow;
         this.dcReferenceFlow = builder.dcReferenceFlow;
-        this.allocatedFlow = builder.allocatedFlow;
-        this.xNodeFlow = builder.xNodeFlow;
-        this.pstFlow = builder.pstFlow;
-        this.internalFlow = builder.internalFlow;
-        this.loopFlowsMap.putAll(Objects.requireNonNull(builder.loopFlowsMap));
         this.acTerminal1Current = builder.acCurrentTerminal1;
         this.acTerminal2Current = builder.acCurrentTerminal2;
+        this.flowPartition = builder.flowPartition;
     }
 
     public String getBranchId() {
@@ -89,35 +82,31 @@ public class DecomposedFlow {
     }
 
     public double getAllocatedFlow() {
-        return allocatedFlow;
+        return flowPartition.allocatedFlow();
     }
 
     public double getXNodeFlow() {
-        return xNodeFlow;
+        return flowPartition.xNodeFlow();
     }
 
     public double getPstFlow() {
-        return pstFlow;
+        return flowPartition.pstFlow();
     }
 
     public double getInternalFlow() {
-        return internalFlow;
+        return flowPartition.internalFlow();
     }
 
     public double getLoopFlow(Country country) {
-        return getLoopFlow(NetworkUtil.getLoopFlowIdFromCountry(country));
+        return flowPartition.loopFlowPerCountry().getOrDefault(country, NO_FLOW);
     }
 
-    public double getLoopFlow(String country) {
-        return loopFlowsMap.getOrDefault(country, NO_FLOW);
-    }
-
-    public Map<String, Double> getLoopFlows() {
-        return Collections.unmodifiableMap(loopFlowsMap);
+    public Map<Country, Double> getLoopFlows() {
+        return Collections.unmodifiableMap(flowPartition.loopFlowPerCountry());
     }
 
     private double getTotalLoopFlow() {
-        return loopFlowsMap.values().stream().reduce(0., Double::sum);
+        return getLoopFlows().values().stream().reduce(0., Double::sum);
     }
 
     public double getTotalFlow() {
@@ -136,6 +125,10 @@ public class DecomposedFlow {
         return acTerminal2Current;
     }
 
+    public FlowPartition getFlowPartition() {
+        return flowPartition;
+    }
+
     @Override
     public String toString() {
         return String.format("branchId: %s, contingencyId: %s, decomposition: %s", branchId, contingencyId, getAllKeyMap());
@@ -150,7 +143,7 @@ public class DecomposedFlow {
         localDecomposedFlowMap.put(XNODE_COLUMN_NAME, getXNodeFlow());
         localDecomposedFlowMap.put(PST_COLUMN_NAME, getPstFlow());
         localDecomposedFlowMap.put(INTERNAL_COLUMN_NAME, getInternalFlow());
-        localDecomposedFlowMap.putAll(loopFlowsMap);
+        localDecomposedFlowMap.putAll(getLoopFlows().entrySet().stream().collect(Collectors.toMap(entry -> NetworkUtil.getLoopFlowIdFromCountry(entry.getKey()), Map.Entry::getValue)));
         return localDecomposedFlowMap;
     }
 

@@ -48,7 +48,7 @@ class LossesCompensator {
 
     private void addZeroMWLossesLoadsOnBuses(Network network) {
         // We want to add a single null load per bus
-        // Mapping by bus Id is important as bus are generated on-fly
+        // Mapping by bus Id is important as buses are generated on-fly
         // This matters for node breaker topology
         network.getBranchStream()
             .flatMap(branch -> Stream.of(branch.getTerminal1(), branch.getTerminal2()))

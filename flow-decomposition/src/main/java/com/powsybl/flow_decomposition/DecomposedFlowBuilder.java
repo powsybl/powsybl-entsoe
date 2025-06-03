@@ -8,8 +8,6 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.iidm.network.Country;
 
-import java.util.Map;
-
 /**
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -23,13 +21,9 @@ public class DecomposedFlowBuilder {
     protected double acTerminal1ReferenceFlow;
     protected double acTerminal2ReferenceFlow;
     protected double dcReferenceFlow;
-    protected double allocatedFlow;
-    protected double xNodeFlow;
-    protected double pstFlow;
-    protected double internalFlow;
-    protected Map<String, Double> loopFlowsMap;
     protected double acCurrentTerminal1;
     protected double acCurrentTerminal2;
+    protected FlowPartition flowPartition;
 
     public DecomposedFlowBuilder() {
         // empty constructor
@@ -70,31 +64,6 @@ public class DecomposedFlowBuilder {
         return this;
     }
 
-    public DecomposedFlowBuilder withAllocatedFlow(double allocatedFlow) {
-        this.allocatedFlow = allocatedFlow;
-        return this;
-    }
-
-    public DecomposedFlowBuilder withXNodeFlow(double xNodeFlow) {
-        this.xNodeFlow = xNodeFlow;
-        return this;
-    }
-
-    public DecomposedFlowBuilder withPstFlow(double pstFlow) {
-        this.pstFlow = pstFlow;
-        return this;
-    }
-
-    public DecomposedFlowBuilder withInternalFlow(double internalFlow) {
-        this.internalFlow = internalFlow;
-        return this;
-    }
-
-    public DecomposedFlowBuilder withLoopFlowsMap(Map<String, Double> loopFlowsMap) {
-        this.loopFlowsMap = loopFlowsMap;
-        return this;
-    }
-
     public DecomposedFlowBuilder withAcCurrentTerminal1(double acCurrentTerminal1) {
         this.acCurrentTerminal1 = acCurrentTerminal1;
         return this;
@@ -102,6 +71,11 @@ public class DecomposedFlowBuilder {
 
     public DecomposedFlowBuilder withAcCurrentTerminal2(double acCurrentTerminal2) {
         this.acCurrentTerminal2 = acCurrentTerminal2;
+        return this;
+    }
+
+    public DecomposedFlowBuilder withFlowPartition(FlowPartition flowPartition) {
+        this.flowPartition = flowPartition;
         return this;
     }
 
