@@ -9,9 +9,8 @@ package com.powsybl.flow_decomposition.rescaler;
 
 import com.powsybl.flow_decomposition.DecomposedFlow;
 import com.powsybl.flow_decomposition.DecomposedFlowBuilder;
+import com.powsybl.flow_decomposition.FlowPartition;
 import com.powsybl.iidm.network.Network;
-
-import java.util.Map;
 
 /**
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
@@ -24,7 +23,7 @@ abstract class AbstractDecomposedFlowRescaler implements DecomposedFlowRescaler 
 
     protected abstract boolean shouldRescaleFlows(DecomposedFlow decomposedFlow);
 
-    protected abstract RescaledFlows computeRescaledFlows(DecomposedFlow decomposedFlow, Network network);
+    protected abstract FlowPartition computeRescaledFlowsPartition(DecomposedFlow decomposedFlow, Network network);
 
     @Override
     public DecomposedFlow rescale(DecomposedFlow decomposedFlow, Network network) {
@@ -32,7 +31,7 @@ abstract class AbstractDecomposedFlowRescaler implements DecomposedFlowRescaler 
             return decomposedFlow;
         }
 
-        RescaledFlows rescaledFlows = computeRescaledFlows(decomposedFlow, network);
+        FlowPartition rescaledFlowPartition = computeRescaledFlowsPartition(decomposedFlow, network);
 
         return new DecomposedFlowBuilder()
                 .withBranchId(decomposedFlow.getBranchId())
@@ -44,15 +43,9 @@ abstract class AbstractDecomposedFlowRescaler implements DecomposedFlowRescaler 
                 .withDcReferenceFlow(decomposedFlow.getDcReferenceFlow())
                 .withAcCurrentTerminal1(decomposedFlow.getAcTerminal1Current())
                 .withAcCurrentTerminal2(decomposedFlow.getAcTerminal2Current())
-                .withAllocatedFlow(rescaledFlows.rescaledAllocatedFlow())
-                .withXNodeFlow(rescaledFlows.rescaledXNodeFlow())
-                .withPstFlow(rescaledFlows.rescaledPstFlow())
-                .withInternalFlow(rescaledFlows.rescaleInternalFlow())
-                .withLoopFlowsMap(rescaledFlows.rescaledLoopFlows())
+                .withFlowPartition(rescaledFlowPartition)
                 .build();
     }
-
-    protected record RescaledFlows(double rescaledAllocatedFlow, double rescaledXNodeFlow, double rescaledPstFlow, double rescaleInternalFlow, Map<String, Double> rescaledLoopFlows) { }
 
     static boolean hasFiniteAcFlowsOnEachTerminal(DecomposedFlow decomposedFlow) {
         return Double.isFinite(decomposedFlow.getAcTerminal1ReferenceFlow()) && Double.isFinite(decomposedFlow.getAcTerminal2ReferenceFlow());

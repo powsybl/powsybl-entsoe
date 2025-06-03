@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
@@ -199,6 +199,54 @@ class BalanceComputationSimpleDcTest {
 
         assertEquals(initialState, simpleNetwork.getVariantManager().getWorkingVariantId());
 
+    }
+
+    @Test
+    void testSkipLoadFlowSingleIteration() {
+        // Setup parameters to skip load flow
+        parameters.setWithLoadFlow(false);
+
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1300.));
+
+        // Create a mock LoadFlow.Runner to verify it's not called
+        LoadFlow.Runner mockLoadFlowRunner = Mockito.mock(LoadFlow.Runner.class);
+
+        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, mockLoadFlowRunner, computationManager);
+
+        BalanceComputationResult result = balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters).join();
+
+        // Verify that LoadFlow was never called
+        verify(mockLoadFlowRunner, never()).run(any(), anyString(), any(), any(), any());
+
+        // The result should be SUCCESS since we didn't run load flow to verify convergence
+        assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
+        // Should have done exactly 1 iteration
+        assertEquals(1, result.getIterationCount());
+        // Should have scaling values for both areas
+        assertEquals(2, result.getBalancedScalingMap().size());
+    }
+
+    @Test
+    void testSkipLoadFlowWithReportNode() throws IOException {
+        // Setup parameters to skip load flow
+        parameters.setWithLoadFlow(false);
+
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1300.));
+
+        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testSkipLoadFlow", "Test skip load flow").build();
+        BalanceComputationResult result = balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
+
+        // Check that the report contains information about skipping load flow
+        BalanceComputationAssert.assertReportEquals("/skippedLoadflowUnbalancedNetworkReport.txt", reportNode);
+
+        assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
+        assertEquals(1, result.getIterationCount());
     }
 
     @Test

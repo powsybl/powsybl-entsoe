@@ -83,7 +83,7 @@ public final class XnecProviderByIds implements XnecProvider {
                         if (!contingency.getElements().contains(new BranchContingency(branchId))) {
                             contingencyToXnecMap.get(contingency).add(branchId);
                         } else {
-                            LOGGER.warn(String.format("Branch '%s' is used inside contingency '%s'. This pair of branch/contingency is ignored", branchId, contingencyId));
+                            LOGGER.warn("Branch '{}' is used inside contingency '{}'. This pair of branch/contingency is ignored", branchId, contingencyId);
                         }
                     });
                 } else {

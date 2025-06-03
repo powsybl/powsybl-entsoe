@@ -120,7 +120,7 @@ class FlowDecompositionWithContingencyTests {
     }
 
     @Test
-    void testSingleN1PostDanglinLineContingencyState() {
+    void testSingleN1PostDanglingLineContingencyState() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         String branchId = "DB000011 DF000011 1";
         String contingencyId = "XBF00011 FB000011 1";

@@ -17,8 +17,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * @deprecated Use module powsybl-balances-adjustment instead of this class
+ *
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
+@Deprecated(since = "2.14", forRemoval = true)
 class CgmesBoundariesArea implements NetworkArea {
 
     private final Set<DanglingLine> danglingLinesCache;

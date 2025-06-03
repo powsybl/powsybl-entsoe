@@ -7,12 +7,14 @@
 package com.powsybl.entsoe.cgmes.balances_adjustment.data_exchange;
 
 /**
+ * @deprecated This module has not either been maintained nor used. We will remove it soon. Please report on Slack if you are using it.
  * Pan European Verification Function (PEVF) &
  * Common Grid Model Alignment (CGMA)
  * XML parser tokens.
  *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
+@Deprecated(since = "2.14", forRemoval = true)
 public final class DataExchangesConstants {
 
     // Metadata

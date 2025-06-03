@@ -8,6 +8,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.flow_decomposition.partitioners.ReferenceNodalInjectionComputer;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.Country;
@@ -19,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static com.powsybl.flow_decomposition.SensitivityAnalyser.respectFlowSignConvention;
+import static com.powsybl.flow_decomposition.partitioners.SensitivityAnalyser.respectFlowSignConvention;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;

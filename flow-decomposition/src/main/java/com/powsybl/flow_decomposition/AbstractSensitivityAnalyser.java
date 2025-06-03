@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
-import org.jgrapht.alg.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ import java.util.List;
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-abstract class AbstractSensitivityAnalyser {
+public abstract class AbstractSensitivityAnalyser {
     public static final SensitivityFunctionType SENSITIVITY_FUNCTION_TYPE = SensitivityFunctionType.BRANCH_ACTIVE_POWER_1;
     public static final List<Contingency> CONTINGENCIES = Collections.emptyList();
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSensitivityAnalyser.class);
@@ -33,7 +32,7 @@ abstract class AbstractSensitivityAnalyser {
     protected final SensitivityAnalysisParameters sensitivityAnalysisParameters;
     protected final SensitivityAnalysis.Runner runner;
 
-    AbstractSensitivityAnalyser(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner runner) {
+    protected AbstractSensitivityAnalyser(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner runner) {
         this.sensitivityAnalysisParameters = initSensitivityAnalysisParameters(loadFlowParameters);
         this.runner = runner;
     }
@@ -51,21 +50,21 @@ abstract class AbstractSensitivityAnalyser {
         return dcEnforcedParameters;
     }
 
-    protected List<Pair<String, String>> getFunctionVariableFactors(List<String> variableList,
+    protected List<FunctionVariableFactor> getFunctionVariableFactors(List<String> variableList,
                                                                     List<Branch> functionList) {
-        List<Pair<String, String>> factors = new ArrayList<>();
+        List<FunctionVariableFactor> factors = new ArrayList<>();
         variableList.forEach(
             variable -> functionList.forEach(
-                function -> factors.add(Pair.of(function.getId(), variable))));
+                function -> factors.add(new FunctionVariableFactor(function.getId(), variable))));
         return factors;
     }
 
-    protected static SensitivityFactorReader getSensitivityFactorReader(List<Pair<String, String>> factors, SensitivityVariableType sensitivityVariableType, boolean sensitivityVariableSet) {
+    protected static SensitivityFactorReader getSensitivityFactorReader(List<FunctionVariableFactor> factors, SensitivityVariableType sensitivityVariableType, boolean sensitivityVariableSet) {
         return handler -> factors.forEach(
             pair -> handler.onFactor(SENSITIVITY_FUNCTION_TYPE,
-                pair.getFirst(),
+                pair.functionId(),
                 sensitivityVariableType,
-                pair.getSecond(),
+                pair.variableId(),
                 sensitivityVariableSet,
                 ContingencyContext.none()));
     }

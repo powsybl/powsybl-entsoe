@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  * @author Sebastien Murgey{@literal <sebastien.murgey at rte-france.com>}
  */
 public final class NetworkUtil {
-    static final String LOOP_FLOWS_COLUMN_PREFIX = "Loop Flow from";
+    public static final String LOOP_FLOWS_COLUMN_PREFIX = "Loop Flow from";
 
     private NetworkUtil() {
         // Utility class
