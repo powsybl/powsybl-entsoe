@@ -18,7 +18,7 @@ import java.util.Map;
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
  * @author Caio Luke {@literal <caio.luke at artelys.com>}
  */
-class FlowDecompositionObserverList {
+public class FlowDecompositionObserverList {
 
     private final List<FlowDecompositionObserver> observers;
 
@@ -80,16 +80,22 @@ class FlowDecompositionObserverList {
         }
     }
 
-    public void computedNodalInjectionsMatrix(SparseMatrixWithIndexesTriplet matrix) {
-        sendMatrix(FlowDecompositionObserver::computedNodalInjectionsMatrix, matrix);
+    public void computedNodalInjectionsMatrix(Map<String, Map<String, Double>> matrix) {
+        for (FlowDecompositionObserver o : observers) {
+            o.computedNodalInjectionsMatrix(matrix);
+        }
     }
 
-    public void computedPtdfMatrix(SparseMatrixWithIndexesTriplet matrix) {
-        sendMatrix(FlowDecompositionObserver::computedPtdfMatrix, matrix);
+    public void computedPtdfMatrix(Map<String, Map<String, Double>> matrix) {
+        for (FlowDecompositionObserver o : observers) {
+            o.computedPtdfMatrix(matrix);
+        }
     }
 
-    public void computedPsdfMatrix(SparseMatrixWithIndexesTriplet matrix) {
-        sendMatrix(FlowDecompositionObserver::computedPsdfMatrix, matrix);
+    public void computedPsdfMatrix(Map<String, Map<String, Double>> matrix) {
+        for (FlowDecompositionObserver o : observers) {
+            o.computedPsdfMatrix(matrix);
+        }
     }
 
     public void computedAcLoadFlowResults(Network network, LoadFlowRunningService.Result loadFlowServiceAcResult) {
@@ -108,21 +114,5 @@ class FlowDecompositionObserverList {
         for (FlowDecompositionObserver o : observers) {
             o.computedPreRescalingDecomposedFlows(decomposedFlow);
         }
-    }
-
-    private void sendMatrix(MatrixNotification notification, SparseMatrixWithIndexesTriplet matrix) {
-        if (observers.isEmpty()) {
-            return;
-        }
-
-        Map<String, Map<String, Double>> mapMatrix = matrix.toMap();
-        for (FlowDecompositionObserver o : observers) {
-            notification.sendMatrix(o, mapMatrix);
-        }
-    }
-
-    @FunctionalInterface
-    private interface MatrixNotification {
-        void sendMatrix(FlowDecompositionObserver o, Map<String, Map<String, Double>> matrix);
     }
 }
