@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.flow_decomposition.partitioners.ReferenceNodalInjectionComputer;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoSides;
@@ -19,11 +20,10 @@ import com.powsybl.loadflow.LoadFlowResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.powsybl.flow_decomposition.partitioners.SensitivityAnalyser.respectFlowSignConvention;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Guillaume Verger {@literal <guillaume.verger at artelys.com>}
@@ -172,31 +172,31 @@ class FlowDecompositionObserverTest {
 
         private void computedAcFlowsTerminal1(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_FLOWS);
-            Map<String, Double> flows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), fallbackHasBeenActivated, TwoSides.ONE);
+            Map<String, Double> flows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()), fallbackHasBeenActivated, TwoSides.ONE);
             this.acFlowsTerminal1.put(currentContingency, flows);
         }
 
         private void computedAcFlowsTerminal2(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_FLOWS);
-            Map<String, Double> flows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().toList(), fallbackHasBeenActivated, TwoSides.TWO);
+            Map<String, Double> flows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()), fallbackHasBeenActivated, TwoSides.TWO);
             this.acFlowsTerminal2.put(currentContingency, flows);
         }
 
         private void computedDcFlows(Network network) {
             addEvent(Event.COMPUTED_DC_FLOWS);
-            Map<String, Double> flows = FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().toList(), TwoSides.ONE);
+            Map<String, Double> flows = FlowComputerUtils.getTerminalReferenceFlow(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()), TwoSides.ONE);
             this.dcFlows.put(currentContingency, flows);
         }
 
         private void computedAcCurrentsTerminal1(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_CURRENTS);
-            Map<String, Double> currents = FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), fallbackHasBeenActivated, TwoSides.ONE);
+            Map<String, Double> currents = FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()), fallbackHasBeenActivated, TwoSides.ONE);
             this.acCurrentsTerminal1.put(currentContingency, currents);
         }
 
         private void computedAcCurrentsTerminal2(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_CURRENTS);
-            Map<String, Double> currents = FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().toList(), fallbackHasBeenActivated, TwoSides.TWO);
+            Map<String, Double> currents = FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()), fallbackHasBeenActivated, TwoSides.TWO);
             this.acCurrentsTerminal2.put(currentContingency, currents);
         }
 
@@ -226,15 +226,15 @@ class FlowDecompositionObserverTest {
 
         Network network = TestUtils.importNetwork(networkFileName);
         Map<String, Set<String>> contingencies = Map.ofEntries(
-            Map.entry(contingencyId1, Set.of(contingencyId1)),
-            Map.entry(contingencyId2, Set.of(contingencyElementId1, contingencyElementId2)));
+                Map.entry(contingencyId1, Set.of(contingencyId1)),
+                Map.entry(contingencyId2, Set.of(contingencyElementId1, contingencyElementId2)));
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                                                     .addContingencies(contingencies)
-                                                     .addNetworkElementsAfterContingencies(
-                                                         Set.of(branchId),
-                                                         Set.of(contingencyId1, contingencyId2))
-                                                     .addNetworkElementsOnBasecase(Set.of(branchId))
-                                                     .build();
+                .addContingencies(contingencies)
+                .addNetworkElementsAfterContingencies(
+                        Set.of(branchId),
+                        Set.of(contingencyId1, contingencyId2))
+                .addNetworkElementsOnBasecase(Set.of(branchId))
+                .build();
         var flowDecompositionParameters = FlowDecompositionParameters.load();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         var report = new ObserverReport();
@@ -247,18 +247,18 @@ class FlowDecompositionObserverTest {
         validateObserverReportNetPositions(report, Set.of(Country.BE, Country.DE, Country.FR));
 
         Set<String> xnecNodes = Set.of(
-            "BB000021_load",
-            "BF000011_generator",
-            "BF000021_load",
-            "DB000011_generator",
-            "DD000011_load",
-            "DF000011_generator",
-            "FB000021_generator",
-            "FB000022_load",
-            "FD000011_load",
-            "FF000011_generator",
-            "XES00011 FD000011 1",
-            "XNL00011 BB000011 1");
+                "BB000021_load",
+                "BF000011_generator",
+                "BF000021_load",
+                "DB000011_generator",
+                "DD000011_load",
+                "DF000011_generator",
+                "FB000021_generator",
+                "FB000022_load",
+                "FD000011_load",
+                "FF000011_generator",
+                "XES00011 FD000011 1",
+                "XNL00011 BB000011 1");
         validateObserverReportNodalInjections(
                 report,
                 List.of(BASE_CASE, contingencyId1, contingencyId2),
@@ -270,32 +270,32 @@ class FlowDecompositionObserverTest {
                 "BF000011 BF000012 1"));
 
         var allBranches = Set.of(
-            "BB000011 BB000021 1",
-            "BB000011 BD000011 1",
-            "BB000011 BF000012 1",
-            "BB000021 BD000021 1",
-            "BB000021 BF000021 1",
-            "BD000011 BD000021 1",
-            "BD000011 BF000011 1",
-            "BD000021 BF000021 1",
-            "BF000011 BF000012 1",
-            "BF000011 BF000021 1",
-            "DB000011 DD000011 1",
-            "DB000011 DF000011 1",
-            "DD000011 DF000011 1",
-            "FB000011 FB000022 1",
-            "FB000011 FD000011 1",
-            "FB000011 FF000011 1",
-            "FB000021 FD000021 1",
-            "FD000011 FD000021 1",
-            "FD000011 FF000011 1",
-            "FD000011 FF000011 2",
-            "XBD00011 BD000011 1 + XBD00011 DB000011 1",
-            "XBD00012 BD000011 1 + XBD00012 DB000011 1",
-            "XBF00011 BF000011 1 + XBF00011 FB000011 1",
-            "XBF00021 BF000021 1 + XBF00021 FB000021 1",
-            "XBF00022 BF000021 1 + XBF00022 FB000022 1",
-            "XDF00011 DF000011 1 + XDF00011 FD000011 1");
+                "BB000011 BB000021 1",
+                "BB000011 BD000011 1",
+                "BB000011 BF000012 1",
+                "BB000021 BD000021 1",
+                "BB000021 BF000021 1",
+                "BD000011 BD000021 1",
+                "BD000011 BF000011 1",
+                "BD000021 BF000021 1",
+                "BF000011 BF000012 1",
+                "BF000011 BF000021 1",
+                "DB000011 DD000011 1",
+                "DB000011 DF000011 1",
+                "DD000011 DF000011 1",
+                "FB000011 FB000022 1",
+                "FB000011 FD000011 1",
+                "FB000011 FF000011 1",
+                "FB000021 FD000021 1",
+                "FD000011 FD000021 1",
+                "FD000011 FF000011 1",
+                "FD000011 FF000011 2",
+                "XBD00011 BD000011 1 + XBD00011 DB000011 1",
+                "XBD00012 BD000011 1 + XBD00012 DB000011 1",
+                "XBF00011 BF000011 1 + XBF00011 FB000011 1",
+                "XBF00021 BF000021 1 + XBF00021 FB000021 1",
+                "XBF00022 BF000021 1 + XBF00022 FB000022 1",
+                "XDF00011 DF000011 1 + XDF00011 FD000011 1");
 
         validateObserverReportFlows(report, List.of(BASE_CASE, contingencyId1, contingencyId2), allBranches);
 
@@ -474,8 +474,8 @@ class FlowDecompositionObserverTest {
 
         Network network = TestUtils.importNetwork(networkFileName);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                                                     .addNetworkElementsOnBasecase(Set.of(branchId))
-                                                     .build();
+                .addNetworkElementsOnBasecase(Set.of(branchId))
+                .build();
         var flowDecompositionParameters = FlowDecompositionParameters.load();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         var reportInserted = new ObserverReport();

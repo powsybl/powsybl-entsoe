@@ -30,20 +30,20 @@ public class XnecProviderInterconnection implements XnecProvider {
     }
 
     @Override
-    public Set<Branch> getNetworkElements(Network network) {
+    public Set<Branch<?>> getNetworkElements(Network network) {
         return NetworkUtil.getAllValidBranches(network)
-            .stream()
-            .filter(XnecProviderInterconnection::isAnInterconnection)
-            .collect(Collectors.toSet());
+                .stream()
+                .filter(XnecProviderInterconnection::isAnInterconnection)
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
+    public Set<Branch<?>> getNetworkElements(String contingencyId, Network network) {
         return Collections.emptySet();
     }
 
     @Override
-    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
+    public Map<String, Set<Branch<?>>> getNetworkElementsPerContingency(Network network) {
         return Collections.emptyMap();
     }
 

@@ -23,23 +23,23 @@ public interface XnecProvider extends ContingenciesProvider {
      * @param network network used to find branches.
      * @return a set of branches to monitor
      */
-    Set<Branch> getNetworkElements(Network network);
+    Set<Branch<?>> getNetworkElements(Network network);
 
     /**
      * Return XNEC given contingency
      *
      * @param contingencyId mandatory contingency name.
      *                      The contingencies will be provided by the contingency provider
-     * @param network network used to find branches.
+     * @param network       network used to find branches.
      * @return a set of branches to monitor
      */
-    Set<Branch> getNetworkElements(String contingencyId, Network network);
+    Set<Branch<?>> getNetworkElements(String contingencyId, Network network);
 
     /**
      * Return all XNECs mapped by contingency (basecase not included)
      *
      * @param network network used to find branches
-     * @return
+     * @return a map of contingency name to set of branches to monitor.
      */
-    Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network);
+    Map<String, Set<Branch<?>>> getNetworkElementsPerContingency(Network network);
 }

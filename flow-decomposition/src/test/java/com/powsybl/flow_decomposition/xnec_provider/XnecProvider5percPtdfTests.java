@@ -37,7 +37,7 @@ class XnecProvider5percPtdfTests {
         String line8 = "FGEN  11 FLOAD 11 8";
         String line9 = "FGEN  11 FLOAD 11 9";
         XnecProvider xnecProvider = new XnecProvider5percPtdf();
-        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
+        Set<Branch<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertTrue(branchSet.contains(network.getBranch(lineFrBe)));
         assertTrue(branchSet.contains(network.getBranch(lineBeFr)));
         assertTrue(branchSet.contains(network.getBranch(line1)));

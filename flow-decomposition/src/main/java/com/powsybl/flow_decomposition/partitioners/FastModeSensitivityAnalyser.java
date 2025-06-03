@@ -26,14 +26,14 @@ import static com.powsybl.flow_decomposition.DecomposedFlow.PST_COLUMN_NAME;
  */
 public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
     private final Network network;
-    private final Set<Branch> xnecs;
+    private final Set<Branch<?>> xnecs;
     private final Set<String> flowParts;
     private final Map<String, Map<String, Double>> nodalInjectionPartitions;
 
     FastModeSensitivityAnalyser(LoadFlowParameters loadFlowParameters,
                                 SensitivityAnalysis.Runner runner,
                                 Network network,
-                                Set<Branch> xnecs,
+                                Set<Branch<?>> xnecs,
                                 SparseMatrixWithIndexesTriplet nodalInjectionsMatrix) {
         super(loadFlowParameters, runner);
         this.network = network;
@@ -140,7 +140,7 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
 
         @Override
         public void read(Handler handler) {
-            for (Branch xnec : xnecs) {
+            for (Branch<?> xnec : xnecs) {
                 for (String flowPart : flowParts) {
                     factors.add(new FunctionVariableFactor(xnec.getId(), getPositiveFlowPartName(flowPart)));
                     handler.onFactor(SENSITIVITY_FUNCTION_TYPE, xnec.getId(), SensitivityVariableType.INJECTION_ACTIVE_POWER, getPositiveFlowPartName(flowPart), true, ContingencyContext.none());

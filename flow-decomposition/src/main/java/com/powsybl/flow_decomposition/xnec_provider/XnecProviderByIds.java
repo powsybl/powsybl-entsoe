@@ -16,13 +16,7 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -103,26 +97,26 @@ public final class XnecProviderByIds implements XnecProvider {
         }
     }
 
-    private Set<Branch> mapBranchSetToList(Set<String> branchSet, Network network) {
+    private Set<Branch<?>> mapBranchSetToList(Set<String> branchSet, Network network) {
         return branchSet.stream()
-            .map(xnecId -> {
-                Branch branch = network.getBranch(xnecId);
-                if (branch == null) {
-                    LOGGER.warn("Branch {} without contingency was not found in network {}", xnecId, network.getId());
-                }
-                return branch;
-            })
-            .filter(Objects::nonNull)
-            .collect(Collectors.toSet());
+                .map(xnecId -> {
+                    Branch<?> branch = network.getBranch(xnecId);
+                    if (branch == null) {
+                        LOGGER.warn("Branch {} without contingency was not found in network {}", xnecId, network.getId());
+                    }
+                    return branch;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Branch> getNetworkElements(Network network) {
+    public Set<Branch<?>> getNetworkElements(Network network) {
         return mapBranchSetToList(bestCaseBranches, network);
     }
 
     @Override
-    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
+    public Set<Branch<?>> getNetworkElements(String contingencyId, Network network) {
         Objects.requireNonNull(contingencyId, "Contingency Id must be specified");
         if (!contingencyIdToContingencyMap.containsKey(contingencyId)) {
             return Collections.emptySet();
@@ -131,8 +125,8 @@ public final class XnecProviderByIds implements XnecProvider {
     }
 
     @Override
-    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
-        Map<String, Set<Branch>> contingencyIdToXnec = new HashMap<>();
+    public Map<String, Set<Branch<?>>> getNetworkElementsPerContingency(Network network) {
+        Map<String, Set<Branch<?>>> contingencyIdToXnec = new HashMap<>();
         contingencyIdToContingencyMap.forEach((contingencyId, contingency) -> contingencyIdToXnec.put(contingencyId, mapBranchSetToList(contingencyToXnecMap.get(contingency), network)));
         return contingencyIdToXnec;
     }
@@ -140,7 +134,7 @@ public final class XnecProviderByIds implements XnecProvider {
     @Override
     public List<Contingency> getContingencies(Network network) {
         return contingencyToXnecMap.keySet().stream()
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 }

@@ -12,12 +12,7 @@ import com.powsybl.flow_decomposition.FunctionVariableFactor;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.sensitivity.SensitivityAnalysis;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
-import com.powsybl.sensitivity.SensitivityFactorReader;
-import com.powsybl.sensitivity.SensitivityResultWriter;
-import com.powsybl.sensitivity.SensitivityVariableSet;
-import com.powsybl.sensitivity.SensitivityVariableType;
+import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +29,7 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static final boolean SENSITIVITY_VARIABLE_SET = false;
     public static final List<SensitivityVariableSet> EMPTY_SENSITIVITY_VARIABLE_SETS = Collections.emptyList();
     private final Network network;
-    private final List<Branch> functionList;
+    private final List<Branch<?>> functionList;
     private final Map<String, Integer> functionIndex;
     private final FlowDecompositionParameters parameters;
 
@@ -42,7 +37,7 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
                         FlowDecompositionParameters parameters,
                         SensitivityAnalysis.Runner runner,
                         Network network,
-                        List<Branch> functionList,
+                        List<Branch<?>> functionList,
                         Map<String, Integer> functionIndex) {
         super(loadFlowParameters, runner);
         this.parameters = parameters;
@@ -69,9 +64,9 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private SparseMatrixWithIndexesTriplet initSensitivityMatrixTriplet(Map<String, Integer> variableIndex) {
         LOGGER.debug("Filtering Sensitivity values with epsilon = {}", parameters.getSensitivityEpsilon());
         return new SparseMatrixWithIndexesTriplet(functionIndex,
-            variableIndex,
-            functionIndex.size() * variableIndex.size(),
-            parameters.getSensitivityEpsilon());
+                variableIndex,
+                functionIndex.size() * variableIndex.size(),
+                parameters.getSensitivityEpsilon());
     }
 
     private void partialFillSensitivityMatrix(SensitivityVariableType sensitivityVariableType,

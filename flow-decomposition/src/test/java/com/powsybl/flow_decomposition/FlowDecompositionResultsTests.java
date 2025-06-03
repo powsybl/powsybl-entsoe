@@ -19,9 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 import java.util.Set;
 
-import static com.powsybl.iidm.network.Country.BE;
-import static com.powsybl.iidm.network.Country.DE;
-import static com.powsybl.iidm.network.Country.FR;
+import static com.powsybl.iidm.network.Country.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -47,10 +45,10 @@ class FlowDecompositionResultsTests {
 
         network = TestUtils.importNetwork(networkFileName);
         xnecProvider = XnecProviderByIds.builder()
-            .addContingencies(Map.of(contingencyId2, Set.of(contingencyId2), contingencyId3, Set.of(contingencyElementId1, contingencyElementId2)))
-            .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId2, contingencyId3))
-            .addNetworkElementsOnBasecase(Set.of(branchId))
-            .build();
+                .addContingencies(Map.of(contingencyId2, Set.of(contingencyId2), contingencyId3, Set.of(contingencyElementId1, contingencyElementId2)))
+                .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId2, contingencyId3))
+                .addNetworkElementsOnBasecase(Set.of(branchId))
+                .build();
         flowDecompositionResults = new FlowDecompositionResults(network);
     }
 
@@ -67,7 +65,7 @@ class FlowDecompositionResultsTests {
 
     @Test
     void testBuilderNState() {
-        Set<Branch> nStateXnecList = xnecProvider.getNetworkElements(network);
+        Set<Branch<?>> nStateXnecList = xnecProvider.getNetworkElements(network);
         FlowDecompositionResults.PerStateBuilder nStateBuilder = flowDecompositionResults.getBuilder(nStateXnecList);
         DecomposedFlowRescaler decomposedFlowRescaler = new DecomposedFlowRescalerNoOp();
 
@@ -96,7 +94,7 @@ class FlowDecompositionResultsTests {
 
     @Test
     void testBuilderN1State() {
-        Set<Branch> n1StateContingency2XnecList = xnecProvider.getNetworkElements(contingencyId2, network);
+        Set<Branch<?>> n1StateContingency2XnecList = xnecProvider.getNetworkElements(contingencyId2, network);
         FlowDecompositionResults.PerStateBuilder n1StateBuilder = flowDecompositionResults.getBuilder(contingencyId2, n1StateContingency2XnecList);
         String xnecId = "DB000011 DF000011 1_DD000011 DF000011 1";
         DecomposedFlowRescaler decomposedFlowRescaler = new DecomposedFlowRescalerNoOp();
@@ -126,7 +124,7 @@ class FlowDecompositionResultsTests {
 
     @Test
     void testBuilderN2State() {
-        Set<Branch> n1StateContingency3XnecList = xnecProvider.getNetworkElements(contingencyId3, network);
+        Set<Branch<?>> n1StateContingency3XnecList = xnecProvider.getNetworkElements(contingencyId3, network);
         FlowDecompositionResults.PerStateBuilder n2StateBuilder = flowDecompositionResults.getBuilder(contingencyId3, n1StateContingency3XnecList);
         String xnecId = "DB000011 DF000011 1_FB000011 FD000011 1_FB000021 FD000021 1";
         DecomposedFlowRescaler decomposedFlowRescaler = new DecomposedFlowRescalerNoOp();

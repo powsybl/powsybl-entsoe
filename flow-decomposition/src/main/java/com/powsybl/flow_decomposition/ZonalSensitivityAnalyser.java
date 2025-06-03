@@ -10,13 +10,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.sensitivity.SensitivityAnalysis;
-import com.powsybl.sensitivity.SensitivityAnalysisResult;
-import com.powsybl.sensitivity.SensitivityFactorReader;
-import com.powsybl.sensitivity.SensitivityResultWriter;
-import com.powsybl.sensitivity.SensitivityVariableSet;
-import com.powsybl.sensitivity.SensitivityVariableType;
-import com.powsybl.sensitivity.WeightedSensitivityVariable;
+import com.powsybl.sensitivity.*;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -39,12 +33,12 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     public Map<String, Map<Country, Double>> run(Network network,
                                                  Map<Country, Map<String, Double>> glsks,
                                                  SensitivityVariableType sensitivityVariableType) {
-        List<Branch> functionList = NetworkUtil.getAllValidBranches(network);
+        List<Branch<?>> functionList = NetworkUtil.getAllValidBranches(network);
         List<String> variableList = getVariableList(glsks);
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);
         List<FunctionVariableFactor> factors = getFunctionVariableFactors(variableList, functionList);
         return getSensitivityAnalysisResult(network,
-            factors, sensitivityVariableSets, sensitivityVariableType);
+                factors, sensitivityVariableSets, sensitivityVariableType);
     }
 
     private List<String> getVariableList(Map<Country, Map<String, Double>> glsks) {
@@ -53,12 +47,12 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     private List<SensitivityVariableSet> getSensitivityVariableSets(Map<Country, Map<String, Double>> glsks) {
         return glsks.entrySet().stream().map(
-            this::getSensitivityVariableSet).collect(Collectors.toList());
+                this::getSensitivityVariableSet).collect(Collectors.toList());
     }
 
     private SensitivityVariableSet getSensitivityVariableSet(Map.Entry<Country, Map<String, Double>> countryMapEntry) {
         return new SensitivityVariableSet(countryMapEntry.getKey().toString(),
-            getWeightedSensitivityVariables(countryMapEntry.getValue()));
+                getWeightedSensitivityVariables(countryMapEntry.getValue()));
     }
 
     private List<WeightedSensitivityVariable> getWeightedSensitivityVariables(Map<String, Double> singleCountryGlsks) {

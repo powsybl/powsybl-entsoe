@@ -7,7 +7,10 @@
  */
 package com.powsybl.flow_decomposition.partitioners;
 
-import com.powsybl.flow_decomposition.*;
+import com.powsybl.flow_decomposition.FlowDecompositionObserverList;
+import com.powsybl.flow_decomposition.FlowPartition;
+import com.powsybl.flow_decomposition.FlowPartitioner;
+import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
@@ -39,7 +42,7 @@ public class DirectSensitivityPartitioner implements FlowPartitioner {
     }
 
     @Override
-    public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
+    public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch<?>> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
         LOGGER.warn("Using fast mode of flow decomposition, detailed info (as nodal PTDF and PSDF matrices) won't be reported");
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecs));
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network, netPositions,
@@ -62,7 +65,7 @@ public class DirectSensitivityPartitioner implements FlowPartitioner {
         return nodalInjectionsMatrix;
     }
 
-    private FlowPartition buildFlowPartition(Branch xnec, Map<String, Double> value) {
+    private FlowPartition buildFlowPartition(Branch<?> xnec, Map<String, Double> value) {
         Map<Country, Double> loopFlowsCountryMap = value.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
                 .collect(Collectors.toMap(entry -> Country.valueOf(entry.getKey().substring((LOOP_FLOWS_COLUMN_PREFIX + " ").length())), Map.Entry::getValue));

@@ -7,11 +7,17 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.flow_decomposition.rescaler.DecomposedFlowRescaler;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,7 +38,7 @@ public class FlowDecompositionResults {
     private final Map<String, DecomposedFlow> decomposedFlowMap = new HashMap<>();
 
     public class PerStateBuilder {
-        private final Map<String, Branch> xnecMap;
+        private final Map<String, Branch<?>> xnecMap;
         private final String contingencyId;
         private Map<String, Double> acTerminal1ReferenceFlow;
         private Map<String, Double> acTerminal2ReferenceFlow;
@@ -42,7 +48,7 @@ public class FlowDecompositionResults {
         private Map<String, FlowPartition> flowPartitions = new HashMap<>();
         private final FlowDecompositionObserverList observers = new FlowDecompositionObserverList();
 
-        PerStateBuilder(String contingencyId, Set<Branch> xnecList) {
+        PerStateBuilder(String contingencyId, Set<Branch<?>> xnecList) {
             this.xnecMap = xnecList.stream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
             this.contingencyId = contingencyId;
         }
@@ -77,10 +83,10 @@ public class FlowDecompositionResults {
 
         void build(DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
             flowPartitions
-                .forEach((branchId, flowPartition) -> {
-                    String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
-                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, flowPartition, decomposedFlowRescaler, network));
-                });
+                    .forEach((branchId, flowPartition) -> {
+                        String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
+                        decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, flowPartition, decomposedFlowRescaler, network));
+                    });
         }
 
         private DecomposedFlow createDecomposedFlow(String branchId, FlowPartition flowPartition, DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
@@ -139,11 +145,11 @@ public class FlowDecompositionResults {
         return decomposedFlowMap;
     }
 
-    PerStateBuilder getBuilder(String contingencyId, Set<Branch> xnecList) {
+    PerStateBuilder getBuilder(String contingencyId, Set<Branch<?>> xnecList) {
         return new PerStateBuilder(contingencyId, xnecList);
     }
 
-    public PerStateBuilder getBuilder(Set<Branch> xnecList) {
+    public PerStateBuilder getBuilder(Set<Branch<?>> xnecList) {
         return new PerStateBuilder(NO_CONTINGENCY_ID, xnecList);
     }
 }
