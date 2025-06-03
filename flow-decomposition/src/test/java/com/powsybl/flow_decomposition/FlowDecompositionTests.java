@@ -30,8 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class FlowDecompositionTests {
 
-    public static final double EPSILON = 1e-6;
-
     @Test
     void testFlowDecompositionOnNetworkWithBusBarSectionOnly() {
         Network network = TestUtils.getMicroGridNetworkWithBusBarSectionOnly();
@@ -79,17 +77,36 @@ public class FlowDecompositionTests {
 
     @Test
     void testFlowDecompositionOnHvdcNetwork() {
+        testFlowDecompositionOnHvdcNetwork(FlowDecompositionParameters.FlowPartitionMode.MATRIX_BASED);
+    }
+
+    @Test
+    void testFlowDecompositionOnHvdcNetworkUsingFastMode() {
+        testFlowDecompositionOnHvdcNetwork(FlowDecompositionParameters.FlowPartitionMode.DIRECT_SENSITIVITY_BASED);
+    }
+
+    @Test
+    void testConnectedComponentModeChangesFromAllToMain() {
+        LoadFlowParameters loadFlowParameters = new LoadFlowParameters().setConnectedComponentMode(LoadFlowParameters.ConnectedComponentMode.ALL);
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(new FlowDecompositionParameters(), loadFlowParameters);
+        // lfParameters inside flow decomposition changed from all to main
+        assertEquals(FlowDecompositionComputer.MAIN_CONNECTED_COMPONENT, flowDecompositionComputer.getLoadFlowParameters().getConnectedComponentMode());
+        // original lfParameters didn't change
+        assertEquals(LoadFlowParameters.ConnectedComponentMode.ALL, loadFlowParameters.getConnectedComponentMode());
+    }
+
+    void testFlowDecompositionOnHvdcNetwork(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         Network network = TestUtils.importNetwork("TestCase16NodesWithHvdc.xiidm");
 
         Set<String> branchIds = network.getBranchStream().map(Identifiable::getId).collect(Collectors.toSet());
         XnecProvider xnecProviderContingency = XnecProviderByIds.builder()
-            .addContingency("contingency_1", Set.of("DDE2AA11 NNL3AA11 1"))
-            .addContingency("contingency_desync", Set.of("DDE2AA11 NNL3AA11 1", "FFR3AA11 FFR5AA11 1"))
-            .addContingency("contingency_split_network", Set.of("DDE2AA11 NNL3AA11 1", "FFR3AA11 FFR5AA11 1", "NNL2AA11 BBE3AA11 1"))
-            .addNetworkElementsAfterContingencies(branchIds, Set.of("contingency_1", "contingency_desync", "contingency_split_network"))
-            .build();
+                .addContingency("contingency_1", Set.of("DDE2AA11 NNL3AA11 1"))
+                .addContingency("contingency_desync", Set.of("DDE2AA11 NNL3AA11 1", "FFR3AA11 FFR5AA11 1"))
+                .addContingency("contingency_split_network", Set.of("DDE2AA11 NNL3AA11 1", "FFR3AA11 FFR5AA11 1", "NNL2AA11 BBE3AA11 1"))
+                .addNetworkElementsAfterContingencies(branchIds, Set.of("contingency_1", "contingency_desync", "contingency_split_network"))
+                .build();
         XnecProvider xnecProvider = new XnecProviderUnion(List.of(new XnecProviderAllBranches(), xnecProviderContingency));
-        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider);
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowPartitionMode);
         assertEquals(98, flowDecompositionResults.getDecomposedFlowMap().size());
         validateFlowDecomposition(flowDecompositionResults, "BBE1AA11 BBE3AA11 1_contingency_split_network", "BBE1AA11 BBE3AA11 1", "contingency_split_network", Country.BE, Country.BE, -571.575251, -571.428571, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "FFR2AA11 FFR3AA11 2", "FFR2AA11 FFR3AA11 2", "", Country.FR, Country.FR, -1048.852694, -1044.697128, 418.391705, 0.000000, 38.815350, 611.949424, -16.125814, -4.610042, 0.000000, -3.723495);
@@ -196,25 +213,20 @@ public class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
     }
 
-    @Test
-    void testConnectedComponentModeChangesFromAllToMain() {
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters().setConnectedComponentMode(LoadFlowParameters.ConnectedComponentMode.ALL);
-        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(new FlowDecompositionParameters(), loadFlowParameters);
-        // lfParameters inside flow decomposition changed from all to main
-        assertEquals(FlowDecompositionComputer.MAIN_CONNECTED_COMPONENT, flowDecompositionComputer.getLoadFlowParameters().getConnectedComponentMode());
-        // original lfParameters didn't change
-        assertEquals(LoadFlowParameters.ConnectedComponentMode.ALL, loadFlowParameters.getConnectedComponentMode());
-    }
-
-    private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider) {
+    private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
-            .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
-            .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
-            .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
-            .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE);
+                .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
+                .setLossesCompensationEpsilon(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON)
+                .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
+                .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE)
+                .setFlowPartitioner(flowPartitionMode);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, new LoadFlowParameters());
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
         TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
         return flowDecompositionResults;
+    }
+
+    private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider) {
+        return runFlowDecomposition(network, xnecProvider, FlowDecompositionParameters.FlowPartitionMode.MATRIX_BASED);
     }
 }

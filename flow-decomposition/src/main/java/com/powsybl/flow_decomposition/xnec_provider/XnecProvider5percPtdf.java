@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This class will select branches if they have any zone to zone PTDF greater thon the 5% or if they are an interconnection.
+ * This class will select branches if they have any zone-to-zone PTDF greater than the 5% or if they are an interconnection.
  *
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */

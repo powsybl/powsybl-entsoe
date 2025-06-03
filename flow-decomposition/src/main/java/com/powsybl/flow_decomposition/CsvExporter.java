@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.iidm.network.Country;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -51,7 +52,7 @@ public class CsvExporter {
             BufferedWriter writer = Files.newBufferedWriter(path, CHARSET);
             CSVPrinter printer = new CSVPrinter(writer, FORMAT)
         ) {
-            Set<String> allLoopFlowKeys = aggregateAllLoopFlowKeys(decomposedFlowMap);
+            Set<Country> allLoopFlowKeys = aggregateAllLoopFlowKeys(decomposedFlowMap);
             printHeaderRow(allLoopFlowKeys, printer);
             printContentRows(decomposedFlowMap, allLoopFlowKeys, printer);
         } catch (IOException e) {
@@ -59,8 +60,8 @@ public class CsvExporter {
         }
     }
 
-    private Set<String> aggregateAllLoopFlowKeys(Map<String, DecomposedFlow> decomposedFlowMap) {
-        return decomposedFlowMap.values().stream().flatMap(decomposedFlow -> decomposedFlow.getLoopFlows().keySet().stream()).collect(Collectors.toSet());
+    private Set<Country> aggregateAllLoopFlowKeys(Map<String, DecomposedFlow> decomposedFlowMap) {
+        return decomposedFlowMap.values().stream().flatMap(decomposedFlow -> decomposedFlow.getFlowPartition().loopFlowPerCountry().keySet().stream()).collect(Collectors.toSet());
     }
 
     private void failSilentlyPrint(CSVPrinter printer, Object valueToPrint) {
@@ -79,28 +80,28 @@ public class CsvExporter {
         }
     }
 
-    private void printHeaderRow(Set<String> loopFlowKeys, CSVPrinter printer) {
+    private void printHeaderRow(Set<Country> loopFlowKeys, CSVPrinter printer) {
         failSilentlyPrint(printer, EMPTY_CELL_VALUE);
         failSilentlyPrint(printer, DecomposedFlow.ALLOCATED_COLUMN_NAME);
         failSilentlyPrint(printer, DecomposedFlow.INTERNAL_COLUMN_NAME);
         failSilentlyPrint(printer, DecomposedFlow.PST_COLUMN_NAME);
-        loopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, loopFlowKey));
+        loopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, NetworkUtil.getLoopFlowIdFromCountry(loopFlowKey)));
         failSilentlyPrint(printer, DecomposedFlow.AC_REFERENCE_FLOW_1_COLUMN_NAME);
         failSilentlyPrint(printer, DecomposedFlow.AC_REFERENCE_FLOW_2_COLUMN_NAME);
         failSilentlyPrint(printer, DecomposedFlow.DC_REFERENCE_FLOW_COLUMN_NAME);
         failSilentlyPrintLn(printer);
     }
 
-    private void printContentRows(Map<String, DecomposedFlow> decomposedFlowMap, Set<String> allLoopFlowKeys, CSVPrinter printer) {
+    private void printContentRows(Map<String, DecomposedFlow> decomposedFlowMap, Set<Country> allLoopFlowKeys, CSVPrinter printer) {
         decomposedFlowMap.forEach((xnecId, decomposedFlow) -> printContentRow(xnecId, decomposedFlow, allLoopFlowKeys, printer));
     }
 
-    private void printContentRow(String xnecId, DecomposedFlow decomposedFlow, Set<String> allLoopFlowKeys, CSVPrinter printer) {
+    private void printContentRow(String xnecId, DecomposedFlow decomposedFlow, Set<Country> allLoopFlowKeys, CSVPrinter printer) {
         failSilentlyPrint(printer, xnecId);
         failSilentlyPrint(printer, decomposedFlow.getAllocatedFlow());
         failSilentlyPrint(printer, decomposedFlow.getInternalFlow());
         failSilentlyPrint(printer, decomposedFlow.getPstFlow());
-        allLoopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, decomposedFlow.getLoopFlows().getOrDefault(loopFlowKey, NO_FLOW)));
+        allLoopFlowKeys.stream().sorted().forEach(loopFlowKey -> failSilentlyPrint(printer, decomposedFlow.getFlowPartition().loopFlowPerCountry().getOrDefault(loopFlowKey, NO_FLOW)));
         failSilentlyPrint(printer, decomposedFlow.getAcTerminal1ReferenceFlow());
         failSilentlyPrint(printer, decomposedFlow.getAcTerminal2ReferenceFlow());
         failSilentlyPrint(printer, decomposedFlow.getDcReferenceFlow());

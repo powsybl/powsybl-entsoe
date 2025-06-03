@@ -35,7 +35,13 @@ public class FlowDecompositionParameters {
         MAX_CURRENT_OVERLOAD
     }
 
+    public enum FlowPartitionMode {
+        MATRIX_BASED,
+        DIRECT_SENSITIVITY_BASED
+    }
+
     public static final RescaleMode DEFAULT_RESCALE_MODE = RescaleMode.NONE;
+    public static final FlowPartitionMode DEFAULT_FLOW_PARTITIONER = FlowPartitionMode.MATRIX_BASED;
     private boolean enableLossesCompensation;
     private double lossesCompensationEpsilon;
     private double sensitivityEpsilon;
@@ -43,6 +49,7 @@ public class FlowDecompositionParameters {
     private double proportionalRescalerMinFlowTolerance;
     private boolean dcFallbackEnabledAfterAcDivergence;
     private int sensitivityVariableBatchSize;
+    private FlowPartitionMode flowPartitionMode;
 
     public static FlowDecompositionParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -65,6 +72,7 @@ public class FlowDecompositionParameters {
             parameters.setProportionalRescalerMinFlowTolerance(moduleConfig.getDoubleProperty("proportional-rescaler-min-flow-tolerance", DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE));
             parameters.setDcFallbackEnabledAfterAcDivergence(moduleConfig.getBooleanProperty("dc-fallback-enabled-after-ac-divergence", DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE));
             parameters.setSensitivityVariableBatchSize(moduleConfig.getIntProperty("sensitivity-variable-batch-size", DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE));
+            parameters.setFlowPartitioner(moduleConfig.getEnumProperty("flow-partitioner", FlowPartitionMode.class, DEFAULT_FLOW_PARTITIONER));
         });
     }
 
@@ -76,6 +84,7 @@ public class FlowDecompositionParameters {
         this.proportionalRescalerMinFlowTolerance = DEFAULT_PROPORTIONAL_RESCALER_MIN_FLOW_TOLERANCE;
         this.dcFallbackEnabledAfterAcDivergence = DEFAULT_DC_FALLBACK_ENABLED_AFTER_AC_DIVERGENCE;
         this.sensitivityVariableBatchSize = DEFAULT_SENSITIVITY_VARIABLE_BATCH_SIZE;
+        this.flowPartitionMode = DEFAULT_FLOW_PARTITIONER;
     }
 
     public FlowDecompositionParameters setEnableLossesCompensation(boolean enableLossesCompensation) {
@@ -137,6 +146,15 @@ public class FlowDecompositionParameters {
 
     public FlowDecompositionParameters setSensitivityVariableBatchSize(int sensitivityVariableBatchSize) {
         this.sensitivityVariableBatchSize = sensitivityVariableBatchSize;
+        return this;
+    }
+
+    public FlowPartitionMode getFlowPartitioner() {
+        return flowPartitionMode;
+    }
+
+    public FlowDecompositionParameters setFlowPartitioner(FlowPartitionMode flowPartitionMode) {
+        this.flowPartitionMode = flowPartitionMode;
         return this;
     }
 }
