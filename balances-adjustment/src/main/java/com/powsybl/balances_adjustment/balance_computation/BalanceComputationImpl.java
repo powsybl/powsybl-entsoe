@@ -85,9 +85,6 @@ public class BalanceComputationImpl implements BalanceComputation {
         network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId);
         network.getVariantManager().setWorkingVariant(workingVariantCopyId);
 
-        // When isWithLoadFlow is false, limit to one iteration
-        final int maxIterations = !parameters.isWithLoadFlow() ? 1 : parameters.getMaxNumberIterations();
-
         do {
             ReportNode iterationReportNode = Reports.createBalanceComputationIterationReporter(reportNode, context.getIterationNum());
             context.setIterationReportNode(iterationReportNode);
@@ -131,10 +128,8 @@ public class BalanceComputationImpl implements BalanceComputation {
             }
 
             // Step 4: Checks balance adjustment results
-            boolean isConverged = computeTotalMismatch(context) < parameters.getThresholdNetPosition();
-
             // When isWithLoadFlow is false, always return after one iteration
-            if (!parameters.isWithLoadFlow() || isConverged) {
+            if (!parameters.isWithLoadFlow() || computeTotalMismatch(context) < parameters.getThresholdNetPosition()) {
                 result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, context.nextIteration(), context.getBalanceOffsets());
                 network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
             } else {
@@ -142,7 +137,7 @@ public class BalanceComputationImpl implements BalanceComputation {
                 network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId, true);
                 result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.nextIteration(), context.getBalanceOffsets());
             }
-        } while (context.getIterationNum() < maxIterations && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
+        } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
 
         ReportNode statusReportNode = reportNode.newReportNode().withMessageTemplate("status", "Status").add();
         if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
