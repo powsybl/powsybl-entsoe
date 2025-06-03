@@ -219,7 +219,7 @@ class BalanceComputationSimpleDcTest {
         // Verify that LoadFlow was never called
         verify(mockLoadFlowRunner, never()).run(any(), anyString(), any(), any(), any());
 
-        // The result should be FAILED since we didn't run load flow to verify convergence
+        // The result should be SUCCESS since we didn't run load flow to verify convergence
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
         // Should have done exactly 1 iteration
         assertEquals(1, result.getIterationCount());
