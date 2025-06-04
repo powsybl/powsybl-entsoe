@@ -35,7 +35,6 @@ class JsonBalanceComputationParametersTest extends AbstractSerDeTest {
         assertEquals(BalanceComputationParameters.DEFAULT_MAX_NUMBER_ITERATIONS, parameters.getMaxNumberIterations());
         assertEquals(BalanceComputationParameters.DEFAULT_THRESHOLD_NET_POSITION, parameters.getThresholdNetPosition(), .01);
         assertEquals(BalanceComputationParameters.DEFAULT_MISMATCH_MODE, parameters.getMismatchMode());
-        assertEquals(BalanceComputationParameters.DEFAULT_WITH_LOAD_FLOW, parameters.isWithLoadFlow());
     }
 
     @Test
@@ -54,7 +53,6 @@ class JsonBalanceComputationParametersTest extends AbstractSerDeTest {
         assertTrue(actualLoadflowParams.isTransformerVoltageControlOn());
         assertTrue(actualLoadflowParams.isPhaseShifterRegulationOn());
         assertTrue(actualLoadflowParams.isUseReactiveLimits());
-        assertTrue(parameters.isWithLoadFlow());
     }
 
     @Test
