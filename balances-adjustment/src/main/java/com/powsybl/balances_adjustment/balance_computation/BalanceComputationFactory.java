@@ -20,5 +20,7 @@ import java.util.List;
  */
 public interface BalanceComputationFactory {
 
+    BalanceComputation create(List<BalanceComputationArea> areas);
+
     BalanceComputation create(List<BalanceComputationArea> areas, LoadFlow.Runner loadFlowRunner, ComputationManager computationManager);
 }
