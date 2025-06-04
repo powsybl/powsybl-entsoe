@@ -20,13 +20,22 @@ import java.util.List;
 public class CountryAreaFactory implements NetworkAreaFactory {
 
     private final List<Country> countries;
+    private final boolean isStatic;
 
     public CountryAreaFactory(Country... countries) {
+        this(false, countries);
+    }
+
+    public CountryAreaFactory(boolean isStatic, Country... countries) {
         this.countries = Arrays.asList(countries);
+        this.isStatic = isStatic;
     }
 
     @Override
-    public CountryArea create(Network network) {
+    public NetworkArea create(Network network) {
+        if (isStatic) {
+            return new StaticCountryArea(network, countries);
+        }
         return new CountryArea(network, countries);
     }
 }

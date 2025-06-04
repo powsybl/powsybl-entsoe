@@ -20,8 +20,29 @@ import java.util.List;
  */
 public class BalanceComputationFactoryImpl implements BalanceComputationFactory {
 
+    private final boolean isStatic;
+
+    public BalanceComputationFactoryImpl() {
+        this(false);
+    }
+
+    public BalanceComputationFactoryImpl(boolean isStatic) {
+        this.isStatic = isStatic;
+    }
+
+    @Override
+    public BalanceComputation create(List<BalanceComputationArea> areas) {
+        if (isStatic) {
+            return new NoLoadflowBalanceComputation(areas);
+        }
+        throw new IllegalArgumentException("For non-static balance computation loadflowRunner and computationManager are required");
+    }
+
     @Override
     public BalanceComputation create(List<BalanceComputationArea> areas, LoadFlow.Runner loadFlowRunner, ComputationManager computationManager) {
+        if (isStatic) {
+            return new NoLoadflowBalanceComputation(areas);
+        }
         return new BalanceComputationImpl(areas, computationManager, loadFlowRunner);
     }
 }

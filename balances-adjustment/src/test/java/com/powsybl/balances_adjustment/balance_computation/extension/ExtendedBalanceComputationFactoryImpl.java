@@ -21,6 +21,11 @@ import java.util.List;
 public class ExtendedBalanceComputationFactoryImpl implements BalanceComputationFactory {
 
     @Override
+    public BalanceComputation create(List<BalanceComputationArea> areas) {
+        return null;
+    }
+
+    @Override
     public BalanceComputation create(List<BalanceComputationArea> areas, LoadFlow.Runner loadFlowRunner, ComputationManager computationManager) {
         return new ExtendedBalanceComputationImpl(areas, computationManager, loadFlowRunner);
     }
