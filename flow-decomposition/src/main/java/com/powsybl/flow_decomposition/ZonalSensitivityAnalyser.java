@@ -38,7 +38,7 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
         List<SensitivityVariableSet> sensitivityVariableSets = getSensitivityVariableSets(glsks);
         List<FunctionVariableFactor> factors = getFunctionVariableFactors(variableList, functionList);
         return getSensitivityAnalysisResult(network,
-                factors, sensitivityVariableSets, sensitivityVariableType);
+            factors, sensitivityVariableSets, sensitivityVariableType);
     }
 
     private List<String> getVariableList(Map<Country, Map<String, Double>> glsks) {
@@ -47,12 +47,12 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     private List<SensitivityVariableSet> getSensitivityVariableSets(Map<Country, Map<String, Double>> glsks) {
         return glsks.entrySet().stream().map(
-                this::getSensitivityVariableSet).collect(Collectors.toList());
+            this::getSensitivityVariableSet).collect(Collectors.toList());
     }
 
     private SensitivityVariableSet getSensitivityVariableSet(Map.Entry<Country, Map<String, Double>> countryMapEntry) {
         return new SensitivityVariableSet(countryMapEntry.getKey().toString(),
-                getWeightedSensitivityVariables(countryMapEntry.getValue()));
+            getWeightedSensitivityVariables(countryMapEntry.getValue()));
     }
 
     private List<WeightedSensitivityVariable> getWeightedSensitivityVariables(Map<String, Double> singleCountryGlsks) {

@@ -64,9 +64,9 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private SparseMatrixWithIndexesTriplet initSensitivityMatrixTriplet(Map<String, Integer> variableIndex) {
         LOGGER.debug("Filtering Sensitivity values with epsilon = {}", parameters.getSensitivityEpsilon());
         return new SparseMatrixWithIndexesTriplet(functionIndex,
-                variableIndex,
-                functionIndex.size() * variableIndex.size(),
-                parameters.getSensitivityEpsilon());
+            variableIndex,
+            functionIndex.size() * variableIndex.size(),
+            parameters.getSensitivityEpsilon());
     }
 
     private void partialFillSensitivityMatrix(SensitivityVariableType sensitivityVariableType,

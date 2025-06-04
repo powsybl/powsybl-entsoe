@@ -226,15 +226,15 @@ class FlowDecompositionObserverTest {
 
         Network network = TestUtils.importNetwork(networkFileName);
         Map<String, Set<String>> contingencies = Map.ofEntries(
-                Map.entry(contingencyId1, Set.of(contingencyId1)),
-                Map.entry(contingencyId2, Set.of(contingencyElementId1, contingencyElementId2)));
+            Map.entry(contingencyId1, Set.of(contingencyId1)),
+            Map.entry(contingencyId2, Set.of(contingencyElementId1, contingencyElementId2)));
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addContingencies(contingencies)
-                .addNetworkElementsAfterContingencies(
-                        Set.of(branchId),
-                        Set.of(contingencyId1, contingencyId2))
-                .addNetworkElementsOnBasecase(Set.of(branchId))
-                .build();
+            .addContingencies(contingencies)
+            .addNetworkElementsAfterContingencies(
+                Set.of(branchId),
+                Set.of(contingencyId1, contingencyId2))
+            .addNetworkElementsOnBasecase(Set.of(branchId))
+            .build();
         var flowDecompositionParameters = FlowDecompositionParameters.load();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         var report = new ObserverReport();
@@ -247,55 +247,55 @@ class FlowDecompositionObserverTest {
         validateObserverReportNetPositions(report, Set.of(Country.BE, Country.DE, Country.FR));
 
         Set<String> xnecNodes = Set.of(
-                "BB000021_load",
-                "BF000011_generator",
-                "BF000021_load",
-                "DB000011_generator",
-                "DD000011_load",
-                "DF000011_generator",
-                "FB000021_generator",
-                "FB000022_load",
-                "FD000011_load",
-                "FF000011_generator",
-                "XES00011 FD000011 1",
-                "XNL00011 BB000011 1");
+            "BB000021_load",
+            "BF000011_generator",
+            "BF000021_load",
+            "DB000011_generator",
+            "DD000011_load",
+            "DF000011_generator",
+            "FB000021_generator",
+            "FB000022_load",
+            "FD000011_load",
+            "FF000011_generator",
+            "XES00011 FD000011 1",
+            "XNL00011 BB000011 1");
         validateObserverReportNodalInjections(
-                report,
-                List.of(BASE_CASE, contingencyId1, contingencyId2),
-                xnecNodes,
-                "BB000021_load",
-                Set.of("Allocated Flow", "Loop Flow from BE"));
+            report,
+            List.of(BASE_CASE, contingencyId1, contingencyId2),
+            xnecNodes,
+            "BB000021_load",
+            Set.of("Allocated Flow", "Loop Flow from BE"));
         validateObserverReportPtdfs(report, List.of(BASE_CASE, contingencyId1, contingencyId2), xnecNodes, branchId);
         validateObserverReportPsdfs(report, List.of(BASE_CASE, contingencyId1, contingencyId2), branchId, Set.of(
-                "BF000011 BF000012 1"));
+            "BF000011 BF000012 1"));
 
         var allBranches = Set.of(
-                "BB000011 BB000021 1",
-                "BB000011 BD000011 1",
-                "BB000011 BF000012 1",
-                "BB000021 BD000021 1",
-                "BB000021 BF000021 1",
-                "BD000011 BD000021 1",
-                "BD000011 BF000011 1",
-                "BD000021 BF000021 1",
-                "BF000011 BF000012 1",
-                "BF000011 BF000021 1",
-                "DB000011 DD000011 1",
-                "DB000011 DF000011 1",
-                "DD000011 DF000011 1",
-                "FB000011 FB000022 1",
-                "FB000011 FD000011 1",
-                "FB000011 FF000011 1",
-                "FB000021 FD000021 1",
-                "FD000011 FD000021 1",
-                "FD000011 FF000011 1",
-                "FD000011 FF000011 2",
-                "XBD00011 BD000011 1 + XBD00011 DB000011 1",
-                "XBD00012 BD000011 1 + XBD00012 DB000011 1",
-                "XBF00011 BF000011 1 + XBF00011 FB000011 1",
-                "XBF00021 BF000021 1 + XBF00021 FB000021 1",
-                "XBF00022 BF000021 1 + XBF00022 FB000022 1",
-                "XDF00011 DF000011 1 + XDF00011 FD000011 1");
+            "BB000011 BB000021 1",
+            "BB000011 BD000011 1",
+            "BB000011 BF000012 1",
+            "BB000021 BD000021 1",
+            "BB000021 BF000021 1",
+            "BD000011 BD000021 1",
+            "BD000011 BF000011 1",
+            "BD000021 BF000021 1",
+            "BF000011 BF000012 1",
+            "BF000011 BF000021 1",
+            "DB000011 DD000011 1",
+            "DB000011 DF000011 1",
+            "DD000011 DF000011 1",
+            "FB000011 FB000022 1",
+            "FB000011 FD000011 1",
+            "FB000011 FF000011 1",
+            "FB000021 FD000021 1",
+            "FD000011 FD000021 1",
+            "FD000011 FF000011 1",
+            "FD000011 FF000011 2",
+            "XBD00011 BD000011 1 + XBD00011 DB000011 1",
+            "XBD00012 BD000011 1 + XBD00012 DB000011 1",
+            "XBF00011 BF000011 1 + XBF00011 FB000011 1",
+            "XBF00021 BF000021 1 + XBF00021 FB000021 1",
+            "XBF00022 BF000021 1 + XBF00022 FB000022 1",
+            "XDF00011 DF000011 1 + XDF00011 FD000011 1");
 
         validateObserverReportFlows(report, List.of(BASE_CASE, contingencyId1, contingencyId2), allBranches);
 
@@ -311,9 +311,9 @@ class FlowDecompositionObserverTest {
         Network network = TestUtils.importNetwork(networkFileName);
         Contingency contingency = Contingency.builder(contingencyId1).addLoad(contingencyId1).build();
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addContingency(contingency)
-                .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId1))
-                .build();
+            .addContingency(contingency)
+            .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId1))
+            .build();
         var flowDecompositionParameters = FlowDecompositionParameters.load();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         var report = new ObserverReport();
@@ -326,53 +326,53 @@ class FlowDecompositionObserverTest {
         validateObserverReportNetPositions(report, Set.of(Country.BE, Country.DE, Country.FR));
 
         Set<String> xnecNodes = Set.of(
-                "BB000021_load",
-                "BF000011_generator",
-                "BF000021_load",
-                "DB000011_generator",
-                "DD000011_load",
-                "DF000011_generator",
-                "FB000021_generator",
-                "FB000022_load",
-                "FF000011_generator",
-                "XES00011 FD000011 1",
-                "XNL00011 BB000011 1");
+            "BB000021_load",
+            "BF000011_generator",
+            "BF000021_load",
+            "DB000011_generator",
+            "DD000011_load",
+            "DF000011_generator",
+            "FB000021_generator",
+            "FB000022_load",
+            "FF000011_generator",
+            "XES00011 FD000011 1",
+            "XNL00011 BB000011 1");
         validateObserverReportNodalInjections(
-                report,
-                List.of(contingencyId1),
-                xnecNodes,
-                "BF000021_load",
-                Set.of("Allocated Flow", "Loop Flow from BE"));
+            report,
+            List.of(contingencyId1),
+            xnecNodes,
+            "BF000021_load",
+            Set.of("Allocated Flow", "Loop Flow from BE"));
         validateObserverReportPtdfs(report, List.of(contingencyId1), xnecNodes, branchId);
         validateObserverReportPsdfs(report, List.of(contingencyId1), branchId, Set.of("BF000011 BF000012 1"));
 
         var allBranches = Set.of(
-                "BB000011 BB000021 1",
-                "BB000011 BD000011 1",
-                "BB000011 BF000012 1",
-                "BB000021 BD000021 1",
-                "BB000021 BF000021 1",
-                "BD000011 BD000021 1",
-                "BD000011 BF000011 1",
-                "BD000021 BF000021 1",
-                "BF000011 BF000012 1",
-                "BF000011 BF000021 1",
-                "DB000011 DD000011 1",
-                "DB000011 DF000011 1",
-                "DD000011 DF000011 1",
-                "FB000011 FB000022 1",
-                "FB000011 FD000011 1",
-                "FB000011 FF000011 1",
-                "FB000021 FD000021 1",
-                "FD000011 FD000021 1",
-                "FD000011 FF000011 1",
-                "FD000011 FF000011 2",
-                "XBD00011 BD000011 1 + XBD00011 DB000011 1",
-                "XBD00012 BD000011 1 + XBD00012 DB000011 1",
-                "XBF00011 BF000011 1 + XBF00011 FB000011 1",
-                "XBF00021 BF000021 1 + XBF00021 FB000021 1",
-                "XBF00022 BF000021 1 + XBF00022 FB000022 1",
-                "XDF00011 DF000011 1 + XDF00011 FD000011 1");
+            "BB000011 BB000021 1",
+            "BB000011 BD000011 1",
+            "BB000011 BF000012 1",
+            "BB000021 BD000021 1",
+            "BB000021 BF000021 1",
+            "BD000011 BD000021 1",
+            "BD000011 BF000011 1",
+            "BD000021 BF000021 1",
+            "BF000011 BF000012 1",
+            "BF000011 BF000021 1",
+            "DB000011 DD000011 1",
+            "DB000011 DF000011 1",
+            "DD000011 DF000011 1",
+            "FB000011 FB000022 1",
+            "FB000011 FD000011 1",
+            "FB000011 FF000011 1",
+            "FB000021 FD000021 1",
+            "FD000011 FD000021 1",
+            "FD000011 FF000011 1",
+            "FD000011 FF000011 2",
+            "XBD00011 BD000011 1 + XBD00011 DB000011 1",
+            "XBD00012 BD000011 1 + XBD00012 DB000011 1",
+            "XBF00011 BF000011 1 + XBF00011 FB000011 1",
+            "XBF00021 BF000021 1 + XBF00021 FB000021 1",
+            "XBF00022 BF000021 1 + XBF00022 FB000022 1",
+            "XDF00011 DF000011 1 + XDF00011 FD000011 1");
 
         validateObserverReportFlows(report, List.of(contingencyId1), allBranches);
 
@@ -396,26 +396,26 @@ class FlowDecompositionObserverTest {
 
         if (isBaseCaseExecuted) {
             assertEventsFired(report.eventsForBaseCase(),
-                    Event.COMPUTED_AC_FLOWS,
-                    Event.COMPUTED_AC_NODAL_INJECTIONS,
-                    Event.COMPUTED_DC_FLOWS,
-                    Event.COMPUTED_DC_NODAL_INJECTIONS,
-                    Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
-                    Event.COMPUTED_PTDF_MATRIX,
-                    Event.COMPUTED_PSDF_MATRIX,
-                    Event.COMPUTED_PRE_RESCALING_DECOMPOSED_FLOWS);
+                Event.COMPUTED_AC_FLOWS,
+                Event.COMPUTED_AC_NODAL_INJECTIONS,
+                Event.COMPUTED_DC_FLOWS,
+                Event.COMPUTED_DC_NODAL_INJECTIONS,
+                Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
+                Event.COMPUTED_PTDF_MATRIX,
+                Event.COMPUTED_PSDF_MATRIX,
+                Event.COMPUTED_PRE_RESCALING_DECOMPOSED_FLOWS);
         }
 
         for (var contingencyId : contingencyIds) {
             assertEventsFired(report.eventsForContingency(contingencyId),
-                    Event.COMPUTED_AC_FLOWS,
-                    Event.COMPUTED_AC_NODAL_INJECTIONS,
-                    Event.COMPUTED_DC_FLOWS,
-                    Event.COMPUTED_DC_NODAL_INJECTIONS,
-                    Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
-                    Event.COMPUTED_PTDF_MATRIX,
-                    Event.COMPUTED_PSDF_MATRIX,
-                    Event.COMPUTED_PRE_RESCALING_DECOMPOSED_FLOWS);
+                Event.COMPUTED_AC_FLOWS,
+                Event.COMPUTED_AC_NODAL_INJECTIONS,
+                Event.COMPUTED_DC_FLOWS,
+                Event.COMPUTED_DC_NODAL_INJECTIONS,
+                Event.COMPUTED_NODAL_INJECTIONS_MATRIX,
+                Event.COMPUTED_PTDF_MATRIX,
+                Event.COMPUTED_PSDF_MATRIX,
+                Event.COMPUTED_PRE_RESCALING_DECOMPOSED_FLOWS);
         }
     }
 
@@ -474,8 +474,8 @@ class FlowDecompositionObserverTest {
 
         Network network = TestUtils.importNetwork(networkFileName);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addNetworkElementsOnBasecase(Set.of(branchId))
-                .build();
+            .addNetworkElementsOnBasecase(Set.of(branchId))
+            .build();
         var flowDecompositionParameters = FlowDecompositionParameters.load();
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         var reportInserted = new ObserverReport();
@@ -498,8 +498,8 @@ class FlowDecompositionObserverTest {
         String branchId = "DB000011 DF000011 1";
         Network network = TestUtils.importNetwork(networkFileName);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addNetworkElementsOnBasecase(Set.of(branchId))
-                .build();
+            .addNetworkElementsOnBasecase(Set.of(branchId))
+            .build();
         var flowDecompositionParameters = FlowDecompositionParameters.load().setEnableLossesCompensation(true);
         FlowDecompositionComputer flowComputer = new FlowDecompositionComputer(flowDecompositionParameters);
         var report = new ObserverReport();

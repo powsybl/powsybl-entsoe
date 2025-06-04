@@ -106,7 +106,7 @@ class NodalInjectionTests {
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = nodalInjectionComputer.run(network,
-                glsks, netPositions);
+            glsks, netPositions);
         return nodalInjectionsMatrix.toMap();
     }
 

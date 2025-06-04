@@ -33,10 +33,10 @@ public final class FlowComputerUtils {
 
     public static Map<String, Double> getTerminalReferenceFlow(Collection<Branch<?>> xnecList, TwoSides side) {
         return xnecList.stream()
-                .collect(Collectors.toMap(
-                        Identifiable::getId,
-                        branch -> branch.getTerminal(side).getP()
-                ));
+            .collect(Collectors.toMap(
+                Identifiable::getId,
+                branch -> branch.getTerminal(side).getP()
+            ));
     }
 
     public static Map<String, Double> calculateAcTerminalCurrents(Collection<Branch<?>> xnecList, boolean fallbackHasBeenActivated, TwoSides side) {
@@ -45,10 +45,10 @@ public final class FlowComputerUtils {
 
     public static Map<String, Double> getTerminalCurrent(Collection<Branch<?>> xnecList, TwoSides side) {
         return xnecList.stream()
-                .collect(Collectors.toMap(
-                        Identifiable::getId,
-                        branch -> branch.getTerminal(side).getI()
-                ));
+            .collect(Collectors.toMap(
+                Identifiable::getId,
+                branch -> branch.getTerminal(side).getI()
+            ));
     }
 
     private static Map<String, Double> getFallbackActivatedTerminalResults(Collection<Branch<?>> xnecList) {

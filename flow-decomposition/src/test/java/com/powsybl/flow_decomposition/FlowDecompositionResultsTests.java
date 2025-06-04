@@ -45,10 +45,10 @@ class FlowDecompositionResultsTests {
 
         network = TestUtils.importNetwork(networkFileName);
         xnecProvider = XnecProviderByIds.builder()
-                .addContingencies(Map.of(contingencyId2, Set.of(contingencyId2), contingencyId3, Set.of(contingencyElementId1, contingencyElementId2)))
-                .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId2, contingencyId3))
-                .addNetworkElementsOnBasecase(Set.of(branchId))
-                .build();
+            .addContingencies(Map.of(contingencyId2, Set.of(contingencyId2), contingencyId3, Set.of(contingencyElementId1, contingencyElementId2)))
+            .addNetworkElementsAfterContingencies(Set.of(branchId), Set.of(contingencyId2, contingencyId3))
+            .addNetworkElementsOnBasecase(Set.of(branchId))
+            .build();
         flowDecompositionResults = new FlowDecompositionResults(network);
     }
 

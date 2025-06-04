@@ -83,27 +83,27 @@ public class FlowDecompositionResults {
 
         void build(DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
             flowPartitions
-                    .forEach((branchId, flowPartition) -> {
-                        String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
-                        decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, flowPartition, decomposedFlowRescaler, network));
-                    });
+                .forEach((branchId, flowPartition) -> {
+                    String xnecId = DecomposedFlow.getXnecId(contingencyId, branchId);
+                    decomposedFlowMap.put(xnecId, createDecomposedFlow(branchId, flowPartition, decomposedFlowRescaler, network));
+                });
         }
 
         private DecomposedFlow createDecomposedFlow(String branchId, FlowPartition flowPartition, DecomposedFlowRescaler decomposedFlowRescaler, Network network) {
             Country country1 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal1());
             Country country2 = NetworkUtil.getTerminalCountry(xnecMap.get(branchId).getTerminal2());
             DecomposedFlow decomposedFlow = new DecomposedFlowBuilder()
-                    .withBranchId(branchId)
-                    .withContingencyId(contingencyId)
-                    .withCountry1(country1)
-                    .withCountry2(country2)
-                    .withAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow.get(branchId))
-                    .withAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow.get(branchId))
-                    .withDcReferenceFlow(dcReferenceFlow.get(branchId))
-                    .withAcCurrentTerminal1(acCurrentTerminal1.get(branchId))
-                    .withAcCurrentTerminal2(acCurrentTerminal2.get(branchId))
-                    .withFlowPartition(flowPartition)
-                    .build();
+                .withBranchId(branchId)
+                .withContingencyId(contingencyId)
+                .withCountry1(country1)
+                .withCountry2(country2)
+                .withAcTerminal1ReferenceFlow(acTerminal1ReferenceFlow.get(branchId))
+                .withAcTerminal2ReferenceFlow(acTerminal2ReferenceFlow.get(branchId))
+                .withDcReferenceFlow(dcReferenceFlow.get(branchId))
+                .withAcCurrentTerminal1(acCurrentTerminal1.get(branchId))
+                .withAcCurrentTerminal2(acCurrentTerminal2.get(branchId))
+                .withFlowPartition(flowPartition)
+                .build();
             observers.computedPreRescalingDecomposedFlows(decomposedFlow);
             return decomposedFlowRescaler.rescale(decomposedFlow, network);
         }

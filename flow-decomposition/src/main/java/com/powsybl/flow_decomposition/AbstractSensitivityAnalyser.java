@@ -54,31 +54,31 @@ public abstract class AbstractSensitivityAnalyser {
                                                                       List<Branch<?>> functionList) {
         List<FunctionVariableFactor> factors = new ArrayList<>();
         variableList.forEach(
-                variable -> functionList.forEach(
-                        function -> factors.add(new FunctionVariableFactor(function.getId(), variable))));
+            variable -> functionList.forEach(
+                function -> factors.add(new FunctionVariableFactor(function.getId(), variable))));
         return factors;
     }
 
     protected static SensitivityFactorReader getSensitivityFactorReader(List<FunctionVariableFactor> factors, SensitivityVariableType sensitivityVariableType, boolean sensitivityVariableSet) {
         return handler -> factors.forEach(
-                pair -> handler.onFactor(SENSITIVITY_FUNCTION_TYPE,
-                        pair.functionId(),
-                        sensitivityVariableType,
-                        pair.variableId(),
-                        sensitivityVariableSet,
-                        ContingencyContext.none()));
+            pair -> handler.onFactor(SENSITIVITY_FUNCTION_TYPE,
+                pair.functionId(),
+                sensitivityVariableType,
+                pair.variableId(),
+                sensitivityVariableSet,
+                ContingencyContext.none()));
     }
 
     protected void runSensitivityAnalysis(Network network, SensitivityFactorReader factorReader, SensitivityResultWriter valueWriter, List<SensitivityVariableSet> sensitivityVariableSets) {
         runner.run(network,
-                network.getVariantManager().getWorkingVariantId(),
-                factorReader,
-                valueWriter,
-                CONTINGENCIES,
-                sensitivityVariableSets,
-                sensitivityAnalysisParameters,
-                LocalComputationManager.getDefault(),
-                ReportNode.NO_OP
+            network.getVariantManager().getWorkingVariantId(),
+            factorReader,
+            valueWriter,
+            CONTINGENCIES,
+            sensitivityVariableSets,
+            sensitivityAnalysisParameters,
+            LocalComputationManager.getDefault(),
+            ReportNode.NO_OP
         );
     }
 }

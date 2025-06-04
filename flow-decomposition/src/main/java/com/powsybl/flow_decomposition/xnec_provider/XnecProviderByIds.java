@@ -99,15 +99,15 @@ public final class XnecProviderByIds implements XnecProvider {
 
     private Set<Branch<?>> mapBranchSetToList(Set<String> branchSet, Network network) {
         return branchSet.stream()
-                .map(xnecId -> {
-                    Branch<?> branch = network.getBranch(xnecId);
-                    if (branch == null) {
-                        LOGGER.warn("Branch {} without contingency was not found in network {}", xnecId, network.getId());
-                    }
-                    return branch;
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+            .map(xnecId -> {
+                Branch<?> branch = network.getBranch(xnecId);
+                if (branch == null) {
+                    LOGGER.warn("Branch {} without contingency was not found in network {}", xnecId, network.getId());
+                }
+                return branch;
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -134,7 +134,7 @@ public final class XnecProviderByIds implements XnecProvider {
     @Override
     public List<Contingency> getContingencies(Network network) {
         return contingencyToXnecMap.keySet().stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 }

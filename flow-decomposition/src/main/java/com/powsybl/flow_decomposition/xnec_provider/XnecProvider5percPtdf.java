@@ -45,7 +45,7 @@ public class XnecProvider5percPtdf implements XnecProvider {
 
     private static boolean hasMoreThan5PercentPtdf(Collection<Double> countryPtdfList) {
         return !countryPtdfList.isEmpty()
-                && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
+            && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
     }
 
     public Set<Branch<?>> getBranches(Network network) {
@@ -53,9 +53,9 @@ public class XnecProvider5percPtdf implements XnecProvider {
         ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(LoadFlowParameters.load(), SensitivityAnalysis.find());
         Map<String, Map<Country, Double>> zonalPtdf = zonalSensitivityAnalyser.run(network, glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
         return NetworkUtil.getAllValidBranches(network)
-                .stream()
-                .filter(branch -> isAXnec(branch, zonalPtdf))
-                .collect(Collectors.toSet());
+            .stream()
+            .filter(branch -> isAXnec(branch, zonalPtdf))
+            .collect(Collectors.toSet());
     }
 
     @Override

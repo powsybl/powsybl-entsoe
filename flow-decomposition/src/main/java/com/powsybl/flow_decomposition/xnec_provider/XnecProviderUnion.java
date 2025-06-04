@@ -36,16 +36,16 @@ public class XnecProviderUnion implements XnecProvider {
         public ContingencyConsistencyCache(Network network) {
             networkHash = network.hashCode();
             xnecProviders.forEach(xnecProvider -> xnecProvider.getContingencies(network).forEach(
-                    contingency -> {
-                        String contingencyId = contingency.getId();
-                        if (!validContingencyIds.contains(contingencyId)) {
-                            assertContingencyDefinitionIsUniqueAcrossXnecProviders(contingencyId, network);
-                            if (contingencies.add(contingency)) {
-                                contingencyIdToXnec.put(contingencyId, getBranchSetForAllProviders(contingencyId, network));
-                            }
-                            validContingencyIds.add(contingencyId);
+                contingency -> {
+                    String contingencyId = contingency.getId();
+                    if (!validContingencyIds.contains(contingencyId)) {
+                        assertContingencyDefinitionIsUniqueAcrossXnecProviders(contingencyId, network);
+                        if (contingencies.add(contingency)) {
+                            contingencyIdToXnec.put(contingencyId, getBranchSetForAllProviders(contingencyId, network));
                         }
-                    }));
+                        validContingencyIds.add(contingencyId);
+                    }
+                }));
         }
 
         public boolean isValid(Network network) {
@@ -54,10 +54,10 @@ public class XnecProviderUnion implements XnecProvider {
 
         private void assertContingencyDefinitionIsUniqueAcrossXnecProviders(String contingencyId, Network network) {
             boolean hasUniqueDefinitionForSelectedContingency = xnecProviders.stream()
-                    .mapToInt(xnecProvider -> getSelectedContingencyHashCode(contingencyId, network, xnecProvider))
-                    .distinct()
-                    .filter(i -> i != Collections.emptyList().hashCode())
-                    .count() == 1;
+                .mapToInt(xnecProvider -> getSelectedContingencyHashCode(contingencyId, network, xnecProvider))
+                .distinct()
+                .filter(i -> i != Collections.emptyList().hashCode())
+                .count() == 1;
             if (!hasUniqueDefinitionForSelectedContingency) {
                 throw new PowsyblException(String.format("Contingency '%s' definition is not unique across different providers", contingencyId));
             }
@@ -65,17 +65,17 @@ public class XnecProviderUnion implements XnecProvider {
 
         private int getSelectedContingencyHashCode(String contingencyId, Network network, XnecProvider xnecProvider) {
             return xnecProvider
-                    .getContingencies(network)
-                    .stream()
-                    .filter(contingency -> Objects.equals(contingency.getId(), contingencyId))
-                    .toList()
-                    .hashCode();
+                .getContingencies(network)
+                .stream()
+                .filter(contingency -> Objects.equals(contingency.getId(), contingencyId))
+                .toList()
+                .hashCode();
         }
 
         private Set<Branch<?>> getBranchSetForAllProviders(String contingencyId, Network network) {
             return xnecProviders.stream()
-                    .flatMap(xnecProvider -> xnecProvider.getNetworkElements(contingencyId, network).stream())
-                    .collect(Collectors.toSet());
+                .flatMap(xnecProvider -> xnecProvider.getNetworkElements(contingencyId, network).stream())
+                .collect(Collectors.toSet());
         }
 
         public Map<String, Set<Branch<?>>> getContingencyIdToXnec() {
@@ -96,8 +96,8 @@ public class XnecProviderUnion implements XnecProvider {
     @Override
     public Set<Branch<?>> getNetworkElements(Network network) {
         return xnecProviders.stream()
-                .flatMap(xnecProvider -> xnecProvider.getNetworkElements(network).stream())
-                .collect(Collectors.toSet());
+            .flatMap(xnecProvider -> xnecProvider.getNetworkElements(network).stream())
+            .collect(Collectors.toSet());
     }
 
     @Override

@@ -54,7 +54,7 @@ public class FlowDecompositionComputer {
         this.loadFlowParameters = loadFlowParameters.copy();
         if (!MAIN_CONNECTED_COMPONENT.equals(this.loadFlowParameters.getConnectedComponentMode())) {
             LOGGER.warn("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode from {} to MAIN.",
-                    this.loadFlowParameters.getConnectedComponentMode());
+                this.loadFlowParameters.getConnectedComponentMode());
             this.loadFlowParameters.setConnectedComponentMode(MAIN_CONNECTED_COMPONENT);
         }
         this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
@@ -67,7 +67,7 @@ public class FlowDecompositionComputer {
     public FlowDecompositionComputer(FlowDecompositionParameters flowDecompositionParameters,
                                      LoadFlowParameters loadFlowParameters) {
         this(flowDecompositionParameters, loadFlowParameters,
-                DEFAULT_LOAD_FLOW_PROVIDER, DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER);
+            DEFAULT_LOAD_FLOW_PROVIDER, DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER);
     }
 
     public FlowDecompositionComputer(FlowDecompositionParameters flowDecompositionParameters) {
@@ -93,19 +93,19 @@ public class FlowDecompositionComputer {
 
             FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
             decomposeFlowForNState(network,
-                    flowDecompositionResults,
-                    xnecProvider.getNetworkElements(network),
-                    netPositions,
-                    glsks,
-                    loadFlowServiceAcResult);
+                flowDecompositionResults,
+                xnecProvider.getNetworkElements(network),
+                netPositions,
+                glsks,
+                loadFlowServiceAcResult);
             xnecProvider.getNetworkElementsPerContingency(network)
-                    .forEach((contingencyId, xnecs) -> decomposeFlowForContingencyState(network,
-                            flowDecompositionResults,
-                            networkStateManager,
-                            contingencyId,
-                            xnecs,
-                            netPositions,
-                            glsks));
+                .forEach((contingencyId, xnecs) -> decomposeFlowForContingencyState(network,
+                    flowDecompositionResults,
+                    networkStateManager,
+                    contingencyId,
+                    xnecs,
+                    netPositions,
+                    glsks));
             networkStateManager.deleteAllContingencyVariants();
             return flowDecompositionResults;
         } finally {
@@ -169,11 +169,11 @@ public class FlowDecompositionComputer {
     private FlowPartitioner getFlowPartitioner() {
         return switch (parameters.getFlowPartitioner()) {
             case MATRIX_BASED ->
-                    new MatrixBasedPartitioner(loadFlowParameters, parameters, sensitivityAnalysisRunner, observers);
+                new MatrixBasedPartitioner(loadFlowParameters, parameters, sensitivityAnalysisRunner, observers);
             case DIRECT_SENSITIVITY_BASED ->
-                    new DirectSensitivityPartitioner(loadFlowParameters, sensitivityAnalysisRunner, observers);
+                new DirectSensitivityPartitioner(loadFlowParameters, sensitivityAnalysisRunner, observers);
             default ->
-                    throw new PowsyblException("FlowPartitioner not defined for mode: " + parameters.getFlowPartitioner());
+                throw new PowsyblException("FlowPartitioner not defined for mode: " + parameters.getFlowPartitioner());
         };
     }
 
@@ -225,11 +225,11 @@ public class FlowDecompositionComputer {
             case NONE -> new DecomposedFlowRescalerNoOp();
             case ACER_METHODOLOGY -> new DecomposedFlowRescalerAcerMethodology();
             case PROPORTIONAL ->
-                    new DecomposedFlowRescalerProportional(parameters.getProportionalRescalerMinFlowTolerance());
+                new DecomposedFlowRescalerProportional(parameters.getProportionalRescalerMinFlowTolerance());
             case MAX_CURRENT_OVERLOAD ->
-                    new DecomposedFlowRescalerMaxCurrentOverload(parameters.getProportionalRescalerMinFlowTolerance());
+                new DecomposedFlowRescalerMaxCurrentOverload(parameters.getProportionalRescalerMinFlowTolerance());
             default ->
-                    throw new PowsyblException("DecomposedFlowRescaler not defined for mode: " + parameters.getRescaleMode());
+                throw new PowsyblException("DecomposedFlowRescaler not defined for mode: " + parameters.getRescaleMode());
         };
     }
 

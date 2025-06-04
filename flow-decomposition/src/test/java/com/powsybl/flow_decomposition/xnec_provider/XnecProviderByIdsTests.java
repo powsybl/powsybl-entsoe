@@ -32,8 +32,8 @@ class XnecProviderByIdsTests {
         String xnecFrBe = "FGEN1 11 BLOAD 11 1";
         Set<String> xnecSet = Set.of(xnecFrBe);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addNetworkElementsOnBasecase(xnecSet)
-                .build();
+            .addNetworkElementsOnBasecase(xnecSet)
+            .build();
         Set<Branch<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
         assertEquals(1, branchSet.size());
@@ -49,8 +49,8 @@ class XnecProviderByIdsTests {
         String xnecFrBe = "FGEN1 11 BLOAD 11 1";
         Set<String> xnecSet = Set.of(xnecFrBe, "NON EXISTING ID");
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addNetworkElementsOnBasecase(xnecSet)
-                .build();
+            .addNetworkElementsOnBasecase(xnecSet)
+            .build();
         Set<Branch<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
         assertEquals(1, branchSet.size());
@@ -64,8 +64,8 @@ class XnecProviderByIdsTests {
         String xnecBeBe = "BLOAD 11 BGEN2 11 1";
         Set<String> xnecSet = Set.of(xnecFrBe, xnecBeBe);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addNetworkElementsOnBasecase(xnecSet)
-                .build();
+            .addNetworkElementsOnBasecase(xnecSet)
+            .build();
         Set<Branch<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
         assertTrue(branchSet.contains(network.getBranch(xnecBeBe)));
@@ -79,9 +79,9 @@ class XnecProviderByIdsTests {
         String xnecFrBe = "FGEN1 11 BLOAD 11 1";
         String xnecBeBe = "BLOAD 11 BGEN2 11 1";
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addNetworkElementsOnBasecase(Set.of(xnecFrBe, xnecBeBe))
-                .addNetworkElementsOnBasecase(Set.of(xnecFrBe))
-                .build();
+            .addNetworkElementsOnBasecase(Set.of(xnecFrBe, xnecBeBe))
+            .addNetworkElementsOnBasecase(Set.of(xnecFrBe))
+            .build();
         Set<Branch<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
         assertTrue(branchSet.contains(network.getBranch(xnecBeBe)));
@@ -97,8 +97,8 @@ class XnecProviderByIdsTests {
         network.getBranch(xnecBeBe).getTerminal1().disconnect();
         Set<String> xnecSet = Set.of(xnecFrBe, xnecBeBe);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addNetworkElementsOnBasecase(xnecSet)
-                .build();
+            .addNetworkElementsOnBasecase(xnecSet)
+            .build();
         Set<Branch<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertFalse(network.getBranch(xnecBeBe).getTerminal1().isConnected());
         assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
@@ -114,9 +114,9 @@ class XnecProviderByIdsTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addContingency(x2, Set.of(x2))
-                .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
-                .build();
+            .addContingency(x2, Set.of(x2))
+            .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
+            .build();
 
         List<Contingency> contingencies = xnecProvider.getContingencies(network);
         assertEquals(1, contingencies.size());
@@ -151,11 +151,11 @@ class XnecProviderByIdsTests {
         Contingency genContingency = Contingency.builder(g1).addGenerator(g1).build();
 
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addContingency(branchContingency)
-                .addContingency(genContingency)
-                .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
-                .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(g1))
-                .build();
+            .addContingency(branchContingency)
+            .addContingency(genContingency)
+            .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
+            .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(g1))
+            .build();
 
         List<Contingency> contingencies = xnecProvider.getContingencies(network);
         assertEquals(2, contingencies.size());
@@ -194,10 +194,10 @@ class XnecProviderByIdsTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addContingency(x2, Set.of(x2))
-                .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
-                .addNetworkElementsOnBasecase(Set.of(x1, x2))
-                .build();
+            .addContingency(x2, Set.of(x2))
+            .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
+            .addNetworkElementsOnBasecase(Set.of(x1, x2))
+            .build();
 
         List<Contingency> contingencies = xnecProvider.getContingencies(network);
         assertEquals(1, contingencies.size());
@@ -231,10 +231,10 @@ class XnecProviderByIdsTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addContingencies(Map.of(x1, Set.of(x1), x2, Set.of(x2), x3, Set.of(x3)))
-                .addNetworkElementsAfterContingencies(Set.of(x1, x2, x3), Set.of(x1, x2, x3))
-                .addNetworkElementsOnBasecase(Set.of(x1, x2, x3))
-                .build();
+            .addContingencies(Map.of(x1, Set.of(x1), x2, Set.of(x2), x3, Set.of(x3)))
+            .addNetworkElementsAfterContingencies(Set.of(x1, x2, x3), Set.of(x1, x2, x3))
+            .addNetworkElementsOnBasecase(Set.of(x1, x2, x3))
+            .build();
 
         List<Contingency> contingencies = xnecProvider.getContingencies(network);
         assertEquals(3, contingencies.size());
@@ -303,9 +303,9 @@ class XnecProviderByIdsTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
         XnecProvider xnecProvider = XnecProviderByIds.builder()
-                .addContingency(x2, Set.of(x2))
-                .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
-                .build();
+            .addContingency(x2, Set.of(x2))
+            .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
+            .build();
         Exception exception = assertThrows(NullPointerException.class, () -> xnecProvider.getNetworkElements(null, network));
         assertEquals("Contingency Id must be specified", exception.getMessage());
     }

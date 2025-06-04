@@ -47,9 +47,9 @@ class SensitivityComputerTests {
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         SensitivityAnalyser sensitivityAnalyser = new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet ptdfMatrix =
-                sensitivityAnalyser.run(networkMatrixIndexes.getNodeIdList(),
-                        networkMatrixIndexes.getNodeIndex(),
-                        SensitivityVariableType.INJECTION_ACTIVE_POWER);
+            sensitivityAnalyser.run(networkMatrixIndexes.getNodeIdList(),
+                networkMatrixIndexes.getNodeIndex(),
+                SensitivityVariableType.INJECTION_ACTIVE_POWER);
         Map<String, Map<String, Double>> nodalPtdfs = ptdfMatrix.toMap();
         assertEquals(-0.5, nodalPtdfs.get(xnecFrBe).get(loadBe), EPSILON);
         assertEquals(-0.5, nodalPtdfs.get(xnecFrBe).get(genBe), EPSILON);
@@ -80,7 +80,7 @@ class SensitivityComputerTests {
         SensitivityAnalysis.Runner sensitivityAnalysisRunner = SensitivityAnalysis.find();
         ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner);
         Map<String, Map<Country, Double>> zonalPtdfs = zonalSensitivityAnalyser.run(network,
-                glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
+            glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
         assertEquals(-0.025, zonalPtdfs.get(line1).get(Country.BE), EPSILON);
         assertEquals(+0.025, zonalPtdfs.get(line1).get(Country.FR), EPSILON);
         assertEquals(-0.025, zonalPtdfs.get(line2).get(Country.BE), EPSILON);
@@ -119,7 +119,7 @@ class SensitivityComputerTests {
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         SensitivityAnalyser sensitivityAnalyser = new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.run(networkMatrixIndexes.getPstList(),
-                networkMatrixIndexes.getPstIndex(), SensitivityVariableType.TRANSFORMER_PHASE);
+            networkMatrixIndexes.getPstIndex(), SensitivityVariableType.TRANSFORMER_PHASE);
         Map<String, Map<String, Double>> psdf = psdfMatrix.toMap();
         assertEquals(-420.042573, psdf.get(x1).get(pst), EPSILON);
         assertEquals(420.042573, psdf.get(x2).get(pst), EPSILON);

@@ -32,9 +32,9 @@ public class XnecProviderInterconnection implements XnecProvider {
     @Override
     public Set<Branch<?>> getNetworkElements(Network network) {
         return NetworkUtil.getAllValidBranches(network)
-                .stream()
-                .filter(XnecProviderInterconnection::isAnInterconnection)
-                .collect(Collectors.toSet());
+            .stream()
+            .filter(XnecProviderInterconnection::isAnInterconnection)
+            .collect(Collectors.toSet());
     }
 
     @Override

@@ -64,12 +64,12 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
             String negativeFlowPartName = getNegativeFlowPartName(flowPart);
             double negativeFlowPartSum = nodalInjectionPartitions.values().stream().filter(stringDoubleMap -> stringDoubleMap.containsKey(flowPart) && stringDoubleMap.get(flowPart) < 0).mapToDouble(stringDoubleMap -> stringDoubleMap.get(flowPart)).sum();
             sensitivityVariableSets.add(new SensitivityVariableSet(
-                    positiveFlowPartName,
-                    nodalInjectionPartitions.entrySet().stream().filter(entry -> entry.getValue().containsKey(flowPart) && entry.getValue().get(flowPart) > 0).map(entry -> new WeightedSensitivityVariable(entry.getKey(), entry.getValue().get(flowPart) / positiveFlowPartSum)).toList()));
+                positiveFlowPartName,
+                nodalInjectionPartitions.entrySet().stream().filter(entry -> entry.getValue().containsKey(flowPart) && entry.getValue().get(flowPart) > 0).map(entry -> new WeightedSensitivityVariable(entry.getKey(), entry.getValue().get(flowPart) / positiveFlowPartSum)).toList()));
             nodalInjectionsPartitionSumByFlowPart.put(positiveFlowPartName, positiveFlowPartSum);
             sensitivityVariableSets.add(new SensitivityVariableSet(
-                    negativeFlowPartName,
-                    nodalInjectionPartitions.entrySet().stream().filter(entry -> entry.getValue().containsKey(flowPart) && entry.getValue().get(flowPart) < 0).map(entry -> new WeightedSensitivityVariable(entry.getKey(), entry.getValue().get(flowPart) / negativeFlowPartSum)).toList()));
+                negativeFlowPartName,
+                nodalInjectionPartitions.entrySet().stream().filter(entry -> entry.getValue().containsKey(flowPart) && entry.getValue().get(flowPart) < 0).map(entry -> new WeightedSensitivityVariable(entry.getKey(), entry.getValue().get(flowPart) / negativeFlowPartSum)).toList()));
             nodalInjectionsPartitionSumByFlowPart.put(negativeFlowPartName, negativeFlowPartSum);
         }
 

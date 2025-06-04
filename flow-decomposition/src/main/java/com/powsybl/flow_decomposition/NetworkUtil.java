@@ -49,30 +49,30 @@ public final class NetworkUtil {
         Optional<Substation> optionalSubstation = terminal.getVoltageLevel().getSubstation();
         if (optionalSubstation.isEmpty()) {
             throw new PowsyblException(String.format("Voltage level %s does not belong to any substation. " +
-                    "Cannot retrieve country info needed for the algorithm.", terminal.getVoltageLevel().getId()));
+                "Cannot retrieve country info needed for the algorithm.", terminal.getVoltageLevel().getId()));
         }
         Substation substation = optionalSubstation.get();
         Optional<Country> optionalCountry = substation.getCountry();
         if (optionalCountry.isEmpty()) {
             throw new PowsyblException(String.format("Substation %s does not have country property " +
-                    "needed for the algorithm.", substation.getId()));
+                "needed for the algorithm.", substation.getId()));
         }
         return optionalCountry.get();
     }
 
     public static Map<String, Integer> getIndex(List<String> idList) {
         return IntStream.range(0, idList.size())
-                .boxed()
-                .collect(Collectors.toMap(idList::get, Function.identity()));
+            .boxed()
+            .collect(Collectors.toMap(idList::get, Function.identity()));
     }
 
     public static List<Branch<?>> getAllValidBranches(Network network) {
         return network.getBranchStream()
-                .filter(NetworkUtil::isConnected)
-                .filter(NetworkUtil::hasABusToEachTerminal)
-                .filter(NetworkUtil::isInMainSynchronousComponent)
-                .map(branch -> (Branch<?>) branch)
-                .collect(Collectors.toList());
+            .filter(NetworkUtil::isConnected)
+            .filter(NetworkUtil::hasABusToEachTerminal)
+            .filter(NetworkUtil::isInMainSynchronousComponent)
+            .map(branch -> (Branch<?>) branch)
+            .collect(Collectors.toList());
     }
 
     private static boolean isConnected(Branch<?> branch) {
@@ -89,7 +89,7 @@ public final class NetworkUtil {
 
     private static boolean isInMainSynchronousComponent(Branch<?> branch) {
         return isTerminalInMainSynchronousComponent(branch.getTerminal1())
-                && isTerminalInMainSynchronousComponent(branch.getTerminal2());
+            && isTerminalInMainSynchronousComponent(branch.getTerminal2());
     }
 
     private static boolean isTerminalInMainSynchronousComponent(Terminal terminal) {
@@ -99,27 +99,27 @@ public final class NetworkUtil {
 
     public static List<Injection<?>> getNodeList(Network network) {
         return getAllNetworkInjections(network)
-                .filter(NetworkUtil::isNotPairedDanglingLine)
-                .filter(NetworkUtil::isInjectionConnected)
-                .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
-                .filter(NetworkUtil::hasReferenceInjections)
-                .filter(NetworkUtil::isValidInjectionsForSensitivityComputation)
-                .toList();
+            .filter(NetworkUtil::isNotPairedDanglingLine)
+            .filter(NetworkUtil::isInjectionConnected)
+            .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
+            .filter(NetworkUtil::hasReferenceInjections)
+            .filter(NetworkUtil::isValidInjectionsForSensitivityComputation)
+            .toList();
     }
 
     public static List<Injection<?>> getXNodeList(Network network) {
         return network.getDanglingLineStream()
-                .filter(NetworkUtil::isNotPairedDanglingLine)
-                .filter(NetworkUtil::isInjectionConnected)
-                .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
-                .map(danglingLine -> (Injection<?>) danglingLine)
-                .collect(Collectors.toList());
+            .filter(NetworkUtil::isNotPairedDanglingLine)
+            .filter(NetworkUtil::isInjectionConnected)
+            .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
+            .map(danglingLine -> (Injection<?>) danglingLine)
+            .collect(Collectors.toList());
     }
 
     private static Stream<Injection<?>> getAllNetworkInjections(Network network) {
         return network.getConnectableStream()
-                .filter(Injection.class::isInstance)
-                .map(connectable -> (Injection<?>) connectable);
+            .filter(Injection.class::isInstance)
+            .map(connectable -> (Injection<?>) connectable);
     }
 
     private static boolean isNotPairedDanglingLine(Injection<?> injection) {
@@ -144,13 +144,13 @@ public final class NetworkUtil {
 
     public static List<String> getPstIdList(Network network) {
         return network.getTwoWindingsTransformerStream()
-                .filter(NetworkUtil::isConnected)
-                .filter(PhaseTapChangerHolder::hasPhaseTapChanger)
-                .filter(NetworkUtil::hasNeutralStep)
-                .filter(NetworkUtil::hasABusToEachTerminal)
-                .filter(NetworkUtil::isInMainSynchronousComponent)
-                .map(Identifiable::getId)
-                .toList();
+            .filter(NetworkUtil::isConnected)
+            .filter(PhaseTapChangerHolder::hasPhaseTapChanger)
+            .filter(NetworkUtil::hasNeutralStep)
+            .filter(NetworkUtil::hasABusToEachTerminal)
+            .filter(NetworkUtil::isInMainSynchronousComponent)
+            .map(Identifiable::getId)
+            .toList();
     }
 
     private static boolean hasNeutralStep(TwoWindingsTransformer pst) {

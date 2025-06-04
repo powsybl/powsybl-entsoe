@@ -67,8 +67,8 @@ class XnecProviderUnionTests {
         String line8 = "FGEN  11 FLOAD 11 8";
         XnecProvider xnecProviderInterCo = new XnecProviderInterconnection();
         XnecProvider xnecProviderId = XnecProviderByIds.builder()
-                .addNetworkElementsOnBasecase(Set.of(line8, line1))
-                .build();
+            .addNetworkElementsOnBasecase(Set.of(line8, line1))
+            .build();
         XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderInterCo, xnecProviderId));
         Set<Branch<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertTrue(branchSet.contains(network.getBranch(lineFrBe)));
@@ -88,8 +88,8 @@ class XnecProviderUnionTests {
         String line8 = "FGEN  11 FLOAD 11 8";
         XnecProvider xnecProviderInterCo = new XnecProviderInterconnection();
         XnecProvider xnecProviderId = XnecProviderByIds.builder()
-                .addNetworkElementsOnBasecase(Set.of(line8, line1, lineFrBe))
-                .build();
+            .addNetworkElementsOnBasecase(Set.of(line8, line1, lineFrBe))
+            .build();
         XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderInterCo, xnecProviderId));
         Set<Branch<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertTrue(branchSet.contains(network.getBranch(lineFrBe)));
@@ -107,9 +107,9 @@ class XnecProviderUnionTests {
         String line1 = "FGEN  11 FLOAD 11 1";
         String line8 = "FGEN  11 FLOAD 11 8";
         XnecProvider xnecProviderId = XnecProviderByIds.builder()
-                .addContingency(lineFrBe, Set.of(lineFrBe))
-                .addNetworkElementsAfterContingencies(Set.of(line8, line1, lineFrBe), Set.of(lineFrBe))
-                .build();
+            .addContingency(lineFrBe, Set.of(lineFrBe))
+            .addNetworkElementsAfterContingencies(Set.of(line8, line1, lineFrBe), Set.of(lineFrBe))
+            .build();
         XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderId));
 
         List<Contingency> contingencies = xnecProvider.getContingencies(network);
@@ -142,13 +142,13 @@ class XnecProviderUnionTests {
         String line2 = "FGEN  11 FLOAD 11 2";
         String line8 = "FGEN  11 FLOAD 11 8";
         XnecProvider xnecProviderId1 = XnecProviderByIds.builder()
-                .addContingency(lineFrBe, Set.of(lineFrBe))
-                .addNetworkElementsAfterContingencies(Set.of(line8, line1, lineBeFr), Set.of(lineFrBe))
-                .build();
+            .addContingency(lineFrBe, Set.of(lineFrBe))
+            .addNetworkElementsAfterContingencies(Set.of(line8, line1, lineBeFr), Set.of(lineFrBe))
+            .build();
         XnecProvider xnecProviderId2 = XnecProviderByIds.builder()
-                .addContingency(lineFrBe, Set.of(lineFrBe))
-                .addNetworkElementsAfterContingencies(Set.of(line2, lineBeFr), Set.of(lineFrBe))
-                .build();
+            .addContingency(lineFrBe, Set.of(lineFrBe))
+            .addNetworkElementsAfterContingencies(Set.of(line2, lineBeFr), Set.of(lineFrBe))
+            .build();
         XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderId1, xnecProviderId2));
 
         List<Contingency> contingencies = xnecProvider.getContingencies(network);
@@ -185,13 +185,13 @@ class XnecProviderUnionTests {
         String line2 = "FGEN  11 FLOAD 11 2";
         String line8 = "FGEN  11 FLOAD 11 8";
         XnecProvider xnecProviderId1 = XnecProviderByIds.builder()
-                .addContingency(lineFrBe, Set.of(lineFrBe))
-                .addNetworkElementsAfterContingencies(Set.of(line8, line1, lineFrBe), Set.of(lineFrBe))
-                .build();
+            .addContingency(lineFrBe, Set.of(lineFrBe))
+            .addNetworkElementsAfterContingencies(Set.of(line8, line1, lineFrBe), Set.of(lineFrBe))
+            .build();
         XnecProvider xnecProviderId2 = XnecProviderByIds.builder()
-                .addContingency(lineFrBe, Set.of(line8))
-                .addNetworkElementsAfterContingencies(Set.of(line2, lineBeFr, lineFrBe), Set.of(lineFrBe))
-                .build();
+            .addContingency(lineFrBe, Set.of(line8))
+            .addNetworkElementsAfterContingencies(Set.of(line2, lineBeFr, lineFrBe), Set.of(lineFrBe))
+            .build();
         XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderId1, xnecProviderId2, xnecProviderId1));
 
         PowsyblException exception1 = assertThrows(PowsyblException.class, () -> xnecProvider.getContingencies(network));
@@ -214,17 +214,17 @@ class XnecProviderUnionTests {
         String line2 = "FGEN  11 FLOAD 11 2";
         String line8 = "FGEN  11 FLOAD 11 8";
         XnecProvider xnecProviderId1 = XnecProviderByIds.builder()
-                .addContingency(lineFrBe, Set.of(lineFrBe))
-                .addNetworkElementsAfterContingencies(Set.of(line8, line1), Set.of(lineFrBe))
-                .build();
+            .addContingency(lineFrBe, Set.of(lineFrBe))
+            .addNetworkElementsAfterContingencies(Set.of(line8, line1), Set.of(lineFrBe))
+            .build();
         XnecProvider xnecProviderId2 = XnecProviderByIds.builder()
-                .addContingency(line8, Set.of(line8))
-                .addNetworkElementsAfterContingencies(Set.of(lineBeFr, lineFrBe), Set.of(line8))
-                .build();
+            .addContingency(line8, Set.of(line8))
+            .addNetworkElementsAfterContingencies(Set.of(lineBeFr, lineFrBe), Set.of(line8))
+            .build();
         XnecProvider xnecProviderId3 = XnecProviderByIds.builder()
-                .addContingency(line8, Set.of(line8))
-                .addNetworkElementsAfterContingencies(Set.of(line2, line1), Set.of(line8))
-                .build();
+            .addContingency(line8, Set.of(line8))
+            .addNetworkElementsAfterContingencies(Set.of(line2, line1), Set.of(line8))
+            .build();
         XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderId1, xnecProviderId2, xnecProviderId3));
 
         List<Contingency> contingencies = xnecProvider.getContingencies(network);
@@ -272,13 +272,13 @@ class XnecProviderUnionTests {
         Network network2 = TestUtils.importNetwork(networkFileName2);
 
         XnecProvider xnecProviderId1 = XnecProviderByIds.builder()
-                .addContingency(x1, Set.of(x1))
-                .addNetworkElementsAfterContingencies(Set.of(x2), Set.of(x1))
-                .build();
+            .addContingency(x1, Set.of(x1))
+            .addNetworkElementsAfterContingencies(Set.of(x2), Set.of(x1))
+            .build();
         XnecProvider xnecProviderId2 = XnecProviderByIds.builder()
-                .addContingency(x2, Set.of(x2))
-                .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
-                .build();
+            .addContingency(x2, Set.of(x2))
+            .addNetworkElementsAfterContingencies(Set.of(x1), Set.of(x2))
+            .build();
         XnecProvider xnecProvider = new XnecProviderUnion(List.of(xnecProviderId1, xnecProviderId2));
 
         testXnecProviderValidForNetwork(network1, xnecProvider, x1, x2);
