@@ -23,12 +23,12 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
-public class NoLoadflowBalanceComputation implements BalanceComputation {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NoLoadflowBalanceComputation.class);
+public class NoLoadFlowBalanceComputation implements BalanceComputation {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NoLoadFlowBalanceComputation.class);
 
     private final List<BalanceComputationArea> areas;
 
-    public NoLoadflowBalanceComputation(List<BalanceComputationArea> areas) {
+    public NoLoadFlowBalanceComputation(List<BalanceComputationArea> areas) {
         this.areas = areas;
     }
 
