@@ -33,7 +33,7 @@ public class BalanceComputationFactoryImpl implements BalanceComputationFactory 
     @Override
     public BalanceComputation create(List<BalanceComputationArea> areas) {
         if (isStatic) {
-            return new NoLoadflowBalanceComputation(areas);
+            return new NoLoadFlowBalanceComputation(areas);
         }
         throw new IllegalArgumentException("For non-static balance computation loadflowRunner and computationManager are required");
     }
@@ -41,7 +41,7 @@ public class BalanceComputationFactoryImpl implements BalanceComputationFactory 
     @Override
     public BalanceComputation create(List<BalanceComputationArea> areas, LoadFlow.Runner loadFlowRunner, ComputationManager computationManager) {
         if (isStatic) {
-            return new NoLoadflowBalanceComputation(areas);
+            return new NoLoadFlowBalanceComputation(areas);
         }
         return new BalanceComputationImpl(areas, computationManager, loadFlowRunner);
     }
