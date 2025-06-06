@@ -107,7 +107,15 @@ public class BalanceComputationImpl implements BalanceComputation {
 
             // Step 3: Compute balance and mismatch for each area
             ReportNode mismatchReportNode = iterationReportNode.newReportNode().withMessageTemplate("mismatch", "Mismatch").add();
-            areas.forEach(area -> computeMismatch(area, context, mismatchReportNode));
+            for (BalanceComputationArea area : areas) {
+                NetworkArea na = context.getNetworkArea(area);
+                double target = area.getTargetNetPosition();
+                double balance = na.getNetPosition(context.parameters.isIgnoreBalancingInMismatchComputation());
+                double mismatch = target - balance;
+                Reports.reportAreaMismatch(mismatchReportNode, area.getName(), mismatch, target, balance);
+                LOGGER.info("Iteration={}, Mismatch for area {}: {} (target={}, balance={})", context.getIterationNum(), area.getName(), mismatch, target, balance);
+                context.updateAreaOffsetAndMismatch(area, mismatch);
+            }
 
             // Step 4: Checks balance adjustment results
             if (computeTotalMismatch(context) < parameters.getThresholdNetPosition()) {
@@ -137,35 +145,6 @@ public class BalanceComputationImpl implements BalanceComputation {
         network.getVariantManager().setWorkingVariant(initialVariantId);
 
         return CompletableFuture.completedFuture(result);
-    }
-
-    protected void computeMismatch(BalanceComputationArea area, BalanceComputationRunningContext context, ReportNode reportNode) {
-        NetworkArea na = context.getNetworkArea(area);
-        double target = area.getTargetNetPosition();
-        double balance = na.getNetPosition();
-        double balanceDelta = 0;
-        if (context.parameters.isIgnoreBalancingInMismatchComputation()) {
-            VariationType variationType = getVariationType(context.parameters);
-            switch (variationType) {
-                case LOAD -> balanceDelta += na.getLoadBalanceDelta();
-                case GENERATOR -> balanceDelta += na.getGeneratorBalanceDelta();
-            }
-        }
-        double mismatch = target - balance - balanceDelta;
-        Reports.reportAreaMismatch(reportNode, area.getName(), mismatch, target, balance, balanceDelta);
-        LOGGER.info("Iteration={}, Mismatch for area {}: {} (target={}, balance={}, loadflow-balance={})", context.getIterationNum(), area.getName(), mismatch, target, balance, balanceDelta);
-        context.updateAreaOffsetAndMismatch(area, mismatch);
-    }
-
-    private VariationType getVariationType(BalanceComputationParameters parameters) {
-        return switch (parameters.getLoadFlowParameters().getBalanceType()) {
-            case PROPORTIONAL_TO_LOAD,
-                 PROPORTIONAL_TO_CONFORM_LOAD -> VariationType.LOAD;
-            case PROPORTIONAL_TO_GENERATION_P,
-                 PROPORTIONAL_TO_GENERATION_P_MAX,
-                 PROPORTIONAL_TO_GENERATION_PARTICIPATION_FACTOR,
-                 PROPORTIONAL_TO_GENERATION_REMAINING_MARGIN -> VariationType.GENERATOR;
-        };
     }
 
     /**

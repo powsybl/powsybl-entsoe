@@ -19,6 +19,7 @@ import java.util.Collections;
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface NetworkArea {
+
     /**
      * Computes the net position of the area on a given network object.
      * Net position sign convention is positive when flows are leaving the area (export) and negative
@@ -26,21 +27,7 @@ public interface NetworkArea {
      *
      * @return Sum of the flows leaving the area
      */
-    double getNetPosition();
-
-    /**
-     * Computes the difference between actual flow and target on loads. Positive if we consume higher than expected.
-     *
-     * @return Sum of the load delta between actual flow and target
-     */
-    double getLoadBalanceDelta();
-
-    /**
-     * Computes the difference between actual flow and target on generators. Positive if we produce higher than expected.
-     *
-     * @return Sum of the generator delta between actual flow and target
-     */
-    double getGeneratorBalanceDelta();
+    double getNetPosition(boolean ignoreLoadFlowBalance);
 
     default Collection<Bus> getContainedBusViewBuses() {
         return Collections.emptyList();

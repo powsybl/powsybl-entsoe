@@ -33,18 +33,8 @@ public class StaticCountryArea implements NetworkArea {
     }
 
     @Override
-    public double getNetPosition() {
+    public double getNetPosition(boolean ignoreLoadFLowBalance) {
         return generatorsCache.stream().mapToDouble(Generator::getTargetP).sum() - loadsCache.stream().mapToDouble(Load::getP0).sum();
-    }
-
-    @Override
-    public double getLoadBalanceDelta() {
-        return 0;
-    }
-
-    @Override
-    public double getGeneratorBalanceDelta() {
-        return 0;
     }
 
     @Override
