@@ -60,11 +60,6 @@ public class VoltageLevelsArea implements NetworkArea {
     }
 
     @Override
-    public double getLoadFlowBalance() {
-        return NetworkAreaUtil.getLoadFlowBalance(generatorsCache, loadsCache);
-    }
-
-    @Override
     public double getNetPosition(boolean ignoreLoadFlowBalance) {
         double netPosition = danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + branchBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()

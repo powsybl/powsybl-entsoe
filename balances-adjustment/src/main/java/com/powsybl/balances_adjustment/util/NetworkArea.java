@@ -29,6 +29,10 @@ public interface NetworkArea {
      */
     double getNetPosition(boolean ignoreLoadFlowBalance);
 
+    default double getNetPosition() {
+        return getNetPosition(false);
+    }
+
     default Collection<Bus> getContainedBusViewBuses() {
         return Collections.emptyList();
     }
