@@ -83,6 +83,16 @@ class CgmesVoltageLevelsArea implements NetworkArea {
     }
 
     @Override
+    public double getLoadBalanceDelta() {
+        return 0;
+    }
+
+    @Override
+    public double getGeneratorBalanceDelta() {
+        return 0;
+    }
+
+    @Override
     public Collection<Bus> getContainedBusViewBuses() {
         return Collections.unmodifiableCollection(busesCache);
     }

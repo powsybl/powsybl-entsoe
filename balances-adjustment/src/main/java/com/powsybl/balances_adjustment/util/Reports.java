@@ -43,13 +43,14 @@ public final class Reports {
                 .add();
     }
 
-    public static void reportAreaMismatch(ReportNode reportNode, String areaName, double mismatch, double target, double balance) {
+    public static void reportAreaMismatch(ReportNode reportNode, String areaName, double mismatch, double target, double balance, double loadflowBalance) {
         reportNode.newReportNode().withMessageTemplate("areaMismatch",
-                        "Mismatch for area ${areaName}: ${mismatch} (target=${target}, balance=${balance})")
+                        "Mismatch for area ${areaName}: ${mismatch} (target=${target}, balance=${balance}, loadflow-balance=${loadflowBalance})")
                 .withUntypedValue(AREA_NAME, areaName)
                 .withUntypedValue("mismatch", mismatch)
                 .withUntypedValue("target", target)
                 .withUntypedValue("balance", balance)
+                .withUntypedValue("loadflowBalance", loadflowBalance)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }

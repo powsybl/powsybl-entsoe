@@ -8,8 +8,7 @@ package com.powsybl.balances_adjustment.util;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.modification.scalable.Scalable;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 
 import java.util.List;
@@ -53,5 +52,9 @@ public final class NetworkAreaUtil {
     }
 
     private NetworkAreaUtil() {
+    }
+
+    public static boolean isInCountry(Injection<?> injection, List<Country> countries) {
+        return injection.getTerminal().getVoltageLevel().getSubstation().flatMap(Substation::getCountry).map(countries::contains).orElse(false);
     }
 }

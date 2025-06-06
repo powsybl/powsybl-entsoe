@@ -16,21 +16,19 @@ import java.util.stream.Collectors;
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
 public class StaticCountryArea implements NetworkArea {
-    private final List<Country> countries = new ArrayList<>();
     private final Set<Bus> busesCache;
     private final List<Load> loadsCache;
     private final List<Generator> generatorsCache;
 
     public StaticCountryArea(Network network, List<Country> countries) {
-        this.countries.addAll(countries);
         busesCache = network.getBusView().getBusStream()
             .filter(bus -> bus.getVoltageLevel().getSubstation().flatMap(Substation::getCountry).map(countries::contains).orElse(false))
             .collect(Collectors.toSet());
         loadsCache = network.getLoadStream()
-            .filter(this::isInCountry)
+            .filter(load -> NetworkAreaUtil.isInCountry(load, countries))
             .toList();
         generatorsCache = network.getGeneratorStream()
-            .filter(this::isInCountry)
+            .filter(generator -> NetworkAreaUtil.isInCountry(generator, countries))
             .toList();
     }
 
@@ -40,11 +38,17 @@ public class StaticCountryArea implements NetworkArea {
     }
 
     @Override
-    public Collection<Bus> getContainedBusViewBuses() {
-        return Collections.unmodifiableCollection(busesCache);
+    public double getLoadBalanceDelta() {
+        return 0;
     }
 
-    private boolean isInCountry(Injection<?> injection) {
-        return injection.getTerminal().getVoltageLevel().getSubstation().flatMap(Substation::getCountry).map(countries::contains).orElse(false);
+    @Override
+    public double getGeneratorBalanceDelta() {
+        return 0;
+    }
+
+    @Override
+    public Collection<Bus> getContainedBusViewBuses() {
+        return Collections.unmodifiableCollection(busesCache);
     }
 }

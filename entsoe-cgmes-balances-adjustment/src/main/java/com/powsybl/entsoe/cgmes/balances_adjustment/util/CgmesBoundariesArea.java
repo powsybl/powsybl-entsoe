@@ -38,4 +38,14 @@ class CgmesBoundariesArea implements NetworkArea {
     public double getNetPosition() {
         return danglingLinesCache.parallelStream().mapToDouble(dl -> dl.getTerminal().isConnected() ? -dl.getBoundary().getP() : 0).sum();
     }
+
+    @Override
+    public double getLoadBalanceDelta() {
+        return 0;
+    }
+
+    @Override
+    public double getGeneratorBalanceDelta() {
+        return 0;
+    }
 }

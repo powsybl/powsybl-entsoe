@@ -28,6 +28,8 @@ public class CountryArea implements NetworkArea {
     private final List<DanglingLine> danglingLineBordersCache;
     private final List<Line> lineBordersCache;
     private final List<HvdcLine> hvdcLineBordersCache;
+    private final List<Load> loadsCache;
+    private final List<Generator> generatorsCache;
 
     private final Set<Bus> busesCache;
 
@@ -43,6 +45,12 @@ public class CountryArea implements NetworkArea {
         hvdcLineBordersCache = network.getHvdcLineStream()
                 .filter(this::isAreaBorder)
                 .toList();
+        loadsCache = network.getLoadStream()
+            .filter(load -> NetworkAreaUtil.isInCountry(load, countries))
+            .toList();
+        generatorsCache = network.getGeneratorStream()
+            .filter(generator -> NetworkAreaUtil.isInCountry(generator, countries))
+            .toList();
 
         busesCache = network.getBusView().getBusStream()
                 .filter(bus -> bus.getVoltageLevel().getSubstation().flatMap(Substation::getCountry).map(countries::contains).orElse(false))
@@ -58,6 +66,26 @@ public class CountryArea implements NetworkArea {
         return danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + lineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + hvdcLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
+    }
+
+    @Override
+    public double getLoadBalanceDelta() {
+        return loadsCache.parallelStream().mapToDouble(load -> {
+            if (!Double.isNaN(load.getTerminal().getP())) {
+                return load.getTerminal().getP() - load.getP0();
+            }
+            return 0;
+        }).sum();
+    }
+
+    @Override
+    public double getGeneratorBalanceDelta() {
+        return generatorsCache.parallelStream().mapToDouble(generator -> {
+            if (!Double.isNaN(generator.getTerminal().getP())) {
+                return generator.getTerminal().getP() + generator.getTargetP();
+            }
+            return 0;
+        }).sum();
     }
 
     @Override
