@@ -130,14 +130,14 @@ class BalanceComputationImplDcTest {
     }
 
     @Test
-    void testUnBalancedNetworkWithIgnoreLoadFlowBalance() {
+    void testUnBalancedNetworkWithSubtractLoadFlowBalancing() {
         List<BalanceComputationArea> areas = new ArrayList<>();
         areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1200.));
         areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, 2000.));
 
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        parameters.setIgnoreLoadFlowBalance(true);
+        parameters.setSubtractLoadFlowBalancing(true);
         // Activate slack distribution in Belgium
         parameters.getLoadFlowParameters().setCountriesToBalance(Set.of(Country.BE));
         parameters.getLoadFlowParameters().setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD);

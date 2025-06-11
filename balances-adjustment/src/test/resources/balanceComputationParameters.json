@@ -3,7 +3,7 @@
   "maxNumberIterations" : 11,
   "thresholdNetPosition" : 2.0,
   "mismatchMode" : "MAX",
-  "ignoreLoadFlowBalance" : false,
+  "subtractLoadFlowBalancing" : false,
   "load-flow-parameters" : {
     "version" : "1.9",
     "voltageInitMode" : "DC_VALUES",

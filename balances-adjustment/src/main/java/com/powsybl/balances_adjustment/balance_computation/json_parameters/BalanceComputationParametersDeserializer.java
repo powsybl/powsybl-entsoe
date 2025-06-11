@@ -63,10 +63,10 @@ public class BalanceComputationParametersDeserializer extends StdDeserializer<Ba
                     parameters.setMismatchMode(JsonUtil.readValue(deserializationContext, parser, BalanceComputationParameters.MismatchMode.class));
                     break;
 
-                case "ignoreLoadFlowBalance":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: ignoreLoadFlowBalance", version, "1.2");
+                case "subtractLoadFlowBalancing":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: subtractLoadFlowBalancing", version, "1.2");
                     parser.nextToken();
-                    parameters.setIgnoreLoadFlowBalance(parser.readValueAs(boolean.class));
+                    parameters.setSubtractLoadFlowBalancing(parser.readValueAs(boolean.class));
                     break;
 
                 case "load-flow-parameters":

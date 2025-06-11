@@ -62,11 +62,11 @@ public class CountryArea implements NetworkArea {
     }
 
     @Override
-    public double getNetPosition(boolean ignoreLoadFlowBalance) {
+    public double getNetPosition(boolean subtractLoadFlowBalancing) {
         double netPosition = danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + lineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + hvdcLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
-        if (ignoreLoadFlowBalance) {
+        if (subtractLoadFlowBalancing) {
             netPosition -= NetworkAreaUtil.getLoadFlowBalance(generatorsCache, loadsCache);
         }
         return netPosition;

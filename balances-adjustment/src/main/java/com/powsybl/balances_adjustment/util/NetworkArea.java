@@ -25,9 +25,11 @@ public interface NetworkArea {
      * Net position sign convention is positive when flows are leaving the area (export) and negative
      * when flows feed the area (import).
      *
+     * @param subtractLoadFlowBalancing Whether we should subtract the extra production/load balanced by load flow
+     *
      * @return Sum of the flows leaving the area
      */
-    double getNetPosition(boolean ignoreLoadFlowBalance);
+    double getNetPosition(boolean subtractLoadFlowBalancing);
 
     default double getNetPosition() {
         return getNetPosition(false);
