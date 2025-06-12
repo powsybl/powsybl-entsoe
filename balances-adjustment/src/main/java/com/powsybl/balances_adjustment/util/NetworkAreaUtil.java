@@ -67,7 +67,7 @@ public final class NetworkAreaUtil {
         }).sum();
         double loadflowBalancingOnGenerators = generators.parallelStream().mapToDouble(generator -> {
             if (!Double.isNaN(generator.getTerminal().getP())) {
-                return generator.getTargetP() + generator.getTerminal().getP(); // getP is negative when is produces flow
+                return -(generator.getTargetP() + generator.getTerminal().getP()); // getP is negative when is produces flow
             }
             return 0;
         }).sum();
