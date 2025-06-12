@@ -117,7 +117,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             for (BalanceComputationArea area : areas) {
                 NetworkArea na = context.getNetworkArea(area);
                 double target = area.getTargetNetPosition();
-                double balance = na.getNetPosition();
+                double balance = na.getNetPosition(context.parameters.isSubtractLoadFlowBalancing());
                 double mismatch = target - balance;
                 Reports.reportAreaMismatch(mismatchReportNode, area.getName(), mismatch, target, balance);
                 LOGGER.info("Iteration={}, Mismatch for area {}: {} (target={}, balance={})", context.getIterationNum(), area.getName(), mismatch, target, balance);
