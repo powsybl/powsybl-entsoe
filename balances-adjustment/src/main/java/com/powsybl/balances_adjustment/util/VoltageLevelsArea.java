@@ -27,6 +27,8 @@ public class VoltageLevelsArea implements NetworkArea {
     private final List<Branch> branchBordersCache;
     private final List<ThreeWindingsTransformer> threeWindingsTransformerBordersCache;
     private final List<HvdcLine> hvdcLineBordersCache;
+    private final List<Load> loadsCache;
+    private final List<Generator> generatorsCache;
 
     private final Set<Bus> busesCache;
 
@@ -45,6 +47,12 @@ public class VoltageLevelsArea implements NetworkArea {
         hvdcLineBordersCache = network.getHvdcLineStream()
                 .filter(this::isAreaBorder)
                 .collect(Collectors.toList());
+        loadsCache = network.getLoadStream()
+            .filter(this::isInVoltageLevels)
+            .toList();
+        generatorsCache = network.getGeneratorStream()
+            .filter(this::isInVoltageLevels)
+            .toList();
 
         busesCache = network.getBusView().getBusStream()
                 .filter(bus -> voltageLevelIds.contains(bus.getVoltageLevel().getId()))
@@ -52,16 +60,24 @@ public class VoltageLevelsArea implements NetworkArea {
     }
 
     @Override
-    public double getNetPosition() {
-        return danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
+    public double getNetPosition(boolean subtractLoadFlowBalancing) {
+        double netPosition = danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + branchBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + threeWindingsTransformerBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + hvdcLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
+        if (subtractLoadFlowBalancing) {
+            netPosition += NetworkAreaUtil.getLoadFlowBalance(generatorsCache, loadsCache);
+        }
+        return netPosition;
     }
 
     @Override
     public Collection<Bus> getContainedBusViewBuses() {
         return Collections.unmodifiableCollection(busesCache);
+    }
+
+    private boolean isInVoltageLevels(Injection<?> injection) {
+        return voltageLevelIds.contains(injection.getTerminal().getVoltageLevel().getId());
     }
 
     private boolean isAreaBorder(DanglingLine danglingLine) {

@@ -8,8 +8,7 @@ package com.powsybl.balances_adjustment.util;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.modification.scalable.Scalable;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 
 import java.util.List;
@@ -53,5 +52,25 @@ public final class NetworkAreaUtil {
     }
 
     private NetworkAreaUtil() {
+    }
+
+    public static boolean isInCountry(Injection<?> injection, List<Country> countries) {
+        return injection.getTerminal().getVoltageLevel().getSubstation().flatMap(Substation::getCountry).map(countries::contains).orElse(false);
+    }
+
+    public static double getLoadFlowBalance(List<Generator> generators, List<Load> loads) {
+        double loadflowBalancingOnLoads = loads.parallelStream().mapToDouble(load -> {
+            if (!Double.isNaN(load.getTerminal().getP())) {
+                return load.getP0() - load.getTerminal().getP();
+            }
+            return 0;
+        }).sum();
+        double loadflowBalancingOnGenerators = generators.parallelStream().mapToDouble(generator -> {
+            if (!Double.isNaN(generator.getTerminal().getP())) {
+                return -(generator.getTargetP() + generator.getTerminal().getP()); // getP is negative when is produces flow
+            }
+            return 0;
+        }).sum();
+        return loadflowBalancingOnLoads + loadflowBalancingOnGenerators;
     }
 }

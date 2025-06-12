@@ -26,11 +26,12 @@ import java.util.function.Supplier;
  */
 public class BalanceComputationParameters extends AbstractExtendable<BalanceComputationParameters> {
 
-    public static final String VERSION = "1.1";
+    public static final String VERSION = "1.2";
 
     public static final double DEFAULT_THRESHOLD_NET_POSITION = 1;
     public static final int DEFAULT_MAX_NUMBER_ITERATIONS = 5;
     public static final MismatchMode DEFAULT_MISMATCH_MODE = MismatchMode.SQUARED;
+    public static final boolean DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING = false;
 
     /**
      * how overall mismatch is to be computed from individual area mismatches
@@ -63,10 +64,29 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
     private MismatchMode mismatchMode;
 
     /**
+     * Whether we should subtract the extra production/load balanced by load flow off the zone target
+     */
+    private boolean subtractLoadFlowBalancing;
+
+    /**
      * Constructor with default parameters
      */
     public BalanceComputationParameters() {
-        this(DEFAULT_THRESHOLD_NET_POSITION, DEFAULT_MAX_NUMBER_ITERATIONS, DEFAULT_MISMATCH_MODE);
+        this(DEFAULT_THRESHOLD_NET_POSITION, DEFAULT_MAX_NUMBER_ITERATIONS, DEFAULT_MISMATCH_MODE, DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING);
+    }
+
+    /**
+     * Constructor with given parameters
+     * @param threshold Threshold for comparing net positions (given in MW)
+     * @param maxNumberIterations Maximum iteration number for balances adjustment
+     * @param mismatchMode How overall mismatch is to be computed from individual area mismatches
+     * @param subtractLoadFlowBalancing Whether we should subtract the extra production/load balanced by load flow off the zone target
+     */
+    public BalanceComputationParameters(double threshold, int maxNumberIterations, MismatchMode mismatchMode, boolean subtractLoadFlowBalancing) {
+        this.thresholdNetPosition = checkThresholdNetPosition(threshold);
+        this.maxNumberIterations = checkMaxNumberIterations(maxNumberIterations);
+        this.mismatchMode = mismatchMode;
+        this.subtractLoadFlowBalancing = subtractLoadFlowBalancing;
     }
 
     /**
@@ -76,9 +96,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      * @param mismatchMode How overall mismatch is to be computed from individual area mismatches
      */
     public BalanceComputationParameters(double threshold, int maxNumberIterations, MismatchMode mismatchMode) {
-        this.thresholdNetPosition = checkThresholdNetPosition(threshold);
-        this.maxNumberIterations = checkMaxNumberIterations(maxNumberIterations);
-        this.mismatchMode = mismatchMode;
+        this(threshold, maxNumberIterations, mismatchMode, DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING);
     }
 
     /**
@@ -87,7 +105,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      * @param maxNumberIterations Maximum iteration number for balances adjustment
      */
     public BalanceComputationParameters(double threshold, int maxNumberIterations) {
-        this(threshold, maxNumberIterations, DEFAULT_MISMATCH_MODE);
+        this(threshold, maxNumberIterations, DEFAULT_MISMATCH_MODE, DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING);
     }
 
     /**
@@ -95,7 +113,7 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
      */
     @Deprecated(since = "2.3.0")
     public BalanceComputationParameters(double threshold, int maxNumberIterations, boolean loadPowerFactorConstant) {
-        this(threshold, maxNumberIterations, DEFAULT_MISMATCH_MODE);
+        this(threshold, maxNumberIterations, DEFAULT_MISMATCH_MODE, DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING);
         scalingParameters.setConstantPowerFactor(loadPowerFactorConstant);
     }
 
@@ -128,6 +146,15 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
 
     public BalanceComputationParameters setMismatchMode(MismatchMode mismatchMode) {
         this.mismatchMode = mismatchMode;
+        return this;
+    }
+
+    public boolean isSubtractLoadFlowBalancing() {
+        return subtractLoadFlowBalancing;
+    }
+
+    public BalanceComputationParameters setSubtractLoadFlowBalancing(boolean subtractLoadFlowBalancing) {
+        this.subtractLoadFlowBalancing = subtractLoadFlowBalancing;
         return this;
     }
 
@@ -180,7 +207,8 @@ public class BalanceComputationParameters extends AbstractExtendable<BalanceComp
         platformConfig.getOptionalModuleConfig("balance-computation-parameters").ifPresent(config -> parameters
                 .setMaxNumberIterations(config.getIntProperty("maxNumberIterations", DEFAULT_MAX_NUMBER_ITERATIONS))
                 .setThresholdNetPosition(config.getDoubleProperty("thresholdNetPosition", DEFAULT_THRESHOLD_NET_POSITION))
-                .setMismatchMode(config.getEnumProperty("mismatchMode", MismatchMode.class, DEFAULT_MISMATCH_MODE)));
+                .setMismatchMode(config.getEnumProperty("mismatchMode", MismatchMode.class, DEFAULT_MISMATCH_MODE))
+                .setSubtractLoadFlowBalancing(config.getBooleanProperty("subtractLoadFlowBalancing", DEFAULT_SUBTRACT_LOAD_FLOW_BALANCING)));
         parameters.readExtensions(platformConfig);
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
