@@ -6,6 +6,7 @@
  */
 package com.powsybl.balances_adjustment.util;
 
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
@@ -19,13 +20,22 @@ import java.util.List;
 public class VoltageLevelsAreaFactory implements NetworkAreaFactory {
 
     private final List<String> voltageLevelIds;
+    private final boolean isStatic;
 
     public VoltageLevelsAreaFactory(String... voltageLevelIds) {
+        this(false, voltageLevelIds);
+    }
+
+    public VoltageLevelsAreaFactory(boolean isStatic, String... voltageLevelIds) {
         this.voltageLevelIds = Arrays.asList(voltageLevelIds);
+        this.isStatic = isStatic;
     }
 
     @Override
-    public VoltageLevelsArea create(Network network) {
+    public NetworkArea create(Network network) {
+        if (isStatic) {
+            return new StaticVoltageLevelsArea(network, voltageLevelIds);
+        }
         return new VoltageLevelsArea(network, voltageLevelIds);
     }
 }

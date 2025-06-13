@@ -15,10 +15,7 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
-public class StaticCountryArea implements NetworkArea {
-    private final Set<Bus> busesCache;
-    private final List<Load> loadsCache;
-    private final List<Generator> generatorsCache;
+public class StaticCountryArea extends AbstractStaticArea {
 
     public StaticCountryArea(Network network, List<Country> countries) {
         busesCache = network.getBusView().getBusStream()
@@ -30,15 +27,5 @@ public class StaticCountryArea implements NetworkArea {
         generatorsCache = network.getGeneratorStream()
             .filter(generator -> NetworkAreaUtil.isInCountry(generator, countries))
             .toList();
-    }
-
-    @Override
-    public double getNetPosition(boolean ignoreLoadFLowBalance) {
-        return generatorsCache.stream().mapToDouble(Generator::getTargetP).sum() - loadsCache.stream().mapToDouble(Load::getP0).sum();
-    }
-
-    @Override
-    public Collection<Bus> getContainedBusViewBuses() {
-        return Collections.unmodifiableCollection(busesCache);
     }
 }
