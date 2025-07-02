@@ -108,10 +108,7 @@ public class BalanceComputationImpl implements BalanceComputation {
                 }
             } else {
                 // Report that LoadFlow was skipped
-                iterationReportNode.newReportNode()
-                        .withMessageTemplate("skipLoadFlow", "Load flow computation skipped")
-                        .withSeverity(TypedValue.INFO_SEVERITY)
-                        .add();
+                Reports.createSkipLoadFlowReport(iterationReportNode);
                 LOGGER.info("Iteration={}, LoadFlow computation skipped as per configuration", context.getIterationNum());
             }
 

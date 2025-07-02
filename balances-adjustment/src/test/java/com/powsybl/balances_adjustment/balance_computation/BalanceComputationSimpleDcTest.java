@@ -240,7 +240,7 @@ class BalanceComputationSimpleDcTest {
 
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testSkipLoadFlow", "Test skip load flow").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME).withMessageTemplate("testSkipLoadFlow").build();
         BalanceComputationResult result = balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
 
         // Check that the report contains information about skipping load flow

@@ -103,4 +103,10 @@ public final class Reports {
                 .add();
     }
 
+    public static void createSkipLoadFlowReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.skipLoadflow")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
 }
