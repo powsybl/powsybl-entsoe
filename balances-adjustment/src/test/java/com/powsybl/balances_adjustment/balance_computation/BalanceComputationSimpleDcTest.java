@@ -334,46 +334,34 @@ class BalanceComputationSimpleDcTest {
 
     @Test
     void testBalancedNetworkAfter1ScalingReport() throws IOException {
-        Locale previousLocale = Locale.getDefault();
-        try {
-            Locale.setDefault(Locale.US);
-            List<BalanceComputationArea> areas = new ArrayList<>();
-            areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
-            areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1300.));
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1300.));
 
-            BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-            ReportNode reportNode = ReportNode.newRootReportNode()
-                    .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate("testBalancedNetworkReport")
-                    .build();
-            balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
-            BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reportNode);
-        } finally {
-            Locale.setDefault(previousLocale);
-        }
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testBalancedNetworkReport")
+                .build();
+        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
+        BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reportNode);
     }
 
     @Test
     void testUnBalancedNetworkReport() throws IOException {
-        Locale previousLocale = Locale.getDefault();
-        try {
-            Locale.setDefault(Locale.US);
-            List<BalanceComputationArea> areas = new ArrayList<>();
-            areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
-            areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1400.));
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1300.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, -1400.));
 
-            BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-            ReportNode reportNode = ReportNode.newRootReportNode()
-                    .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME)
-                    .withMessageTemplate("testUnbalancedNetworkReport")
-                    .build();
-            balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
-            BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
-        } finally {
-            Locale.setDefault(previousLocale);
-        }
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testUnbalancedNetworkReport")
+                .build();
+        balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
+        BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
     }
 
     private abstract class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {

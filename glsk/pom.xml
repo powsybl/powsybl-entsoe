@@ -26,7 +26,6 @@
     </modules>
 
     <dependencies>
-        <!-- Needed for commons reports -->
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-entsoe-commons</artifactId>
