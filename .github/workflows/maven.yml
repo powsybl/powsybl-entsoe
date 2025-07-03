@@ -22,13 +22,6 @@ jobs:
       with:
         path: main
 
-    - name: Checkout powsybl-core branch
-      uses: actions/checkout@v4
-      with:
-        repository: powsybl/powsybl-core
-        ref: refs/heads/main
-        path: powsybl-core
-
     - name: Checkout powsybl-open-loadflow branch
       uses: actions/checkout@v4
       with:
@@ -40,10 +33,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 17
-
-
-    - name: Build and install powsybl-core with Maven
-      run: mvn --batch-mode -DskipTests=true --file ./powsybl-core/pom.xml install
 
     - name: Build and install powsybl-open-loadflow with Maven
       run: mvn --batch-mode -DskipTests=true --file ./powsybl-open-loadflow/pom.xml install
