@@ -19,8 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
 
-import javax.xml.XMLConstants;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
@@ -109,13 +107,7 @@ public final class DataExchangesXml {
         Objects.requireNonNull(reader);
         var context = new ParsingContext();
         try {
-            var factory = XMLInputFactory.newInstance();
-            // disable resolving of external DTD entities
-            factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-            factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
+            var factory = XmlUtil.getXMLInputFactory();
             var xmlReader = factory.createXMLStreamReader(reader);
             try {
                 XmlUtil.readSubElements(xmlReader, subElementName -> {
