@@ -24,4 +24,11 @@
         <module>glsk-document-cse</module>
         <module>glsk-quality-check-ucte</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-entsoe-commons</artifactId>
+        </dependency>
+    </dependencies>
 </project>
