@@ -7,7 +7,10 @@
  */
 package com.powsybl.flow_decomposition.partitioners;
 
-import com.powsybl.flow_decomposition.*;
+import com.powsybl.flow_decomposition.FlowDecompositionObserverList;
+import com.powsybl.flow_decomposition.FlowPartition;
+import com.powsybl.flow_decomposition.FlowPartitioner;
+import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
@@ -39,16 +42,16 @@ public class DirectSensitivityPartitioner implements FlowPartitioner {
     }
 
     @Override
-    public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
+    public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch<?>> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
         LOGGER.warn("Using fast mode of flow decomposition, detailed info (as nodal PTDF and PSDF matrices) won't be reported");
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecs));
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network, netPositions,
-                networkMatrixIndexes, glsks);
+            networkMatrixIndexes, glsks);
         FastModeSensitivityAnalyser sensitivityAnalyser = new FastModeSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner, network, xnecs, nodalInjectionsMatrix);
         Map<String, Map<String, Double>> decomposedFlow = sensitivityAnalyser.run();
         return xnecs.stream().collect(Collectors.toMap(
-                Identifiable::getId,
-                xnec -> buildFlowPartition(xnec, decomposedFlow.getOrDefault(xnec.getId(), Collections.emptyMap()))
+            Identifiable::getId,
+            xnec -> buildFlowPartition(xnec, decomposedFlow.getOrDefault(xnec.getId(), Collections.emptyMap()))
         ));
     }
 
@@ -62,10 +65,10 @@ public class DirectSensitivityPartitioner implements FlowPartitioner {
         return nodalInjectionsMatrix;
     }
 
-    private FlowPartition buildFlowPartition(Branch xnec, Map<String, Double> value) {
+    private FlowPartition buildFlowPartition(Branch<?> xnec, Map<String, Double> value) {
         Map<Country, Double> loopFlowsCountryMap = value.entrySet().stream()
-                .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
-                .collect(Collectors.toMap(entry -> Country.valueOf(entry.getKey().substring((LOOP_FLOWS_COLUMN_PREFIX + " ").length())), Map.Entry::getValue));
+            .filter(entry -> entry.getKey().startsWith(LOOP_FLOWS_COLUMN_PREFIX))
+            .collect(Collectors.toMap(entry -> Country.valueOf(entry.getKey().substring((LOOP_FLOWS_COLUMN_PREFIX + " ").length())), Map.Entry::getValue));
         Country country1 = NetworkUtil.getTerminalCountry(xnec.getTerminal1());
         Country country2 = NetworkUtil.getTerminalCountry(xnec.getTerminal2());
         double allocatedFlow = value.get(ALLOCATED_COLUMN_NAME);
@@ -78,7 +81,7 @@ public class DirectSensitivityPartitioner implements FlowPartitioner {
     private double extractInternalFlowFromMap(Map<Country, Double> loopFlowsMap, Country country1, Country country2) {
         if (Objects.equals(country1, country2)) {
             return Optional.ofNullable(loopFlowsMap.remove(country1))
-                    .orElse(NO_FLOW);
+                .orElse(NO_FLOW);
         }
         return NO_FLOW;
     }

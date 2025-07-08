@@ -51,7 +51,7 @@ public abstract class AbstractSensitivityAnalyser {
     }
 
     protected List<FunctionVariableFactor> getFunctionVariableFactors(List<String> variableList,
-                                                                    List<Branch> functionList) {
+                                                                      List<Branch<?>> functionList) {
         List<FunctionVariableFactor> factors = new ArrayList<>();
         variableList.forEach(
             variable -> functionList.forEach(
