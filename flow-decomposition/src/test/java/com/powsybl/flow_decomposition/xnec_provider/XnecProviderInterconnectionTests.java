@@ -27,7 +27,7 @@ class XnecProviderInterconnectionTests {
         Network network = TestUtils.importNetwork(networkFileName);
         String xnecFrBee = "FGEN1 11 BLOAD 11 1";
         XnecProvider xnecProvider = new XnecProviderInterconnection();
-        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
+        Set<Branch<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertTrue(branchSet.contains(network.getBranch(xnecFrBee)));
         assertEquals(1, branchSet.size());
     }

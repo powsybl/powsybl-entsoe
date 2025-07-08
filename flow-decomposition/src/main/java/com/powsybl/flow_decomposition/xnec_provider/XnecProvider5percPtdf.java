@@ -7,7 +7,10 @@
 package com.powsybl.flow_decomposition.xnec_provider;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.flow_decomposition.*;
+import com.powsybl.flow_decomposition.GlskProvider;
+import com.powsybl.flow_decomposition.NetworkUtil;
+import com.powsybl.flow_decomposition.XnecProvider;
+import com.powsybl.flow_decomposition.ZonalSensitivityAnalyser;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
@@ -16,11 +19,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import com.powsybl.sensitivity.SensitivityVariableType;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,11 +35,11 @@ public class XnecProvider5percPtdf implements XnecProvider {
         this.glskProvider = new AutoGlskProvider();
     }
 
-    private static boolean isAXnec(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
+    private static boolean isAXnec(Branch<?> branch, Map<String, Map<Country, Double>> zonalPtdf) {
         return XnecProviderInterconnection.isAnInterconnection(branch) || hasMoreThan5PercentPtdf(getZonalPtdf(branch, zonalPtdf));
     }
 
-    private static Collection<Double> getZonalPtdf(Branch branch, Map<String, Map<Country, Double>> zonalPtdf) {
+    private static Collection<Double> getZonalPtdf(Branch<?> branch, Map<String, Map<Country, Double>> zonalPtdf) {
         return zonalPtdf.getOrDefault(branch.getId(), Collections.emptyMap()).values();
     }
 
@@ -49,7 +48,7 @@ public class XnecProvider5percPtdf implements XnecProvider {
             && (Collections.max(countryPtdfList) - Collections.min(countryPtdfList)) >= MAX_ZONE_TO_ZONE_PTDF_THRESHOLD;
     }
 
-    public Set<Branch> getBranches(Network network) {
+    public Set<Branch<?>> getBranches(Network network) {
         Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
         ZonalSensitivityAnalyser zonalSensitivityAnalyser = new ZonalSensitivityAnalyser(LoadFlowParameters.load(), SensitivityAnalysis.find());
         Map<String, Map<Country, Double>> zonalPtdf = zonalSensitivityAnalyser.run(network, glsks, SensitivityVariableType.INJECTION_ACTIVE_POWER);
@@ -60,17 +59,17 @@ public class XnecProvider5percPtdf implements XnecProvider {
     }
 
     @Override
-    public Set<Branch> getNetworkElements(Network network) {
+    public Set<Branch<?>> getNetworkElements(Network network) {
         return getBranches(network);
     }
 
     @Override
-    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
+    public Set<Branch<?>> getNetworkElements(String contingencyId, Network network) {
         return Collections.emptySet();
     }
 
     @Override
-    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
+    public Map<String, Set<Branch<?>>> getNetworkElementsPerContingency(Network network) {
         return Collections.emptyMap();
     }
 
