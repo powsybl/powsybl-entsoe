@@ -11,6 +11,7 @@ import com.powsybl.balances_adjustment.util.CountryAreaFactory;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.entsoe.commons.PowsyblEntsoeReportResourceBundle;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.*;
@@ -48,6 +49,7 @@ class BalanceComputationSimpleDcTest {
     private Branch branchFrBe2;
     private String initialState = "InitialState";
     private String initialVariantNew = "InitialVariantNew";
+    private static final String TEST_BASE_NAME = "i18n.reports";
 
     @BeforeEach
     void setUp() {
@@ -238,7 +240,7 @@ class BalanceComputationSimpleDcTest {
 
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testSkipLoadFlow", "Test skip load flow").build();
+        ReportNode reportNode = ReportNode.newRootReportNode().withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME).withMessageTemplate("testSkipLoadFlow").build();
         BalanceComputationResult result = balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
 
         // Check that the report contains information about skipping load flow
@@ -338,7 +340,10 @@ class BalanceComputationSimpleDcTest {
 
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testBalancedNetworkReport", "Test balanced network report").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testBalancedNetworkReport")
+                .build();
         balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
         BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reportNode);
     }
@@ -351,7 +356,10 @@ class BalanceComputationSimpleDcTest {
 
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testUnbalancedNetworkReport", "Test unbalanced network report").build();
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME)
+                .withMessageTemplate("testUnbalancedNetworkReport")
+                .build();
         balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
         BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
     }
