@@ -31,7 +31,7 @@ jobs:
 
     - name: Build with Maven
       if: matrix.os != 'ubuntu-latest'
-      run: mvn --batch-mode --file install
+      run: mvn --batch-mode install
 
     - name: Run SonarCloud analysis
       if: matrix.os == 'ubuntu-latest'
