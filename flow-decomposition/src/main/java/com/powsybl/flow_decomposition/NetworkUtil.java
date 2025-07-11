@@ -49,13 +49,13 @@ public final class NetworkUtil {
         Optional<Substation> optionalSubstation = terminal.getVoltageLevel().getSubstation();
         if (optionalSubstation.isEmpty()) {
             throw new PowsyblException(String.format("Voltage level %s does not belong to any substation. " +
-                    "Cannot retrieve country info needed for the algorithm.", terminal.getVoltageLevel().getId()));
+                "Cannot retrieve country info needed for the algorithm.", terminal.getVoltageLevel().getId()));
         }
         Substation substation = optionalSubstation.get();
         Optional<Country> optionalCountry = substation.getCountry();
         if (optionalCountry.isEmpty()) {
             throw new PowsyblException(String.format("Substation %s does not have country property " +
-                    "needed for the algorithm.", substation.getId()));
+                "needed for the algorithm.", substation.getId()));
         }
         return optionalCountry.get();
     }
@@ -66,11 +66,12 @@ public final class NetworkUtil {
             .collect(Collectors.toMap(idList::get, Function.identity()));
     }
 
-    public static List<Branch> getAllValidBranches(Network network) {
+    public static List<Branch<?>> getAllValidBranches(Network network) {
         return network.getBranchStream()
             .filter(NetworkUtil::isConnected)
             .filter(NetworkUtil::hasABusToEachTerminal)
             .filter(NetworkUtil::isInMainSynchronousComponent)
+            .map(branch -> (Branch<?>) branch)
             .collect(Collectors.toList());
     }
 
@@ -78,7 +79,7 @@ public final class NetworkUtil {
         return branch.getTerminal1().isConnected() && branch.getTerminal2().isConnected();
     }
 
-    private static boolean hasABusToEachTerminal(Branch branch) {
+    private static boolean hasABusToEachTerminal(Branch<?> branch) {
         return hasABusInBusBreakerView(branch.getTerminal1()) && hasABusInBusBreakerView(branch.getTerminal2());
     }
 

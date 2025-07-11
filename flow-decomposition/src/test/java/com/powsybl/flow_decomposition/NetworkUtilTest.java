@@ -12,7 +12,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,7 +51,7 @@ class NetworkUtilTest {
     void testGetAllValidBranches() {
         Network network = TestUtils.importNetwork("NETWORK_LOOP_FLOW_WITH_COUNTRIES.uct");
 
-        List<Branch> allValidBranches = NetworkUtil.getAllValidBranches(network);
+        List<Branch<?>> allValidBranches = NetworkUtil.getAllValidBranches(network);
         assertEquals(5, allValidBranches.size());
         assertTrue(allValidBranches.contains(network.getBranch("EGEN  11 FGEN  11 1")));
         assertTrue(allValidBranches.contains(network.getBranch("FGEN  11 BGEN  11 1")));
@@ -65,7 +66,7 @@ class NetworkUtilTest {
         network.getBranch("BLOAD 11 FLOAD 11 1").getTerminal2().disconnect();
         network.getBranch("FGEN  11 BGEN  11 1").getTerminal1().disconnect();
 
-        List<Branch> allValidBranches = NetworkUtil.getAllValidBranches(network);
+        List<Branch<?>> allValidBranches = NetworkUtil.getAllValidBranches(network);
         assertEquals(1, allValidBranches.size());
         assertTrue(allValidBranches.contains(network.getBranch("EGEN  11 FGEN  11 1")));
         assertFalse(allValidBranches.contains(network.getBranch("FGEN  11 BGEN  11 1")));
@@ -81,7 +82,7 @@ class NetworkUtilTest {
         assertFalse(network.getBranch("EGEN  11 FGEN  11 1").getTerminal1().getBusBreakerView().getBus().isInMainConnectedComponent());
         assertFalse(network.getBranch("EGEN  11 FGEN  11 1").getTerminal1().getBusBreakerView().getBus().isInMainSynchronousComponent());
 
-        List<Branch> allValidBranches = NetworkUtil.getAllValidBranches(network);
+        List<Branch<?>> allValidBranches = NetworkUtil.getAllValidBranches(network);
         assertEquals(3, allValidBranches.size());
         assertFalse(allValidBranches.contains(network.getBranch("EGEN  11 FGEN  11 1")));
         assertFalse(allValidBranches.contains(network.getBranch("FGEN  11 BGEN  11 1")));
@@ -140,7 +141,7 @@ class NetworkUtilTest {
     }
 
     private static void validateValidBranches(Network network) {
-        List<Branch> allValidBranches = NetworkUtil.getAllValidBranches(network);
+        List<Branch<?>> allValidBranches = NetworkUtil.getAllValidBranches(network);
         assertEquals(12, allValidBranches.size());
         assertTrue(allValidBranches.contains(network.getLine("DDE1AA11 DDE2AA11 1")));
         assertTrue(allValidBranches.contains(network.getLine("DDE1AA11 DDE4AA11 1")));

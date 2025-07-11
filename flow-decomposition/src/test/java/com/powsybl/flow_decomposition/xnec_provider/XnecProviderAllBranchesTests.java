@@ -28,7 +28,7 @@ class XnecProviderAllBranchesTests {
         String xnecFrBe = "FGEN1 11 BLOAD 11 1";
         String xnecBeBe = "BLOAD 11 BGEN2 11 1";
         XnecProvider xnecProvider = new XnecProviderAllBranches();
-        Set<Branch> branchSet = xnecProvider.getNetworkElements(network);
+        Set<Branch<?>> branchSet = xnecProvider.getNetworkElements(network);
         assertTrue(branchSet.contains(network.getBranch(xnecFrBe)));
         assertTrue(branchSet.contains(network.getBranch(xnecBeBe)));
         assertEquals(2, branchSet.size());
