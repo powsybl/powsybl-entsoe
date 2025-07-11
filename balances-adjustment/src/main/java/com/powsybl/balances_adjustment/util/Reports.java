@@ -23,9 +23,9 @@ public final class Reports {
     private Reports() {
     }
 
-    public static void reportScaling(ReportNode reportNode, String areaName, double offset, double done) {
-        reportNode.newReportNode().withMessageTemplate("areaScaling",
-                        "Scaling for area ${areaName}: offset=${offset}, done=${done}")
+    public static void reportAreaScaling(ReportNode reportNode, String areaName, double offset, double done) {
+        reportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.areaScaling")
                 .withUntypedValue(AREA_NAME, areaName)
                 .withUntypedValue("offset", offset)
                 .withUntypedValue("done", done)
@@ -34,8 +34,8 @@ public final class Reports {
     }
 
     public static void reportLfStatus(ReportNode reportNode, int networkNumCc, int networkNumSc, String status, TypedValue severity) {
-        reportNode.newReportNode().withMessageTemplate("lfStatus",
-                        "Network CC${networkNumCc} SC${networkNumSc} Load flow complete with status '${status}'")
+        reportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.lfStatus")
                 .withUntypedValue("networkNumCc", networkNumCc)
                 .withUntypedValue("networkNumSc", networkNumSc)
                 .withUntypedValue("status", status)
@@ -44,8 +44,8 @@ public final class Reports {
     }
 
     public static void reportAreaMismatch(ReportNode reportNode, String areaName, double mismatch, double target, double balance) {
-        reportNode.newReportNode().withMessageTemplate("areaMismatch",
-                        "Mismatch for area ${areaName}: ${mismatch} (target=${target}, balance=${balance})")
+        reportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.areaMismatch")
                 .withUntypedValue(AREA_NAME, areaName)
                 .withUntypedValue("mismatch", mismatch)
                 .withUntypedValue("target", target)
@@ -55,8 +55,8 @@ public final class Reports {
     }
 
     public static void reportBalancedAreas(ReportNode reportNode, List<String> networkAreasName, int iterationCount) {
-        reportNode.newReportNode().withMessageTemplate("balancedAreas",
-                        "Areas ${networkAreasName} are balanced after ${iterationCount} iterations")
+        reportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.balancedAreas")
                 .withUntypedValue("networkAreasName", networkAreasName.toString())
                 .withUntypedValue("iterationCount", iterationCount)
                 .withSeverity(TypedValue.INFO_SEVERITY)
@@ -64,8 +64,8 @@ public final class Reports {
     }
 
     public static void reportUnbalancedAreas(ReportNode reportNode, int iteration, BigDecimal totalMismatch) {
-        reportNode.newReportNode().withMessageTemplate("unbalancedAreas",
-                "Areas are unbalanced after ${iteration} iterations, total mismatch is ${totalMismatch}")
+        reportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.unbalancedAreas")
                 .withUntypedValue(ITERATION, iteration)
                 .withUntypedValue("totalMismatch", totalMismatch.toString())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
@@ -73,8 +73,40 @@ public final class Reports {
     }
 
     public static ReportNode createBalanceComputationIterationReporter(ReportNode reportNode, int iteration) {
-        return reportNode.newReportNode().withMessageTemplate("balanceComputation", "Balance Computation iteration '${iteration}'")
+        return reportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.balanceComputation")
                 .withUntypedValue(ITERATION, iteration)
+                .add();
+    }
+
+    public static ReportNode createStatusReporter(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.status")
+                .add();
+    }
+
+    public static ReportNode createMismatchReporter(ReportNode iterationReportNode) {
+        return iterationReportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.mismatch")
+                .add();
+    }
+
+    public static ReportNode createScalingReporter(ReportNode iterationReportNode) {
+        return iterationReportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.scaling")
+                .add();
+    }
+
+    public static ReportNode createLoadFlowStatusReporter(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.loadFlowStatus")
+                .add();
+    }
+
+    public static void createSkipLoadFlowReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("entsoe.balances_adjustment.skipLoadflow")
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
     }
 }

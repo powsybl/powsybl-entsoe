@@ -13,14 +13,7 @@ import com.powsybl.flow_decomposition.XnecProvider;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +29,7 @@ public class XnecProviderUnion implements XnecProvider {
 
     private class ContingencyConsistencyCache {
         private final Set<String> validContingencyIds = new HashSet<>();
-        private final Map<String, Set<Branch>> contingencyIdToXnec = new HashMap<>();
+        private final Map<String, Set<Branch<?>>> contingencyIdToXnec = new HashMap<>();
         private final Set<Contingency> contingencies = new HashSet<>();
         private final int networkHash;
 
@@ -79,13 +72,13 @@ public class XnecProviderUnion implements XnecProvider {
                 .hashCode();
         }
 
-        private Set<Branch> getBranchSetForAllProviders(String contingencyId, Network network) {
+        private Set<Branch<?>> getBranchSetForAllProviders(String contingencyId, Network network) {
             return xnecProviders.stream()
                 .flatMap(xnecProvider -> xnecProvider.getNetworkElements(contingencyId, network).stream())
                 .collect(Collectors.toSet());
         }
 
-        public Map<String, Set<Branch>> getContingencyIdToXnec() {
+        public Map<String, Set<Branch<?>>> getContingencyIdToXnec() {
             return contingencyIdToXnec;
         }
 
@@ -101,19 +94,19 @@ public class XnecProviderUnion implements XnecProvider {
     }
 
     @Override
-    public Set<Branch> getNetworkElements(Network network) {
+    public Set<Branch<?>> getNetworkElements(Network network) {
         return xnecProviders.stream()
             .flatMap(xnecProvider -> xnecProvider.getNetworkElements(network).stream())
             .collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
+    public Set<Branch<?>> getNetworkElements(String contingencyId, Network network) {
         return getNetworkElementsPerContingency(network).get(contingencyId);
     }
 
     @Override
-    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
+    public Map<String, Set<Branch<?>>> getNetworkElementsPerContingency(Network network) {
         initializeContingencyConsistencyCache(network);
         return contingencyConsistencyCache.getContingencyIdToXnec();
     }

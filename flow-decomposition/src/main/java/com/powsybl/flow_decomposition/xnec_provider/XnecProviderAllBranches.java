@@ -22,17 +22,17 @@ import java.util.stream.Collectors;
  */
 public class XnecProviderAllBranches implements XnecProvider {
     @Override
-    public Set<Branch> getNetworkElements(Network network) {
-        return network.getBranchStream().collect(Collectors.toSet());
+    public Set<Branch<?>> getNetworkElements(Network network) {
+        return network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Branch> getNetworkElements(String contingencyId, Network network) {
+    public Set<Branch<?>> getNetworkElements(String contingencyId, Network network) {
         return Collections.emptySet();
     }
 
     @Override
-    public Map<String, Set<Branch>> getNetworkElementsPerContingency(Network network) {
+    public Map<String, Set<Branch<?>>> getNetworkElementsPerContingency(Network network) {
         return Collections.emptyMap();
     }
 

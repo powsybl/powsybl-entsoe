@@ -11,14 +11,18 @@ import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.flow_decomposition.partitioners.DirectSensitivityPartitioner;
 import com.powsybl.flow_decomposition.partitioners.MatrixBasedPartitioner;
 import com.powsybl.flow_decomposition.rescaler.*;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -50,7 +54,7 @@ public class FlowDecompositionComputer {
         this.loadFlowParameters = loadFlowParameters.copy();
         if (!MAIN_CONNECTED_COMPONENT.equals(this.loadFlowParameters.getConnectedComponentMode())) {
             LOGGER.warn("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode from {} to MAIN.",
-                    this.loadFlowParameters.getConnectedComponentMode());
+                this.loadFlowParameters.getConnectedComponentMode());
             this.loadFlowParameters.setConnectedComponentMode(MAIN_CONNECTED_COMPONENT);
         }
         this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
@@ -89,19 +93,19 @@ public class FlowDecompositionComputer {
 
             FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
             decomposeFlowForNState(network,
-                    flowDecompositionResults,
-                    xnecProvider.getNetworkElements(network),
-                    netPositions,
-                    glsks,
-                    loadFlowServiceAcResult);
+                flowDecompositionResults,
+                xnecProvider.getNetworkElements(network),
+                netPositions,
+                glsks,
+                loadFlowServiceAcResult);
             xnecProvider.getNetworkElementsPerContingency(network)
-                    .forEach((contingencyId, xnecs) -> decomposeFlowForContingencyState(network,
-                            flowDecompositionResults,
-                            networkStateManager,
-                            contingencyId,
-                            xnecs,
-                            netPositions,
-                            glsks));
+                .forEach((contingencyId, xnecs) -> decomposeFlowForContingencyState(network,
+                    flowDecompositionResults,
+                    networkStateManager,
+                    contingencyId,
+                    xnecs,
+                    netPositions,
+                    glsks));
             networkStateManager.deleteAllContingencyVariants();
             return flowDecompositionResults;
         } finally {
@@ -111,7 +115,7 @@ public class FlowDecompositionComputer {
 
     private void decomposeFlowForNState(Network network,
                                         FlowDecompositionResults flowDecompositionResults,
-                                        Set<Branch> xnecs,
+                                        Set<Branch<?>> xnecs,
                                         Map<Country, Double> netPositions,
                                         Map<Country, Map<String, Double>> glsks,
                                         LoadFlowRunningService.Result loadFlowServiceAcResult) {
@@ -126,7 +130,7 @@ public class FlowDecompositionComputer {
                                                   FlowDecompositionResults flowDecompositionResults,
                                                   NetworkStateManager networkStateManager,
                                                   String contingencyId,
-                                                  Set<Branch> xnecList,
+                                                  Set<Branch<?>> xnecList,
                                                   Map<Country, Double> netPositions,
                                                   Map<Country, Map<String, Double>> glsks) {
         if (!xnecList.isEmpty()) {
@@ -139,7 +143,7 @@ public class FlowDecompositionComputer {
     }
 
     private void decomposeFlowForState(Network network,
-                                       Set<Branch> xnecs,
+                                       Set<Branch<?>> xnecs,
                                        FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder,
                                        Map<Country, Double> netPositions,
                                        Map<Country, Map<String, Double>> glsks,
@@ -165,11 +169,11 @@ public class FlowDecompositionComputer {
     private FlowPartitioner getFlowPartitioner() {
         return switch (parameters.getFlowPartitioner()) {
             case MATRIX_BASED ->
-                    new MatrixBasedPartitioner(loadFlowParameters, parameters, sensitivityAnalysisRunner, observers);
+                new MatrixBasedPartitioner(loadFlowParameters, parameters, sensitivityAnalysisRunner, observers);
             case DIRECT_SENSITIVITY_BASED ->
-                    new DirectSensitivityPartitioner(loadFlowParameters, sensitivityAnalysisRunner, observers);
+                new DirectSensitivityPartitioner(loadFlowParameters, sensitivityAnalysisRunner, observers);
             default ->
-                    throw new PowsyblException("FlowPartitioner not defined for mode: " + parameters.getFlowPartitioner());
+                throw new PowsyblException("FlowPartitioner not defined for mode: " + parameters.getFlowPartitioner());
         };
     }
 
@@ -185,20 +189,20 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
-    private void saveAcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+    private void saveAcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Network network, Set<Branch<?>> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
         saveAcReferenceFlows(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult.fallbackHasBeenActivated());
         saveAcCurrents(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult.fallbackHasBeenActivated());
         observers.computedAcLoadFlowResults(network, loadFlowServiceAcResult);
     }
 
-    private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
+    private void saveAcReferenceFlows(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Set<Branch<?>> xnecList, boolean fallbackHasBeenActivated) {
         Map<String, Double> acTerminal1ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, fallbackHasBeenActivated, TwoSides.ONE);
         Map<String, Double> acTerminal2ReferenceFlows = FlowComputerUtils.calculateAcTerminalReferenceFlows(xnecList, fallbackHasBeenActivated, TwoSides.TWO);
         flowDecompositionResultsBuilder.saveAcTerminal1ReferenceFlow(acTerminal1ReferenceFlows);
         flowDecompositionResultsBuilder.saveAcTerminal2ReferenceFlow(acTerminal2ReferenceFlows);
     }
 
-    private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch> xnecList, boolean fallbackHasBeenActivated) {
+    private void saveAcCurrents(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Set<Branch<?>> xnecList, boolean fallbackHasBeenActivated) {
         Map<String, Double> acTerminal1Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, fallbackHasBeenActivated, TwoSides.ONE);
         Map<String, Double> acTerminal2Currents = FlowComputerUtils.calculateAcTerminalCurrents(xnecList, fallbackHasBeenActivated, TwoSides.TWO);
         flowDecompositionResultBuilder.saveAcCurrentTerminal1(acTerminal1Currents);
@@ -220,9 +224,12 @@ public class FlowDecompositionComputer {
         return switch (parameters.getRescaleMode()) {
             case NONE -> new DecomposedFlowRescalerNoOp();
             case ACER_METHODOLOGY -> new DecomposedFlowRescalerAcerMethodology();
-            case PROPORTIONAL -> new DecomposedFlowRescalerProportional(parameters.getProportionalRescalerMinFlowTolerance());
-            case MAX_CURRENT_OVERLOAD -> new DecomposedFlowRescalerMaxCurrentOverload(parameters.getProportionalRescalerMinFlowTolerance());
-            default -> throw new PowsyblException("DecomposedFlowRescaler not defined for mode: " + parameters.getRescaleMode());
+            case PROPORTIONAL ->
+                new DecomposedFlowRescalerProportional(parameters.getProportionalRescalerMinFlowTolerance());
+            case MAX_CURRENT_OVERLOAD ->
+                new DecomposedFlowRescalerMaxCurrentOverload(parameters.getProportionalRescalerMinFlowTolerance());
+            default ->
+                throw new PowsyblException("DecomposedFlowRescaler not defined for mode: " + parameters.getRescaleMode());
         };
     }
 
@@ -230,7 +237,7 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runDcLoadflow(network, loadFlowParameters);
     }
 
-    private void saveDcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch> xnecList, LoadFlowRunningService.Result loadFlowServiceDcResult) {
+    private void saveDcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch<?>> xnecList, LoadFlowRunningService.Result loadFlowServiceDcResult) {
         flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlow(xnecList, TwoSides.ONE));
         observers.computedDcLoadFlowResults(network, loadFlowServiceDcResult);
     }

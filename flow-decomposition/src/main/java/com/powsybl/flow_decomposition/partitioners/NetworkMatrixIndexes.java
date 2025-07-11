@@ -7,7 +7,10 @@
 package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.flow_decomposition.NetworkUtil;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +20,7 @@ import java.util.Map;
  * @author Sebastien Murgey{@literal <sebastien.murgey at rte-france.com>}
  */
 class NetworkMatrixIndexes {
-    private final List<Branch> xnecList;
+    private final List<Branch<?>> xnecList;
     private final List<Injection<?>> nodeList;
     private final List<String> nodeIdList;
     private final List<String> pstList;
@@ -26,7 +29,7 @@ class NetworkMatrixIndexes {
     private final Map<String, Integer> pstIndex;
     private final List<Injection<?>> xnodeList;
 
-    NetworkMatrixIndexes(Network network, List<Branch> xnecList) {
+    NetworkMatrixIndexes(Network network, List<Branch<?>> xnecList) {
         this.xnecList = xnecList;
         nodeList = NetworkUtil.getNodeList(network);
         nodeIdList = getNodeIdList(nodeList);
@@ -37,7 +40,7 @@ class NetworkMatrixIndexes {
         xnodeList = NetworkUtil.getXNodeList(network);
     }
 
-    List<Branch> getXnecList() {
+    List<Branch<?>> getXnecList() {
         return xnecList;
     }
 
@@ -77,7 +80,7 @@ class NetworkMatrixIndexes {
         return nodeList.stream().map(Injection::getId).toList();
     }
 
-    private List<String> getXnecIdList(List<Branch> xnecList) {
+    private List<String> getXnecIdList(List<Branch<?>> xnecList) {
         return xnecList.stream().map(Identifiable::getId).toList();
     }
 }

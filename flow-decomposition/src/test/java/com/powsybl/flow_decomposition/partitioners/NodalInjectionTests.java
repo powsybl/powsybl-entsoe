@@ -102,7 +102,7 @@ class NodalInjectionTests {
         AutoGlskProvider glskProvider = new AutoGlskProvider();
         Map<Country, Map<String, Double>> glsks = glskProvider.getGlsk(network);
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
-        List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
+        List<Branch<?>> xnecList = network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = nodalInjectionComputer.run(network,
@@ -116,7 +116,7 @@ class NodalInjectionTests {
         if (!loadFlowResult.isFullyConverged()) {
             LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         }
-        List<Branch> xnecList = network.getBranchStream().collect(Collectors.toList());
+        List<Branch<?>> xnecList = network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList());
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecList);
         ReferenceNodalInjectionComputer referenceNodalInjectionComputer = new ReferenceNodalInjectionComputer();
         return referenceNodalInjectionComputer.run(networkMatrixIndexes.getNodeList());
