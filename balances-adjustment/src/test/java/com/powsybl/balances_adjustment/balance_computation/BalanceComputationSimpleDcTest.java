@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.*;
 import com.powsybl.math.matrix.DenseMatrixFactory;
 import com.powsybl.openloadflow.OpenLoadFlowProvider;
+import com.powsybl.openloadflow.util.report.PowsyblOpenLoadFlowReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -68,10 +69,10 @@ class BalanceComputationSimpleDcTest {
         loadFlowRunner = new LoadFlow.Runner(new OpenLoadFlowProvider(new DenseMatrixFactory()));
 
         scalableFR = Scalable.proportional(Arrays.asList(60.0, 40.0),
-                Arrays.asList(Scalable.onGenerator("GENERATOR_FR"), Scalable.onLoad("LOAD_FR")));
+            Arrays.asList(Scalable.onGenerator("GENERATOR_FR"), Scalable.onLoad("LOAD_FR")));
 
         scalableBE = Scalable.proportional(Arrays.asList(60.0, 40.0),
-                Arrays.asList(Scalable.onGenerator("GENERATOR_BE"), Scalable.onLoad("LOAD_BE")));
+            Arrays.asList(Scalable.onGenerator("GENERATOR_BE"), Scalable.onLoad("LOAD_BE")));
 
         generatorFr = simpleNetwork.getGenerator("GENERATOR_FR");
         loadFr = simpleNetwork.getLoad("LOAD_FR");
@@ -89,10 +90,10 @@ class BalanceComputationSimpleDcTest {
 
         BalanceComputationImpl balanceComputation = Mockito.spy(new BalanceComputationImpl(areas, computationManager, loadFlowRunnerMock));
         LoadFlowResult loadFlowResult = new LoadFlowResultImpl(true, Collections.emptyMap(), "logs",
-                List.of(
-                        new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, 50, "dummy", 0.0, 0.0),
-                        new LoadFlowResultImpl.ComponentResultImpl(0, 1, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)
-                )
+            List.of(
+                new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, 50, "dummy", 0.0, 0.0),
+                new LoadFlowResultImpl.ComponentResultImpl(0, 1, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)
+            )
         );
         doReturn(loadFlowResult).when(loadFlowRunnerMock).run(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
 
@@ -121,7 +122,7 @@ class BalanceComputationSimpleDcTest {
                 branchFrBe2.getTerminal1().setP(-683);
                 branchFrBe2.getTerminal2().setP(683);
                 return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null,
-                        List.of(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)))
+                    List.of(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)))
                 );
             }
         };
@@ -153,10 +154,10 @@ class BalanceComputationSimpleDcTest {
                 branchFrBe2.getTerminal1().setP(-683);
                 branchFrBe2.getTerminal2().setP(683);
                 return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null,
-                        List.of(
-                                new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0),
-                                new LoadFlowResultImpl.ComponentResultImpl(0, 1, LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, 50, "dummy", 0.0, 0.0)
-                        ))
+                    List.of(
+                        new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0),
+                        new LoadFlowResultImpl.ComponentResultImpl(0, 1, LoadFlowResult.ComponentResult.Status.MAX_ITERATION_REACHED, 50, "dummy", 0.0, 0.0)
+                    ))
                 );
             }
         };
@@ -185,7 +186,7 @@ class BalanceComputationSimpleDcTest {
                 branchFrBe1.getTerminal2().setP(516);
                 branchFrBe2.getTerminal1().setP(-683);
                 return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), null,
-                        List.of(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)))
+                    List.of(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)))
                 );
             }
         };
@@ -341,9 +342,9 @@ class BalanceComputationSimpleDcTest {
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("testBalancedNetworkReport")
-                .build();
+            .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME, PowsyblOpenLoadFlowReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("testBalancedNetworkReport")
+            .build();
         balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
         BalanceComputationAssert.assertReportEquals("/balancedNetworkReport.txt", reportNode);
     }
@@ -357,9 +358,9 @@ class BalanceComputationSimpleDcTest {
         BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
 
         ReportNode reportNode = ReportNode.newRootReportNode()
-                .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME)
-                .withMessageTemplate("testUnbalancedNetworkReport")
-                .build();
+            .withResourceBundles(TEST_BASE_NAME, PowsyblEntsoeReportResourceBundle.BASE_NAME, PowsyblOpenLoadFlowReportResourceBundle.BASE_NAME)
+            .withMessageTemplate("testUnbalancedNetworkReport")
+            .build();
         balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
         BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
     }
