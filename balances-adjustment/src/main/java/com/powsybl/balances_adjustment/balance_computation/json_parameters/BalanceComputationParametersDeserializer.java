@@ -69,6 +69,12 @@ public class BalanceComputationParametersDeserializer extends StdDeserializer<Ba
                     parameters.setWithLoadFlow(parser.readValueAs(boolean.class));
                     break;
 
+                case "subtractLoadFlowBalancing":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: subtractLoadFlowBalancing", version, "1.2");
+                    parser.nextToken();
+                    parameters.setSubtractLoadFlowBalancing(parser.readValueAs(boolean.class));
+                    break;
+
                 case "load-flow-parameters":
                     parser.nextToken();
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());

@@ -19,14 +19,21 @@ import java.util.Collections;
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
 public interface NetworkArea {
+
     /**
      * Computes the net position of the area on a given network object.
      * Net position sign convention is positive when flows are leaving the area (export) and negative
      * when flows feed the area (import).
      *
+     * @param subtractLoadFlowBalancing Whether we should subtract the extra production/load balanced by load flow
+     *
      * @return Sum of the flows leaving the area
      */
-    double getNetPosition();
+    double getNetPosition(boolean subtractLoadFlowBalancing);
+
+    default double getNetPosition() {
+        return getNetPosition(false);
+    }
 
     default Collection<Bus> getContainedBusViewBuses() {
         return Collections.emptyList();

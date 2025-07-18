@@ -28,6 +28,8 @@ public class CountryArea implements NetworkArea {
     private final List<DanglingLine> danglingLineBordersCache;
     private final List<Line> lineBordersCache;
     private final List<HvdcLine> hvdcLineBordersCache;
+    private final List<Load> loadsCache;
+    private final List<Generator> generatorsCache;
 
     private final Set<Bus> busesCache;
 
@@ -43,6 +45,12 @@ public class CountryArea implements NetworkArea {
         hvdcLineBordersCache = network.getHvdcLineStream()
                 .filter(this::isAreaBorder)
                 .toList();
+        loadsCache = network.getLoadStream()
+            .filter(load -> NetworkAreaUtil.isInCountry(load, countries))
+            .toList();
+        generatorsCache = network.getGeneratorStream()
+            .filter(generator -> NetworkAreaUtil.isInCountry(generator, countries))
+            .toList();
 
         busesCache = network.getBusView().getBusStream()
                 .filter(bus -> bus.getVoltageLevel().getSubstation().flatMap(Substation::getCountry).map(countries::contains).orElse(false))
@@ -54,10 +62,14 @@ public class CountryArea implements NetworkArea {
     }
 
     @Override
-    public double getNetPosition() {
-        return danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
+    public double getNetPosition(boolean subtractLoadFlowBalancing) {
+        double netPosition = danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + lineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + hvdcLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
+        if (subtractLoadFlowBalancing) {
+            netPosition -= NetworkAreaUtil.getLoadFlowBalance(generatorsCache, loadsCache);
+        }
+        return netPosition;
     }
 
     @Override
