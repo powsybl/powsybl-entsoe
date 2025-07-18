@@ -77,7 +77,7 @@ class CgmesVoltageLevelsArea implements NetworkArea {
     }
 
     @Override
-    public double getNetPosition() {
+    public double getNetPosition(boolean subtractLoadFlowBalancing) {
         return danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + branchBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
     }

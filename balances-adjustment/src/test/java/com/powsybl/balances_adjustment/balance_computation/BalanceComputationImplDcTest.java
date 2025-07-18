@@ -13,15 +13,13 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.math.matrix.DenseMatrixFactory;
 import com.powsybl.openloadflow.OpenLoadFlowProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -129,6 +127,27 @@ class BalanceComputationImplDcTest {
         assertEquals(5, result.getIterationCount());
         assertEquals(1000, countryAreaFR.create(testNetwork1).getNetPosition(), 1e-3);
         assertEquals(1500, countryAreaBE.create(testNetwork1).getNetPosition(), 1e-3);
+    }
+
+    @Test
+    void testUnBalancedNetworkWithSubtractLoadFlowBalancing() {
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1200.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, 2000.));
+
+        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+
+        parameters.setSubtractLoadFlowBalancing(true);
+        // Activate slack distribution in Belgium
+        parameters.getLoadFlowParameters().setCountriesToBalance(Set.of(Country.BE));
+        parameters.getLoadFlowParameters().setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD);
+        parameters.getLoadFlowParameters().setDistributedSlack(true);
+        BalanceComputationResult result = balanceComputation.run(testNetwork1, testNetwork1.getVariantManager().getWorkingVariantId(), parameters).join();
+
+        assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
+        assertEquals(2, result.getIterationCount());
+        assertEquals(1200, countryAreaFR.create(testNetwork1).getNetPosition(true), 1e-3);
+        assertEquals(2000, countryAreaBE.create(testNetwork1).getNetPosition(true), 1e-3);
     }
 
     @Test
