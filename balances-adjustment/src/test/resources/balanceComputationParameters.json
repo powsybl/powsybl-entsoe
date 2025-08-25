@@ -3,7 +3,6 @@
   "maxNumberIterations" : 11,
   "thresholdNetPosition" : 2.0,
   "mismatchMode" : "MAX",
-  "withLoadFlow" : true,
   "subtractLoadFlowBalancing" : false,
   "load-flow-parameters" : {
     "version" : "1.9",
