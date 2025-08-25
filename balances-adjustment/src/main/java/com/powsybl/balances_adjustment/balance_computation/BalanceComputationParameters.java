@@ -26,7 +26,7 @@ import java.util.function.Supplier;
  */
 public class BalanceComputationParameters extends AbstractExtendable<BalanceComputationParameters> {
 
-    public static final String VERSION = "1.3";
+    public static final String VERSION = "1.4";
 
     public static final double DEFAULT_THRESHOLD_NET_POSITION = 1;
     public static final int DEFAULT_MAX_NUMBER_ITERATIONS = 5;

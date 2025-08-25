@@ -1,5 +1,5 @@
 {
-  "version" : "1.3",
+  "version" : "1.4",
   "maxNumberIterations" : 5,
   "thresholdNetPosition" : 1.0,
   "mismatchMode" : "SQUARED",
