@@ -102,11 +102,4 @@ public final class Reports {
                 .withMessageTemplate("entsoe.balances_adjustment.loadFlowStatus")
                 .add();
     }
-
-    public static void createSkipLoadFlowReport(ReportNode reportNode) {
-        reportNode.newReportNode()
-                .withMessageTemplate("entsoe.balances_adjustment.skipLoadflow")
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
-    }
 }
