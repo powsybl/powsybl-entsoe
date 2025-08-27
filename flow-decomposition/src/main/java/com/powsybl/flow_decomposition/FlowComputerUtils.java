@@ -27,31 +27,31 @@ public final class FlowComputerUtils {
         // empty constructor
     }
 
-    public static Map<String, Double> calculateAcTerminalReferenceFlows(Collection<Branch> xnecList, boolean fallbackHasBeenActivated, TwoSides side) {
+    public static Map<String, Double> calculateAcTerminalReferenceFlows(Collection<Branch<?>> xnecList, boolean fallbackHasBeenActivated, TwoSides side) {
         return fallbackHasBeenActivated ? getFallbackActivatedTerminalResults(xnecList) : getTerminalReferenceFlow(xnecList, side);
     }
 
-    public static Map<String, Double> getTerminalReferenceFlow(Collection<Branch> xnecList, TwoSides side) {
+    public static Map<String, Double> getTerminalReferenceFlow(Collection<Branch<?>> xnecList, TwoSides side) {
         return xnecList.stream()
-                .collect(Collectors.toMap(
-                        Identifiable::getId,
-                        branch -> branch.getTerminal(side).getP()
-                ));
+            .collect(Collectors.toMap(
+                Identifiable::getId,
+                branch -> branch.getTerminal(side).getP()
+            ));
     }
 
-    public static Map<String, Double> calculateAcTerminalCurrents(Collection<Branch> xnecList, boolean fallbackHasBeenActivated, TwoSides side) {
+    public static Map<String, Double> calculateAcTerminalCurrents(Collection<Branch<?>> xnecList, boolean fallbackHasBeenActivated, TwoSides side) {
         return fallbackHasBeenActivated ? getFallbackActivatedTerminalResults(xnecList) : getTerminalCurrent(xnecList, side);
     }
 
-    public static Map<String, Double> getTerminalCurrent(Collection<Branch> xnecList, TwoSides side) {
+    public static Map<String, Double> getTerminalCurrent(Collection<Branch<?>> xnecList, TwoSides side) {
         return xnecList.stream()
-                .collect(Collectors.toMap(
-                        Identifiable::getId,
-                        branch -> branch.getTerminal(side).getI()
-                ));
+            .collect(Collectors.toMap(
+                Identifiable::getId,
+                branch -> branch.getTerminal(side).getI()
+            ));
     }
 
-    private static Map<String, Double> getFallbackActivatedTerminalResults(Collection<Branch> xnecList) {
+    private static Map<String, Double> getFallbackActivatedTerminalResults(Collection<Branch<?>> xnecList) {
         return xnecList.stream().collect(Collectors.toMap(Identifiable::getId, branch -> Double.NaN));
     }
 }
