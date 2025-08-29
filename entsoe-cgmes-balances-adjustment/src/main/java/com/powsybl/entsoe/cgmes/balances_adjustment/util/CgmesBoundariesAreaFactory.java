@@ -33,7 +33,7 @@ public class CgmesBoundariesAreaFactory implements NetworkAreaFactory {
     }
 
     @Override
-    public NetworkArea create(Network network) {
+    public NetworkArea create(Network network, boolean isStatic) {
         return new CgmesBoundariesArea(network, areas);
     }
 }

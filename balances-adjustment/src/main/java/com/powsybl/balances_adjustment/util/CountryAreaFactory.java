@@ -26,7 +26,10 @@ public class CountryAreaFactory implements NetworkAreaFactory {
     }
 
     @Override
-    public CountryArea create(Network network) {
+    public NetworkArea create(Network network, boolean isStatic) {
+        if (isStatic) {
+            return new StaticCountryArea(network, countries);
+        }
         return new CountryArea(network, countries);
     }
 }

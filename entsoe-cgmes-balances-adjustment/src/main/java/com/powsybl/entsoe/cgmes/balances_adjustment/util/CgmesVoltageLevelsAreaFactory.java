@@ -46,7 +46,7 @@ public class CgmesVoltageLevelsAreaFactory implements NetworkAreaFactory {
     }
 
     @Override
-    public NetworkArea create(Network network) {
+    public NetworkArea create(Network network, boolean isStatic) {
         return new CgmesVoltageLevelsArea(network, area, excludedXnodes, voltageLevelIds);
     }
 }

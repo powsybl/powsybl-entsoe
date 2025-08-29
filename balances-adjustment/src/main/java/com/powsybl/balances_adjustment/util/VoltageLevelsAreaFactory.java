@@ -25,7 +25,10 @@ public class VoltageLevelsAreaFactory implements NetworkAreaFactory {
     }
 
     @Override
-    public VoltageLevelsArea create(Network network) {
+    public NetworkArea create(Network network, boolean isStatic) {
+        if (isStatic) {
+            return new StaticVoltageLevelsArea(network, voltageLevelIds);
+        }
         return new VoltageLevelsArea(network, voltageLevelIds);
     }
 }

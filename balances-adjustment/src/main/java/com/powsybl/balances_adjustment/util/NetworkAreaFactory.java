@@ -15,6 +15,10 @@ import com.powsybl.iidm.network.Network;
  */
 public interface NetworkAreaFactory {
 
-    NetworkArea create(Network network);
+    default NetworkArea create(Network network) {
+        return create(network, false);
+    }
+
+    NetworkArea create(Network network, boolean isStatic);
 
 }

@@ -225,9 +225,11 @@ class BalanceComputationSimpleDcTest {
         // The result should be SUCCESS since we didn't run load flow to verify convergence
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
         // Should have done exactly 1 iteration
-        assertEquals(1, result.getIterationCount());
+        assertEquals(2, result.getIterationCount());
         // Should have scaling values for both areas
         assertEquals(2, result.getBalancedScalingMap().size());
+        assertEquals(100d, result.getBalancedScalingMap().get(areas.get(0)));
+        assertEquals(-100d, result.getBalancedScalingMap().get(areas.get(1)));
     }
 
     @Test
@@ -245,10 +247,10 @@ class BalanceComputationSimpleDcTest {
         BalanceComputationResult result = balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters, reportNode).join();
 
         // Check that the report contains information about skipping load flow
-        BalanceComputationAssert.assertReportEquals("/skippedLoadflowUnbalancedNetworkReport.txt", reportNode);
+        BalanceComputationAssert.assertReportEquals("/skippedLoadflowReport.txt", reportNode);
 
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
-        assertEquals(1, result.getIterationCount());
+        assertEquals(2, result.getIterationCount());
     }
 
     @Test
