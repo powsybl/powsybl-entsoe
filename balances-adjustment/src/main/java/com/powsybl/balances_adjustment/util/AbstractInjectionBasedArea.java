@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
-public abstract class AbstractStaticArea implements NetworkArea {
+public abstract class AbstractInjectionBasedArea implements NetworkArea {
     protected Set<Bus> busesCache;
     protected List<Load> loadsCache;
     protected List<Generator> generatorsCache;

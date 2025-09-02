@@ -18,14 +18,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-class VoltageLevelsAreaTest {
+class BorderBasedVoltageLevelsAreaTest {
 
     private Network testNetwork;
     private VoltageLevelsAreaFactory voltageLevelsArea;
 
     @BeforeEach
     void setUp() {
-        testNetwork = Network.read("testCase.xiidm", VoltageLevelsAreaTest.class.getResourceAsStream("/testCase.xiidm"));
+        testNetwork = Network.read("testCase.xiidm", BorderBasedVoltageLevelsAreaTest.class.getResourceAsStream("/testCase.xiidm"));
 
         voltageLevelsArea = new VoltageLevelsAreaFactory("FFR1AA1", "DDE3AA1");
 

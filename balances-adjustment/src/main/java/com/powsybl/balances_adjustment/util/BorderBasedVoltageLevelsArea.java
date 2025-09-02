@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class VoltageLevelsArea implements NetworkArea {
+public class BorderBasedVoltageLevelsArea implements NetworkArea {
 
     private final List<String> voltageLevelIds = new ArrayList<>();
 
@@ -32,7 +32,7 @@ public class VoltageLevelsArea implements NetworkArea {
 
     private final Set<Bus> busesCache;
 
-    public VoltageLevelsArea(Network network, List<String> voltageLevelIds) {
+    public BorderBasedVoltageLevelsArea(Network network, List<String> voltageLevelIds) {
         this.voltageLevelIds.addAll(voltageLevelIds);
 
         danglingLineBordersCache = network.getDanglingLineStream()

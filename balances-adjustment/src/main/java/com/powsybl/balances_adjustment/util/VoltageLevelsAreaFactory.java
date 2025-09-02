@@ -12,7 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link NetworkAreaFactory} instance that creates new {@link VoltageLevelsArea}.
+ * A {@link NetworkAreaFactory} instance that creates a {@link NetworkArea} based on a list of voltage level IDs.
+ * It can either be an instance of {@link InjectionBasedVoltageLevelsArea} or {@link BorderBasedVoltageLevelsArea}.
  *
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
@@ -27,8 +28,8 @@ public class VoltageLevelsAreaFactory implements NetworkAreaFactory {
     @Override
     public NetworkArea create(Network network, boolean isStatic) {
         if (isStatic) {
-            return new StaticVoltageLevelsArea(network, voltageLevelIds);
+            return new InjectionBasedVoltageLevelsArea(network, voltageLevelIds);
         }
-        return new VoltageLevelsArea(network, voltageLevelIds);
+        return new BorderBasedVoltageLevelsArea(network, voltageLevelIds);
     }
 }

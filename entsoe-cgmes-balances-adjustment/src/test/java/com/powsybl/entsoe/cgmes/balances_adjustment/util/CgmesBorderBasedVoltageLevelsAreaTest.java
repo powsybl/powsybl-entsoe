@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CgmesVoltageLevelsAreaTest {
+class CgmesBorderBasedVoltageLevelsAreaTest {
 
     static final double DELTA_POWER = 1e-5;
 

@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
-public class StaticCountryArea extends AbstractStaticArea {
+public class InjectionBasedCountryArea extends AbstractInjectionBasedArea {
 
-    public StaticCountryArea(Network network, List<Country> countries) {
+    public InjectionBasedCountryArea(Network network, List<Country> countries) {
         busesCache = network.getBusView().getBusStream()
             .filter(bus -> bus.getVoltageLevel().getSubstation().flatMap(Substation::getCountry).map(countries::contains).orElse(false))
             .collect(Collectors.toSet());

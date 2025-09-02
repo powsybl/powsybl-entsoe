@@ -6,17 +6,18 @@
  */
 package com.powsybl.balances_adjustment.util;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Network;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * @author Joris Mancini <joris.mancini_externe at rte-france.com>
  */
-public class StaticVoltageLevelsArea extends AbstractStaticArea {
+public class InjectionBasedVoltageLevelsArea extends AbstractInjectionBasedArea {
 
-    public StaticVoltageLevelsArea(Network network, List<String> voltageLevelIds) {
+    public InjectionBasedVoltageLevelsArea(Network network, List<String> voltageLevelIds) {
         loadsCache = network.getLoadStream()
             .filter(l -> isInVoltageLevels(voltageLevelIds, l))
             .toList();
@@ -24,8 +25,8 @@ public class StaticVoltageLevelsArea extends AbstractStaticArea {
             .filter(g -> isInVoltageLevels(voltageLevelIds, g))
             .toList();
         busesCache = network.getBusView().getBusStream()
-                .filter(bus -> voltageLevelIds.contains(bus.getVoltageLevel().getId()))
-                .collect(Collectors.toSet());
+            .filter(bus -> voltageLevelIds.contains(bus.getVoltageLevel().getId()))
+            .collect(Collectors.toSet());
     }
 
     private boolean isInVoltageLevels(List<String> voltageLevelIds, Injection<?> injection) {

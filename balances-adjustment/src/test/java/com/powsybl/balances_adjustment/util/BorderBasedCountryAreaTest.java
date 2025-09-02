@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
  */
-class CountryAreaTest {
+class BorderBasedCountryAreaTest {
 
     private static final double EPSILON = 1;
     private Network testNetwork1;
@@ -84,11 +84,11 @@ class CountryAreaTest {
 
     @Test
     void testGetLeavingFlowToCountry() {
-        CountryArea countryAreaFR2 = (CountryArea) countryAreaFactoryFR.create(testNetwork2);
-        CountryArea countryAreaES2 = (CountryArea) countryAreaFactoryES.create(testNetwork2);
-        CountryArea countryAreaFR1 = (CountryArea) countryAreaFactoryFR.create(testNetwork1);
-        CountryArea countryAreaBE1 = (CountryArea) countryAreaFactoryBE.create(testNetwork1);
-        CountryArea countryAreaES1 = (CountryArea) countryAreaFactoryES.create(testNetwork1);
+        BorderBasedCountryArea countryAreaFR2 = (BorderBasedCountryArea) countryAreaFactoryFR.create(testNetwork2);
+        BorderBasedCountryArea countryAreaES2 = (BorderBasedCountryArea) countryAreaFactoryES.create(testNetwork2);
+        BorderBasedCountryArea countryAreaFR1 = (BorderBasedCountryArea) countryAreaFactoryFR.create(testNetwork1);
+        BorderBasedCountryArea countryAreaBE1 = (BorderBasedCountryArea) countryAreaFactoryBE.create(testNetwork1);
+        BorderBasedCountryArea countryAreaES1 = (BorderBasedCountryArea) countryAreaFactoryES.create(testNetwork1);
 
         assertEquals(100.0, countryAreaFR2.getLeavingFlowToCountry(countryAreaES2), 1e-3);
         assertEquals(-100.0, countryAreaES2.getLeavingFlowToCountry(countryAreaFR2), 1e-3);
@@ -114,12 +114,12 @@ class CountryAreaTest {
     void testLeavingFlowToCountryWithTieLines() {
         Network network = Network.read("border_exchanges.xiidm", getClass().getResourceAsStream("/border_exchanges.xiidm"));
 
-        CountryArea countryAreaIT = (CountryArea) new CountryAreaFactory(Country.IT).create(network);
-        CountryArea countryAreaCH = (CountryArea) new CountryAreaFactory(Country.CH).create(network);
-        CountryArea countryAreaDE = (CountryArea) new CountryAreaFactory(Country.DE).create(network);
-        CountryArea countryAreaFR = (CountryArea) new CountryAreaFactory(Country.FR).create(network);
-        CountryArea countryAreaSI = (CountryArea) new CountryAreaFactory(Country.SI).create(network);
-        CountryArea countryAreaAT = (CountryArea) new CountryAreaFactory(Country.AT).create(network);
+        BorderBasedCountryArea countryAreaIT = (BorderBasedCountryArea) new CountryAreaFactory(Country.IT).create(network);
+        BorderBasedCountryArea countryAreaCH = (BorderBasedCountryArea) new CountryAreaFactory(Country.CH).create(network);
+        BorderBasedCountryArea countryAreaDE = (BorderBasedCountryArea) new CountryAreaFactory(Country.DE).create(network);
+        BorderBasedCountryArea countryAreaFR = (BorderBasedCountryArea) new CountryAreaFactory(Country.FR).create(network);
+        BorderBasedCountryArea countryAreaSI = (BorderBasedCountryArea) new CountryAreaFactory(Country.SI).create(network);
+        BorderBasedCountryArea countryAreaAT = (BorderBasedCountryArea) new CountryAreaFactory(Country.AT).create(network);
 
         assertEquals(0, countryAreaIT.getLeavingFlowToCountry(countryAreaSI), EPSILON);
         assertEquals(-2837, countryAreaIT.getLeavingFlowToCountry(countryAreaCH), EPSILON);
