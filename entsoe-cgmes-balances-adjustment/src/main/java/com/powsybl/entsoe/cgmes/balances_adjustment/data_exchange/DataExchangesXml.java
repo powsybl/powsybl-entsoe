@@ -43,7 +43,7 @@ public final class DataExchangesXml {
     // Log messages
     private static final String UNEXPECTED_TOKEN = "Unexpected token: ";
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
 
         private final Map<String, StoredDoubleTimeSeries> timeSeriesById = new HashMap<>();
 
@@ -80,7 +80,7 @@ public final class DataExchangesXml {
         private String mRID;
     }
 
-    private static class ParsingTimeSeriesContext {
+    private static final class ParsingTimeSeriesContext {
 
         private String mRID;
 
