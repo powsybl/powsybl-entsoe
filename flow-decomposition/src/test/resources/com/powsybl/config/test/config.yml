@@ -1,0 +1,3 @@
+open-loadflow-default-parameters:
+  plausibleActivePowerLimit: 5000
+  slackDistributionFailureBehavior: LEAVE_ON_SLACK_BUS

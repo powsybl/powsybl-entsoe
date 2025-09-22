@@ -48,7 +48,7 @@ class NetPositionTest {
     @Test
     void testLines() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
-        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         assertNetPosition(network, 1500.0, 0.0, -2500.0);
     }
 
@@ -57,7 +57,7 @@ class NetPositionTest {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal1().disconnect();
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal2().disconnect();
-        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         assertNetPosition(network, 1500.0, 0.0, -2500.0);
     }
 
@@ -65,14 +65,14 @@ class NetPositionTest {
     void testLinesSingleSideDisconnected() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal1().disconnect();
-        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         assertNetPosition(network, 1500.0, 0.0, -2500.0);
     }
 
     @Test
     void testLinesNaN() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
-        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal1().setP(Double.NaN);
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal2().setP(Double.NaN);
         assertNetPosition(network, 324.666, 1175.334, -2500.0);
@@ -81,7 +81,7 @@ class NetPositionTest {
     @Test
     void testDanglingLinesBalanced() {
         Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
-        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         assertNetPosition(network, 2300.0, -500.0, -2800.0);
     }
 
@@ -89,14 +89,14 @@ class NetPositionTest {
     void testDanglingLinesDisconnected() {
         Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
         network.getDanglingLine("BBE2AA1  X_BEFR1  1").getTerminal().disconnect();
-        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         assertNetPosition(network, 2300.0, -500.0, -2800.0);
     }
 
     @Test
     void testDanglingLinesNaN() {
         Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
-        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         network.getDanglingLine("BBE2AA1  X_BEFR1  1").getTerminal().setP(Double.NaN);
         assertNetPosition(network, 2300.0, -500.0, -2800.0);
     }
@@ -104,7 +104,7 @@ class NetPositionTest {
     @Test
     void testDanglingLinesUnbalanced() {
         Network network = Network.read("NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE.uct", getClass().getResourceAsStream("NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE.uct"));
-        LoadFlow.run(network, new LoadFlowParameters().setDc(true));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(100, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
         assertEquals(0, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
@@ -147,7 +147,7 @@ class NetPositionTest {
         assertEquals(0, tieLine.getB1(), 1e-10);
         assertEquals(0, tieLine.getB2(), 1e-10);
 
-        LoadFlow.run(network, new LoadFlowParameters().setDc(false));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(false));
         assertEquals(0.031, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(0.031, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(0, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
@@ -171,7 +171,7 @@ class NetPositionTest {
         tieLine.getDanglingLine2().setB(1e-9);
         tieLine.getDanglingLine2().setG(1e-9);
 
-        LoadFlow.run(network, new LoadFlowParameters().setDc(false));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(false));
         assertEquals(2.764, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(1.163, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(0, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
@@ -195,7 +195,7 @@ class NetPositionTest {
         tieLine.getDanglingLine2().setB(1e-2);
         tieLine.getDanglingLine2().setG(1e-5);
 
-        LoadFlow.run(network, new LoadFlowParameters().setDc(false));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(false));
         assertEquals(1.154, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine1().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(2.753, tieLine.getDanglingLine2().getBoundary().getP() + tieLine.getDanglingLine2().getTerminal().getP(), DOUBLE_TOLERANCE);
         assertEquals(0, tieLine.getDanglingLine1().getBoundary().getP() + tieLine.getDanglingLine2().getBoundary().getP(), DOUBLE_TOLERANCE);
@@ -215,7 +215,7 @@ class NetPositionTest {
             danglingLine.setB(1E-3);
         });
 
-        LoadFlow.run(network, new LoadFlowParameters().setDc(false));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(false));
         assertEquals(800, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
         assertEquals(0, network.getDanglingLineStream(DanglingLineFilter.PAIRED).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
 
