@@ -38,10 +38,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-entsoe-cgmes-balances-adjustment</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-entsoe-commons</artifactId>
         </dependency>
         <dependency>

@@ -75,7 +75,6 @@
     <modules>
         <module>balances-adjustment</module>
         <module>cne</module>
-        <module>entsoe-cgmes-balances-adjustment</module>
         <module>distribution-entsoe</module>
         <module>flow-decomposition</module>
         <module>glsk</module>
@@ -124,11 +123,6 @@
             <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-cne-model</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-entsoe-cgmes-balances-adjustment</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
