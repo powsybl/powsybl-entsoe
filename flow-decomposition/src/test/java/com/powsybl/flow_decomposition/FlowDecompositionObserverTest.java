@@ -516,7 +516,7 @@ class FlowDecompositionObserverTest {
         Network network = TestUtils.importNetwork(networkFileName);
         XnecProvider xnecProvider = new XnecProviderAllBranches();
 
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         loadFlowParameters.setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD).setDistributedSlack(true);
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters().setEnableLossesCompensation(false);
 

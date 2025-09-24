@@ -34,7 +34,7 @@ class CgmesIntegrationTests {
     @Test
     void checkThatLossCompensationWorksWithNodeBreakerTopology() {
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), null);
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);
         Map<Bus, Double> busToLossMap = network.getBusBreakerView().getBusStream()
@@ -73,7 +73,7 @@ class CgmesIntegrationTests {
     void testCoherentNetPosition() {
         Properties importParams = new Properties();
         Network network = Importers.importData("CGMES", Cgmes3Catalog.microGrid().dataSource(), importParams);
-        LoadFlow.run(network, new LoadFlowParameters().setDc(false));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(false));
         assertEquals(0.0, network.getDanglingLineStream(DanglingLineFilter.PAIRED).filter(danglingLine -> Double.isFinite(danglingLine.getBoundary().getP())).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
 
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
