@@ -24,7 +24,7 @@ public class BorderBasedVoltageLevelsArea implements NetworkArea {
     // The computation is more clean because we have the real value at boundary
     // for a tie line now.
     private final List<DanglingLine> danglingLineBordersCache;
-    private final List<Branch> branchBordersCache;
+    private final List<Branch<?>> branchBordersCache;
     private final List<ThreeWindingsTransformer> threeWindingsTransformerBordersCache;
     private final List<HvdcLine> hvdcLineBordersCache;
     private final List<Load> loadsCache;
