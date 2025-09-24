@@ -224,7 +224,7 @@ class BalanceComputationSimpleDcTest {
 
         // The result should be SUCCESS since we didn't run load flow to verify convergence
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
-        // Should have done exactly 1 iteration
+        // Should have done exactly 2 iterations
         assertEquals(2, result.getIterationCount());
         // Should have scaling values for both areas
         assertEquals(2, result.getBalancedScalingMap().size());
