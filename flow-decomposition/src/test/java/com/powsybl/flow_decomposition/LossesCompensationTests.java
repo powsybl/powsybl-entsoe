@@ -34,7 +34,7 @@ class LossesCompensationTests {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
 
         Network network = importNetwork(networkFileName);
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
@@ -47,7 +47,7 @@ class LossesCompensationTests {
     void checkThatLossesCompensationDoesEnforceAcLoadflow() {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
         Network network = importNetwork(networkFileName);
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
@@ -76,7 +76,7 @@ class LossesCompensationTests {
         String networkFileName = "NETWORK_TWO_LOADS_SINGLE_GENERATOR_WITH_COUNTRIES.uct";
 
         Network network = importNetwork(networkFileName);
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
@@ -97,7 +97,7 @@ class LossesCompensationTests {
         String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_XNODE.uct";
 
         Network network = importNetwork(networkFileName);
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
@@ -128,7 +128,7 @@ class LossesCompensationTests {
         TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
         tieLine.getDanglingLine1().setB(1E-3);
         tieLine.getDanglingLine2().setB(1E-3);
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
@@ -198,7 +198,7 @@ class LossesCompensationTests {
 
     @Test
     void testLossCompensationCanBeAppliedToNetworkWithVariants() {
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
 
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
@@ -258,7 +258,7 @@ class LossesCompensationTests {
 
     @Test
     void testLossCompensationComputerCanBeAppliedToMultipleNetworks() {
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
 
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
@@ -324,7 +324,7 @@ class LossesCompensationTests {
         String networkFileName = "lossesCompensatorLineConnectedToOneSide.xiidm";
         Network network = importNetwork(networkFileName);
         assertEquals(2, network.getLoadStream().count());
-        LoadFlow.run(network, new LoadFlowParameters().setDc(AC_LOAD_FLOW));
+        LoadFlow.run(network, LoadFlowParameters.load().setDc(AC_LOAD_FLOW));
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DEFAULT_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
         assertEquals(5, network.getLoadStream().count());

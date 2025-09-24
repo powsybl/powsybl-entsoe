@@ -47,7 +47,7 @@ class LoadFlowFallbackTests {
         Network network = TestUtils.importNetwork(networkFileName);
         LoadFlowRunningService loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find());
         LoadFlowRunningService.Result loadFlowResult = loadFlowRunningService.runAcLoadflow(
-            network, new LoadFlowParameters(), LoadFlowRunningService.FALLBACK_HAS_BEEN_ACTIVATED);
+            network, LoadFlowParameters.load(), LoadFlowRunningService.FALLBACK_HAS_BEEN_ACTIVATED);
         assertTrue(loadFlowResult.getLoadFlowResult().isFullyConverged());
         assertFalse(loadFlowResult.fallbackHasBeenActivated());
     }
@@ -58,7 +58,7 @@ class LoadFlowFallbackTests {
         Network network = TestUtils.importNetwork(networkFileName);
         LoadFlowRunningService loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find());
         LoadFlowRunningService.Result loadFlowResult = loadFlowRunningService.runAcLoadflow(
-            network, new LoadFlowParameters(), LoadFlowRunningService.FALLBACK_HAS_NOT_BEEN_ACTIVATED);
+            network, LoadFlowParameters.load(), LoadFlowRunningService.FALLBACK_HAS_NOT_BEEN_ACTIVATED);
         assertTrue(loadFlowResult.getLoadFlowResult().isFullyConverged());
         assertFalse(loadFlowResult.fallbackHasBeenActivated());
     }
@@ -69,7 +69,7 @@ class LoadFlowFallbackTests {
         Network network = TestUtils.importNetwork(networkFileName);
         LoadFlowRunningService loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find());
         LoadFlowRunningService.Result loadFlowResult = loadFlowRunningService.runAcLoadflow(
-            network, new LoadFlowParameters(), LoadFlowRunningService.FALLBACK_HAS_BEEN_ACTIVATED);
+            network, LoadFlowParameters.load(), LoadFlowRunningService.FALLBACK_HAS_BEEN_ACTIVATED);
         assertTrue(loadFlowResult.getLoadFlowResult().isFullyConverged());
         assertTrue(loadFlowResult.fallbackHasBeenActivated());
     }
@@ -80,7 +80,7 @@ class LoadFlowFallbackTests {
         Network network = TestUtils.importNetwork(networkFileName);
         LoadFlowRunningService loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find());
         Executable loadFlowRunningServiceExecutable = () -> loadFlowRunningService.runAcLoadflow(
-            network, new LoadFlowParameters(), LoadFlowRunningService.FALLBACK_HAS_NOT_BEEN_ACTIVATED);
+            network, LoadFlowParameters.load(), LoadFlowRunningService.FALLBACK_HAS_NOT_BEEN_ACTIVATED);
         Exception exception = assertThrows(PowsyblException.class, loadFlowRunningServiceExecutable, FALLBACK_MESSAGE);
         assertEquals(FALLBACK_MESSAGE, exception.getMessage());
     }
