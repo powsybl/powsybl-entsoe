@@ -37,7 +37,7 @@ class FlowDecompositionTests {
             .setSensitivityEpsilon(FlowDecompositionParameters.DISABLE_SENSITIVITY_EPSILON)
             .setRescaleMode(FlowDecompositionParameters.RescaleMode.NONE)
             .setFlowPartitioner(flowPartitionMode);
-        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, new LoadFlowParameters());
+        FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, LoadFlowParameters.load());
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
         TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
         return flowDecompositionResults;
@@ -104,7 +104,7 @@ class FlowDecompositionTests {
 
     @Test
     void testConnectedComponentModeChangesFromAllToMain() {
-        LoadFlowParameters loadFlowParameters = new LoadFlowParameters().setConnectedComponentMode(LoadFlowParameters.ConnectedComponentMode.ALL);
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load().setConnectedComponentMode(LoadFlowParameters.ConnectedComponentMode.ALL);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(new FlowDecompositionParameters(), loadFlowParameters);
         // lfParameters inside flow decomposition changed from all to main
         assertEquals(FlowDecompositionComputer.MAIN_CONNECTED_COMPONENT, flowDecompositionComputer.getLoadFlowParameters().getConnectedComponentMode());
