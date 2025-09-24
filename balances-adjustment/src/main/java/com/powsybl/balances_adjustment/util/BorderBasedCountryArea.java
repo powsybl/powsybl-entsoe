@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class CountryArea implements NetworkArea {
+public class BorderBasedCountryArea implements NetworkArea {
 
     private final List<Country> countries = new ArrayList<>();
 
@@ -33,7 +33,7 @@ public class CountryArea implements NetworkArea {
 
     private final Set<Bus> busesCache;
 
-    public CountryArea(Network network, List<Country> countries) {
+    public BorderBasedCountryArea(Network network, List<Country> countries) {
         this.countries.addAll(countries);
 
         danglingLineBordersCache = network.getDanglingLineStream()
@@ -77,7 +77,7 @@ public class CountryArea implements NetworkArea {
         return Collections.unmodifiableCollection(busesCache);
     }
 
-    public double getLeavingFlowToCountry(CountryArea otherCountryArea) {
+    double getLeavingFlowToCountry(BorderBasedCountryArea otherCountryArea) {
         otherCountryArea.getCountries().forEach(country -> {
             if (countries.contains(country)) {
                 throw new PowsyblException("The leaving flow to the country area cannot be computed. " +
@@ -103,7 +103,7 @@ public class CountryArea implements NetworkArea {
         return sum;
     }
 
-    private boolean isOtherSideInArea(DanglingLine danglingLine, CountryArea countryArea) {
+    private boolean isOtherSideInArea(DanglingLine danglingLine, BorderBasedCountryArea countryArea) {
         return TieLineUtil.getPairedDanglingLine(danglingLine).filter(countryArea::isAreaBorder).isPresent();
     }
 

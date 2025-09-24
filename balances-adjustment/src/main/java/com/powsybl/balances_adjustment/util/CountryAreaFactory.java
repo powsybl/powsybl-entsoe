@@ -13,7 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A {@link NetworkAreaFactory} instance that creates new {@link CountryArea}.
+ * A {@link NetworkAreaFactory} instance that creates a {@link NetworkArea} based on a list of countries.
+ * It can either be an instance of {@link InjectionBasedCountryArea} or {@link BorderBasedCountryArea}.
  *
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
@@ -26,7 +27,10 @@ public class CountryAreaFactory implements NetworkAreaFactory {
     }
 
     @Override
-    public CountryArea create(Network network) {
-        return new CountryArea(network, countries);
+    public NetworkArea create(Network network, boolean isStatic) {
+        if (isStatic) {
+            return new InjectionBasedCountryArea(network, countries);
+        }
+        return new BorderBasedCountryArea(network, countries);
     }
 }

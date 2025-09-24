@@ -1,9 +1,0 @@
-+ Test skip load flow
-   + Balance Computation iteration '0'
-      Scaling
-      Load flow computation skipped
-      + Mismatch
-         Mismatch for area FR: 1300.0 (target=1300.0, balance=0.0)
-         Mismatch for area BE: -1300.0 (target=-1300.0, balance=0.0)
-   + Status
-      Areas [FR, BE] are balanced after 1 iterations
