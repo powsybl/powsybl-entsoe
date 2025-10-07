@@ -126,7 +126,7 @@ public class BalanceComputationImpl implements BalanceComputation {
 
             // Step 4: Checks balance adjustment results
             // When isWithLoadFlow is false, always return after one iteration
-            if (!parameters.isWithLoadFlow() || computeTotalMismatch(context) < parameters.getThresholdNetPosition()) {
+            if (computeTotalMismatch(context) < parameters.getThresholdNetPosition()) {
                 result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, context.nextIteration(), context.getBalanceOffsets());
                 network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
             } else {
@@ -218,7 +218,7 @@ public class BalanceComputationImpl implements BalanceComputation {
             this.parameters = parameters;
             this.reportNode = reportNode;
             this.iterationReportNode = ReportNode.NO_OP;
-            networkAreas = areas.stream().collect(Collectors.toMap(Function.identity(), ba -> ba.getNetworkAreaFactory().create(network), (v1, v2) -> v1, LinkedHashMap::new));
+            networkAreas = areas.stream().collect(Collectors.toMap(Function.identity(), ba -> ba.getNetworkAreaFactory().create(network, !parameters.isWithLoadFlow()), (v1, v2) -> v1, LinkedHashMap::new));
             balanceOffsets.clear();
             balanceMismatches.clear();
         }
