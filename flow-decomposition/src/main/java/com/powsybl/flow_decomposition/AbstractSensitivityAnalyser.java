@@ -6,8 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Branch;
@@ -74,11 +72,10 @@ public abstract class AbstractSensitivityAnalyser {
             network.getVariantManager().getWorkingVariantId(),
             factorReader,
             valueWriter,
-            CONTINGENCIES,
-            sensitivityVariableSets,
-            sensitivityAnalysisParameters,
-            LocalComputationManager.getDefault(),
-            ReportNode.NO_OP
+            new SensitivityAnalysisRunParameters()
+                .setContingencies(CONTINGENCIES)
+                .setVariableSets(sensitivityVariableSets)
+                .setParameters(sensitivityAnalysisParameters)
         );
     }
 }
