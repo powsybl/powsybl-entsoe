@@ -95,7 +95,7 @@ class BalanceComputationSimpleDcTest {
                 new LoadFlowResultImpl.ComponentResultImpl(0, 1, LoadFlowResult.ComponentResult.Status.CONVERGED, 5, "dummy", 0.0, 0.0)
             )
         );
-        doReturn(loadFlowResult).when(loadFlowRunnerMock).run(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any(), Mockito.any());
+        doReturn(loadFlowResult).when(loadFlowRunnerMock).run(Mockito.any(), Mockito.anyString(), Mockito.any());
 
         BalanceComputationResult result = balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters).join();
 
@@ -112,7 +112,7 @@ class BalanceComputationSimpleDcTest {
         LoadFlowProvider loadFlowProviderMock = new AbstractLoadFlowProviderMock() {
 
             @Override
-            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
+            public CompletableFuture<LoadFlowResult> run(Network network, String workingVariantId, LoadFlowRunParameters runParameters) {
                 generatorFr.getTerminal().setP(3000);
                 loadFr.getTerminal().setP(1800);
 
@@ -144,7 +144,7 @@ class BalanceComputationSimpleDcTest {
         LoadFlowProvider loadFlowProviderMock = new AbstractLoadFlowProviderMock() {
 
             @Override
-            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
+            public CompletableFuture<LoadFlowResult> run(Network network, String workingVariantId, LoadFlowRunParameters runParameters) {
                 generatorFr.getTerminal().setP(3000);
                 loadFr.getTerminal().setP(1800);
 
@@ -179,7 +179,7 @@ class BalanceComputationSimpleDcTest {
         LoadFlowProvider loadFlowProviderMock = new AbstractLoadFlowProviderMock() {
 
             @Override
-            public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode) {
+            public CompletableFuture<LoadFlowResult> run(Network network, String workingVariantId, LoadFlowRunParameters runParameters) {
                 generatorFr.getTerminal().setP(3000);
                 loadFr.getTerminal().setP(1800);
                 branchFrBe1.getTerminal1().setP(-516);
@@ -220,7 +220,7 @@ class BalanceComputationSimpleDcTest {
         BalanceComputationResult result = balanceComputation.run(simpleNetwork, simpleNetwork.getVariantManager().getWorkingVariantId(), parameters).join();
 
         // Verify that LoadFlow was never called
-        verify(mockLoadFlowRunner, never()).run(any(), anyString(), any(), any(), any());
+        verify(mockLoadFlowRunner, never()).run(any(), anyString(), any());
 
         // The result should be SUCCESS since we didn't run load flow to verify convergence
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
@@ -299,13 +299,20 @@ class BalanceComputationSimpleDcTest {
         assertEquals(2, result.getIterationCount());
         assertEquals(initialState, simpleNetwork.getVariantManager().getWorkingVariantId());
 
-        loadFlowRunner.run(simpleNetwork, initialVariantNew, computationManager, new LoadFlowParameters());
+        LoadFlowRunParameters runParameters = getLoadFlowRunParameters();
+        loadFlowRunner.run(simpleNetwork, initialVariantNew, runParameters);
         assertEquals(1300, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1300, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
 
-        loadFlowRunner.run(simpleNetwork, initialState, computationManager, new LoadFlowParameters());
+        loadFlowRunner.run(simpleNetwork, initialState, runParameters);
         assertEquals(1200, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1200, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
+    }
+
+    private LoadFlowRunParameters getLoadFlowRunParameters() {
+        return new LoadFlowRunParameters()
+                .setComputationManager(computationManager)
+                .setParameters(new LoadFlowParameters());
     }
 
     @Test
@@ -325,11 +332,12 @@ class BalanceComputationSimpleDcTest {
         assertEquals(5, result.getIterationCount());
         assertEquals(initialState, simpleNetwork.getVariantManager().getWorkingVariantId());
 
-        loadFlowRunner.run(simpleNetwork, initialState, computationManager, new LoadFlowParameters());
+        LoadFlowRunParameters runParameters = getLoadFlowRunParameters();
+        loadFlowRunner.run(simpleNetwork, initialState, runParameters);
         assertEquals(1200, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1200, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
 
-        loadFlowRunner.run(simpleNetwork, initialVariantNew, computationManager, new LoadFlowParameters());
+        loadFlowRunner.run(simpleNetwork, initialVariantNew, runParameters);
         assertEquals(1200, countryAreaFR.create(simpleNetwork).getNetPosition(), 0.0001);
         assertEquals(-1200, countryAreaBE.create(simpleNetwork).getNetPosition(), 0.0001);
 
@@ -367,7 +375,7 @@ class BalanceComputationSimpleDcTest {
         BalanceComputationAssert.assertReportEquals("/unbalancedNetworkReport.txt", reportNode);
     }
 
-    private abstract class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
+    private abstract static class AbstractLoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowProvider {
         @Override
         public String getName() {
             return "test load flow";
@@ -379,5 +387,4 @@ class BalanceComputationSimpleDcTest {
         }
 
     }
-
 }
