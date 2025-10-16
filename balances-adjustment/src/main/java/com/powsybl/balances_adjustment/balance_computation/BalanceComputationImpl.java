@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.ComponentConstants;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.loadflow.LoadFlowRunParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +101,11 @@ public class BalanceComputationImpl implements BalanceComputation {
 
             // Step 2: compute Load Flow (skip if isWithLoadFlow is false)
             if (parameters.isWithLoadFlow()) {
-                LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId, computationManager, parameters.getLoadFlowParameters(), iterationReportNode);
+                LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId,
+                    new LoadFlowRunParameters()
+                        .setComputationManager(computationManager)
+                        .setParameters(parameters.getLoadFlowParameters())
+                        .setReportNode(iterationReportNode));
                 if (!isLoadFlowResultOk(context, loadFlowResult)) {
                     LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
                     result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
