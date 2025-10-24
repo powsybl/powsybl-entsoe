@@ -44,11 +44,11 @@ class XnodeFlowTests {
         TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
 
         Map<String, DecomposedFlow> decomposedFlowMap = flowDecompositionResults.getDecomposedFlowMap();
-        assertEquals(44.109, decomposedFlowMap.get(branchId1).getXNodeFlow(), EPSILON);
-        assertEquals(-33.155, decomposedFlowMap.get(branchId2).getXNodeFlow(), EPSILON);
-        assertEquals(216.311, decomposedFlowMap.get(branchId3).getXNodeFlow(), EPSILON);
-        assertEquals(-33.155, decomposedFlowMap.get(branchId4).getXNodeFlow(), EPSILON);
-        assertEquals(170.472, decomposedFlowMap.get(branchId5).getXNodeFlow(), EPSILON);
-        assertEquals(44.109, decomposedFlowMap.get(branchId6).getXNodeFlow(), EPSILON);
+        assertEquals(44.073, decomposedFlowMap.get(branchId1).getXNodeFlow(), EPSILON);
+        assertEquals(-33.176, decomposedFlowMap.get(branchId2).getXNodeFlow(), EPSILON);
+        assertEquals(216.117, decomposedFlowMap.get(branchId3).getXNodeFlow(), EPSILON);
+        assertEquals(-33.176, decomposedFlowMap.get(branchId4).getXNodeFlow(), EPSILON);
+        assertEquals(170.307, decomposedFlowMap.get(branchId5).getXNodeFlow(), EPSILON);
+        assertEquals(44.073, decomposedFlowMap.get(branchId6).getXNodeFlow(), EPSILON);
     }
 }

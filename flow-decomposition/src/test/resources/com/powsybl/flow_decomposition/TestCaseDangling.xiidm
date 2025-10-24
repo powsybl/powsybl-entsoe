@@ -26,7 +26,7 @@
             <iidm:generator id="BBE2AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="3000.0" targetV="400.0" targetQ="-0.0" bus="BBE2AA1 " connectableBus="BBE2AA1 ">
                 <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
             </iidm:generator>
-            <iidm:generator id="BBE3AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2500.0" targetV="400.0" targetQ="-0.0" bus="BBE3AA1 " connectableBus="BBE3AA1 ">
+            <iidm:generator id="BBE3AA1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="2800.0" targetV="400.0" targetQ="-0.0" bus="BBE3AA1 " connectableBus="BBE3AA1 ">
                 <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
             </iidm:generator>
             <iidm:load id="BBE2AA1 _load" loadType="UNDEFINED" p0="1000.0" q0="0.0" bus="BBE2AA1 " connectableBus="BBE2AA1 "/>
