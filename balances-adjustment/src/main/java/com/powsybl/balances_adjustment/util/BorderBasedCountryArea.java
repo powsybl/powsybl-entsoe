@@ -77,7 +77,7 @@ public class BorderBasedCountryArea implements NetworkArea {
         return Collections.unmodifiableCollection(busesCache);
     }
 
-    double getLeavingFlowToCountry(BorderBasedCountryArea otherCountryArea) {
+    public double getLeavingFlowToCountry(BorderBasedCountryArea otherCountryArea) {
         otherCountryArea.getCountries().forEach(country -> {
             if (countries.contains(country)) {
                 throw new PowsyblException("The leaving flow to the country area cannot be computed. " +
