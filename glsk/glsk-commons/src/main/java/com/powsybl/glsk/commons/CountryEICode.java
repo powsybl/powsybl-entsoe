@@ -48,7 +48,7 @@ public class CountryEICode {
         return switch (codeString) {
             case "10YBE----------2" -> Country.BE;
             case "10YSK-SEPS-----K" -> Country.SK;
-            case "10YDE-VE-------2", "10YCB-GERMANY--8" -> Country.DE;
+            case "10YDE-VE-------2", "10YDE-RWENET---I", "10YDE-ENBW-----N", "10YDE-EON------1", "10YCB-GERMANY--8" -> Country.DE;
             case "10YHU-MAVIR----U" -> Country.HU;
             case "10YNL----------L" -> Country.NL;
             case "10YAT-APG------L" -> Country.AT;
@@ -73,6 +73,7 @@ public class CountryEICode {
             case "10YIT-GRTN-----B", "10YCB-ITALY----1" -> Country.IT;
             case "10YDK-1--------W" -> Country.DK;
             case "10Y1001C--00100H" -> Country.XK;
+            case "10YLU-CEGEDEL-NQ" -> Country.LU;
             default -> throw new IllegalArgumentException("Unknown CountryEICode: " + codeString + ".");
         };
     }
@@ -106,6 +107,7 @@ public class CountryEICode {
             case IT -> "10YIT-GRTN-----B";
             case DK -> "10YDK-1--------W";
             case XK -> "10Y1001C--00100H";
+            case LU -> "10YLU-CEGEDEL-NQ";
             default -> throw new IllegalArgumentException("Unknown CountryEICode for Country " + country + ".");
         };
     }

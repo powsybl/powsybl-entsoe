@@ -24,6 +24,9 @@ class CountryEICodeTest {
         assertEquals(Country.CZ, new CountryEICode("10YCZ-CEPS-----N").getCountry());
         assertEquals(Country.DE, new CountryEICode("10YDE-VE-------2").getCountry());
         assertEquals(Country.DE, new CountryEICode("10YCB-GERMANY--8").getCountry());
+        assertEquals(Country.DE, new CountryEICode("10YDE-RWENET---I").getCountry());
+        assertEquals(Country.DE, new CountryEICode("10YDE-ENBW-----N").getCountry());
+        assertEquals(Country.DE, new CountryEICode("10YDE-EON------1").getCountry());
         assertEquals(Country.FR, new CountryEICode("10YFR-RTE------C").getCountry());
         assertEquals(Country.HR, new CountryEICode("10YHR-HEP------M").getCountry());
         assertEquals(Country.HU, new CountryEICode("10YHU-MAVIR----U").getCountry());
@@ -53,6 +56,7 @@ class CountryEICodeTest {
         assertEquals(Country.IT, new CountryEICode("10YCB-ITALY----1").getCountry());
         assertEquals(Country.DK, new CountryEICode("10YDK-1--------W").getCountry());
         assertEquals(Country.XK, new CountryEICode("10Y1001C--00100H").getCountry());
+        assertEquals(Country.LU, new CountryEICode("10YLU-CEGEDEL-NQ").getCountry());
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new CountryEICode("invalid code"));
         assertEquals("Unknown CountryEICode: invalid code.", e.getMessage());
     }
@@ -86,6 +90,7 @@ class CountryEICodeTest {
         assertEquals("10YIT-GRTN-----B", new CountryEICode(Country.IT).getCode());
         assertEquals("10YDK-1--------W", new CountryEICode(Country.DK).getCode());
         assertEquals("10Y1001C--00100H", new CountryEICode(Country.XK).getCode());
+        assertEquals("10YLU-CEGEDEL-NQ", new CountryEICode(Country.LU).getCode());
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new CountryEICode(Country.BR));
         assertEquals("Unknown CountryEICode for Country BR.", e.getMessage());
     }
