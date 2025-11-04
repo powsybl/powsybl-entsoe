@@ -79,7 +79,7 @@ class CgmesIntegrationTests {
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
 
         assertEquals(0, netPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
-        assertEquals(-245.189, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(245.189, netPositions.get(Country.NL), DOUBLE_TOLERANCE);
+        assertEquals(-244.958, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(244.958, netPositions.get(Country.NL), DOUBLE_TOLERANCE);
     }
 }

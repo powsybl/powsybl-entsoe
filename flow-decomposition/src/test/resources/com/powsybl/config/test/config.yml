@@ -1,0 +1,5 @@
+open-loadflow-default-parameters:
+  balanceType: PROPORTIONAL_TO_GENERATION_P
+  slackBusPMaxMismatch: 1e-3
+  newtonRaphsonStoppingCriteriaType: PER_EQUATION_TYPE_CRITERIA
+  maxActivePowerMismatch: 1e-3
