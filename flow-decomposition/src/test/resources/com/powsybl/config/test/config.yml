@@ -1,3 +1,5 @@
 open-loadflow-default-parameters:
-  plausibleActivePowerLimit: 5000
-  slackDistributionFailureBehavior: LEAVE_ON_SLACK_BUS
+  balanceType: PROPORTIONAL_TO_GENERATION_P
+  slackBusPMaxMismatch: 1e-3
+  newtonRaphsonStoppingCriteriaType: PER_EQUATION_TYPE_CRITERIA
+  maxActivePowerMismatch: 1e-3

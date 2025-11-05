@@ -154,8 +154,8 @@ class NetPositionTest {
 
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(0.0, netPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
-        assertEquals(-100.093, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(100.093, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(-100.031, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(100.031, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
     }
 
     @Test
@@ -202,8 +202,8 @@ class NetPositionTest {
 
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(0, netPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
-        assertEquals(-103.973, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(103.973, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
+        assertEquals(-103.959, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
+        assertEquals(103.959, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
     }
 
     @Test
