@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 public final class TestUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestUtils.class);
-    private static final double EPSILON = 1e-6;
+    private static final double EPSILON = 1e-3;
 
     private TestUtils() {
         // Utility class

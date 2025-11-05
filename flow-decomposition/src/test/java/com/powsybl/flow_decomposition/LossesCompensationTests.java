@@ -10,6 +10,7 @@ import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -157,9 +158,9 @@ class LossesCompensationTests {
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
-        assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow(), EPSILON);
-        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.FR), EPSILON);
-        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.BE), EPSILON);
+        assertEquals(100.001, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow(), EPSILON);
+        assertEquals(-0.001, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.FR), EPSILON);
+        assertEquals(-0.001, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.BE), EPSILON);
     }
 
     @Test
@@ -174,9 +175,9 @@ class LossesCompensationTests {
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
-        assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow(), EPSILON);
-        assertEquals(-0.609, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.FR), EPSILON);
-        assertEquals(-0.609, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.BE), EPSILON);
+        assertEquals(100.001, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow(), EPSILON);
+        assertEquals(-0.710, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.FR), EPSILON);
+        assertEquals(-0.710, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.BE), EPSILON);
     }
 
     @Test
@@ -191,9 +192,9 @@ class LossesCompensationTests {
         XnecProvider xnecProvider = XnecProviderByIds.builder().addNetworkElementsOnBasecase(Set.of(xnecId)).build();
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
 
-        assertEquals(99.813, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow(), EPSILON);
-        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.FR), EPSILON);
-        assertEquals(0.0936, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.BE), EPSILON);
+        assertEquals(100.001, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getAllocatedFlow(), EPSILON);
+        assertEquals(-0.001, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.FR), EPSILON);
+        assertEquals(-0.001, flowDecompositionResults.getDecomposedFlowMap().get(xnecId).getLoopFlow(Country.BE), EPSILON);
     }
 
     @Test
@@ -324,14 +325,19 @@ class LossesCompensationTests {
         String networkFileName = "lossesCompensatorLineConnectedToOneSide.xiidm";
         Network network = importNetwork(networkFileName);
         assertEquals(2, network.getLoadStream().count());
-        LoadFlow.run(network, LoadFlowParameters.load().setDc(AC_LOAD_FLOW));
+        LoadFlowParameters parameters = LoadFlowParameters.load()
+            .setDc(AC_LOAD_FLOW);
+        parameters.getExtension(OpenLoadFlowParameters.class)
+            .setSlackBusPMaxMismatch(1e-6)
+            .setMaxActivePowerMismatch(1e-6);
+        LoadFlow.run(network, parameters);
         LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DEFAULT_LOSSES_COMPENSATION_EPSILON);
         lossesCompensator.run(network);
         assertEquals(5, network.getLoadStream().count());
         Load lossesb1 = network.getLoad("LOSSES b1");
         assertNotNull(lossesb1);
         assertEquals("b1_vl", lossesb1.getTerminal().getVoltageLevel().getId());
-        assertEquals(0.061171, lossesb1.getP0(), 1e-6);
+        assertEquals(0.061169, lossesb1.getP0(), 1e-6);
         assertTrue(lossesb1.isFictitious());
         Load lossesb2 = network.getLoad("LOSSES b2");
         assertNotNull(lossesb2);

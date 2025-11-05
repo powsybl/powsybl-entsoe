@@ -18,4 +18,16 @@
 Any implementation of load flow provider and sensitivity analysis provider can be used, as the entire algorithm only
 relies on common loadflow API and sensitivity analysis API.
 
-Thus, the flow decomposition algorithm relies on [load flow parameters](inv:powsyblcore:*:*#loadflow-generic-parameters) and [sensitivity analysis parameters](inv:powsyblcore:*:*#sensitivity-generic-parameter).
+Thus, the flow decomposition algorithm relies on [load flow parameters](inv:powsyblcore:*:*#loadflow-generic-parameters)
+and [sensitivity analysis parameters](inv:powsyblcore:*:*#sensitivity-generic-parameter).
+
+## Open load flow parameters
+
+Some open load flow parameters have been modified in the tests. They are listed below.
+
+| Name                              | Default value in tests       | Reason                                                                                                    |
+|-----------------------------------|------------------------------|-----------------------------------------------------------------------------------------------------------|
+| balanceType                       | PROPORTIONAL_TO_GENERATION_P | A lot of tests are based on UCTE format. The PMax values are wrong. It is better to balance on P instead. |
+| slackBusPMaxMismatch              | 1e-3                         | We need precision in our tests. The OLF default value favors performance.                                 |
+| newtonRaphsonStoppingCriteriaType | PER_EQUATION_TYPE_CRITERIA   | We need precision in our tests. The OLF default value favors performance.                                 |
+| maxActivePowerMismatch            | 1e-3                         | We need precision in our tests. The OLF default value favors performance.                                 |

@@ -37,8 +37,8 @@ class NodalInjectionTests {
         String genBe = "BGEN2 11_generator";
         String genFr = "FGEN1 11_generator";
         Map<String, Map<String, Double>> nodalInjections = getNodalInjections(networkFileName);
-        assertEquals(-100.0935, nodalInjections.get(genBe).get(ALLOCATED), EPSILON);
-        assertEquals(+100.0935, nodalInjections.get(genFr).get(ALLOCATED), EPSILON);
+        assertEquals(-100.031, nodalInjections.get(genBe).get(ALLOCATED), EPSILON);
+        assertEquals(+100.031, nodalInjections.get(genFr).get(ALLOCATED), EPSILON);
     }
 
     @Test
@@ -47,8 +47,8 @@ class NodalInjectionTests {
         String genBe = "BGEN2 11_generator";
         String genFr = "FGEN1 11_generator";
         Map<String, Map<String, Double>> nodalInjections = getNodalInjections(networkFileName);
-        assertEquals(-100.0935, nodalInjections.get(genBe).get(ALLOCATED), EPSILON);
-        assertEquals(+100.0935, nodalInjections.get(genFr).get(ALLOCATED), EPSILON);
+        assertEquals(-100.031, nodalInjections.get(genBe).get(ALLOCATED), EPSILON);
+        assertEquals(+100.031, nodalInjections.get(genFr).get(ALLOCATED), EPSILON);
     }
 
     @Test
