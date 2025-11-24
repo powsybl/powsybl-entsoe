@@ -82,82 +82,85 @@ public class BalanceComputationImpl implements BalanceComputation {
         BalanceComputationResult result;
 
         String initialVariantId = network.getVariantManager().getWorkingVariantId();
-        String workingVariantCopyId = workingStateId + " COPY";
-        network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId);
-        network.getVariantManager().setWorkingVariant(workingVariantCopyId);
+        String localVariantId = UUID.randomUUID().toString();
+        network.getVariantManager().cloneVariant(workingStateId, localVariantId);
+        network.getVariantManager().setWorkingVariant(localVariantId);
 
-        do {
-            ReportNode iterationReportNode = Reports.createBalanceComputationIterationReporter(reportNode, context.getIterationNum());
-            context.setIterationReportNode(iterationReportNode);
+        try {
+            do {
+                ReportNode iterationReportNode = Reports.createBalanceComputationIterationReporter(reportNode, context.getIterationNum());
+                context.setIterationReportNode(iterationReportNode);
 
-            // Step 1: Perform the scaling
-            ReportNode scalingReportNode = Reports.createScalingReporter(iterationReportNode);
-            context.getBalanceOffsets().forEach((area, offset) -> {
-                Scalable scalable = area.getScalable();
-                double done = scalable.scale(network, offset, parameters.getScalingParameters());
-                Reports.reportAreaScaling(scalingReportNode, area.getName(), offset, done);
-                LOGGER.info("Iteration={}, Scaling for area {}: offset={}, done={}", context.getIterationNum(), area.getName(), offset, done);
-            });
+                // Step 1: Perform the scaling
+                ReportNode scalingReportNode = Reports.createScalingReporter(iterationReportNode);
+                context.getBalanceOffsets().forEach((area, offset) -> {
+                    Scalable scalable = area.getScalable();
+                    double done = scalable.scale(network, offset, parameters.getScalingParameters());
+                    Reports.reportAreaScaling(scalingReportNode, area.getName(), offset, done);
+                    LOGGER.info("Iteration={}, Scaling for area {}: offset={}, done={}", context.getIterationNum(), area.getName(), offset, done);
+                });
 
-            // Step 2: compute Load Flow (skip if isWithLoadFlow is false)
-            if (parameters.isWithLoadFlow()) {
-                LoadFlowResult loadFlowResult = loadFlowRunner.run(network, workingVariantCopyId,
-                    new LoadFlowRunParameters()
-                        .setComputationManager(computationManager)
-                        .setParameters(parameters.getLoadFlowParameters())
-                        .setReportNode(iterationReportNode));
-                if (!isLoadFlowResultOk(context, loadFlowResult)) {
-                    LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
-                    result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
-                    return CompletableFuture.completedFuture(result);
+                // Step 2: compute Load Flow (skip if isWithLoadFlow is false)
+                if (parameters.isWithLoadFlow()) {
+                    LoadFlowResult loadFlowResult = loadFlowRunner.run(network, localVariantId,
+                        new LoadFlowRunParameters()
+                            .setComputationManager(computationManager)
+                            .setParameters(parameters.getLoadFlowParameters())
+                            .setReportNode(iterationReportNode));
+                    if (!isLoadFlowResultOk(context, loadFlowResult)) {
+                        LOGGER.error("Iteration={}, LoadFlow on network {} does not converge", context.getIterationNum(), network.getId());
+                        result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.getIterationNum());
+                        return CompletableFuture.completedFuture(result);
+                    }
+                } else {
+                    // Report that LoadFlow was skipped
+                    Reports.createSkipLoadFlowReport(iterationReportNode);
+                    LOGGER.info("Iteration={}, LoadFlow computation skipped as per configuration", context.getIterationNum());
                 }
-            } else {
-                // Report that LoadFlow was skipped
-                Reports.createSkipLoadFlowReport(iterationReportNode);
-                LOGGER.info("Iteration={}, LoadFlow computation skipped as per configuration", context.getIterationNum());
-            }
 
-            // Step 3: Compute balance and mismatch for each area
-            ReportNode mismatchReportNode = Reports.createMismatchReporter(iterationReportNode);
-            for (BalanceComputationArea area : areas) {
-                NetworkArea na = context.getNetworkArea(area);
-                double target = area.getTargetNetPosition();
-                double balance = na.getNetPosition(context.parameters.isSubtractLoadFlowBalancing());
-                double mismatch = target - balance;
-                Reports.reportAreaMismatch(mismatchReportNode, area.getName(), mismatch, target, balance);
-                LOGGER.info("Iteration={}, Mismatch for area {}: {} (target={}, balance={})", context.getIterationNum(), area.getName(), mismatch, target, balance);
-                context.updateAreaOffsetAndMismatch(area, mismatch);
-            }
+                // Step 3: Compute balance and mismatch for each area
+                ReportNode mismatchReportNode = Reports.createMismatchReporter(iterationReportNode);
+                for (BalanceComputationArea area : areas) {
+                    NetworkArea na = context.getNetworkArea(area);
+                    double target = area.getTargetNetPosition();
+                    double balance = na.getNetPosition(context.parameters.isSubtractLoadFlowBalancing());
+                    double mismatch = target - balance;
+                    Reports.reportAreaMismatch(mismatchReportNode, area.getName(), mismatch, target, balance);
+                    LOGGER.info("Iteration={}, Mismatch for area {}: {} (target={}, balance={})", context.getIterationNum(), area.getName(), mismatch, target, balance);
+                    context.updateAreaOffsetAndMismatch(area, mismatch);
+                }
 
-            // Step 4: Checks balance adjustment results
-            // When isWithLoadFlow is false, always return after one iteration
-            if (computeTotalMismatch(context) < parameters.getThresholdNetPosition()) {
-                result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, context.nextIteration(), context.getBalanceOffsets());
-                network.getVariantManager().cloneVariant(workingVariantCopyId, workingStateId, true);
-            } else {
-                // Reset current variant with initial state
-                network.getVariantManager().cloneVariant(workingStateId, workingVariantCopyId, true);
-                result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.nextIteration(), context.getBalanceOffsets());
-            }
-        } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
+                // Step 4: Checks balance adjustment results
+                // When isWithLoadFlow is false, always return after one iteration
+                if (computeTotalMismatch(context) < parameters.getThresholdNetPosition()) {
+                    result = new BalanceComputationResult(BalanceComputationResult.Status.SUCCESS, context.nextIteration(), context.getBalanceOffsets());
+                    network.getVariantManager().cloneVariant(localVariantId, workingStateId, true);
+                } else {
+                    // Reset current variant with initial state
+                    network.getVariantManager().cloneVariant(workingStateId, localVariantId, true);
+                    result = new BalanceComputationResult(BalanceComputationResult.Status.FAILED, context.nextIteration(), context.getBalanceOffsets());
+                }
+            } while (context.getIterationNum() < parameters.getMaxNumberIterations() && result.getStatus() != BalanceComputationResult.Status.SUCCESS);
 
-        ReportNode statusReportNode = Reports.createStatusReporter(reportNode);
-        if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
-            List<String> networkAreasName = areas.stream()
+            ReportNode statusReportNode = Reports.createStatusReporter(reportNode);
+            if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
+                List<String> networkAreasName = areas.stream()
                     .map(BalanceComputationArea::getName).collect(Collectors.toList());
-            Reports.reportBalancedAreas(statusReportNode, networkAreasName, result.getIterationCount());
-            LOGGER.info("Areas {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
+                Reports.reportBalancedAreas(statusReportNode, networkAreasName, result.getIterationCount());
+                LOGGER.info("Areas {} are balanced after {} iterations", networkAreasName, result.getIterationCount());
 
-        } else {
-            BigDecimal totalMismatch = BigDecimal.valueOf(computeTotalMismatch(context)).setScale(2, RoundingMode.UP);
-            Reports.reportUnbalancedAreas(statusReportNode, context.getIterationNum(), totalMismatch);
-            LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), totalMismatch);
+            } else {
+                BigDecimal totalMismatch = BigDecimal.valueOf(computeTotalMismatch(context)).setScale(2, RoundingMode.UP);
+                Reports.reportUnbalancedAreas(statusReportNode, context.getIterationNum(), totalMismatch);
+                LOGGER.error("Areas are unbalanced after {} iterations, total mismatch is {}", context.getIterationNum(), totalMismatch);
+            }
+
+            return CompletableFuture.completedFuture(result);
+        } finally {
+            // Reset working variant first because it has fewer chances to fail and is more important
+            network.getVariantManager().setWorkingVariant(initialVariantId);
+            network.getVariantManager().removeVariant(localVariantId);
         }
-
-        network.getVariantManager().removeVariant(workingVariantCopyId);
-        network.getVariantManager().setWorkingVariant(initialVariantId);
-
-        return CompletableFuture.completedFuture(result);
     }
 
     /**
