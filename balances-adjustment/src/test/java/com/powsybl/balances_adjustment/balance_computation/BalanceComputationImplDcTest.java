@@ -7,6 +7,7 @@
 package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.CountryAreaFactory;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.scalable.Scalable;
@@ -22,6 +23,11 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Ameni Walha {@literal <ameni.walha at rte-france.com>}
@@ -163,5 +169,25 @@ class BalanceComputationImplDcTest {
 
         assertEquals(BalanceComputationResult.Status.SUCCESS, result.getStatus());
         assertEquals(2, result.getIterationCount());
+    }
+
+    @Test
+    void testLoadFlowFail() {
+        List<BalanceComputationArea> areas = new ArrayList<>();
+        areas.add(new BalanceComputationArea("FR", countryAreaFR, scalableFR, 1200.));
+        areas.add(new BalanceComputationArea("BE", countryAreaBE, scalableBE, 1300.));
+
+        loadFlowRunner = mock(LoadFlow.Runner.class);
+        when(loadFlowRunner.run(any(), anyString(), any())).thenThrow(new PowsyblException("loadflow failure"));
+
+        BalanceComputation balanceComputation = balanceComputationFactory.create(areas, loadFlowRunner, computationManager);
+
+        String workingVariantId = testNetwork1.getVariantManager().getWorkingVariantId();
+        assertThrows(
+            PowsyblException.class,
+            () -> balanceComputation.run(testNetwork1, workingVariantId, parameters)
+        );
+
+        assertEquals(1, testNetwork1.getVariantManager().getVariantIds().size());
     }
 }
