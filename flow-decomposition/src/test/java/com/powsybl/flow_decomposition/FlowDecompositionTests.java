@@ -103,13 +103,13 @@ class FlowDecompositionTests {
     }
 
     @Test
-    void testConnectedComponentModeChangesFromAllToMain() {
-        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load().setConnectedComponentMode(LoadFlowParameters.ConnectedComponentMode.ALL);
+    void testComponentModeChangesFromAllToMain() {
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load().setComponentMode(LoadFlowParameters.ComponentMode.ALL_CONNECTED);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(new FlowDecompositionParameters(), loadFlowParameters);
         // lfParameters inside flow decomposition changed from all to main
-        assertEquals(FlowDecompositionComputer.MAIN_CONNECTED_COMPONENT, flowDecompositionComputer.getLoadFlowParameters().getConnectedComponentMode());
+        assertEquals(FlowDecompositionComputer.MAIN_CONNECTED_COMPONENT, flowDecompositionComputer.getLoadFlowParameters().getComponentMode());
         // original lfParameters didn't change
-        assertEquals(LoadFlowParameters.ConnectedComponentMode.ALL, loadFlowParameters.getConnectedComponentMode());
+        assertEquals(LoadFlowParameters.ComponentMode.ALL_CONNECTED, loadFlowParameters.getComponentMode());
     }
 
     void testFlowDecompositionOnHvdcNetwork(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
