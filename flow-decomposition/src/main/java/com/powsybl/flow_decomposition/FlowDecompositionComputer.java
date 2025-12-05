@@ -34,7 +34,7 @@ public class FlowDecompositionComputer {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     static final String DEFAULT_LOAD_FLOW_PROVIDER = "OpenLoadFlow";
     static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = "OpenLoadFlow";
-    public static final LoadFlowParameters.ConnectedComponentMode MAIN_CONNECTED_COMPONENT = LoadFlowParameters.ConnectedComponentMode.MAIN;
+    public static final LoadFlowParameters.ComponentMode MAIN_CONNECTED_COMPONENT = LoadFlowParameters.ComponentMode.MAIN_CONNECTED;
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
     private final LoadFlowRunningService loadFlowRunningService;
@@ -52,10 +52,10 @@ public class FlowDecompositionComputer {
                                      String loadFlowProvider, String sensitivityAnalysisProvider) {
         this.parameters = flowDecompositionParameters;
         this.loadFlowParameters = loadFlowParameters.copy();
-        if (!MAIN_CONNECTED_COMPONENT.equals(this.loadFlowParameters.getConnectedComponentMode())) {
-            LOGGER.warn("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode from {} to MAIN.",
-                this.loadFlowParameters.getConnectedComponentMode());
-            this.loadFlowParameters.setConnectedComponentMode(MAIN_CONNECTED_COMPONENT);
+        if (!MAIN_CONNECTED_COMPONENT.equals(this.loadFlowParameters.getComponentMode())) {
+            LOGGER.warn("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode from {} to MAIN_CONNECTED.",
+                this.loadFlowParameters.getComponentMode());
+            this.loadFlowParameters.setComponentMode(MAIN_CONNECTED_COMPONENT);
         }
         this.loadFlowRunningService = new LoadFlowRunningService(LoadFlow.find(loadFlowProvider));
         this.sensitivityAnalysisRunner = SensitivityAnalysis.find(sensitivityAnalysisProvider);
