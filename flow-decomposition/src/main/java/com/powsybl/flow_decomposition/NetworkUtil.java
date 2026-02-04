@@ -156,4 +156,28 @@ public final class NetworkUtil {
     private static boolean hasNeutralStep(TwoWindingsTransformer pst) {
         return pst.getPhaseTapChanger().getNeutralStep().isPresent();
     }
+
+    public static Country getBranchSideCountry(Branch branch, TwoSides side) {
+        return branch.getTerminal(side).getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
+    }
+
+    public static boolean isConnectedAndInMainSynchronous(Branch branch) {
+        return branch.getTerminal1().getBusView().getBus() != null
+                && branch.getTerminal2().getBusView().getBus() != null
+                && branch.getTerminal1().getBusView().getBus().isInMainSynchronousComponent()
+                && branch.getTerminal2().getBusView().getBus().isInMainSynchronousComponent();
+    }
+
+    public static Stream<Injection> getInjectionStream(Bus bus) {
+        Stream returnStream = Stream.empty();
+        returnStream = Stream.concat(bus.getGeneratorStream(), returnStream);
+        returnStream = Stream.concat(bus.getLoadStream(), returnStream);
+        returnStream = Stream.concat(bus.getDanglingLineStream(), returnStream);
+        return returnStream;
+    }
+
+    public static boolean isConnectedAndInMainSynchronous(Injection injection) {
+        return injection.getTerminal().getBusView().getBus() != null
+                && injection.getTerminal().getBusView().getBus().isInMainSynchronousComponent();
+    }
 }
