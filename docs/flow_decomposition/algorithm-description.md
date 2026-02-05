@@ -12,7 +12,9 @@ Two independent flow partitioning implementations are available:
 - **Full Line Decomposition (FLD)**: alternative implementation based on a direct
   line-oriented decomposition, inspired by the literature.
 
-The following sections describe the Power Flow Colouring algorithm in detail.# Algorithm description
+The following sections describe the flow decomposition algorithm in detail.
+
+## Algorithm hypothesis
 
 The flow decomposition algorithm is based on the DC approximation, in which the losses in the network branches
 are neglected, and that allows to rely on the superposition principle to assess which is the impact of any injection
