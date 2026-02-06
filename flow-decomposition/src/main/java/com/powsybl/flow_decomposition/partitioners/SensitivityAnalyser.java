@@ -50,7 +50,18 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
         this(loadFlowParameters, parameters, runner, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
     }
 
-    SparseMatrixWithIndexesTriplet run(List<String> variableList,
+    SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes) {
+        return run(networkMatrixIndexes.getNodeIdList(),
+                networkMatrixIndexes.getNodeIndex(),
+                SensitivityVariableType.INJECTION_ACTIVE_POWER);
+    }
+
+    SparseMatrixWithIndexesTriplet getPsdfMatrix(NetworkMatrixIndexes networkMatrixIndexes) {
+        return run(networkMatrixIndexes.getPstList(),
+                networkMatrixIndexes.getPstIndex(), SensitivityVariableType.TRANSFORMER_PHASE);
+    }
+
+    private SparseMatrixWithIndexesTriplet run(List<String> variableList,
                                        Map<String, Integer> variableIndex,
                                        SensitivityVariableType sensitivityVariableType) {
         SparseMatrixWithIndexesTriplet sensiMatrixTriplet = initSensitivityMatrixTriplet(variableIndex);

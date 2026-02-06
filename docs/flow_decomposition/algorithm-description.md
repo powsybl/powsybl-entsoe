@@ -1,9 +1,6 @@
 # Flow decomposition algorithms
 
 This module provides algorithms for **power flow decomposition** in transmission networks.
-Flow decomposition aims at decomposing the physical power flow on each network element
-into several components (allocated flows, internal flows, loop flows, etc.), based on
-a linearized (DC) representation of the network and the superposition principle.
 
 Two independent flow partitioning implementations are available:
 
@@ -230,11 +227,29 @@ nodes belonging to the corresponding zones. Combined with node-to-node or zonal 
 the PEX matrix allows computing the contribution of each zone-to-zone exchange to the
 flow on any given branch.
 
+$$
+\begin{array}{l}
+\mathrm{F}_\mathrm{AF}[l] = \sum_{i \in B, j \in C, B \neq C} \mathrm{PTDF}_{l,i2j} \cdot \mathrm{PEX}_{ij} \\
+\mathrm{F}_\mathrm{LF}[l,B] = \sum_{i,j \in B, B\neq A} \mathrm{PTDF}_{l,i2j} \cdot \mathrm{PEX}_{ij} \\
+\mathrm{F}_\mathrm{IF}[l] = \sum_{i,j \in A} \mathrm{PTDF}_{l,i2j} \cdot \mathrm{PEX}_{ij} \\
+\mathrm{F}_\mathrm{PST} = \mathrm{PSDF} \cdot \mathrm{\Delta}_\mathrm{PST} \\
+\end{array}
+$$
+
+where:
+- $\mathrm{F}_\mathrm{AF}[l]$ is the network element $l$ allocated flow,
+- $\mathrm{F}_\mathrm{LF}[l,A]$ is the network element $l$ loop flow for zone $B$,
+- $\mathrm{F}_\mathrm{IF}[l]$ is the network element $l$ internal flow,
+- $\mathrm{F}_\mathrm{PST}$ is the vector of the network element PST (phase shift transformer) flow,
+- $\mathrm{\Delta}_\mathrm{PST}$ is the phase shift transformers angle vector. The neutral tap position of each PST is used to compute this difference.
+
 ### Properties
 
 - The decomposition is performed **per branch**, without explicit nodal GLSK-based scaling.
 - The sum of all flow components equals the reference DC flow.
 - The result is less sensitive to modelling choices related to nodal injection allocation.
+
+An important limitation exists today on this implementation: xNode flows are not calculated yet.
 
 ## Flow parts rescaling
 

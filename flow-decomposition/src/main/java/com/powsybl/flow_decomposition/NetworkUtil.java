@@ -161,11 +161,8 @@ public final class NetworkUtil {
         return branch.getTerminal(side).getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
     }
 
-    public static boolean isConnectedAndInMainSynchronous(Branch branch) {
-        return branch.getTerminal1().getBusView().getBus() != null
-                && branch.getTerminal2().getBusView().getBus() != null
-                && branch.getTerminal1().getBusView().getBus().isInMainSynchronousComponent()
-                && branch.getTerminal2().getBusView().getBus().isInMainSynchronousComponent();
+    public static boolean isConnectedAndInMainSynchronousComponent(Branch branch) {
+        return isConnected(branch) && isInMainSynchronousComponent(branch);
     }
 
     public static Stream<Injection> getInjectionStream(Bus bus) {
@@ -176,8 +173,7 @@ public final class NetworkUtil {
         return returnStream;
     }
 
-    public static boolean isConnectedAndInMainSynchronous(Injection injection) {
-        return injection.getTerminal().getBusView().getBus() != null
-                && injection.getTerminal().getBusView().getBus().isInMainSynchronousComponent();
+    public static boolean isConnectedAndInMainSynchronousComponent(Injection injection) {
+        return isInjectionConnected(injection) && isInjectionInMainSynchronousComponent(injection);
     }
 }

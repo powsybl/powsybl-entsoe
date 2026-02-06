@@ -34,7 +34,7 @@ class PexGraphTest {
                 .filter(Bus::isInMainSynchronousComponent)
                 .toList();
         branchesConnectedInMainSynchronousComponent = testNetwork.getBranchStream()
-                .filter(NetworkUtil::isConnectedAndInMainSynchronous)
+                .filter(NetworkUtil::isConnectedAndInMainSynchronousComponent)
                 .toList();
     }
 

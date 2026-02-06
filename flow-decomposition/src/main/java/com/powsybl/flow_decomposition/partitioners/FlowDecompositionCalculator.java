@@ -42,7 +42,7 @@ public class FlowDecompositionCalculator {
         this.ptdfMatrix = Objects.requireNonNull(ptdfMatrix).toMap();
         this.pstFlowMatrix = Objects.requireNonNull(pstFlowMatrix).toMap();
         this.busesOfInterest = busesInMainSynchronousComponent;
-        this.anyInjectionOnBus = busesOfInterest.stream().collect(Collectors.toMap(bus -> bus, bus -> NetworkUtil.getInjectionStream(bus).filter(NetworkUtil::isConnectedAndInMainSynchronous).findAny().orElseThrow()));
+        this.anyInjectionOnBus = busesOfInterest.stream().collect(Collectors.toMap(bus -> bus, bus -> NetworkUtil.getInjectionStream(bus).filter(NetworkUtil::isConnectedAndInMainSynchronousComponent).findAny().orElseThrow()));
         this.busMapping = busMapping;
     }
 
@@ -59,7 +59,7 @@ public class FlowDecompositionCalculator {
     private FlowPartition decomposeFlow(Branch<?> branch) {
         LOGGER.info("Decomposing flow on branch {}", branch.getId());
 
-        if (!NetworkUtil.isConnectedAndInMainSynchronous(branch)) {
+        if (!NetworkUtil.isConnectedAndInMainSynchronousComponent(branch)) {
             return new FlowPartition(0., 0., Collections.emptyMap(), 0., 0.);
         }
 

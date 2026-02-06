@@ -11,7 +11,6 @@ import com.powsybl.flow_decomposition.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
-import com.powsybl.sensitivity.SensitivityVariableType;
 import org.ejml.data.DMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
                 .toList();
         Map<String, Integer> busMapping = NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(Bus::getId).toList());
         List<Branch> branchesConnectedInMainSynchronousComponent = network.getBranchStream()
-                .filter(NetworkUtil::isConnectedAndInMainSynchronous)
+                .filter(NetworkUtil::isConnectedAndInMainSynchronousComponent)
                 .toList();
 
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecs.stream().toList());
@@ -79,17 +78,14 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
 
     private SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
-        SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.run(networkMatrixIndexes.getNodeIdList(),
-                networkMatrixIndexes.getNodeIndex(),
-                SensitivityVariableType.INJECTION_ACTIVE_POWER);
+        SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.getPtdfMatrix(networkMatrixIndexes);
         observers.computedPtdfMatrix(ptdfMatrix.toMap());
         return ptdfMatrix;
     }
 
     private SparseMatrixWithIndexesTriplet getPsdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
-        SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.run(networkMatrixIndexes.getPstList(),
-                networkMatrixIndexes.getPstIndex(), SensitivityVariableType.TRANSFORMER_PHASE);
+        SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.getPsdfMatrix(networkMatrixIndexes);
         observers.computedPsdfMatrix(psdfMatrix.toMap());
         return psdfMatrix;
     }
