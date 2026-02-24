@@ -7,7 +7,8 @@ Two independent flow partitioning implementations are available:
 - **Power Flow Colouring (PFC)**: implementation based on nodal injection
   decomposition and sensitivity analysis and described in [CORE decision by ACER](https://eepublicdownloads.entsoe.eu/clean-documents/nc-tasks/CORE%20-%2074%20-%20ACER%20decision%20-%20Annex%201.pdf). 
 - **Full Line Decomposition (FLD)**: alternative implementation based on a direct
-  line-oriented decomposition, inspired by the literature.
+  line-oriented decomposition, described in the article [“The full line decomposition method - a further development for causation-based cost sharing”](https://www.e-cigre.org/publications/detail/cse009-cse-009.html)
+  by M. Pavesi, J. Casteren and S. A. Graaff, CIGRE Science and Engineering, pp. 27–43, Oct. 2017.
 
 The following sections describe the flow decomposition algorithm in detail.
 
@@ -168,11 +169,9 @@ At a high level, the algorithm proceeds as follows:
 5. For each branch, the aggregation of all contributions exactly reconstructs
    the reference DC flow.
 
-The methodology is inspired by the matrix-based full network flow partitioning
-described in the literature and leads to a complete and unambiguous decomposition
-of branch flows.
+The methodology leads to a complete and unambiguous decomposition of branch flows.
 
-### 2.3 Downstream distribution matrix $A_d$
+### Downstream distribution matrix $A_d$
 
 In the Full Line Decomposition framework, the **downstream distribution matrix**
 $A_d$ models how power flowing through each node is distributed among its downstream
@@ -290,19 +289,11 @@ Since we divide by the DC flow to calculate the coefficient, lines with a too sm
 
 The two flow partitioning implementations differ mainly in their conceptual approach.
 
-| Aspect | Power Flow Colouring | Full Line Decomposition |
-|------|----------------------|-------------------------|
-| Decomposition basis | Nodal injections | Branch flows |
-| Main inputs | GLSK, PTDF, PSDF | Branch flows and topology |
-| Computational approach | Global, matrix-based | Line-oriented |
-| Sensitivity to GLSK | High | Low or none |
-| Typical interpretation | Injection-driven contributions | Physical line usage |
-
 Power Flow Colouring is well suited for zonal analyses where injection allocation
 plays a central role.  
 Full Line Decomposition provides a more direct interpretation of physical flows on
 network elements and reduces the dependence on nodal allocation assumptions.
 
-There is no reference methodology as physical interpretation of the associated results are difficult, and the
-choice between one or another methodology depends on thes assumptions done and the level of dependency on the
+There is no reference methodology as physical interpretation of the associated results is difficult, and the
+choice between one or another methodology depends on the assumptions done and the level of dependency on the
 inputs.
