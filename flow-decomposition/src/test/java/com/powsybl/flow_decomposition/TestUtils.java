@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -46,9 +48,12 @@ public final class TestUtils {
         for (String xnec : flowDecompositionResults.getDecomposedFlowMap().keySet()) {
             DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(xnec);
             switch (rescaleMode) {
-                case ACER_METHODOLOGY -> assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
-                case PROPORTIONAL -> assertEquals(decomposedFlow.getMaxAbsAcFlow(), decomposedFlow.getTotalFlow(), EPSILON);
-                case MAX_CURRENT_OVERLOAD -> throw new IllegalArgumentException("Rescaling method not tested by this method");
+                case ACER_METHODOLOGY ->
+                    assertEquals(Math.abs(decomposedFlow.getAcTerminal1ReferenceFlow()), decomposedFlow.getTotalFlow(), EPSILON);
+                case PROPORTIONAL ->
+                    assertEquals(decomposedFlow.getMaxAbsAcFlow(), decomposedFlow.getTotalFlow(), EPSILON);
+                case MAX_CURRENT_OVERLOAD ->
+                    throw new IllegalArgumentException("Rescaling method not tested by this method");
                 default -> assertEqualsWithoutRescaling(xnec, decomposedFlow);
             }
         }
@@ -109,21 +114,43 @@ public final class TestUtils {
     }
 
     public static void validateFlowDecomposition(FlowDecompositionResults flowDecompositionResults,
-                                          String id,
-                                          String branchId,
-                                          String contingencyId,
-                                          Country country1,
-                                          Country country2,
-                                          double acReferenceFlow,
-                                          double dcReferenceFlow,
-                                          double allocatedFlow,
-                                          double xNodeFlow,
-                                          double pstFlow,
-                                          double internalFlow,
-                                          double loopFlowBe,
-                                          double loopFlowDe,
-                                          double loopFLowFr,
-                                          double loopFlowNl) {
+                                                 String id,
+                                                 String branchId,
+                                                 String contingencyId,
+                                                 Country country1,
+                                                 Country country2,
+                                                 double acReferenceFlow,
+                                                 double dcReferenceFlow,
+                                                 double allocatedFlow,
+                                                 double xNodeFlow,
+                                                 double pstFlow,
+                                                 double internalFlow,
+                                                 double loopFlowBe,
+                                                 double loopFlowDe,
+                                                 double loopFLowFr,
+                                                 double loopFlowNl) {
+        Map<Country, Double> loopFlow = Map.of(Country.BE, loopFlowBe, Country.DE, loopFlowDe, Country.FR, loopFLowFr, Country.NL, loopFlowNl)
+            .entrySet().stream()
+            .filter(e -> Math.abs(e.getValue()) > 1e-3)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        validateFlowDecompositionWithMap(flowDecompositionResults, id, branchId, contingencyId, country1, country2,
+            acReferenceFlow, dcReferenceFlow, allocatedFlow, xNodeFlow, pstFlow, internalFlow,
+            loopFlow);
+    }
+
+    public static void validateFlowDecompositionWithMap(FlowDecompositionResults flowDecompositionResults,
+                                                        String id,
+                                                        String branchId,
+                                                        String contingencyId,
+                                                        Country country1,
+                                                        Country country2,
+                                                        double acReferenceFlow,
+                                                        double dcReferenceFlow,
+                                                        double allocatedFlow,
+                                                        double xNodeFlow,
+                                                        double pstFlow,
+                                                        double internalFlow,
+                                                        Map<Country, Double> loopFlow) {
         DecomposedFlow l1 = flowDecompositionResults.getDecomposedFlowMap().get(id);
         assertNotNull(l1);
         assertEquals(id, l1.getId());
@@ -137,9 +164,7 @@ public final class TestUtils {
         assertEquals(xNodeFlow, l1.getXNodeFlow(), EPSILON);
         assertEquals(pstFlow, l1.getPstFlow(), EPSILON);
         assertEquals(internalFlow, l1.getInternalFlow(), EPSILON);
-        assertEquals(loopFlowBe, l1.getLoopFlow(Country.BE), EPSILON);
-        assertEquals(loopFlowDe, l1.getLoopFlow(Country.DE), EPSILON);
-        assertEquals(loopFLowFr, l1.getLoopFlow(Country.FR), EPSILON);
-        assertEquals(loopFlowNl, l1.getLoopFlow(Country.NL), EPSILON);
+        assert l1.getLoopFlows().values().stream().filter(d -> Math.abs(d) > 1e-3).count() == loopFlow.size();
+        loopFlow.forEach((country, loopFlowValue) -> assertEquals(loopFlowValue, l1.getLoopFlow(country), EPSILON));
     }
 }

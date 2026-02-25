@@ -157,23 +157,23 @@ public final class NetworkUtil {
         return pst.getPhaseTapChanger().getNeutralStep().isPresent();
     }
 
-    public static Country getBranchSideCountry(Branch branch, TwoSides side) {
+    public static Country getBranchSideCountry(Branch<?> branch, TwoSides side) {
         return branch.getTerminal(side).getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
     }
 
-    public static boolean isConnectedAndInMainSynchronousComponent(Branch branch) {
+    public static boolean isConnectedAndInMainSynchronousComponent(Branch<?> branch) {
         return isConnected(branch) && isInMainSynchronousComponent(branch);
     }
 
-    public static Stream<Injection> getInjectionStream(Bus bus) {
-        Stream returnStream = Stream.empty();
+    public static Stream<Injection<?>> getInjectionStream(Bus bus) {
+        Stream<Injection<?>> returnStream = Stream.empty();
         returnStream = Stream.concat(bus.getGeneratorStream(), returnStream);
         returnStream = Stream.concat(bus.getLoadStream(), returnStream);
         returnStream = Stream.concat(bus.getDanglingLineStream(), returnStream);
         return returnStream;
     }
 
-    public static boolean isConnectedAndInMainSynchronousComponent(Injection injection) {
+    public static boolean isConnectedAndInMainSynchronousComponent(Injection<?> injection) {
         return isInjectionConnected(injection) && isInjectionInMainSynchronousComponent(injection);
     }
 }

@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class PexGraphTest {
     private Network testNetwork;
     private List<Bus> busesInMainSynchronousComponent;
-    private List<Branch> branchesConnectedInMainSynchronousComponent;
+    private List<Branch<?>> branchesConnectedInMainSynchronousComponent;
 
     @BeforeEach
     void setUp() {
@@ -33,9 +33,7 @@ class PexGraphTest {
         busesInMainSynchronousComponent = testNetwork.getBusView().getBusStream()
                 .filter(Bus::isInMainSynchronousComponent)
                 .toList();
-        branchesConnectedInMainSynchronousComponent = testNetwork.getBranchStream()
-                .filter(NetworkUtil::isConnectedAndInMainSynchronousComponent)
-                .toList();
+        branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
     }
 
     @Test

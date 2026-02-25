@@ -79,9 +79,9 @@ class PexGraphVertex {
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class PexGraphEdge {
-    private Branch associatedBranch;
+    private final Branch<?> associatedBranch;
 
-    PexGraphEdge(Branch associatedBranch) {
+    PexGraphEdge(Branch<?> associatedBranch) {
         this.associatedBranch = Objects.requireNonNull(associatedBranch);
     }
 
@@ -93,7 +93,7 @@ class PexGraphEdge {
         }
     }
 
-    Branch getAssociatedBranch() {
+    Branch<?> getAssociatedBranch() {
         return associatedBranch;
     }
 
@@ -121,7 +121,7 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
         vertexPerBus.put(bus, vertex);
     }
 
-    private void addBranchAsEdge(Branch branch) {
+    private void addBranchAsEdge(Branch<?> branch) {
         assert branch != null;
 
         Bus bus1 = branch.getTerminal1().getBusView().getBus();
@@ -149,11 +149,11 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
         }
     }
 
-    public PexGraph(List<Bus> buses, List<Branch> branches) {
+    public PexGraph(List<Bus> buses, List<Branch<?>> branches) {
         this(buses, branches, DEFAULT_INJECTION_STRATEGY);
     }
 
-    public PexGraph(List<Bus> buses, List<Branch> branches, InjectionStrategy injectionStrategy) {
+    public PexGraph(List<Bus> buses, List<Branch<?>> branches, InjectionStrategy injectionStrategy) {
         super(PexGraphEdge.class);
 
         buses.forEach(bus -> addBusAsVertex(bus, injectionStrategy));

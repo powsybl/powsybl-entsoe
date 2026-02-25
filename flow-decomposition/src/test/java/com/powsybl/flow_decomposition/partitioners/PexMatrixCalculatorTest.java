@@ -40,9 +40,7 @@ class PexMatrixCalculatorTest {
                 .filter(Bus::isInMainSynchronousComponent)
                 .toList();
         busMapping = NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(Bus::getId).toList());
-        List<Branch> branchesConnectedInMainSynchronousComponent = testNetwork.getBranchStream()
-                .filter(NetworkUtil::isConnectedAndInMainSynchronousComponent)
-                .toList();
+        List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
         pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
     }
 

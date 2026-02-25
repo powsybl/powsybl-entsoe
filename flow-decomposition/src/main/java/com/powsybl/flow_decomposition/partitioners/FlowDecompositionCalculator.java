@@ -99,7 +99,7 @@ public class FlowDecompositionCalculator {
                 .filter(cell -> cell.getRowKey().equals(cell.getColumnKey())) // loop flow
                 .filter(cell -> !cell.getRowKey().equals(branchCountry1)) // not internal flow
                 .collect(Collectors.toMap(Table.Cell::getRowKey, Table.Cell::getValue));
-        double pstFlow = pstFlowMatrix.get(branch.getId()).values().stream()
+        double pstFlow = pstFlowMatrix.getOrDefault(branch.getId(), Collections.emptyMap()).values().stream()
                 .mapToDouble(d -> d)
                 .sum();
         double xNodeFlow = 0;

@@ -42,9 +42,7 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
                 .filter(Bus::isInMainSynchronousComponent)
                 .toList();
         Map<String, Integer> busMapping = NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(Bus::getId).toList());
-        List<Branch> branchesConnectedInMainSynchronousComponent = network.getBranchStream()
-                .filter(NetworkUtil::isConnectedAndInMainSynchronousComponent)
-                .toList();
+        List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(network);
 
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecs.stream().toList());
         LOGGER.info("{} === PEX graph generation", LocalDateTime.now());
