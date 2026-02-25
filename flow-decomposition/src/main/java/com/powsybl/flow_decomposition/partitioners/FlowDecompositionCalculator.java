@@ -90,7 +90,7 @@ public class FlowDecompositionCalculator {
             }
         }
 
-        double internalFlow = countryExchangeFlows.get(branchCountry1, branchCountry1);
+        double internalFlow = Optional.ofNullable(countryExchangeFlows.get(branchCountry1, branchCountry1)).orElse(0.);
         double allocatedFlow = countryExchangeFlows.cellSet().stream()
                 .filter(cell -> !cell.getRowKey().equals(cell.getColumnKey()))
                 .mapToDouble(Table.Cell::getValue)
