@@ -102,7 +102,8 @@ public class FlowDecompositionCalculator {
         double pstFlow = pstFlowMatrix.getOrDefault(branch.getId(), Collections.emptyMap()).values().stream()
                 .mapToDouble(d -> d)
                 .sum();
-        double xNodeFlow = 0;
+        // Dirty solution ?
+        double xNodeFlow = Math.abs(branch.getTerminal1().getP()) - internalFlow - allocatedFlow - pstFlow - loopFlowsPerCountry.values().stream().mapToDouble(d -> d).sum();
         return new FlowPartition(internalFlow, allocatedFlow, loopFlowsPerCountry, pstFlow, xNodeFlow);
     }
 }

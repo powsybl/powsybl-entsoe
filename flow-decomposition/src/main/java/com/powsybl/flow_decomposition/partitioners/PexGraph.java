@@ -30,6 +30,9 @@ class PexGraphVertex {
     private final Bus associatedBus;
     private final double associatedGeneration;
     private final double associatedLoad;
+    private final double associatedXnodeGeneration;
+    private final double associatedXnodeLoad;
+    private final double associatedXnodeP;
 
     PexGraphVertex(Bus associatedBus, PexGraph.InjectionStrategy injectionStrategy) {
         this.associatedBus = Objects.requireNonNull(associatedBus);
@@ -39,7 +42,6 @@ class PexGraphVertex {
             .filter(d -> !Double.isNaN(d))
             .filter(d -> d < 0)
             .sum();
-
         double totalLoad = NetworkUtil.getInjectionStream(associatedBus)
             .mapToDouble(injection -> injection.getTerminal().getP())
             .filter(d -> !Double.isNaN(d))
@@ -55,6 +57,31 @@ class PexGraphVertex {
                 totalLoad > totalGeneration ? totalLoad - totalGeneration : 0;
             case PexGraph.InjectionStrategy.DECOMPOSE_INJECTIONS -> totalLoad;
         };
+
+        double totalXnodeGeneration = -NetworkUtil.getUnpairedXNodeStream(associatedBus)
+            .mapToDouble(injection -> injection.getTerminal().getP())
+            .filter(d -> !Double.isNaN(d))
+            .filter(d -> d < 0)
+            .sum();
+        double totalXNodeLoad = NetworkUtil.getUnpairedXNodeStream(associatedBus)
+            .mapToDouble(injection -> injection.getTerminal().getP())
+            .filter(d -> !Double.isNaN(d))
+            .filter(d -> d > 0)
+            .sum();
+        this.associatedXnodeGeneration = switch (injectionStrategy) {
+            case PexGraph.InjectionStrategy.SUM_INJECTIONS ->
+                totalXnodeGeneration > totalXNodeLoad ? totalXnodeGeneration - totalXNodeLoad : 0;
+            case PexGraph.InjectionStrategy.DECOMPOSE_INJECTIONS -> totalXnodeGeneration;
+        };
+        this.associatedXnodeLoad = switch (injectionStrategy) {
+            case PexGraph.InjectionStrategy.SUM_INJECTIONS ->
+                totalXNodeLoad > totalXnodeGeneration ? totalXNodeLoad - totalXnodeGeneration : 0;
+            case PexGraph.InjectionStrategy.DECOMPOSE_INJECTIONS -> totalXNodeLoad;
+        };
+        this.associatedXnodeP = NetworkUtil.getUnpairedXNodeStream(associatedBus)
+            .mapToDouble(injection -> injection.getTerminal().getP())
+            .filter(d -> !Double.isNaN(d))
+            .sum();
     }
 
     double getAssociatedLoad() {
@@ -63,6 +90,18 @@ class PexGraphVertex {
 
     double getAssociatedGeneration() {
         return associatedGeneration;
+    }
+
+    public double getAssociatedXnodeLoad() {
+        return associatedXnodeLoad;
+    }
+
+    public double getAssociatedXnodeGeneration() {
+        return associatedXnodeGeneration;
+    }
+
+    public double getAssociatedXnodeP() {
+        return associatedXnodeP;
     }
 
     Bus getAssociatedBus() {
@@ -154,10 +193,10 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
 
     private void checkGraph() {
         for (PexGraphVertex vertex : vertexSet()) {
-            double nodalGeneration = vertex.getAssociatedGeneration() + incomingEdgesOf(vertex).stream()
+            double nodalGeneration = vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration() + incomingEdgesOf(vertex).stream()
                 .mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
 
-            double nodalLoad = vertex.getAssociatedLoad() + outgoingEdgesOf(vertex).stream()
+            double nodalLoad = vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad() + outgoingEdgesOf(vertex).stream()
                 .mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
 
             if (Math.abs(nodalGeneration - nodalLoad) > 1e-3) {

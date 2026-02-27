@@ -87,14 +87,14 @@ public class PexMatrixCalculator {
     private void fillDistributionTripletsWithVertex(PexGraphVertex vertex, DMatrixSparseTriplet distributionTriplet) {
         assert distributionTriplet != null;
 
-        double sumOfLeavingAndAbsorbedFlows = vertex.getAssociatedLoad() + Math.min(vertex.getAssociatedLoad(), vertex.getAssociatedGeneration()) +
+        double sumOfLeavingAndAbsorbedFlows = vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad() + Math.min(vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad(), vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration()) +
             pexGraph.outgoingEdgesOf(vertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
-        double transferedFlow = Math.min(vertex.getAssociatedLoad(), vertex.getAssociatedGeneration());
+        double transferredFlow = Math.min(vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad(), vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration());
 
         distributionTriplet.unsafe_set(
             vertexMapper.get(vertex),
             vertexMapper.get(vertex),
-            Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : transferedFlow / sumOfLeavingAndAbsorbedFlows
+            Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : transferredFlow / sumOfLeavingAndAbsorbedFlows
         );
     }
 
@@ -105,12 +105,12 @@ public class PexMatrixCalculator {
         PexGraphVertex sourceVertex = pexGraph.getEdgeSource(edge);
         PexGraphVertex targetVertex = pexGraph.getEdgeTarget(edge);
 
-        double sumOfLeavingAndAbsorbedFlows = targetVertex.getAssociatedLoad() + Math.min(targetVertex.getAssociatedLoad(), targetVertex.getAssociatedGeneration()) +
+        double sumOfLeavingAndAbsorbedFlows = targetVertex.getAssociatedLoad() + targetVertex.getAssociatedXnodeLoad() + Math.min(targetVertex.getAssociatedLoad() + targetVertex.getAssociatedXnodeLoad(), targetVertex.getAssociatedGeneration() + targetVertex.getAssociatedXnodeGeneration()) +
             pexGraph.outgoingEdgesOf(targetVertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
-        double transferedFlow = edge.getAssociatedFlow();
+        double transferredFlow = edge.getAssociatedFlow();
 
         double oldValue = distributionTriplet.get(vertexMapper.get(sourceVertex), vertexMapper.get(targetVertex));
-        double increase = Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : transferedFlow / sumOfLeavingAndAbsorbedFlows;
+        double increase = Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : transferredFlow / sumOfLeavingAndAbsorbedFlows;
         double newValue = oldValue + increase;
 
         distributionTriplet.set(
@@ -121,9 +121,9 @@ public class PexMatrixCalculator {
     }
 
     private double getGenerationCoeff(PexGraphVertex vertex) {
-        double sumOfLeavingAndAbsorbedFlows = vertex.getAssociatedLoad() + Math.min(vertex.getAssociatedLoad(), vertex.getAssociatedGeneration()) +
+        double sumOfLeavingAndAbsorbedFlows = vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad() + Math.min(vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad(), vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration()) +
             pexGraph.outgoingEdgesOf(vertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
-        return Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : vertex.getAssociatedGeneration() / sumOfLeavingAndAbsorbedFlows;
+        return Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : (vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration()) / sumOfLeavingAndAbsorbedFlows;
     }
 
     public DMatrix computePexMatrix() {

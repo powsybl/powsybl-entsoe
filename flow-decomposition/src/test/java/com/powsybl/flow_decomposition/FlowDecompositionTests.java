@@ -528,12 +528,13 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        generateTestString(flowDecompositionResults);
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (flowPartitionMode == FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION) {
             // TODO fix this test, xnode flow is not supported
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.031, -100.000, 0.000, 0.000, 0.000, 100.000, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 BLOAD 11 1", "FGEN1 11 BLOAD 11 1", "", Country.FR, Country.BE, 100.094, 100.000, 100.000, 0.000, 0.000, 0.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.031, -100.000, 0.000, 50.000, 0.000, 50.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 BLOAD 11 1", "FGEN1 11 BLOAD 11 1", "", Country.FR, Country.BE, 100.094, 100.000, 50.000, 50.000, 0.000, 0.000, Collections.emptyMap());
         } else {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.031, -100.000, -50.063, 50.000, 0.000, 100.031, Map.of(Country.FR, 0.031));
             validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 BLOAD 11 1", "FGEN1 11 BLOAD 11 1", "", Country.FR, Country.BE, 100.094, 100.000, 50.063, 50.000, 0.000, 0.000, Map.of(Country.BE, -0.031, Country.FR, -0.031));
@@ -555,21 +556,20 @@ class FlowDecompositionTests {
 
         Network network = TestUtils.importNetwork(networkFileName);
 
-        if (flowPartitionMode == FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION) {
-            // TODO fix this test, paired xnode are not supported
-            PowsyblException exception = assertThrows(PowsyblException.class, () -> runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode));
-            assertEquals("Nodal generation and load do not match for vertex associated with bus: FGEN1 1_0", exception.getMessage());
-        } else {
-            FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
-            assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
 
+        if (flowPartitionMode == FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION) {
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.000, -100.000, 0.000, 0.000, 0.000, 100.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "", Country.FR, Country.BE, 100.063, 100.047, 100.047, 0.000, 0.000, 0.000, Collections.emptyMap());
+        } else {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.000, -100.000, -100.047, 0.000, 0.000, 200.047, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "", Country.FR, Country.BE, 100.063, 100.047, 100.047, 0.000, 0.000, 0.000, Collections.emptyMap());
-
-            assertEquals(2, flowDecompositionResults.getZoneSet().size());
-            assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
-            assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
         }
+
+        assertEquals(2, flowDecompositionResults.getZoneSet().size());
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
     }
 
     @ParameterizedTest(name = "Mode={0}")

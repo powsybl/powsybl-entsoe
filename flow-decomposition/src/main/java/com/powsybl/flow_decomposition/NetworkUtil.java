@@ -169,8 +169,11 @@ public final class NetworkUtil {
         Stream<Injection<?>> returnStream = Stream.empty();
         returnStream = Stream.concat(bus.getGeneratorStream(), returnStream);
         returnStream = Stream.concat(bus.getLoadStream(), returnStream);
-        returnStream = Stream.concat(bus.getDanglingLineStream(), returnStream);
         return returnStream;
+    }
+
+    public static Stream<DanglingLine> getUnpairedXNodeStream(Bus bus) {
+        return bus.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired());
     }
 
     public static boolean isConnectedAndInMainSynchronousComponent(Injection<?> injection) {
