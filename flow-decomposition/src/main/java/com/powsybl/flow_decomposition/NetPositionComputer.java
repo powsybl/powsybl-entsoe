@@ -6,6 +6,7 @@
  */
 package com.powsybl.flow_decomposition;
 
+import com.powsybl.flow_decomposition.utils.LogUtils;
 import com.powsybl.iidm.network.*;
 
 import java.util.EnumMap;
@@ -21,34 +22,38 @@ public class NetPositionComputer {
     }
 
     public static Map<Country, Double> computeNetPositions(Network network) {
-        Map<Country, Double> netPositions = new EnumMap<>(Country.class);
+        return LogUtils.info("Net position calculation", () -> {
+            Map<Country, Double> netPositions = new EnumMap<>(Country.class);
 
-        network.getDanglingLineStream().forEach(danglingLine -> {
-            Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
-            addLeavingFlow(netPositions, danglingLine, country);
+            network.getDanglingLineStream().forEach(danglingLine -> {
+                Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
+                addLeavingFlow(netPositions, danglingLine, country);
+            });
+
+            network.getLineStream().forEach(line -> {
+                Country countrySide1 = NetworkUtil.getTerminalCountry(line.getTerminal1());
+                Country countrySide2 = NetworkUtil.getTerminalCountry(line.getTerminal2());
+                if (countrySide1.equals(countrySide2)) {
+                    return;
+                }
+                addLeavingFlow(netPositions, line, countrySide1);
+                addLeavingFlow(netPositions, line, countrySide2);
+            });
+
+            network.getHvdcLineStream().forEach(hvdcLine -> {
+                Country countrySide1 = NetworkUtil.getTerminalCountry(
+                    hvdcLine.getConverterStation1().getTerminal());
+                Country countrySide2 = NetworkUtil.getTerminalCountry(
+                    hvdcLine.getConverterStation2().getTerminal());
+                if (countrySide1.equals(countrySide2)) {
+                    return;
+                }
+                addLeavingFlow(netPositions, hvdcLine, countrySide1);
+                addLeavingFlow(netPositions, hvdcLine, countrySide2);
+            });
+
+            return netPositions;
         });
-
-        network.getLineStream().forEach(line -> {
-            Country countrySide1 = NetworkUtil.getTerminalCountry(line.getTerminal1());
-            Country countrySide2 = NetworkUtil.getTerminalCountry(line.getTerminal2());
-            if (countrySide1.equals(countrySide2)) {
-                return;
-            }
-            addLeavingFlow(netPositions, line, countrySide1);
-            addLeavingFlow(netPositions, line, countrySide2);
-        });
-
-        network.getHvdcLineStream().forEach(hvdcLine -> {
-            Country countrySide1 = NetworkUtil.getTerminalCountry(hvdcLine.getConverterStation1().getTerminal());
-            Country countrySide2 = NetworkUtil.getTerminalCountry(hvdcLine.getConverterStation2().getTerminal());
-            if (countrySide1.equals(countrySide2)) {
-                return;
-            }
-            addLeavingFlow(netPositions, hvdcLine, countrySide1);
-            addLeavingFlow(netPositions, hvdcLine, countrySide2);
-        });
-
-        return netPositions;
     }
 
     private static double getPreviousValue(Map<Country, Double> netPositions, Country country) {

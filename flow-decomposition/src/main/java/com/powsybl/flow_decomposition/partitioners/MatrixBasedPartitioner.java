@@ -8,6 +8,7 @@
 package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.flow_decomposition.*;
+import com.powsybl.flow_decomposition.utils.LogUtils;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
@@ -51,11 +52,14 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
         SparseMatrixWithIndexesCSC allocatedLoopFlowsMatrix =
             SparseMatrixWithIndexesCSC.mult(ptdfMatrix.toCSCMatrix(), nodalInjectionsMatrix.toCSCMatrix());
         PstFlowComputer pstFlowComputer = new PstFlowComputer();
-        SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
-        return xnecs.stream().collect(Collectors.toMap(
-            Identifiable::getId,
-            xnec -> flowPartitionForXnec(xnec, allocatedLoopFlowsMatrix.toMap().getOrDefault(xnec.getId(), Collections.emptyMap()), pstFlowMatrix.toMap().getOrDefault(xnec.getId(), Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW))
-        ));
+        return LogUtils.info("PST flows calculation", () -> {
+            SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network,
+                networkMatrixIndexes, psdfMatrix);
+            return xnecs.stream().collect(Collectors.toMap(
+                Identifiable::getId,
+                xnec -> flowPartitionForXnec(xnec, allocatedLoopFlowsMatrix.toMap().getOrDefault(xnec.getId(), Collections.emptyMap()), pstFlowMatrix.toMap().getOrDefault(xnec.getId(), Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW))
+            ));
+        });
     }
 
     private SparseMatrixWithIndexesTriplet getNodalInjectionsMatrix(Network network,
@@ -74,19 +78,25 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
 
     private SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
-        SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.run(networkMatrixIndexes.getNodeIdList(),
-            networkMatrixIndexes.getNodeIndex(),
-            SensitivityVariableType.INJECTION_ACTIVE_POWER);
-        observers.computedPtdfMatrix(ptdfMatrix.toMap());
-        return ptdfMatrix;
+        return LogUtils.info("Computation of node-to-hub PTDF", () -> {
+            SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.run(
+                networkMatrixIndexes.getNodeIdList(),
+                networkMatrixIndexes.getNodeIndex(),
+                SensitivityVariableType.INJECTION_ACTIVE_POWER);
+            observers.computedPtdfMatrix(ptdfMatrix.toMap());
+            return ptdfMatrix;
+        });
     }
 
     private SparseMatrixWithIndexesTriplet getPsdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
-        SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.run(networkMatrixIndexes.getPstList(),
-            networkMatrixIndexes.getPstIndex(), SensitivityVariableType.TRANSFORMER_PHASE);
-        observers.computedPsdfMatrix(psdfMatrix.toMap());
-        return psdfMatrix;
+        return LogUtils.info("Computation of node-to-hub PSDF", () -> {
+            SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.run(
+                networkMatrixIndexes.getPstList(),
+                networkMatrixIndexes.getPstIndex(), SensitivityVariableType.TRANSFORMER_PHASE);
+            observers.computedPsdfMatrix(psdfMatrix.toMap());
+            return psdfMatrix;
+        });
     }
 
     private FlowPartition flowPartitionForXnec(Branch<?> xnec, Map<String, Double> allocatedLoopFlowsMap, double pstFlow) {
@@ -105,10 +115,13 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
     }
 
     private double extractInternalFlow(Map<String, Double> loopFlowsMap, Country country1, Country country2) {
-        if (Objects.equals(country1, country2)) {
-            return Optional.ofNullable(loopFlowsMap.remove(NetworkUtil.getLoopFlowIdFromCountry(country1)))
-                .orElse(NO_FLOW);
-        }
-        return NO_FLOW;
+        return LogUtils.info("Nodal injection calculation for Internal flows started", () -> {
+            if (Objects.equals(country1, country2)) {
+                return Optional.ofNullable(
+                        loopFlowsMap.remove(NetworkUtil.getLoopFlowIdFromCountry(country1)))
+                    .orElse(NO_FLOW);
+            }
+            return NO_FLOW;
+        });
     }
 }
