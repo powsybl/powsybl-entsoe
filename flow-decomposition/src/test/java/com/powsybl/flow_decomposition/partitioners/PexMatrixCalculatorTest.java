@@ -61,8 +61,8 @@ class PexMatrixCalculatorTest {
     }
 
     private void checkMatrixOkForBus(DMatrixSparseCSC pexMatrix, PexGraphVertex vertex) {
-        checkIsColumnSumEqualToLoad(pexMatrix, busMapping.get(vertex.getAssociatedBus().getId()), vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad());
-        checkIsRowSumEqualToGen(pexMatrix, busMapping.get(vertex.getAssociatedBus().getId()), vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration());
+        checkIsColumnSumEqualToLoad(pexMatrix, busMapping.get(vertex.getAssociatedBus().getId()), vertex.getTotalLoad());
+        checkIsRowSumEqualToGen(pexMatrix, busMapping.get(vertex.getAssociatedBus().getId()), vertex.getTotalGeneration());
     }
 
     private void checkMatrixOk(DMatrix pexMatrix) {
@@ -74,7 +74,7 @@ class PexMatrixCalculatorTest {
     @Test
     void computePexMatrix() {
         PexMatrixCalculator calculator = new PexMatrixCalculator(pexGraph, busMapping);
-        DMatrix pexMatrix = calculator.computePexMatrix();
+        DMatrix pexMatrix = calculator.computePexMatrix(false);
         checkMatrixOk(pexMatrix);
     }
 }

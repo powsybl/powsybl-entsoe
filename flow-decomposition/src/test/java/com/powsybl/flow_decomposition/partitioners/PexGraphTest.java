@@ -48,8 +48,8 @@ class PexGraphTest {
                 .filter(vertex -> vertex.getAssociatedBus().getId().equals("NNL2AA1_0"))
                 .findAny().get();
         // load = 1000, gen = 500 --> if injection summed associated load = 500, associated gen = 0
-        assertEquals(500., pexGraphVertex.getAssociatedLoad(), 0.);
-        assertEquals(0., pexGraphVertex.getAssociatedGeneration(), 0.);
+        assertEquals(500., pexGraphVertex.getTotalLoad(), 0.);
+        assertEquals(0., pexGraphVertex.getTotalGeneration(), 0.);
 
         PexGraphEdge pexGraphEdge = pexGraph.edgeSet()
                 .stream()
@@ -70,8 +70,8 @@ class PexGraphTest {
                 .filter(vertex -> vertex.getAssociatedBus().getId().equals("NNL2AA1_0"))
                 .findAny().get();
         // load = 1000, gen = 500
-        assertEquals(1000., pexGraphVertex.getAssociatedLoad(), 0.);
-        assertEquals(500., pexGraphVertex.getAssociatedGeneration(), 0.);
+        assertEquals(1000., pexGraphVertex.getTotalLoad(), 0.);
+        assertEquals(500., pexGraphVertex.getTotalGeneration(), 0.);
 
         PexGraphEdge pexGraphEdge = pexGraph.edgeSet()
                 .stream()

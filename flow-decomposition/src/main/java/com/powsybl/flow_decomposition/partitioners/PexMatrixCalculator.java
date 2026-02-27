@@ -84,12 +84,12 @@ public class PexMatrixCalculator {
         return transferMatrix;
     }
 
-    private void fillDistributionTripletsWithVertex(PexGraphVertex vertex, DMatrixSparseTriplet distributionTriplet) {
+    private void fillDistributionTripletsWithVertex(PexGraphVertex vertex, DMatrixSparseTriplet distributionTriplet, boolean getXNodeFlow) {
         assert distributionTriplet != null;
 
-        double sumOfLeavingAndAbsorbedFlows = vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad() + Math.min(vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad(), vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration()) +
+        double sumOfLeavingAndAbsorbedFlows = vertex.getTotalLoad() + Math.min(vertex.getTotalLoad(), vertex.getTotalGeneration()) +
             pexGraph.outgoingEdgesOf(vertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
-        double transferredFlow = Math.min(vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad(), vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration());
+        double transferredFlow = Math.min(vertex.getLoad(getXNodeFlow), vertex.getGeneration(getXNodeFlow));
 
         distributionTriplet.unsafe_set(
             vertexMapper.get(vertex),
@@ -105,7 +105,7 @@ public class PexMatrixCalculator {
         PexGraphVertex sourceVertex = pexGraph.getEdgeSource(edge);
         PexGraphVertex targetVertex = pexGraph.getEdgeTarget(edge);
 
-        double sumOfLeavingAndAbsorbedFlows = targetVertex.getAssociatedLoad() + targetVertex.getAssociatedXnodeLoad() + Math.min(targetVertex.getAssociatedLoad() + targetVertex.getAssociatedXnodeLoad(), targetVertex.getAssociatedGeneration() + targetVertex.getAssociatedXnodeGeneration()) +
+        double sumOfLeavingAndAbsorbedFlows = targetVertex.getTotalLoad() + Math.min(targetVertex.getTotalLoad(), targetVertex.getTotalGeneration()) +
             pexGraph.outgoingEdgesOf(targetVertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
         double transferredFlow = edge.getAssociatedFlow();
 
@@ -121,12 +121,12 @@ public class PexMatrixCalculator {
     }
 
     private double getGenerationCoeff(PexGraphVertex vertex) {
-        double sumOfLeavingAndAbsorbedFlows = vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad() + Math.min(vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad(), vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration()) +
+        double sumOfLeavingAndAbsorbedFlows = vertex.getTotalLoad() + Math.min(vertex.getTotalLoad(), vertex.getTotalGeneration()) +
             pexGraph.outgoingEdgesOf(vertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
-        return Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : (vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration()) / sumOfLeavingAndAbsorbedFlows;
+        return Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : (vertex.getTotalGeneration()) / sumOfLeavingAndAbsorbedFlows;
     }
 
-    public DMatrix computePexMatrix() {
+    public DMatrix computePexMatrix(boolean getXNodeFlow) {
         int matrixSize = pexGraph.vertexSet().size();
         double estimatedSparseCoeff = 0.1;
         boolean hasCycle = determineIfGraphHasCycle(pexGraph);
@@ -134,7 +134,7 @@ public class PexMatrixCalculator {
         // easy to work with sparse format, but hard to do computations with
         DMatrixSparseTriplet distributionTriplet = new DMatrixSparseTriplet(matrixSize, matrixSize, (int) (matrixSize * matrixSize * estimatedSparseCoeff));
         pexGraph.edgeSet().forEach(edge -> fillDistributionTripletsWithEdge(edge, distributionTriplet));
-        pexGraph.vertexSet().forEach(vertex -> fillDistributionTripletsWithVertex(vertex, distributionTriplet));
+        pexGraph.vertexSet().forEach(vertex -> fillDistributionTripletsWithVertex(vertex, distributionTriplet, getXNodeFlow));
 
         // convert into a format that's easier to perform math with
         DMatrixSparseCSC distributionMatrix = DConvertMatrixStruct.convert(distributionTriplet, (DMatrixSparseCSC) null);
@@ -148,7 +148,7 @@ public class PexMatrixCalculator {
         DMatrixSparseCSC generationCoeffMatrix = CommonOps_DSCC.diag(generationCoeffs);
 
         double[] loadCoeffs = new double[matrixSize];
-        vertexMapper.forEach((key, value) -> loadCoeffs[value] = key.getAssociatedLoad());
+        vertexMapper.forEach((key, value) -> loadCoeffs[value] = key.getLoad(getXNodeFlow));
         DMatrixSparseCSC loadCoeffMatrix = CommonOps_DSCC.diag(loadCoeffs);
 
         // Compute PEX matrix

@@ -50,7 +50,10 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
 
         LOGGER.info("{} === PEX matrix computation", LocalDateTime.now());
         PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph, busMapping);
-        DMatrix pexMatrix = pexMatrixCalculator.computePexMatrix();
+        DMatrix pexMatrix = pexMatrixCalculator.computePexMatrix(false);
+
+        LOGGER.info("{} === PEX matrix computation for X node", LocalDateTime.now());
+        DMatrix xpexMatrix = pexMatrixCalculator.computePexMatrix(true);
 
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
         LOGGER.info("{} === PTDF matrix computation", LocalDateTime.now());
@@ -62,7 +65,7 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
 
         LOGGER.info("{} === Flow decomposition", LocalDateTime.now());
-        FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, busMapping);
+        FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, xpexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, busMapping);
         Map<String, FlowPartition> results = flowDecompositionCalculator.computeDecomposition();
 
         LOGGER.info("{} === End of computation", LocalDateTime.now());

@@ -84,20 +84,20 @@ class PexGraphVertex {
             .sum();
     }
 
-    double getAssociatedLoad() {
-        return associatedLoad;
+    public double getTotalLoad() {
+        return associatedLoad + associatedXnodeLoad;
     }
 
-    double getAssociatedGeneration() {
-        return associatedGeneration;
+    public double getTotalGeneration() {
+        return associatedGeneration + associatedXnodeGeneration;
     }
 
-    public double getAssociatedXnodeLoad() {
-        return associatedXnodeLoad;
+    public double getLoad(boolean getXNodeFlow){
+        return getXNodeFlow ? associatedXnodeLoad : associatedLoad;
     }
 
-    public double getAssociatedXnodeGeneration() {
-        return associatedXnodeGeneration;
+    public double getGeneration(boolean getXNodeFlow){
+        return getXNodeFlow ? associatedXnodeGeneration : associatedGeneration;
     }
 
     public double getAssociatedXnodeP() {
@@ -193,10 +193,10 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
 
     private void checkGraph() {
         for (PexGraphVertex vertex : vertexSet()) {
-            double nodalGeneration = vertex.getAssociatedGeneration() + vertex.getAssociatedXnodeGeneration() + incomingEdgesOf(vertex).stream()
+            double nodalGeneration = vertex.getTotalGeneration() + incomingEdgesOf(vertex).stream()
                 .mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
 
-            double nodalLoad = vertex.getAssociatedLoad() + vertex.getAssociatedXnodeLoad() + outgoingEdgesOf(vertex).stream()
+            double nodalLoad = vertex.getTotalLoad() + outgoingEdgesOf(vertex).stream()
                 .mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
 
             if (Math.abs(nodalGeneration - nodalLoad) > 1e-3) {
