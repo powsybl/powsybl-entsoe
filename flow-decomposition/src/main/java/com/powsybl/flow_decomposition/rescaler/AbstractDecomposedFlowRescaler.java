@@ -10,6 +10,7 @@ package com.powsybl.flow_decomposition.rescaler;
 import com.powsybl.flow_decomposition.DecomposedFlow;
 import com.powsybl.flow_decomposition.DecomposedFlowBuilder;
 import com.powsybl.flow_decomposition.FlowPartition;
+import com.powsybl.flow_decomposition.utils.LogUtils;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -27,13 +28,17 @@ abstract class AbstractDecomposedFlowRescaler implements DecomposedFlowRescaler 
 
     @Override
     public DecomposedFlow rescale(DecomposedFlow decomposedFlow, Network network) {
-        if (!shouldRescaleFlows(decomposedFlow)) {
-            return decomposedFlow;
-        }
 
-        FlowPartition rescaledFlowPartition = computeRescaledFlowsPartition(decomposedFlow, network);
+        var xnecId = DecomposedFlow.getXnecId(decomposedFlow.getContingencyId(), decomposedFlow.getBranchId());
+        return LogUtils.info("Flow components rescaling started | XNECID: " + xnecId, () -> {
+            if (!shouldRescaleFlows(decomposedFlow)) {
+                return decomposedFlow;
+            }
 
-        return new DecomposedFlowBuilder()
+            FlowPartition rescaledFlowPartition = computeRescaledFlowsPartition(decomposedFlow,
+                network);
+
+            return new DecomposedFlowBuilder()
                 .withBranchId(decomposedFlow.getBranchId())
                 .withContingencyId(decomposedFlow.getContingencyId())
                 .withCountry1(decomposedFlow.getCountry1())
@@ -45,6 +50,7 @@ abstract class AbstractDecomposedFlowRescaler implements DecomposedFlowRescaler 
                 .withAcCurrentTerminal2(decomposedFlow.getAcTerminal2Current())
                 .withFlowPartition(rescaledFlowPartition)
                 .build();
+        });
     }
 
     static boolean hasFiniteAcFlowsOnEachTerminal(DecomposedFlow decomposedFlow) {
