@@ -34,6 +34,60 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class FlowDecompositionTests {
+    private static void generateTestString(FlowDecompositionResults flowDecompositionResults) {
+        // TODO remove this
+        StringBuilder sb = new StringBuilder();
+        flowDecompositionResults.getDecomposedFlowMap().entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .limit(100)
+            .forEach(stringDecomposedFlowEntry -> {
+                DecomposedFlow decomposedFlow = stringDecomposedFlowEntry.getValue();
+                sb.append("validateFlowDecompositionWithMap(flowDecompositionResults, \"");
+                sb.append(decomposedFlow.getId());
+                sb.append("\", \"");
+                sb.append(decomposedFlow.getBranchId());
+                sb.append("\", \"");
+                sb.append(decomposedFlow.getContingencyId());
+                sb.append("\", Country.");
+                sb.append(decomposedFlow.getCountry1());
+                sb.append(", Country.");
+                sb.append(decomposedFlow.getCountry2());
+                sb.append(", ");
+                sb.append(String.format("%.3f", decomposedFlow.getAcTerminal1ReferenceFlow()));
+                sb.append(", ");
+                sb.append(String.format("%.3f", decomposedFlow.getDcReferenceFlow()));
+                sb.append(", ");
+                sb.append(String.format("%.3f", decomposedFlow.getAllocatedFlow()));
+                sb.append(", ");
+                sb.append(String.format("%.3f", decomposedFlow.getXNodeFlow()));
+                sb.append(", ");
+                sb.append(String.format("%.3f", decomposedFlow.getPstFlow()));
+                sb.append(", ");
+                sb.append(String.format("%.3f", decomposedFlow.getInternalFlow()));
+                boolean first = true;
+                for (Country country : decomposedFlow.getLoopFlows().keySet()) {
+                    if (Math.abs(decomposedFlow.getLoopFlows().get(country)) > 1e-3) {
+                        if (first) {
+                            sb.append(", Map.of(");
+                        } else {
+                            sb.append(", ");
+                        }
+                        sb.append(String.format("Country.%s, %.3f", country.name(), decomposedFlow.getLoopFlow(country)));
+                        first = false;
+                    }
+                }
+                if (first) {
+                    sb.append(", Collections.emptyMap()");
+                } else {
+                    sb.append(")");
+                }
+                sb.append(");\n");
+
+            });
+        String s = sb.toString();
+        int toto = 0;
+    }
+
 
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
@@ -409,7 +463,7 @@ class FlowDecompositionTests {
     @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
         "MATRIX_BASED",
         "DIRECT_SENSITIVITY_BASED",
-        // "FULL_LINE_DECOMPOSITION" // TODO fix this test, the DC decompositions are not coherent
+        "FULL_LINE_DECOMPOSITION"
     })
     void testSimpleNetworkWithPst(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES_NON_NEUTRAL.uct";
@@ -417,18 +471,13 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        generateTestString(flowDecompositionResults);
         assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (flowPartitionMode == FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION) {
-            // InjectionStrategy.DECOMPOSE_INJECTIONS
-            // validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BLOAD 12 2", "BLOAD 11 BLOAD 12 2", "", Country.BE, Country.BE, -160.006, -168.543, 6.374, 0.000, 163.653, -3.797, Collections.emptyMap());
-            // validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BLOAD 11 1", "FGEN  11 BLOAD 11 1", "", Country.FR, Country.BE, 192.391, 200.671, 24.955, 0.000, 163.653, 0.000, Map.of(Country.BE, 1.266));
-            // validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BLOAD 12 1", "FGEN  11 BLOAD 12 1", "", Country.FR, Country.BE, -76.188, -84.725, -56.284, 0.000, 163.653, 0.000, Map.of(Country.BE, 1.266));
-
-            // InjectionStrategy.SUM_INJECTIONS
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BLOAD 12 2", "BLOAD 11 BLOAD 12 2", "", Country.BE, Country.BE, -160.006, -168.543, 2.826, 0.000, 163.653, 0.000, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BLOAD 11 1", "FGEN  11 BLOAD 11 1", "", Country.FR, Country.BE, 192.391, 200.671, 21.389, 0.000, 163.653, 0.000, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BLOAD 12 1", "FGEN  11 BLOAD 12 1", "", Country.FR, Country.BE, -76.188, -84.725, -45.603, 0.000, 163.653, 0.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BLOAD 12 2", "BLOAD 11 BLOAD 12 2", "", Country.BE, Country.BE, -160.006, -168.543, 4.890, 0.000, 163.653, 0.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BLOAD 11 1", "FGEN  11 BLOAD 11 1", "", Country.FR, Country.BE, 192.391, 200.671, 37.019, 0.000, 163.653, 0.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BLOAD 12 1", "FGEN  11 BLOAD 12 1", "", Country.FR, Country.BE, -76.188, -84.725, -78.927, 0.000, 163.653, 0.000, Collections.emptyMap());
         } else {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BLOAD 12 2", "BLOAD 11 BLOAD 12 2", "", Country.BE, Country.BE, -160.006, -168.543, 29.016, 0.000, 163.653, -24.111, Map.of(Country.FR, -0.015));
             validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BLOAD 11 1", "FGEN  11 BLOAD 11 1", "", Country.FR, Country.BE, 192.391, 200.671, 29.016, 0.000, 163.653, 0.000, Map.of(Country.BE, 8.017, Country.FR, -0.015));

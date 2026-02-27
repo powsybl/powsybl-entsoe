@@ -13,8 +13,10 @@ import org.ejml.data.DMatrixSparseCSC;
 import org.ejml.data.DMatrixSparseTriplet;
 import org.ejml.ops.DConvertMatrixStruct;
 import org.ejml.sparse.csc.CommonOps_DSCC;
-import org.ejml.sparse.csc.MatrixFeatures_DSCC;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -26,7 +28,9 @@ import java.util.Objects;
  */
 public class PexMatrixCalculator {
     private static final double EPSILON = 1e-5;
-    private static final double MATRIX_CONSTRUCTION_TOLERANCE = 0;
+    public static final int MAX_ITERATION = 1000;
+    public static final double L1_NORM_PRECISION_TOLERANCE = 1e-9;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PexMatrixCalculator.class);
     private final PexGraph pexGraph;
     private final Map<PexGraphVertex, Integer> vertexMapper = new HashMap<>();
 
@@ -92,16 +96,7 @@ public class PexMatrixCalculator {
         DMatrixSparseCSC distributionMatrix = DConvertMatrixStruct.convert(distributionTriplet, (DMatrixSparseCSC) null);
 
         // Initialize transfer matrix
-        DMatrixSparseCSC transferMatrix = CommonOps_DSCC.identity(matrixSize);
-        DMatrixSparseCSC stackMatrix = distributionMatrix.copy();
-        for (int i = 0; i < matrixSize; i++) {
-            CommonOps_DSCC.add(1., transferMatrix.copy(), 1., stackMatrix, transferMatrix, null, null);
-            CommonOps_DSCC.mult(stackMatrix.copy(), distributionMatrix, stackMatrix);
-            if (MatrixFeatures_DSCC.isZeros(stackMatrix, MATRIX_CONSTRUCTION_TOLERANCE)) {
-                // PW: stop when matrix rank reached to speed up computation
-                break;
-            }
-        }
+        DMatrixSparseCSC transferMatrix = computeTransferMatrix(matrixSize, distributionMatrix);
 
         // Compute power injection matrix
         double[] generationCoeffs = new double[matrixSize];
@@ -118,5 +113,29 @@ public class PexMatrixCalculator {
         CommonOps_DSCC.mult(pexMatrix.copy(), loadCoeffMatrix, pexMatrix);
 
         return DConvertMatrixStruct.convert(pexMatrix, (DMatrixRMaj) null);
+    }
+
+    private static DMatrixSparseCSC computeTransferMatrix(int matrixSize, DMatrixSparseCSC distributionMatrix) {
+        DMatrixSparseCSC transferMatrix = CommonOps_DSCC.identity(matrixSize);
+        DMatrixSparseCSC stackMatrix = distributionMatrix.copy();
+        int i = 0;
+        LOGGER.debug("Computing approximate matrix inversion using Neumann series");
+
+        int maxIteration = Math.max(MAX_ITERATION, matrixSize);
+        do {
+            CommonOps_DSCC.add(1., transferMatrix.copy(), 1., stackMatrix, transferMatrix, null, null);
+            CommonOps_DSCC.mult(stackMatrix.copy(), distributionMatrix, stackMatrix);
+            double stackL1Norm = Arrays.stream(stackMatrix.nz_values).map(Math::abs).sum();
+            LOGGER.debug("Iteration {}/{}: L1 norm of stack matrix is {}", i, maxIteration, stackL1Norm);
+            if (stackL1Norm < L1_NORM_PRECISION_TOLERANCE) {
+                LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
+                break;
+            }
+            if (i == maxIteration) {
+                LOGGER.warn("Maximum number of iterations reached, matrix inversion may not be accurate");
+            }
+            i++;
+        } while (i <= maxIteration);
+        return transferMatrix;
     }
 }
