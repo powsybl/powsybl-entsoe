@@ -83,11 +83,10 @@ class FlowDecompositionTests {
                 }
                 sb.append(");\n");
 
-            });
+        });
         String s = sb.toString();
         int toto = 0;
     }
-
 
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()

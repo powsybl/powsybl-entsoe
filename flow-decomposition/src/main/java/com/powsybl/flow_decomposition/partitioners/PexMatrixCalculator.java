@@ -13,6 +13,7 @@ import org.ejml.data.DMatrixSparseCSC;
 import org.ejml.data.DMatrixSparseTriplet;
 import org.ejml.ops.DConvertMatrixStruct;
 import org.ejml.sparse.csc.CommonOps_DSCC;
+import org.jgrapht.alg.cycle.CycleDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +28,9 @@ import java.util.Objects;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class PexMatrixCalculator {
-    private static final double EPSILON = 1e-5;
     public static final int MAX_ITERATION = 1000;
     public static final double L1_NORM_PRECISION_TOLERANCE = 1e-9;
+    private static final double EPSILON = 1e-5;
     private static final Logger LOGGER = LoggerFactory.getLogger(PexMatrixCalculator.class);
     private final PexGraph pexGraph;
     private final Map<PexGraphVertex, Integer> vertexMapper = new HashMap<>();
@@ -41,17 +42,59 @@ public class PexMatrixCalculator {
         pexGraph.vertexSet().forEach(vertex -> vertexMapper.put(vertex, busMapper.get(vertex.getAssociatedBus().getId())));
     }
 
+    private static boolean determineIfGraphHasCycle(PexGraph pexGraph1) {
+        boolean hasCycle = new CycleDetector<>(pexGraph1).detectCycles();
+        LOGGER.info("PEX graph: vertices={}, edges={}, hasDirectedCycle={}",
+            pexGraph1.vertexSet().size(),
+            pexGraph1.edgeSet().size(),
+            hasCycle);
+
+        if (hasCycle) {
+            LOGGER.info("PEX graph cycle vertices={}", new CycleDetector<>(pexGraph1).findCycles());
+        }
+        return hasCycle;
+    }
+
+    private static DMatrixSparseCSC computeTransferMatrix(int matrixSize, boolean hasCycle, DMatrixSparseCSC distributionMatrix) {
+        DMatrixSparseCSC transferMatrix = CommonOps_DSCC.identity(matrixSize);
+        DMatrixSparseCSC stackMatrix = distributionMatrix.copy();
+        int i = 0;
+        LOGGER.debug("Computing approximate matrix inversion using Neumann series");
+
+        int maxIteration = matrixSize;
+        if (hasCycle) {
+            maxIteration = Math.max(MAX_ITERATION, matrixSize);
+            LOGGER.warn("Graph has some cycles. Increasing maximum number of iterations to {}", maxIteration);
+        }
+
+        do {
+            CommonOps_DSCC.add(1., transferMatrix.copy(), 1., stackMatrix, transferMatrix, null, null);
+            CommonOps_DSCC.mult(stackMatrix.copy(), distributionMatrix, stackMatrix);
+            double stackL1Norm = Arrays.stream(stackMatrix.nz_values).map(Math::abs).sum();
+            LOGGER.debug("Iteration {}/{}: L1 norm of stack matrix is {}", i, maxIteration, stackL1Norm);
+            if (stackL1Norm < L1_NORM_PRECISION_TOLERANCE) {
+                LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
+                break;
+            }
+            if (i == maxIteration) {
+                LOGGER.warn("Maximum number of iterations reached, matrix inversion may not be accurate");
+            }
+            i++;
+        } while (i <= maxIteration);
+        return transferMatrix;
+    }
+
     private void fillDistributionTripletsWithVertex(PexGraphVertex vertex, DMatrixSparseTriplet distributionTriplet) {
         assert distributionTriplet != null;
 
         double sumOfLeavingAndAbsorbedFlows = vertex.getAssociatedLoad() + Math.min(vertex.getAssociatedLoad(), vertex.getAssociatedGeneration()) +
-                pexGraph.outgoingEdgesOf(vertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
+            pexGraph.outgoingEdgesOf(vertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
         double transferedFlow = Math.min(vertex.getAssociatedLoad(), vertex.getAssociatedGeneration());
 
         distributionTriplet.unsafe_set(
-                vertexMapper.get(vertex),
-                vertexMapper.get(vertex),
-                Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : transferedFlow / sumOfLeavingAndAbsorbedFlows
+            vertexMapper.get(vertex),
+            vertexMapper.get(vertex),
+            Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : transferedFlow / sumOfLeavingAndAbsorbedFlows
         );
     }
 
@@ -63,7 +106,7 @@ public class PexMatrixCalculator {
         PexGraphVertex targetVertex = pexGraph.getEdgeTarget(edge);
 
         double sumOfLeavingAndAbsorbedFlows = targetVertex.getAssociatedLoad() + Math.min(targetVertex.getAssociatedLoad(), targetVertex.getAssociatedGeneration()) +
-                pexGraph.outgoingEdgesOf(targetVertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
+            pexGraph.outgoingEdgesOf(targetVertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
         double transferedFlow = edge.getAssociatedFlow();
 
         double oldValue = distributionTriplet.get(vertexMapper.get(sourceVertex), vertexMapper.get(targetVertex));
@@ -71,21 +114,22 @@ public class PexMatrixCalculator {
         double newValue = oldValue + increase;
 
         distributionTriplet.set(
-                vertexMapper.get(sourceVertex),
-                vertexMapper.get(targetVertex),
-                newValue
+            vertexMapper.get(sourceVertex),
+            vertexMapper.get(targetVertex),
+            newValue
         );
     }
 
     private double getGenerationCoeff(PexGraphVertex vertex) {
         double sumOfLeavingAndAbsorbedFlows = vertex.getAssociatedLoad() + Math.min(vertex.getAssociatedLoad(), vertex.getAssociatedGeneration()) +
-                pexGraph.outgoingEdgesOf(vertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
+            pexGraph.outgoingEdgesOf(vertex).stream().mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
         return Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : vertex.getAssociatedGeneration() / sumOfLeavingAndAbsorbedFlows;
     }
 
     public DMatrix computePexMatrix() {
         int matrixSize = pexGraph.vertexSet().size();
         double estimatedSparseCoeff = 0.1;
+        boolean hasCycle = determineIfGraphHasCycle(pexGraph);
 
         // easy to work with sparse format, but hard to do computations with
         DMatrixSparseTriplet distributionTriplet = new DMatrixSparseTriplet(matrixSize, matrixSize, (int) (matrixSize * matrixSize * estimatedSparseCoeff));
@@ -96,7 +140,7 @@ public class PexMatrixCalculator {
         DMatrixSparseCSC distributionMatrix = DConvertMatrixStruct.convert(distributionTriplet, (DMatrixSparseCSC) null);
 
         // Initialize transfer matrix
-        DMatrixSparseCSC transferMatrix = computeTransferMatrix(matrixSize, distributionMatrix);
+        DMatrixSparseCSC transferMatrix = computeTransferMatrix(matrixSize, hasCycle, distributionMatrix);
 
         // Compute power injection matrix
         double[] generationCoeffs = new double[matrixSize];
@@ -113,29 +157,5 @@ public class PexMatrixCalculator {
         CommonOps_DSCC.mult(pexMatrix.copy(), loadCoeffMatrix, pexMatrix);
 
         return DConvertMatrixStruct.convert(pexMatrix, (DMatrixRMaj) null);
-    }
-
-    private static DMatrixSparseCSC computeTransferMatrix(int matrixSize, DMatrixSparseCSC distributionMatrix) {
-        DMatrixSparseCSC transferMatrix = CommonOps_DSCC.identity(matrixSize);
-        DMatrixSparseCSC stackMatrix = distributionMatrix.copy();
-        int i = 0;
-        LOGGER.debug("Computing approximate matrix inversion using Neumann series");
-
-        int maxIteration = Math.max(MAX_ITERATION, matrixSize);
-        do {
-            CommonOps_DSCC.add(1., transferMatrix.copy(), 1., stackMatrix, transferMatrix, null, null);
-            CommonOps_DSCC.mult(stackMatrix.copy(), distributionMatrix, stackMatrix);
-            double stackL1Norm = Arrays.stream(stackMatrix.nz_values).map(Math::abs).sum();
-            LOGGER.debug("Iteration {}/{}: L1 norm of stack matrix is {}", i, maxIteration, stackL1Norm);
-            if (stackL1Norm < L1_NORM_PRECISION_TOLERANCE) {
-                LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
-                break;
-            }
-            if (i == maxIteration) {
-                LOGGER.warn("Maximum number of iterations reached, matrix inversion may not be accurate");
-            }
-            i++;
-        } while (i <= maxIteration);
-        return transferMatrix;
     }
 }

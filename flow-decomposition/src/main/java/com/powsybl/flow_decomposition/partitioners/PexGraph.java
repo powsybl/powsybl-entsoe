@@ -35,22 +35,24 @@ class PexGraphVertex {
         this.associatedBus = Objects.requireNonNull(associatedBus);
 
         double totalGeneration = -NetworkUtil.getInjectionStream(associatedBus)
-                .mapToDouble(injection -> injection.getTerminal().getP())
-                .filter(d -> !Double.isNaN(d))
-                .filter(d -> d < 0)
-                .sum();
+            .mapToDouble(injection -> injection.getTerminal().getP())
+            .filter(d -> !Double.isNaN(d))
+            .filter(d -> d < 0)
+            .sum();
 
         double totalLoad = NetworkUtil.getInjectionStream(associatedBus)
-                .mapToDouble(injection -> injection.getTerminal().getP())
-                .filter(d -> !Double.isNaN(d))
-                .filter(d -> d > 0)
-                .sum();
+            .mapToDouble(injection -> injection.getTerminal().getP())
+            .filter(d -> !Double.isNaN(d))
+            .filter(d -> d > 0)
+            .sum();
         this.associatedGeneration = switch (injectionStrategy) {
-            case PexGraph.InjectionStrategy.SUM_INJECTIONS -> totalGeneration > totalLoad ? totalGeneration - totalLoad : 0;
+            case PexGraph.InjectionStrategy.SUM_INJECTIONS ->
+                totalGeneration > totalLoad ? totalGeneration - totalLoad : 0;
             case PexGraph.InjectionStrategy.DECOMPOSE_INJECTIONS -> totalGeneration;
         };
         this.associatedLoad = switch (injectionStrategy) {
-            case PexGraph.InjectionStrategy.SUM_INJECTIONS -> totalLoad > totalGeneration ? totalLoad - totalGeneration : 0;
+            case PexGraph.InjectionStrategy.SUM_INJECTIONS ->
+                totalLoad > totalGeneration ? totalLoad - totalGeneration : 0;
             case PexGraph.InjectionStrategy.DECOMPOSE_INJECTIONS -> totalLoad;
         };
     }
@@ -115,6 +117,18 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
 
     private final Map<Bus, PexGraphVertex> vertexPerBus = new HashMap<>();
 
+    public PexGraph(List<Bus> buses, List<Branch<?>> branches) {
+        this(buses, branches, DEFAULT_INJECTION_STRATEGY);
+    }
+
+    public PexGraph(List<Bus> buses, List<Branch<?>> branches, InjectionStrategy injectionStrategy) {
+        super(PexGraphEdge.class);
+
+        buses.forEach(bus -> addBusAsVertex(bus, injectionStrategy));
+        branches.forEach(this::addBranchAsEdge);
+        checkGraph();
+    }
+
     private void addBusAsVertex(Bus bus, InjectionStrategy injectionStrategy) {
         assert bus != null;
         PexGraphVertex vertex = new PexGraphVertex(bus, injectionStrategy);
@@ -146,22 +160,10 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
             double nodalLoad = vertex.getAssociatedLoad() + outgoingEdgesOf(vertex).stream()
                 .mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
 
-            if(Math.abs(nodalGeneration - nodalLoad) > 1e-3) {
+            if (Math.abs(nodalGeneration - nodalLoad) > 1e-3) {
                 throw new PowsyblException("Nodal generation and load do not match for vertex associated with bus: " + vertex.getAssociatedBus().getId());
             }
         }
-    }
-
-    public PexGraph(List<Bus> buses, List<Branch<?>> branches) {
-        this(buses, branches, DEFAULT_INJECTION_STRATEGY);
-    }
-
-    public PexGraph(List<Bus> buses, List<Branch<?>> branches, InjectionStrategy injectionStrategy) {
-        super(PexGraphEdge.class);
-
-        buses.forEach(bus -> addBusAsVertex(bus, injectionStrategy));
-        branches.forEach(this::addBranchAsEdge);
-        checkGraph();
     }
 
     public enum InjectionStrategy {
