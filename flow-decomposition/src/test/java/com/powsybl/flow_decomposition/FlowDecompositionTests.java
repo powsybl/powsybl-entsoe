@@ -523,7 +523,7 @@ class FlowDecompositionTests {
         "FULL_LINE_DECOMPOSITION"
     })
     void testSimpleNetworkWithUnpairedXNode(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
-        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE.uct";
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE_2.uct";
 
         Network network = TestUtils.importNetwork(networkFileName);
 
@@ -533,11 +533,11 @@ class FlowDecompositionTests {
 
         if (flowPartitionMode == FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION) {
             // TODO fix this test, xnode flow is not supported
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.031, -100.000, 0.000, 50.000, 0.000, 50.000, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 BLOAD 11 1", "FGEN1 11 BLOAD 11 1", "", Country.FR, Country.BE, 100.094, 100.000, 50.000, 50.000, 0.000, 0.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.070, -100.000, 0.000, 75.000, 0.000, 25.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 BLOAD 11 1", "FGEN1 11 BLOAD 11 1", "", Country.FR, Country.BE, 100.133, 100.000, 25.000, 75.000, 0.000, 0.000, Collections.emptyMap());
         } else {
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.031, -100.000, -50.063, 50.000, 0.000, 100.031, Map.of(Country.FR, 0.031));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 BLOAD 11 1", "FGEN1 11 BLOAD 11 1", "", Country.FR, Country.BE, 100.094, 100.000, 50.063, 50.000, 0.000, 0.000, Map.of(Country.BE, -0.031, Country.FR, -0.031));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.070, -100.000, -25.102, 75.000, 0.000, 50.051, Map.of(Country.FR, 0.051));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 BLOAD 11 1", "FGEN1 11 BLOAD 11 1", "", Country.FR, Country.BE, 100.133, 100.000, 25.102, 75.000, 0.000, 0.000, Map.of(Country.FR, -0.051, Country.BE, -0.051));
         }
 
         assertEquals(2, flowDecompositionResults.getZoneSet().size());
