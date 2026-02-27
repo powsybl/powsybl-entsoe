@@ -7,6 +7,7 @@
  */
 package com.powsybl.flow_decomposition.partitioners;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
@@ -145,7 +146,9 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
             double nodalLoad = vertex.getAssociatedLoad() + outgoingEdgesOf(vertex).stream()
                 .mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
 
-            assert Math.abs(nodalGeneration - nodalLoad) < 1e-3;
+            if(Math.abs(nodalGeneration - nodalLoad) > 1e-3) {
+                throw new PowsyblException("Nodal generation and load do not match for vertex associated with bus: " + vertex.getAssociatedBus().getId());
+            }
         }
     }
 
