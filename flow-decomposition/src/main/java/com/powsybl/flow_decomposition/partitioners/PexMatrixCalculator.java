@@ -18,7 +18,6 @@ import org.jgrapht.alg.cycle.CycleDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -57,33 +56,65 @@ public class PexMatrixCalculator {
         return hasCycle;
     }
 
+    private static double l1Norm(DMatrixSparseCSC m) {
+        double sum = 0.0;
+        for (int k = 0; k < m.nz_length; k++) {
+            sum += Math.abs(m.nz_values[k]);
+        }
+        return sum;
+    }
+
     private static DMatrixSparseCSC computeTransferMatrix(int matrixSize, boolean hasCycle, DMatrixSparseCSC distributionMatrix) {
-        DMatrixSparseCSC transferMatrix = CommonOps_DSCC.identity(matrixSize);
-        DMatrixSparseCSC stackMatrix = distributionMatrix.copy();
-        int i = 0;
         LOGGER.debug("Computing approximate matrix inversion using Neumann series");
 
         int maxIteration = matrixSize;
         if (hasCycle && matrixSize < MAX_ITERATION) {
-            maxIteration = Math.max(MAX_ITERATION, matrixSize);
+            maxIteration = MAX_ITERATION;
             LOGGER.warn("Graph has some cycles. Increasing maximum number of iterations to {}", maxIteration);
         }
 
-        do {
-            CommonOps_DSCC.add(1., transferMatrix.copy(), 1., stackMatrix, transferMatrix, null, null);
-            CommonOps_DSCC.mult(stackMatrix.copy(), distributionMatrix, stackMatrix);
-            double stackL1Norm = Arrays.stream(stackMatrix.nz_values).map(Math::abs).sum();
+        // transfer = I
+        DMatrixSparseCSC transfer = CommonOps_DSCC.identity(matrixSize);
+
+        // stack = distribution
+        DMatrixSparseCSC stack = distributionMatrix.copy();
+
+        // Temporaries to avoid .copy() every iteration
+        DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(matrixSize, matrixSize, transfer.nz_length + stack.nz_length);
+        DMatrixSparseCSC nextStack = new DMatrixSparseCSC(matrixSize, matrixSize, stack.nz_length);
+
+        int i = 0;
+        while (i <= maxIteration) {
+            // nextTransfer = transfer + stack
+            nextTransfer.reshape(matrixSize, matrixSize, transfer.nz_length + stack.nz_length);
+            CommonOps_DSCC.add(1.0, transfer, 1.0, stack, nextTransfer, null, null);
+
+            // nextStack = stack * distribution
+            nextStack.reshape(matrixSize, matrixSize, stack.nz_length); // capacity hint
+            CommonOps_DSCC.mult(stack, distributionMatrix, nextStack);
+
+            double stackL1Norm = l1Norm(nextStack);
             LOGGER.debug("Iteration {}/{}: L1 norm of stack matrix is {}", i, maxIteration, stackL1Norm);
+
+            // swap references (no copying)
+            DMatrixSparseCSC tmpT = transfer;
+            transfer = nextTransfer;
+            nextTransfer = tmpT;
+            DMatrixSparseCSC tmpS = stack;
+            stack = nextStack;
+            nextStack = tmpS;
+
             if (stackL1Norm < L1_NORM_PRECISION_TOLERANCE) {
                 LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
                 break;
             }
+
             if (i == maxIteration) {
                 LOGGER.warn("Maximum number of iterations reached, matrix inversion may not be accurate");
             }
             i++;
-        } while (i <= maxIteration);
-        return transferMatrix;
+        }
+        return transfer;
     }
 
     private void fillDistributionTripletsWithVertex(PexGraphVertex vertex, DMatrixSparseTriplet distributionTriplet) {

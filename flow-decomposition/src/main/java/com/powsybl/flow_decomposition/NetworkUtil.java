@@ -60,7 +60,7 @@ public final class NetworkUtil {
         return optionalCountry.get();
     }
 
-    public static Map<String, Integer> getIndex(List<String> idList) {
+    public static <T> Map<T, Integer> getIndex(List<T> idList) {
         return IntStream.range(0, idList.size())
             .boxed()
             .collect(Collectors.toMap(idList::get, Function.identity()));

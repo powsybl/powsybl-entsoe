@@ -7,8 +7,6 @@
  */
 package com.powsybl.flow_decomposition.partitioners;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import com.powsybl.flow_decomposition.FlowPartition;
 import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.*;
@@ -17,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +34,8 @@ public class FlowDecompositionCalculator {
     private final String[] vertexIds;
     private final String[] injectionIdByVertexIndex;
     private final boolean[] isBusByVertexIndex;
-    private final Country[] countriesByVertexPos;
+    private final Integer[] countriesByVertexPos;
+    private final Map<Country, Integer> countryIndex;
 
     public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrix pexMatrix, SparseMatrixWithIndexesTriplet ptdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexMapping) {
         this.xnecs = Objects.requireNonNull(xnecs);
@@ -51,7 +51,9 @@ public class FlowDecompositionCalculator {
         this.vertexIds = new String[nVertex];
         this.injectionIdByVertexIndex = new String[nVertex];
         this.isBusByVertexIndex = new boolean[nVertex];
-        this.countriesByVertexPos = new Country[nVertex];
+        this.countriesByVertexPos = new Integer[nVertex];
+
+        this.countryIndex = NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(bus -> bus.getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null)).distinct().toList());
 
         vertexMapping.forEach((id, index) -> {
             this.vertexIds[index] = id;
@@ -61,13 +63,13 @@ public class FlowDecompositionCalculator {
             Bus bus = idToBus.get(id);
             if (bus != null) {
                 this.isBusByVertexIndex[index] = true;
-                this.countriesByVertexPos[index] = bus.getVoltageLevel()
+                Country country = bus.getVoltageLevel()
                     .getSubstation().orElseThrow()
                     .getCountry().orElse(null);
+                this.countriesByVertexPos[index] = countryIndex.get(country);
             }
-
-
         });
+
 
     }
 
@@ -92,7 +94,7 @@ public class FlowDecompositionCalculator {
         double xNodeFlow = 0;
         double internalFlow = 0.0;
         double allocatedFlow = 0.0;
-        EnumMap<Country, Double> loopFlowsPerCountry = new EnumMap<>(Country.class);
+        double[] loopFlowsPerCountry = new double[countryIndex.size()];
 
         Country branchCountry1 = NetworkUtil.getBranchSideCountry(branch, TwoSides.ONE);
         Map<String, Double> ptdfs = ptdfMatrix.get(branch.getId());
@@ -118,17 +120,17 @@ public class FlowDecompositionCalculator {
 
                 if ((isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex])) {
                     // Loop flow
-                    Country countryFrom = countriesByVertexPos[sourceIndex];
-                    Country countryTo = countriesByVertexPos[sinkIndex];
+                    Integer countryFrom = countriesByVertexPos[sourceIndex];
+                    Integer countryTo = countriesByVertexPos[sinkIndex];
                     if (countryFrom == null || countryTo == null) {
                         LOGGER.warn("Cannot compute loop flow for bus {} and {} because of invalid country", sourceId, sinkId);
                         continue;
                     }
                     if (countryFrom.equals(countryTo)) {
-                        if (countryFrom.equals(branchCountry1)) {
+                        if (countryFrom.equals(countryIndex.get(branchCountry1))) {
                             internalFlow += increase;
                         } else {
-                            loopFlowsPerCountry.merge(countryFrom, increase, Double::sum);
+                            loopFlowsPerCountry[countryFrom] += increase;
                         }
                     } else {
                         allocatedFlow += increase;
@@ -142,6 +144,7 @@ public class FlowDecompositionCalculator {
         double pstFlow = pstFlowMatrix.getOrDefault(branch.getId(), Collections.emptyMap()).values().stream()
             .mapToDouble(d -> d)
             .sum();
-        return new FlowPartition(internalFlow, allocatedFlow, loopFlowsPerCountry, pstFlow, xNodeFlow);
+        Map<Country, Double> loopFlowsPerCountryMap = countryIndex.keySet().stream().collect(Collectors.toMap(Function.identity(), country -> loopFlowsPerCountry[countryIndex.get(country)]));
+        return new FlowPartition(internalFlow, allocatedFlow, loopFlowsPerCountryMap, pstFlow, xNodeFlow);
     }
 }
