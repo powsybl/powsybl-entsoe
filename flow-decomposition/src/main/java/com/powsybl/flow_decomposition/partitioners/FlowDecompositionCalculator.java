@@ -85,67 +85,63 @@ public class FlowDecompositionCalculator {
         LOGGER.info("Decomposing flow on branch {}", branch.getId());
 
         if (!NetworkUtil.isConnectedAndInMainSynchronousComponent(branch)) {
+            LOGGER.warn("Branch {} is not connected or not in main synchronous component. Returning empty decomposition", branch.getId());
             return new FlowPartition(0., 0., Collections.emptyMap(), 0., 0.);
         }
 
-        Table<Country, Country, Double> countryExchangeFlows = HashBasedTable.create();
-        Country branchCountry1 = NetworkUtil.getBranchSideCountry(branch, TwoSides.ONE);
+        double xNodeFlow = 0;
+        double internalFlow = 0.0;
+        double allocatedFlow = 0.0;
+        EnumMap<Country, Double> loopFlowsPerCountry = new EnumMap<>(Country.class);
 
-        final double[] xNodeFlow = {0};
+        Country branchCountry1 = NetworkUtil.getBranchSideCountry(branch, TwoSides.ONE);
         Map<String, Double> ptdfs = ptdfMatrix.get(branch.getId());
         int nVertex = vertexIds.length;
         for (int sourceIndex = 0; sourceIndex < nVertex; sourceIndex++) {
             for (int sinkIndex = 0; sinkIndex < nVertex; sinkIndex++) {
                 String sourceId = vertexIds[sourceIndex];
                 String sinkId = vertexIds[sinkIndex];
-                computeFlowBasedOnExchangeBetweenSourceAndSink(sourceId, sourceIndex, sinkId, sinkIndex, ptdfs, countryExchangeFlows, xNodeFlow);
+                double exchangeBetweenFromAndTo = pexMatrix.get(sourceIndex, sinkIndex);
+                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
+                    continue;
+                }
+
+                String injectionFrom = injectionIdByVertexIndex[sourceIndex];
+                String injectionTo = injectionIdByVertexIndex[sinkIndex];
+
+                Double ptdfFrom = ptdfs.get(injectionFrom);
+                Double ptdfTo = ptdfs.get(injectionTo);
+                if (ptdfFrom == null || ptdfTo == null) {
+                    continue;
+                }
+                double increase = (ptdfFrom - ptdfTo) * exchangeBetweenFromAndTo;
+
+                if ((isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex])) {
+                    // Loop flow
+                    Country countryFrom = countriesByVertexPos[sourceIndex];
+                    Country countryTo = countriesByVertexPos[sinkIndex];
+                    if (countryFrom == null || countryTo == null) {
+                        LOGGER.warn("Cannot compute loop flow for bus {} and {} because of invalid country", sourceId, sinkId);
+                        continue;
+                    }
+                    if (countryFrom.equals(countryTo)) {
+                        if (countryFrom.equals(branchCountry1)) {
+                            internalFlow += increase;
+                        } else {
+                            loopFlowsPerCountry.merge(countryFrom, increase, Double::sum);
+                        }
+                    } else {
+                        allocatedFlow += increase;
+                    }
+                } else {
+                    xNodeFlow += increase;
+                }
             }
         }
 
-        double internalFlow = Optional.ofNullable(countryExchangeFlows.get(branchCountry1, branchCountry1)).orElse(0.);
-        double allocatedFlow = countryExchangeFlows.cellSet().stream()
-            .filter(cell -> !cell.getRowKey().equals(cell.getColumnKey()))
-            .mapToDouble(Table.Cell::getValue)
-            .sum();
-        Map<Country, Double> loopFlowsPerCountry = countryExchangeFlows.cellSet().stream()
-            .filter(cell -> cell.getRowKey().equals(cell.getColumnKey())) // loop flow
-            .filter(cell -> !cell.getRowKey().equals(branchCountry1)) // not internal flow
-            .collect(Collectors.toMap(Table.Cell::getRowKey, Table.Cell::getValue));
         double pstFlow = pstFlowMatrix.getOrDefault(branch.getId(), Collections.emptyMap()).values().stream()
             .mapToDouble(d -> d)
             .sum();
-        return new FlowPartition(internalFlow, allocatedFlow, loopFlowsPerCountry, pstFlow, xNodeFlow[0]);
-    }
-
-    private void computeFlowBasedOnExchangeBetweenSourceAndSink(String sourceId, Integer sourceIndex, String sinkId, Integer sinkIndex, Map<String, Double> ptdfs, Table<Country, Country, Double> countryExchangeFlows, double[] xNodeFlow) {
-        double exchangeBetweenFromAndTo = pexMatrix.get(sourceIndex, sinkIndex);
-        if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
-            return;
-        }
-
-        String injectionFrom = injectionIdByVertexIndex[sourceIndex];
-        String injectionTo = injectionIdByVertexIndex[sinkIndex];
-
-        Double ptdfFrom = ptdfs.get(injectionFrom);
-        Double ptdfTo = ptdfs.get(injectionTo);
-        if (ptdfFrom == null || ptdfTo == null) {
-            return;
-        }
-        double increase = (ptdfFrom - ptdfTo) * exchangeBetweenFromAndTo;
-
-        if ((isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex])) {
-            // Loop flow
-            Country countryFrom = countriesByVertexPos[sourceIndex];
-            Country countryTo = countriesByVertexPos[sinkIndex];
-            if (countryFrom != null && countryTo != null) {
-                double current = countryExchangeFlows.row(countryFrom).getOrDefault(countryTo, 0.);
-                countryExchangeFlows.put(countryFrom, countryTo, current + increase);
-            } else {
-                LOGGER.warn("Cannot compute loop flow for bus {} and {} because of invalid country", sourceId, sinkId);
-            }
-        } else {
-            // XNode flow
-            xNodeFlow[0] += increase;
-        }
+        return new FlowPartition(internalFlow, allocatedFlow, loopFlowsPerCountry, pstFlow, xNodeFlow);
     }
 }
