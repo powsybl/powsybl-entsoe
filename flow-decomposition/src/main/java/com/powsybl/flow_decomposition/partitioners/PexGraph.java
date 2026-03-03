@@ -28,11 +28,12 @@ import java.util.Objects;
  */
 class PexGraphVertex {
     private final Bus associatedBus;
-    private final double associatedGeneration;
-    private final double associatedLoad;
     private final double associatedXnodeGeneration;
     private final double associatedXnodeLoad;
-    private final double associatedXnodeP;
+    private final double associatedTotalGeneration;
+    private final double associatedTotalLoad;
+    private final double associatedLoad;
+    private final double associatedGeneration;
 
     PexGraphVertex(Bus associatedBus, PexGraph.InjectionStrategy injectionStrategy) {
         this.associatedBus = Objects.requireNonNull(associatedBus);
@@ -47,6 +48,31 @@ class PexGraphVertex {
             .filter(d -> !Double.isNaN(d))
             .filter(d -> d > 0)
             .sum();
+        double totalXnodeGeneration = -NetworkUtil.getUnpairedXNodeStream(associatedBus)
+            .mapToDouble(injection -> injection.getTerminal().getP())
+            .filter(d -> !Double.isNaN(d))
+            .filter(d -> d < 0)
+            .sum();
+        double totalXNodeLoad = NetworkUtil.getUnpairedXNodeStream(associatedBus)
+            .mapToDouble(injection -> injection.getTerminal().getP())
+            .filter(d -> !Double.isNaN(d))
+            .filter(d -> d > 0)
+            .sum();
+
+        double totalTotalGeneration = totalGeneration + totalXnodeGeneration;
+        double totalTotalLoad = totalLoad + totalXNodeLoad;
+
+        this.associatedTotalGeneration = switch (injectionStrategy) {
+            case PexGraph.InjectionStrategy.SUM_INJECTIONS ->
+                totalTotalGeneration > totalTotalLoad ? totalTotalGeneration - totalTotalLoad : 0;
+            case PexGraph.InjectionStrategy.DECOMPOSE_INJECTIONS -> totalTotalGeneration;
+        };
+        this.associatedTotalLoad = switch (injectionStrategy) {
+            case PexGraph.InjectionStrategy.SUM_INJECTIONS ->
+                totalTotalLoad > totalTotalGeneration ? totalTotalLoad - totalTotalGeneration : 0;
+            case PexGraph.InjectionStrategy.DECOMPOSE_INJECTIONS -> totalTotalLoad;
+        };
+
         this.associatedGeneration = switch (injectionStrategy) {
             case PexGraph.InjectionStrategy.SUM_INJECTIONS ->
                 totalGeneration > totalLoad ? totalGeneration - totalLoad : 0;
@@ -58,16 +84,6 @@ class PexGraphVertex {
             case PexGraph.InjectionStrategy.DECOMPOSE_INJECTIONS -> totalLoad;
         };
 
-        double totalXnodeGeneration = -NetworkUtil.getUnpairedXNodeStream(associatedBus)
-            .mapToDouble(injection -> injection.getTerminal().getP())
-            .filter(d -> !Double.isNaN(d))
-            .filter(d -> d < 0)
-            .sum();
-        double totalXNodeLoad = NetworkUtil.getUnpairedXNodeStream(associatedBus)
-            .mapToDouble(injection -> injection.getTerminal().getP())
-            .filter(d -> !Double.isNaN(d))
-            .filter(d -> d > 0)
-            .sum();
         this.associatedXnodeGeneration = switch (injectionStrategy) {
             case PexGraph.InjectionStrategy.SUM_INJECTIONS ->
                 totalXnodeGeneration > totalXNodeLoad ? totalXnodeGeneration - totalXNodeLoad : 0;
@@ -78,18 +94,14 @@ class PexGraphVertex {
                 totalXNodeLoad > totalXnodeGeneration ? totalXNodeLoad - totalXnodeGeneration : 0;
             case PexGraph.InjectionStrategy.DECOMPOSE_INJECTIONS -> totalXNodeLoad;
         };
-        this.associatedXnodeP = NetworkUtil.getUnpairedXNodeStream(associatedBus)
-            .mapToDouble(injection -> injection.getTerminal().getP())
-            .filter(d -> !Double.isNaN(d))
-            .sum();
     }
 
     public double getTotalLoad() {
-        return associatedLoad + associatedXnodeLoad;
+        return associatedTotalLoad;
     }
 
     public double getTotalGeneration() {
-        return associatedGeneration + associatedXnodeGeneration;
+        return associatedTotalGeneration;
     }
 
     public double getLoad(boolean getXNodeFlow){
@@ -98,10 +110,6 @@ class PexGraphVertex {
 
     public double getGeneration(boolean getXNodeFlow){
         return getXNodeFlow ? associatedXnodeGeneration : associatedGeneration;
-    }
-
-    public double getAssociatedXnodeP() {
-        return associatedXnodeP;
     }
 
     Bus getAssociatedBus() {

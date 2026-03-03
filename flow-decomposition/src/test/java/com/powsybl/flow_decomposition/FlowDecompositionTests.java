@@ -83,9 +83,9 @@ class FlowDecompositionTests {
                 }
                 sb.append(");\n");
 
-        });
+            });
         String s = sb.toString();
-        int toto = 0;
+        System.out.println(s);
     }
 
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
@@ -97,6 +97,7 @@ class FlowDecompositionTests {
             .setFlowPartitioner(flowPartitionMode);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, LoadFlowParameters.load());
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
+        generateTestString(flowDecompositionResults);
         TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
         return flowDecompositionResults;
     }
@@ -522,8 +523,8 @@ class FlowDecompositionTests {
         "DIRECT_SENSITIVITY_BASED",
         "FULL_LINE_DECOMPOSITION"
     })
-    void testSimpleNetworkWithUnpairedXNode(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
-        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE_2.uct";
+    void testSimpleNetworkWithUnpairedXNodeLoad(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE_LOAD.uct";
 
         Network network = TestUtils.importNetwork(networkFileName);
 
@@ -538,6 +539,94 @@ class FlowDecompositionTests {
         } else {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.070, -100.000, -25.102, 75.000, 0.000, 50.051, Map.of(Country.FR, 0.051));
             validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 BLOAD 11 1", "FGEN1 11 BLOAD 11 1", "", Country.FR, Country.BE, 100.133, 100.000, 25.102, 75.000, 0.000, 0.000, Map.of(Country.FR, -0.051, Country.BE, -0.051));
+        }
+
+        assertEquals(2, flowDecompositionResults.getZoneSet().size());
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
+    }
+
+
+    @ParameterizedTest(name = "Mode={0}")
+    @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
+        "MATRIX_BASED",
+        "DIRECT_SENSITIVITY_BASED",
+        "FULL_LINE_DECOMPOSITION"
+    })
+    void testSimpleNetworkWithUnpairedXNodeGen(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE_GEN.uct";
+
+        Network network = TestUtils.importNetwork(networkFileName);
+
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        generateTestString(flowDecompositionResults);
+        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
+
+        if (flowPartitionMode == FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION) {
+            // TODO fix this test, xnode flow is not supported
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BLOAD 11 1", "BGEN1 11 BLOAD 11 1", "", Country.BE, Country.BE, -49.844, -49.984, 49.984, 0.000, 0.000, 0.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -100.000, -100.000, 100.000, 0.000, 0.000, 0.000, Collections.emptyMap());
+        } else {
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BLOAD 11 1", "BGEN1 11 BLOAD 11 1", "", Country.BE, Country.BE, -49.844, -49.984, 0.000, 150.000, 0.000, -100.016, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -100.000, -100.000, 0.000, -0.000, 0.000, 0.000, Map.of(Country.FR, 100.000));
+        }
+
+        assertEquals(2, flowDecompositionResults.getZoneSet().size());
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
+    }
+
+    @ParameterizedTest(name = "Mode={0}")
+    @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
+        "MATRIX_BASED",
+        "DIRECT_SENSITIVITY_BASED",
+        "FULL_LINE_DECOMPOSITION"
+    })
+    void testSimpleNetworkWithUnpairedXNodeGen2(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE_GEN_2.uct";
+
+        Network network = TestUtils.importNetwork(networkFileName);
+
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        generateTestString(flowDecompositionResults);
+        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
+
+        if (flowPartitionMode == FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION) {
+            // TODO fix this test, xnode flow is not supported
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BGEN2 11 1", "BGEN1 11 BGEN2 11 1", "", Country.BE, Country.BE, -86.928, -86.920, 86.920, 0.000, 0.000, 0.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -150.000, -150.000, 150.000, 0.000, 0.000, 0.000, Collections.emptyMap());
+        } else {
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BGEN2 11 1", "BGEN1 11 BGEN2 11 1", "", Country.BE, Country.BE, -86.928, -86.920, 40.028, -25.000, 0.000, -3.108, Map.of(Country.FR, 75.000));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -150.000, -150.000, 0.000, -0.000, 0.000, 0.000, Map.of(Country.FR, 150.000));
+        }
+
+        assertEquals(2, flowDecompositionResults.getZoneSet().size());
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
+    }
+
+    @ParameterizedTest(name = "Mode={0}")
+    @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
+        "MATRIX_BASED",
+        "DIRECT_SENSITIVITY_BASED",
+        "FULL_LINE_DECOMPOSITION"
+    })
+    void testSimpleNetworkWithUnpairedXNodeGen3(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE_GEN_3.uct";
+
+        Network network = TestUtils.importNetwork(networkFileName);
+
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        generateTestString(flowDecompositionResults);
+        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
+
+        if (flowPartitionMode == FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION) {
+            // TODO fix this test, xnode flow is not supported
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BGEN2 11 1", "BGEN1 11 BGEN2 11 1", "", Country.BE, Country.BE, -86.928, -86.920, 86.920, 0.000, 0.000, 0.000, Collections.emptyMap());
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -150.000, -150.000, 150.000, 0.000, 0.000, 0.000, Collections.emptyMap());
+        } else {
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BGEN2 11 1", "BGEN1 11 BGEN2 11 1", "", Country.BE, Country.BE, -86.928, -86.920, 40.028, -25.000, 0.000, -3.108, Map.of(Country.FR, 75.000));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -150.000, -150.000, 0.000, -0.000, 0.000, 0.000, Map.of(Country.FR, 150.000));
         }
 
         assertEquals(2, flowDecompositionResults.getZoneSet().size());
