@@ -10,7 +10,9 @@ package com.powsybl.flow_decomposition.partitioners;
 import com.powsybl.flow_decomposition.FlowPartition;
 import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.*;
-import org.ejml.data.DMatrix;
+import org.ejml.data.DMatrixSparse;
+import org.ejml.data.DMatrixSparseCSC;
+import org.ejml.sparse.csc.CommonOps_DSCC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +30,7 @@ public class FlowDecompositionCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionCalculator.class);
     private static final double EPSILON = 1e-5;
     private final Set<Branch<?>> xnecs;
-    private final DMatrix pexMatrix;
+    private final DMatrixSparseCSC pexMatrix;
     private final Map<String, Map<String, Double>> ptdfMatrix;
     private final Map<String, Map<String, Double>> pstFlowMatrix;
     private final String[] vertexIds;
@@ -37,9 +39,10 @@ public class FlowDecompositionCalculator {
     private final Integer[] countriesByVertexPos;
     private final Map<Country, Integer> countryIndex;
 
-    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrix pexMatrix, SparseMatrixWithIndexesTriplet ptdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexMapping) {
+    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrixSparseCSC pexMatrix, SparseMatrixWithIndexesTriplet ptdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexMapping) {
         this.xnecs = Objects.requireNonNull(xnecs);
-        this.pexMatrix = Objects.requireNonNull(pexMatrix);
+        this.pexMatrix = new DMatrixSparseCSC(pexMatrix.numRows, pexMatrix.numCols, pexMatrix.nz_length);
+        CommonOps_DSCC.removeZeros(Objects.requireNonNull(pexMatrix), this.pexMatrix, EPSILON);
         this.ptdfMatrix = Objects.requireNonNull(ptdfMatrix).toMap();
         this.pstFlowMatrix = Objects.requireNonNull(pstFlowMatrix).toMap();
 
@@ -98,46 +101,48 @@ public class FlowDecompositionCalculator {
 
         Country branchCountry1 = NetworkUtil.getBranchSideCountry(branch, TwoSides.ONE);
         Map<String, Double> ptdfs = ptdfMatrix.get(branch.getId());
-        int nVertex = vertexIds.length;
-        for (int sourceIndex = 0; sourceIndex < nVertex; sourceIndex++) {
-            for (int sinkIndex = 0; sinkIndex < nVertex; sinkIndex++) {
-                String sourceId = vertexIds[sourceIndex];
-                String sinkId = vertexIds[sinkIndex];
-                double exchangeBetweenFromAndTo = pexMatrix.get(sourceIndex, sinkIndex);
-                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
+        Iterator<DMatrixSparse.CoordinateRealValue> coordinateRealValueIterator = pexMatrix.createCoordinateIterator();
+        while (coordinateRealValueIterator.hasNext()) {
+            DMatrixSparse.CoordinateRealValue e = coordinateRealValueIterator.next();
+            int sourceIndex = e.row;
+            int sinkIndex = e.col;
+            double exchangeBetweenFromAndTo = e.value;
+
+            if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
+                continue;
+            }
+
+            String injectionFrom = injectionIdByVertexIndex[sourceIndex];
+            String injectionTo = injectionIdByVertexIndex[sinkIndex];
+
+            Double ptdfFrom = ptdfs.get(injectionFrom);
+            Double ptdfTo = ptdfs.get(injectionTo);
+            if (ptdfFrom == null || ptdfTo == null) {
+                continue;
+            }
+            double increase = (ptdfFrom - ptdfTo) * exchangeBetweenFromAndTo;
+
+            if ((isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex])) {
+                // Loop flow
+                Integer countryFrom = countriesByVertexPos[sourceIndex];
+                Integer countryTo = countriesByVertexPos[sinkIndex];
+                if (countryFrom == null || countryTo == null) {
+                    String sourceId = vertexIds[sourceIndex];
+                    String sinkId = vertexIds[sinkIndex];
+                    LOGGER.warn("Cannot compute loop flow for bus {} and {} because of invalid country", sourceId, sinkId);
                     continue;
                 }
-
-                String injectionFrom = injectionIdByVertexIndex[sourceIndex];
-                String injectionTo = injectionIdByVertexIndex[sinkIndex];
-
-                Double ptdfFrom = ptdfs.get(injectionFrom);
-                Double ptdfTo = ptdfs.get(injectionTo);
-                if (ptdfFrom == null || ptdfTo == null) {
-                    continue;
-                }
-                double increase = (ptdfFrom - ptdfTo) * exchangeBetweenFromAndTo;
-
-                if ((isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex])) {
-                    // Loop flow
-                    Integer countryFrom = countriesByVertexPos[sourceIndex];
-                    Integer countryTo = countriesByVertexPos[sinkIndex];
-                    if (countryFrom == null || countryTo == null) {
-                        LOGGER.warn("Cannot compute loop flow for bus {} and {} because of invalid country", sourceId, sinkId);
-                        continue;
-                    }
-                    if (countryFrom.equals(countryTo)) {
-                        if (countryFrom.equals(countryIndex.get(branchCountry1))) {
-                            internalFlow += increase;
-                        } else {
-                            loopFlowsPerCountry[countryFrom] += increase;
-                        }
+                if (countryFrom.equals(countryTo)) {
+                    if (countryFrom.equals(countryIndex.get(branchCountry1))) {
+                        internalFlow += increase;
                     } else {
-                        allocatedFlow += increase;
+                        loopFlowsPerCountry[countryFrom] += increase;
                     }
                 } else {
-                    xNodeFlow += increase;
+                    allocatedFlow += increase;
                 }
+            } else {
+                xNodeFlow += increase;
             }
         }
 

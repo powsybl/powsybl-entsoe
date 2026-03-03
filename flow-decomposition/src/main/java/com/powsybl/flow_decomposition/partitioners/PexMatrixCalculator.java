@@ -159,7 +159,7 @@ public class PexMatrixCalculator {
         return Math.abs(sumOfLeavingAndAbsorbedFlows) < EPSILON ? 0 : (vertex.getAssociatedGeneration()) / sumOfLeavingAndAbsorbedFlows;
     }
 
-    public DMatrix computePexMatrix() {
+    public DMatrixSparseCSC computePexMatrix() {
         int matrixSize = pexGraph.vertexSet().size();
         double estimatedSparseCoeff = 0.1;
         boolean hasCycle = determineIfGraphHasCycle(pexGraph);
@@ -189,7 +189,7 @@ public class PexMatrixCalculator {
         CommonOps_DSCC.mult(generationCoeffMatrix, pexMatrix.copy(), pexMatrix);
         CommonOps_DSCC.mult(pexMatrix.copy(), loadCoeffMatrix, pexMatrix);
 
-        return DConvertMatrixStruct.convert(pexMatrix, (DMatrixRMaj) null);
+        return pexMatrix;
     }
 
     public Map<String, Integer> getBusMapper() {

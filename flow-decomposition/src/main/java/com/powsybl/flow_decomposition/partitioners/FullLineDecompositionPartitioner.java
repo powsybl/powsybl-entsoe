@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import org.ejml.data.DMatrix;
+import org.ejml.data.DMatrixSparseCSC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         LOGGER.info("{} === PEX matrix computation", LocalDateTime.now());
         PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph);
         Map<String, Integer> vertexMapping = pexMatrixCalculator.getBusMapper();
-        DMatrix pexMatrix = pexMatrixCalculator.computePexMatrix();
+        DMatrixSparseCSC pexMatrix = pexMatrixCalculator.computePexMatrix();
 
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
         LOGGER.info("{} === PTDF matrix computation", LocalDateTime.now());
