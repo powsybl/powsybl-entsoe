@@ -64,7 +64,7 @@ public class PexMatrixCalculator {
         LOGGER.debug("Computing approximate matrix inversion using Neumann series");
 
         int maxIteration = matrixSize;
-        if (hasCycle) {
+        if (hasCycle && matrixSize < MAX_ITERATION) {
             maxIteration = Math.max(MAX_ITERATION, matrixSize);
             LOGGER.warn("Graph has some cycles. Increasing maximum number of iterations to {}", maxIteration);
         }

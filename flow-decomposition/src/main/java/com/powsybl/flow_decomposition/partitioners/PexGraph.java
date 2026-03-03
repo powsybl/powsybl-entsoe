@@ -158,20 +158,28 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
         Bus bus1 = branch.getTerminal1().getBusView().getBus();
         Bus bus2 = branch.getTerminal2().getBusView().getBus();
 
-        if (Math.abs(branch.getTerminal1().getP()) < 1e-5) {
-            // To avoid possibe cycles, remove 0 transfer lines. Cycles remains possible thanks to PSTs for example
+        if (Double.isNaN(branch.getTerminal1().getP())) {
+            // To avoid possible cycles, remove NA transfer lines
+            LOGGER.debug("Branch {} filtered because of a flow NA", branch.getId());
+        } else if (Math.abs(branch.getTerminal1().getP()) < 1e-5) {
+            // To avoid possible cycles, remove 0 transfer lines
             LOGGER.debug("Branch {} filtered because of a flow too low : {} MW", branch.getId(), branch.getTerminal1().getP());
-        } else if (branch.getTerminal1().getP() > 0) {
-            addEdge(vertexPerBus.get(bus1), vertexPerBus.get(bus2), new PexGraphEdge(branch));
         } else {
-            addEdge(vertexPerBus.get(bus2), vertexPerBus.get(bus1), new PexGraphEdge(branch));
+            if (branch.getTerminal1().getP() > 0) {
+                addEdge(vertexPerBus.get(bus1), vertexPerBus.get(bus2), new PexGraphEdge(branch));
+            } else {
+                addEdge(vertexPerBus.get(bus2), vertexPerBus.get(bus1), new PexGraphEdge(branch));
+            }
         }
     }
 
     private void addXNodesAsVertexAndEdges(Bus bus) {
         NetworkUtil.getUnpairedXNodeStream(bus).forEach(danglingLine -> {
-            if (Math.abs(danglingLine.getTerminal().getP()) < 1e-5) {
-                // To avoid possibe cycles, remove 0 transfer unpaired dangling lines
+            if (Double.isNaN(danglingLine.getTerminal().getP())) {
+                // To avoid possible cycles, remove NA transfer lines
+                LOGGER.debug("Unpaired dangling line {} filtered because of a flow NA", danglingLine.getId());
+            } else if (Math.abs(danglingLine.getTerminal().getP()) < 1e-5) {
+                // To avoid possible cycles, remove 0 transfer unpaired dangling lines
                 LOGGER.debug("Unpaired dangling line {} filtered because of a flow too low : {} MW", danglingLine.getId(), danglingLine.getTerminal().getP());
             } else {
                 PexGraphVertex v = new PexGraphVertex(danglingLine);
