@@ -8,7 +8,10 @@
 package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.flow_decomposition.*;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
 import org.ejml.data.DMatrix;
@@ -21,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class FullLineDecompositionPartitioner implements FlowPartitioner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FullLineDecompositionPartitioner.class);
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
@@ -33,13 +37,10 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         this.observers = observers;
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FullLineDecompositionPartitioner.class);
-
     @Override
     public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch<?>> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
         LOGGER.info("{} === Bus mapping", LocalDateTime.now());
         List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(network);
-        Map<String, Integer> busMapping = NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(Bus::getId).toList());
         List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(network);
 
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecs.stream().toList());
@@ -47,7 +48,8 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         PexGraph pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
 
         LOGGER.info("{} === PEX matrix computation", LocalDateTime.now());
-        PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph, busMapping);
+        PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph);
+        Map<String, Integer> vertexMapping = pexMatrixCalculator.getBusMapper();
         DMatrix pexMatrix = pexMatrixCalculator.computePexMatrix();
 
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
@@ -60,7 +62,7 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
 
         LOGGER.info("{} === Flow decomposition", LocalDateTime.now());
-        FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, busMapping);
+        FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, vertexMapping);
         Map<String, FlowPartition> results = flowDecompositionCalculator.computeDecomposition();
 
         LOGGER.info("{} === End of computation", LocalDateTime.now());

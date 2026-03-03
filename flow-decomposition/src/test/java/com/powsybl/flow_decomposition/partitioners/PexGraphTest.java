@@ -83,7 +83,7 @@ class PexGraphTest {
     }
 
     @Test
-    void testGraphInjectionSummedWithXNodes() throws IOException {
+    void testGraphInjectionSummedWithXNodeGen() throws IOException {
         Network testNetwork = TestUtils.importNetwork("TestCaseDangling.xiidm");
         LoadFlow.run(testNetwork, LoadFlowParameters.load().setDc(true));
         List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(testNetwork);
@@ -117,6 +117,57 @@ class PexGraphTest {
         // load = 0, gen = 300 --> if injection summed associated load = 0, associated gen = 300
         assertEquals(0., pexGraphVertexXNode.getAssociatedLoad(), 0.);
         assertEquals(300., pexGraphVertexXNode.getAssociatedGeneration(), 0.);
+
+        PexGraphEdge pexGraphEdge = pexGraph.edgeSet()
+            .stream()
+            .filter(edge -> edge.getId().equals("BBE2AA1  FFR3AA1  1"))
+            .findAny().get();
+        assertEquals(665, pexGraphEdge.getAssociatedFlow(), 0.1);
+
+        PexGraphEdge pexGraphEdgeXNode = pexGraph.edgeSet()
+            .stream()
+            .filter(edge -> edge.getId().equals("BBE2AA1  X_BEFR1  1"))
+            .findAny().get();
+        assertEquals(300, pexGraphEdgeXNode.getAssociatedFlow(), 0.1);
+    }
+
+    @Test
+    void testGraphInjectionSummedWithXNodeLoad() throws IOException {
+        Network testNetwork = TestUtils.importNetwork("TestCaseDangling.xiidm");
+        testNetwork.getDanglingLine("BBE2AA1  X_BEFR1  1").setP0(300);
+        testNetwork.getGenerator("BBE2AA1 _generator").setTargetP(3600);
+        LoadFlow.run(testNetwork, LoadFlowParameters.load().setDc(true));
+        List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(testNetwork);
+        List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
+        // Test while summing injections
+        PexGraph pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
+        int nXnodes = NetworkUtil.getXNodeList(testNetwork).size();
+        assertEquals(busesInMainSynchronousComponent.size() + nXnodes, pexGraph.vertexSet().size());
+        assertEquals(testNetwork.getBranchCount() + nXnodes, pexGraph.edgeSet().size());
+
+        PexGraphVertex pexGraphVertexGen = pexGraph.vertexSet()
+            .stream()
+            .filter(vertex -> vertex.getId().equals("BBE2AA1_0"))
+            .findAny().get();
+        // load = 1000, gen = 3600 --> if injection summed associated load = 0, associated gen = 2600
+        assertEquals(0., pexGraphVertexGen.getAssociatedLoad(), 0.);
+        assertEquals(2600., pexGraphVertexGen.getAssociatedGeneration(), 0.);
+
+        PexGraphVertex pexGraphVertexLoad = pexGraph.vertexSet()
+            .stream()
+            .filter(vertex -> vertex.getId().equals("NNL2AA1_0"))
+            .findAny().get();
+        // load = 1000, gen = 500 --> if injection summed associated load = 500, associated gen = 0
+        assertEquals(500., pexGraphVertexLoad.getAssociatedLoad(), 0.);
+        assertEquals(0., pexGraphVertexLoad.getAssociatedGeneration(), 0.);
+
+        PexGraphVertex pexGraphVertexXNode = pexGraph.vertexSet()
+            .stream()
+            .filter(vertex -> vertex.getId().equals("BBE2AA1  X_BEFR1  1"))
+            .findAny().get();
+        // load = 300, gen = 0 --> if injection summed associated load = 0, associated gen = 300
+        assertEquals(300., pexGraphVertexXNode.getAssociatedLoad(), 0.);
+        assertEquals(0., pexGraphVertexXNode.getAssociatedGeneration(), 0.);
 
         PexGraphEdge pexGraphEdge = pexGraph.edgeSet()
             .stream()

@@ -12,11 +12,12 @@ import com.powsybl.flow_decomposition.TestUtils;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.ejml.data.DMatrix;
 import org.ejml.data.DMatrixSparseCSC;
 import org.ejml.ops.DConvertMatrixStruct;
 import org.ejml.sparse.csc.CommonOps_DSCC;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -32,15 +33,6 @@ class PexMatrixCalculatorTest {
 
     private PexGraph pexGraph;
     private Map<String, Integer> busMapping;
-
-    @BeforeEach
-    void setUp() {
-        Network testNetwork = TestUtils.importNetwork("testCase.xiidm");
-        List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(testNetwork);
-        busMapping = NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(Bus::getId).toList());
-        List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
-        pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
-    }
 
     private double relativeError(double a, double b) {
         return a == 0 ? a - b : (a - b) / a;
@@ -71,7 +63,25 @@ class PexMatrixCalculatorTest {
 
     @Test
     void computePexMatrix() {
-        PexMatrixCalculator calculator = new PexMatrixCalculator(pexGraph, busMapping);
+        Network testNetwork = TestUtils.importNetwork("TestCaseDangling.xiidm");
+        List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(testNetwork);
+        List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
+        pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
+        PexMatrixCalculator calculator = new PexMatrixCalculator(pexGraph);
+        busMapping = calculator.getBusMapper();
+        DMatrix pexMatrix = calculator.computePexMatrix();
+        checkMatrixOk(pexMatrix);
+    }
+
+    @Test
+    void computePexMatrixWithXNodes() {
+        Network testNetwork = TestUtils.importNetwork("TestCaseDangling.xiidm");
+        LoadFlow.run(testNetwork, LoadFlowParameters.load().setDc(true));
+        List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(testNetwork);
+        List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
+        pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
+        PexMatrixCalculator calculator = new PexMatrixCalculator(pexGraph);
+        busMapping = calculator.getBusMapper();
         DMatrix pexMatrix = calculator.computePexMatrix();
         checkMatrixOk(pexMatrix);
     }
