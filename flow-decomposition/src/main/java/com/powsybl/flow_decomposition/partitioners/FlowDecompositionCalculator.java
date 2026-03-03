@@ -31,19 +31,22 @@ public class FlowDecompositionCalculator {
     private static final double EPSILON = 1e-5;
     private final Set<Branch<?>> xnecs;
     private final DMatrixSparseCSC pexMatrix;
-    private final Map<String, Map<String, Double>> ptdfMatrix;
+    //private final SparseMatrixWithIndexesCSC transposedPtdfMatrix;
     private final Map<String, Map<String, Double>> pstFlowMatrix;
     private final String[] vertexIds;
     private final String[] injectionIdByVertexIndex;
     private final boolean[] isBusByVertexIndex;
     private final Integer[] countriesByVertexPos;
     private final Map<Country, Integer> countryIndex;
+    private final Map<String, Map<String, Double>> ptdfMatrix;
 
-    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrixSparseCSC pexMatrix, SparseMatrixWithIndexesTriplet ptdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexMapping) {
+    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrixSparseCSC pexMatrix, SparseMatrixWithIndexesTriplet sparsePtdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexMapping) {
         this.xnecs = Objects.requireNonNull(xnecs);
         this.pexMatrix = new DMatrixSparseCSC(pexMatrix.numRows, pexMatrix.numCols, pexMatrix.nz_length);
-        CommonOps_DSCC.removeZeros(Objects.requireNonNull(pexMatrix), this.pexMatrix, EPSILON);
-        this.ptdfMatrix = Objects.requireNonNull(ptdfMatrix).toMap();
+        CommonOps_DSCC.removeZeros(Objects.requireNonNull(pexMatrix), this.pexMatrix, 1e-9);
+        //this.transposedPtdfMatrix = Objects.requireNonNull(sparsePtdfMatrix).toCSCMatrix().transpose();
+        this.ptdfMatrix = Objects.requireNonNull(sparsePtdfMatrix).toCSCMatrix().toMap();
+
         this.pstFlowMatrix = Objects.requireNonNull(pstFlowMatrix).toMap();
 
         Map<String, String> anyInjectionOnBus = busesInMainSynchronousComponent.stream().collect(Collectors.toMap(Identifiable::getId, bus -> NetworkUtil.getInjectionStream(bus).findAny().orElseThrow().getId()));
@@ -78,6 +81,7 @@ public class FlowDecompositionCalculator {
 
     public Map<String, FlowPartition> computeDecomposition() {
         return xnecs.stream()
+            .sorted(Comparator.comparing(Identifiable::getId))
             .collect(
                 Collectors.toMap(
                     Identifiable::getId,
@@ -87,10 +91,11 @@ public class FlowDecompositionCalculator {
     }
 
     private FlowPartition decomposeFlow(Branch<?> branch) {
-        LOGGER.info("Decomposing flow on branch {}", branch.getId());
+        String branchId = branch.getId();
+        LOGGER.info("Decomposing flow on branch {}", branchId);
 
         if (!NetworkUtil.isConnectedAndInMainSynchronousComponent(branch)) {
-            LOGGER.warn("Branch {} is not connected or not in main synchronous component. Returning empty decomposition", branch.getId());
+            LOGGER.warn("Branch {} is not connected or not in main synchronous component. Returning empty decomposition", branchId);
             return new FlowPartition(0., 0., Collections.emptyMap(), 0., 0.);
         }
 
@@ -100,7 +105,9 @@ public class FlowDecompositionCalculator {
         double[] loopFlowsPerCountry = new double[countryIndex.size()];
 
         Country branchCountry1 = NetworkUtil.getBranchSideCountry(branch, TwoSides.ONE);
+        //double[] column = transposedPtdfMatrix.getColumnAsArray(branchId);
         Map<String, Double> ptdfs = ptdfMatrix.get(branch.getId());
+
         Iterator<DMatrixSparse.CoordinateRealValue> coordinateRealValueIterator = pexMatrix.createCoordinateIterator();
         while (coordinateRealValueIterator.hasNext()) {
             DMatrixSparse.CoordinateRealValue e = coordinateRealValueIterator.next();
@@ -108,13 +115,11 @@ public class FlowDecompositionCalculator {
             int sinkIndex = e.col;
             double exchangeBetweenFromAndTo = e.value;
 
-            if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
-                continue;
-            }
-
             String injectionFrom = injectionIdByVertexIndex[sourceIndex];
             String injectionTo = injectionIdByVertexIndex[sinkIndex];
 
+            //Double ptdfFrom = column[sourceIndex];
+            //Double ptdfTo = column[sinkIndex];
             Double ptdfFrom = ptdfs.get(injectionFrom);
             Double ptdfTo = ptdfs.get(injectionTo);
             if (ptdfFrom == null || ptdfTo == null) {
@@ -146,7 +151,7 @@ public class FlowDecompositionCalculator {
             }
         }
 
-        double pstFlow = pstFlowMatrix.getOrDefault(branch.getId(), Collections.emptyMap()).values().stream()
+        double pstFlow = pstFlowMatrix.getOrDefault(branchId, Collections.emptyMap()).values().stream()
             .mapToDouble(d -> d)
             .sum();
         Map<Country, Double> loopFlowsPerCountryMap = countryIndex.keySet().stream().collect(Collectors.toMap(Function.identity(), country -> loopFlowsPerCountry[countryIndex.get(country)]));

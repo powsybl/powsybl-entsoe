@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
-import org.ejml.data.DMatrix;
 import org.ejml.data.DMatrixSparseCSC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,14 +77,18 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
     private SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
         SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.getPtdfMatrix(networkMatrixIndexes);
-        observers.computedPtdfMatrix(ptdfMatrix.toMap());
+        if (!observers.getObservers().isEmpty()) {
+            observers.computedPtdfMatrix(ptdfMatrix.toMap());
+        }
         return ptdfMatrix;
     }
 
     private SparseMatrixWithIndexesTriplet getPsdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
         SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.getPsdfMatrix(networkMatrixIndexes);
-        observers.computedPsdfMatrix(psdfMatrix.toMap());
+        if (!observers.getObservers().isEmpty()) {
+            observers.computedPsdfMatrix(psdfMatrix.toMap());
+        }
         return psdfMatrix;
     }
 }

@@ -54,4 +54,33 @@ class SparseMatrixWithIndexesCSC extends AbstractSparseMatrixWithIndexes {
         CommonOps_DSCC.mult(matrix1.cscMatrix, matrix2.cscMatrix, multiplicationResult.cscMatrix);
         return multiplicationResult;
     }
+
+    SparseMatrixWithIndexesCSC transpose() {
+        DMatrixSparseCSC transposedMatrix = new DMatrixSparseCSC(cscMatrix.numCols, cscMatrix.numRows, cscMatrix.nz_length);
+        CommonOps_DSCC.transpose(cscMatrix, transposedMatrix, null);
+        return new SparseMatrixWithIndexesCSC(colIndex, rowIndex, transposedMatrix);
+    }
+
+    SparseMatrixWithIndexesCSC getColumn(String colId) {
+        int colIndex = this.colIndex.get(colId);
+        DMatrixSparseCSC colMatrix = new DMatrixSparseCSC(cscMatrix.numRows, 1);
+        CommonOps_DSCC.extractColumn(cscMatrix, colIndex, colMatrix);
+        return new SparseMatrixWithIndexesCSC(rowIndex, Map.of(colId, 0), colMatrix);
+    }
+
+    double[] getColumnAsArray(String colId) {
+        int col = this.colIndex.get(colId);
+        double[] out = new double[cscMatrix.numRows];
+        int start = cscMatrix.col_idx[col];
+        int end   = cscMatrix.col_idx[col + 1];
+        for (int i = start; i < end; i++) {
+            int row = cscMatrix.nz_rows[i];
+            out[row] = cscMatrix.nz_values[i];
+        }
+        return out;
+    }
+
+    public Double get(String rowId, String colId) {
+        return cscMatrix.get(rowIndex.get(rowId), colIndex.get(colId));
+    }
 }
