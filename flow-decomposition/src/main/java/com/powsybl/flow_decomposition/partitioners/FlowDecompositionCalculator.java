@@ -30,21 +30,19 @@ public class FlowDecompositionCalculator {
     private static final double EPSILON = 1e-5;
     private final Set<Branch<?>> xnecs;
     private final DMatrix pexMatrix;
-    private final DMatrix xpexMatrix;
     private final Map<String, Map<String, Double>> ptdfMatrix;
     private final Map<String, Map<String, Double>> pstFlowMatrix;
     private final List<Bus> busesOfInterest;
     private final Map<String, Integer> busMapping;
     private final Map<Bus, Injection<?>> anyInjectionOnBus;
 
-    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrix pexMatrix, DMatrix xpexMatrix, SparseMatrixWithIndexesTriplet ptdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> busMapping) {
+    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrix pexMatrix, SparseMatrixWithIndexesTriplet ptdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> busMapping) {
         this.xnecs = Objects.requireNonNull(xnecs);
         this.pexMatrix = Objects.requireNonNull(pexMatrix);
-        this.xpexMatrix = Objects.requireNonNull(xpexMatrix);
         this.ptdfMatrix = Objects.requireNonNull(ptdfMatrix).toMap();
         this.pstFlowMatrix = Objects.requireNonNull(pstFlowMatrix).toMap();
         this.busesOfInterest = busesInMainSynchronousComponent;
-        this.anyInjectionOnBus = busesOfInterest.stream().collect(Collectors.toMap(bus -> bus, bus -> NetworkUtil.getInjectionStream(bus).filter(NetworkUtil::isConnectedAndInMainSynchronousComponent).findAny().orElseThrow()));
+        this.anyInjectionOnBus = busesOfInterest.stream().collect(Collectors.toMap(bus -> bus, bus -> NetworkUtil.getInjectionStream(bus).findAny().orElseThrow()));
         this.busMapping = busMapping;
     }
 
@@ -75,8 +73,7 @@ public class FlowDecompositionCalculator {
                 int busFromIndex = busMapping.get(busFrom.getId());
                 int busToIndex = busMapping.get(busTo.getId());
                 double exchangeBetweenFromAndTo = pexMatrix.get(busFromIndex, busToIndex);
-                double exchangeXBetweenFromAndTo = xpexMatrix.get(busFromIndex, busToIndex);
-                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON && Math.abs(exchangeXBetweenFromAndTo) < EPSILON) {
+                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
                     continue;
                 }
                 Country countryFrom = busFrom.getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
@@ -86,8 +83,6 @@ public class FlowDecompositionCalculator {
                 Injection<?> injectionTo = anyInjectionOnBus.get(busTo);
                 double ptdf = ptdfs.get(injectionFrom.getId()) - ptdfs.get(injectionTo.getId());
                 double increase = ptdf * exchangeBetweenFromAndTo;
-
-                xNodeFlow += ptdf * exchangeXBetweenFromAndTo;
 
                 if (countryFrom != null && countryTo != null) {
                     double current = countryExchangeFlows.row(countryFrom).getOrDefault(countryTo, 0.);

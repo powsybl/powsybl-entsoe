@@ -169,14 +169,23 @@ public final class NetworkUtil {
         Stream<Injection<?>> returnStream = Stream.empty();
         returnStream = Stream.concat(bus.getGeneratorStream(), returnStream);
         returnStream = Stream.concat(bus.getLoadStream(), returnStream);
-        return returnStream;
+        return returnStream.filter(NetworkUtil::isConnectedAndInMainSynchronousComponent);
     }
 
     public static Stream<DanglingLine> getUnpairedXNodeStream(Bus bus) {
-        return bus.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired());
+        return bus.getDanglingLineStream()
+            .filter(NetworkUtil::isNotPairedDanglingLine)
+            .filter(NetworkUtil::isInjectionConnected)
+            .filter(NetworkUtil::isInjectionInMainSynchronousComponent);
     }
 
     public static boolean isConnectedAndInMainSynchronousComponent(Injection<?> injection) {
         return isInjectionConnected(injection) && isInjectionInMainSynchronousComponent(injection);
+    }
+
+    public static List<Bus> getBusesInMainSynchronousComponent(Network network) {
+        return network.getBusView().getBusStream()
+                .filter(Bus::isInMainSynchronousComponent)
+                .toList();
     }
 }

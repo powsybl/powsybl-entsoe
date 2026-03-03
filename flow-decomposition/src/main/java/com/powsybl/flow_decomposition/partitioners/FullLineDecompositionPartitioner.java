@@ -38,9 +38,7 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
     @Override
     public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch<?>> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
         LOGGER.info("{} === Bus mapping", LocalDateTime.now());
-        List<Bus> busesInMainSynchronousComponent = network.getBusView().getBusStream()
-                .filter(Bus::isInMainSynchronousComponent)
-                .toList();
+        List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(network);
         Map<String, Integer> busMapping = NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(Bus::getId).toList());
         List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(network);
 
@@ -50,10 +48,7 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
 
         LOGGER.info("{} === PEX matrix computation", LocalDateTime.now());
         PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph, busMapping);
-        DMatrix pexMatrix = pexMatrixCalculator.computePexMatrix(false);
-
-        LOGGER.info("{} === PEX matrix computation for X node", LocalDateTime.now());
-        DMatrix xpexMatrix = pexMatrixCalculator.computePexMatrix(true);
+        DMatrix pexMatrix = pexMatrixCalculator.computePexMatrix();
 
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
         LOGGER.info("{} === PTDF matrix computation", LocalDateTime.now());
@@ -65,7 +60,7 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
 
         LOGGER.info("{} === Flow decomposition", LocalDateTime.now());
-        FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, xpexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, busMapping);
+        FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, busMapping);
         Map<String, FlowPartition> results = flowDecompositionCalculator.computeDecomposition();
 
         LOGGER.info("{} === End of computation", LocalDateTime.now());

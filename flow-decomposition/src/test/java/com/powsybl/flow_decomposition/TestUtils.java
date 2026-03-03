@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.cgmes.conformity.CgmesConformity3ModifiedCatalog;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.iidm.network.*;
@@ -34,9 +35,13 @@ public final class TestUtils {
         // Utility class
     }
 
-    public static Network importNetwork(String networkResourcePath) {
+    public static Network importNetwork(String networkResourcePath, ReportNode reportNode) {
         String networkName = Paths.get(networkResourcePath).getFileName().toString();
-        return Network.read(networkName, TestUtils.class.getResourceAsStream(networkResourcePath));
+        return Network.read(networkName, TestUtils.class.getResourceAsStream(networkResourcePath), reportNode);
+    }
+
+    public static Network importNetwork(String networkResourcePath) {
+        return importNetwork(networkResourcePath, ReportNode.NO_OP);
     }
 
     public static GlskDocument importGlskDocument(String glskFileName) {

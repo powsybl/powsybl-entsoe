@@ -546,7 +546,6 @@ class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
     }
 
-
     @ParameterizedTest(name = "Mode={0}")
     @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
         "MATRIX_BASED",
