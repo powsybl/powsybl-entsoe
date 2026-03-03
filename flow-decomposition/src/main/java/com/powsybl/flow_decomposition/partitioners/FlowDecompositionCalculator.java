@@ -34,7 +34,8 @@ public class FlowDecompositionCalculator {
     private final Map<String, Map<String, Double>> pstFlowMatrix;
     private final List<Bus> busesOfInterest;
     private final Map<String, Integer> busMapping;
-    private final Map<Bus, Injection<?>> anyInjectionOnBus;
+    private final Map<String, String> anyInjectionOnBus;
+    private final List<DanglingLine> danglingLines;
 
     public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrix pexMatrix, SparseMatrixWithIndexesTriplet ptdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> busMapping) {
         this.xnecs = Objects.requireNonNull(xnecs);
@@ -42,7 +43,9 @@ public class FlowDecompositionCalculator {
         this.ptdfMatrix = Objects.requireNonNull(ptdfMatrix).toMap();
         this.pstFlowMatrix = Objects.requireNonNull(pstFlowMatrix).toMap();
         this.busesOfInterest = busesInMainSynchronousComponent;
-        this.anyInjectionOnBus = busesOfInterest.stream().collect(Collectors.toMap(bus -> bus, bus -> NetworkUtil.getInjectionStream(bus).findAny().orElseThrow()));
+        this.anyInjectionOnBus = busesOfInterest.stream().collect(Collectors.toMap(Identifiable::getId, bus -> NetworkUtil.getInjectionStream(bus).findAny().orElseThrow().getId()));
+        this.danglingLines = new ArrayList<DanglingLine>();
+        busesOfInterest.forEach(bus -> danglingLines.addAll(NetworkUtil.getUnpairedXNodeStream(bus).toList()));
         this.busMapping = busMapping;
     }
 
@@ -79,15 +82,64 @@ public class FlowDecompositionCalculator {
                 Country countryFrom = busFrom.getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
                 Country countryTo = busTo.getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
 
-                Injection<?> injectionFrom = anyInjectionOnBus.get(busFrom);
-                Injection<?> injectionTo = anyInjectionOnBus.get(busTo);
-                double ptdf = ptdfs.get(injectionFrom.getId()) - ptdfs.get(injectionTo.getId());
+                String injectionFrom = anyInjectionOnBus.get(busFrom.getId());
+                String injectionTo = anyInjectionOnBus.get(busTo.getId());
+                double ptdf = ptdfs.get(injectionFrom) - ptdfs.get(injectionTo);
                 double increase = ptdf * exchangeBetweenFromAndTo;
 
                 if (countryFrom != null && countryTo != null) {
                     double current = countryExchangeFlows.row(countryFrom).getOrDefault(countryTo, 0.);
                     countryExchangeFlows.put(countryFrom, countryTo, current + increase);
                 }
+            }
+        }
+        for (DanglingLine danglingLineFrom : danglingLines) {
+            for (Bus busTo : busesOfInterest) {
+                int fromIndex = busMapping.get(danglingLineFrom.getId());
+                int toIndex = busMapping.get(busTo.getId());
+                double exchangeBetweenFromAndTo = pexMatrix.get(fromIndex, toIndex);
+                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
+                    continue;
+                }
+
+                String injectionTo = anyInjectionOnBus.get(busTo.getId());
+                double ptdf = ptdfs.get(danglingLineFrom.getId()) - ptdfs.get(injectionTo);
+                double increase = ptdf * exchangeBetweenFromAndTo;
+
+                xNodeFlow += increase;
+            }
+        }
+
+        for (Bus busFrom : busesOfInterest) {
+            for (DanglingLine danglingLineTo : danglingLines) {
+                int fromIndex = busMapping.get(busFrom.getId());
+                int toIndex = busMapping.get(danglingLineTo.getId());
+                double exchangeBetweenFromAndTo = pexMatrix.get(fromIndex, toIndex);
+                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
+                    continue;
+                }
+
+                String injectionFrom = anyInjectionOnBus.get(busFrom.getId());
+                double ptdf = ptdfs.get(injectionFrom) - ptdfs.get(danglingLineTo.getId());
+                double increase = ptdf * exchangeBetweenFromAndTo;
+
+                xNodeFlow += increase;
+            }
+        }
+
+        for (DanglingLine danglingLineFrom : danglingLines) {
+            for (DanglingLine danglingLineTo : danglingLines) {
+                int fromIndex = busMapping.get(danglingLineFrom.getId());
+                int toIndex = busMapping.get(danglingLineTo.getId());
+                double exchangeBetweenFromAndTo = pexMatrix.get(fromIndex, toIndex);
+                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
+                    continue;
+                }
+
+                double ptdf = ptdfs.get(danglingLineFrom.getId()) - ptdfs.get(danglingLineTo.getId());
+                double increase = ptdf * exchangeBetweenFromAndTo;
+
+                xNodeFlow += increase;
             }
         }
 
