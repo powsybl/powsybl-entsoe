@@ -32,21 +32,19 @@ public class FlowDecompositionCalculator {
     private final DMatrix pexMatrix;
     private final Map<String, Map<String, Double>> ptdfMatrix;
     private final Map<String, Map<String, Double>> pstFlowMatrix;
-    private final List<Bus> busesOfInterest;
-    private final Map<String, Integer> busMapping;
+    private final Map<String, Integer> vertexMapping;
     private final Map<String, String> anyInjectionOnBus;
-    private final List<DanglingLine> danglingLines;
+    private final Map<String, Bus> idToBus;
 
-    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrix pexMatrix, SparseMatrixWithIndexesTriplet ptdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> busMapping) {
+    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrix pexMatrix, SparseMatrixWithIndexesTriplet ptdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexMapping) {
         this.xnecs = Objects.requireNonNull(xnecs);
         this.pexMatrix = Objects.requireNonNull(pexMatrix);
         this.ptdfMatrix = Objects.requireNonNull(ptdfMatrix).toMap();
         this.pstFlowMatrix = Objects.requireNonNull(pstFlowMatrix).toMap();
-        this.busesOfInterest = busesInMainSynchronousComponent;
-        this.anyInjectionOnBus = busesOfInterest.stream().collect(Collectors.toMap(Identifiable::getId, bus -> NetworkUtil.getInjectionStream(bus).findAny().orElseThrow().getId()));
-        this.danglingLines = new ArrayList<DanglingLine>();
-        busesOfInterest.forEach(bus -> danglingLines.addAll(NetworkUtil.getUnpairedXNodeStream(bus).toList()));
-        this.busMapping = busMapping;
+        this.anyInjectionOnBus = busesInMainSynchronousComponent.stream().collect(Collectors.toMap(Identifiable::getId, bus -> NetworkUtil.getInjectionStream(bus).findAny().orElseThrow().getId()));
+        this.vertexMapping = vertexMapping;
+        this.idToBus = new HashMap<>();
+        busesInMainSynchronousComponent.forEach(bus -> idToBus.put(bus.getId(), bus));
     }
 
     public Map<String, FlowPartition> computeDecomposition() {
@@ -69,79 +67,13 @@ public class FlowDecompositionCalculator {
         Table<Country, Country, Double> countryExchangeFlows = HashBasedTable.create();
         Country branchCountry1 = NetworkUtil.getBranchSideCountry(branch, TwoSides.ONE);
 
-        double xNodeFlow = 0;
+        final double[] xNodeFlow = {0};
         Map<String, Double> ptdfs = ptdfMatrix.get(branch.getId());
-        for (Bus busFrom : busesOfInterest) {
-            for (Bus busTo : busesOfInterest) {
-                int busFromIndex = busMapping.get(busFrom.getId());
-                int busToIndex = busMapping.get(busTo.getId());
-                double exchangeBetweenFromAndTo = pexMatrix.get(busFromIndex, busToIndex);
-                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
-                    continue;
-                }
-                Country countryFrom = busFrom.getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
-                Country countryTo = busTo.getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
-
-                String injectionFrom = anyInjectionOnBus.get(busFrom.getId());
-                String injectionTo = anyInjectionOnBus.get(busTo.getId());
-                double ptdf = ptdfs.get(injectionFrom) - ptdfs.get(injectionTo);
-                double increase = ptdf * exchangeBetweenFromAndTo;
-
-                if (countryFrom != null && countryTo != null) {
-                    double current = countryExchangeFlows.row(countryFrom).getOrDefault(countryTo, 0.);
-                    countryExchangeFlows.put(countryFrom, countryTo, current + increase);
-                }
-            }
-        }
-        for (DanglingLine danglingLineFrom : danglingLines) {
-            for (Bus busTo : busesOfInterest) {
-                int fromIndex = busMapping.get(danglingLineFrom.getId());
-                int toIndex = busMapping.get(busTo.getId());
-                double exchangeBetweenFromAndTo = pexMatrix.get(fromIndex, toIndex);
-                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
-                    continue;
-                }
-
-                String injectionTo = anyInjectionOnBus.get(busTo.getId());
-                double ptdf = ptdfs.get(danglingLineFrom.getId()) - ptdfs.get(injectionTo);
-                double increase = ptdf * exchangeBetweenFromAndTo;
-
-                xNodeFlow += increase;
-            }
-        }
-
-        for (Bus busFrom : busesOfInterest) {
-            for (DanglingLine danglingLineTo : danglingLines) {
-                int fromIndex = busMapping.get(busFrom.getId());
-                int toIndex = busMapping.get(danglingLineTo.getId());
-                double exchangeBetweenFromAndTo = pexMatrix.get(fromIndex, toIndex);
-                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
-                    continue;
-                }
-
-                String injectionFrom = anyInjectionOnBus.get(busFrom.getId());
-                double ptdf = ptdfs.get(injectionFrom) - ptdfs.get(danglingLineTo.getId());
-                double increase = ptdf * exchangeBetweenFromAndTo;
-
-                xNodeFlow += increase;
-            }
-        }
-
-        for (DanglingLine danglingLineFrom : danglingLines) {
-            for (DanglingLine danglingLineTo : danglingLines) {
-                int fromIndex = busMapping.get(danglingLineFrom.getId());
-                int toIndex = busMapping.get(danglingLineTo.getId());
-                double exchangeBetweenFromAndTo = pexMatrix.get(fromIndex, toIndex);
-                if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
-                    continue;
-                }
-
-                double ptdf = ptdfs.get(danglingLineFrom.getId()) - ptdfs.get(danglingLineTo.getId());
-                double increase = ptdf * exchangeBetweenFromAndTo;
-
-                xNodeFlow += increase;
-            }
-        }
+        vertexMapping.forEach((sourceId, sourceIndex) -> {
+            vertexMapping.forEach((sinkId, sinkIndex) -> {
+                computeFlowBasedOnExchangeBetweenSourceAndSink(sourceId, sourceIndex, sinkId, sinkIndex, ptdfs, countryExchangeFlows, xNodeFlow);
+            });
+        });
 
         double internalFlow = Optional.ofNullable(countryExchangeFlows.get(branchCountry1, branchCountry1)).orElse(0.);
         double allocatedFlow = countryExchangeFlows.cellSet().stream()
@@ -155,6 +87,33 @@ public class FlowDecompositionCalculator {
         double pstFlow = pstFlowMatrix.getOrDefault(branch.getId(), Collections.emptyMap()).values().stream()
                 .mapToDouble(d -> d)
                 .sum();
-        return new FlowPartition(internalFlow, allocatedFlow, loopFlowsPerCountry, pstFlow, xNodeFlow);
+        return new FlowPartition(internalFlow, allocatedFlow, loopFlowsPerCountry, pstFlow, xNodeFlow[0]);
+    }
+
+    private void computeFlowBasedOnExchangeBetweenSourceAndSink(String sourceId, Integer sourceIndex, String sinkId, Integer sinkIndex, Map<String, Double> ptdfs, Table<Country, Country, Double> countryExchangeFlows, double[] xNodeFlow) {
+        double exchangeBetweenFromAndTo = pexMatrix.get(sourceIndex, sinkIndex);
+        if (Math.abs(exchangeBetweenFromAndTo) < EPSILON) {
+            return;
+        }
+
+        String injectionFrom = Optional.ofNullable(anyInjectionOnBus.get(sourceId)).orElse(sourceId); // If id is not a bus, it is a dangling line
+        String injectionTo = Optional.ofNullable(anyInjectionOnBus.get(sinkId)).orElse(sinkId);
+        double ptdf = ptdfs.get(injectionFrom) - ptdfs.get(injectionTo);
+        double increase = ptdf * exchangeBetweenFromAndTo;
+
+        if ((idToBus.containsKey(sourceId) && idToBus.containsKey(sinkId))) {
+            // Loop flow
+            Country countryFrom = idToBus.get(sourceId).getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
+            Country countryTo = idToBus.get(sinkId).getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
+            if (countryFrom != null && countryTo != null) {
+                double current = countryExchangeFlows.row(countryFrom).getOrDefault(countryTo, 0.);
+                countryExchangeFlows.put(countryFrom, countryTo, current + increase);
+            } else {
+                LOGGER.warn("Cannot compute loop flow for bus {} and {} because of invalid country", sourceId, sinkId);
+            }
+        } else {
+            // XNode flow
+            xNodeFlow[0] += increase;
+        }
     }
 }
