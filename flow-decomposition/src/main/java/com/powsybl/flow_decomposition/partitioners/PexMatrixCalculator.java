@@ -8,8 +8,10 @@
 package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.flow_decomposition.NetworkUtil;
+import org.ejml.data.DGrowArray;
 import org.ejml.data.DMatrixSparseCSC;
 import org.ejml.data.DMatrixSparseTriplet;
+import org.ejml.data.IGrowArray;
 import org.ejml.ops.DConvertMatrixStruct;
 import org.ejml.sparse.csc.CommonOps_DSCC;
 import org.jgrapht.alg.cycle.CycleDetector;
@@ -71,13 +73,16 @@ public class PexMatrixCalculator {
             maxIteration = MAX_ITERATION;
             LOGGER.warn("Graph has some cycles. Increasing maximum number of iterations to {}", maxIteration);
         }
+        // Workspaces to reduce allocations inside EJML sparse ops
+        IGrowArray gw = new IGrowArray();
+        DGrowArray gx = new DGrowArray();
 
         // transfer = I
         DMatrixSparseCSC transfer = CommonOps_DSCC.identity(matrixSize);
 
         // stack = distribution
+        CommonOps_DSCC.removeZeros(distributionMatrix, DROP_TOLERANCE);
         DMatrixSparseCSC stack = distributionMatrix.copy();
-        CommonOps_DSCC.removeZeros(stack, DROP_TOLERANCE);
         double initialStackL1Norm = l1Norm(stack);
 
 
@@ -89,23 +94,16 @@ public class PexMatrixCalculator {
         while (i <= maxIteration) {
             // nextTransfer = transfer + stack
             nextTransfer.reshape(matrixSize, matrixSize, transfer.nz_length + stack.nz_length);
-            CommonOps_DSCC.add(1.0, transfer, 1.0, stack, nextTransfer, null, null);
+            CommonOps_DSCC.add(1.0, transfer, 1.0, stack, nextTransfer, gw, gx);
+            CommonOps_DSCC.removeZeros(nextTransfer, transfer, DROP_TOLERANCE);
 
             // nextStack = stack * distribution
             nextStack.reshape(matrixSize, matrixSize, stack.nz_length); // capacity hint
-            CommonOps_DSCC.mult(stack, distributionMatrix, nextStack);
-
-            // prune nextStack
-            stack.reshape(matrixSize, matrixSize, nextStack.nz_length);
+            CommonOps_DSCC.mult(stack, distributionMatrix, nextStack, gw, gx);
             CommonOps_DSCC.removeZeros(nextStack, stack, DROP_TOLERANCE);
 
             double stackL1Norm = l1Norm(stack);
             LOGGER.debug(String.format("Iteration %s/%s: relative L1 norm of stack matrix is %.10f%% (nnz=%d)", i, maxIteration, 100*stackL1Norm/initialStackL1Norm, stack.nz_length));
-
-            // swap references (no copying)
-            DMatrixSparseCSC tmpT = transfer;
-            transfer = nextTransfer;
-            nextTransfer = tmpT;
 
             if (stackL1Norm/initialStackL1Norm < L1_NORM_RELATIVE_TOLERANCE) {
                 LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
@@ -189,8 +187,7 @@ public class PexMatrixCalculator {
 
         // Compute PEX matrix
         DMatrixSparseCSC pexMatrix = transferMatrix;
-        CommonOps_DSCC.mult(generationCoeffMatrix, pexMatrix.copy(), pexMatrix);
-        CommonOps_DSCC.mult(pexMatrix.copy(), loadCoeffMatrix, pexMatrix);
+        CommonOps_DSCC.multRowsCols(generationCoeffs, 0, pexMatrix, loadCoeffs, 0);
 
         return pexMatrix;
     }
