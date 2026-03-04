@@ -82,7 +82,7 @@ public class PexMatrixCalculator {
         CommonOps_DSCC.multColumns(neumannCoefficient, loadCoeffs, 0);
         CommonOps_DSCC.removeZeros(neumannCoefficient, DROP_TOLERANCE);
 
-        double initialStackL1Norm = l1Norm(neumannCoefficient);
+        double initialStackL1Norm = l1Norm(stack);
 
         DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(transfer);
         DMatrixSparseCSC nextStack = new DMatrixSparseCSC(stack);
@@ -108,7 +108,7 @@ public class PexMatrixCalculator {
             stack = nextStack;
             nextStack = tmp;
 
-            double stackL1Norm = l1Norm(neumannCoefficient);
+            double stackL1Norm = l1Norm(nextStack);
             LOGGER.debug(String.format("Iteration %s/%s: relative L1 norm of stack matrix is %.10f%% (stack nnz=%d, transfer nnz=%d, neumann nnz=%d)", i, maxIteration, 100 * stackL1Norm / initialStackL1Norm, stack.nz_length, transfer.nz_length, neumannCoefficient.nz_length));
 
             if (stackL1Norm / initialStackL1Norm < L1_NORM_RELATIVE_TOLERANCE) {

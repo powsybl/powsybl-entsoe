@@ -76,8 +76,8 @@ public class FlowDecompositionCalculator {
     }
 
     public Map<String, FlowPartition> computeDecomposition() {
+        LOGGER.debug("Decomposing flow on branches");
         return xnecs.stream()
-            .sorted(Comparator.comparing(Identifiable::getId))
             .collect(
                 Collectors.toMap(
                     Identifiable::getId,
@@ -88,7 +88,6 @@ public class FlowDecompositionCalculator {
 
     private FlowPartition decomposeFlow(Branch<?> branch) {
         String branchId = branch.getId();
-        LOGGER.info("Decomposing flow on branch {}", branchId);
 
         if (!NetworkUtil.isConnectedAndInMainSynchronousComponent(branch)) {
             LOGGER.warn("Branch {} is not connected or not in main synchronous component. Returning empty decomposition", branchId);
