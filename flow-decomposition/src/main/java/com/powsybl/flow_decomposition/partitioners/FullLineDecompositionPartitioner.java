@@ -55,7 +55,7 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
         LOGGER.info("{} === PTDF matrix computation", LocalDateTime.now());
         Map<String, Integer> injectionIdIndex = NetworkUtil.chooseAnInjectionPerVertexAndKeepSameIndex(vertexIdMapping, network);
-        SparseMatrixWithIndexesTriplet ptdfMatrix = getNodalPtdfMatrix(injectionIdIndex, sensitivityAnalyser);
+        SparseMatrixWithIndexesCSC ptdfMatrix = getNodalPtdfMatrix(injectionIdIndex, sensitivityAnalyser);
 
         LOGGER.info("{} === Final PST treatment", LocalDateTime.now());
         PstFlowComputer pstFlowComputer = new PstFlowComputer();
@@ -75,9 +75,9 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         return new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
     }
 
-    private SparseMatrixWithIndexesTriplet getNodalPtdfMatrix(Map<String, Integer> injectionIdIndex,
+    private SparseMatrixWithIndexesCSC getNodalPtdfMatrix(Map<String, Integer> injectionIdIndex,
                                                               SensitivityAnalyser sensitivityAnalyser) {
-        SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.getNodalPtdfMatrix(injectionIdIndex);
+        SparseMatrixWithIndexesCSC ptdfMatrix = sensitivityAnalyser.getNodalPtdfMatrix(injectionIdIndex);
         if (!observers.getObservers().isEmpty()) {
             observers.computedPtdfMatrix(ptdfMatrix.toMap());
         }

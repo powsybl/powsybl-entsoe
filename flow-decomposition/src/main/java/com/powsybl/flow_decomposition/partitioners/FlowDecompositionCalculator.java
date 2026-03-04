@@ -38,11 +38,11 @@ public class FlowDecompositionCalculator {
     private final Integer[] countriesByVertexPos;
     private final Map<Country, Integer> countryIndex;
 
-    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrixSparseCSC pexMatrix, SparseMatrixWithIndexesTriplet sparsePtdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexIdMapping) {
+    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrixSparseCSC pexMatrix, SparseMatrixWithIndexesCSC sparsePtdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexIdMapping) {
         this.xnecs = Objects.requireNonNull(xnecs);
         this.pexMatrix = new DMatrixSparseCSC(pexMatrix.numRows, pexMatrix.numCols, pexMatrix.nz_length);
         CommonOps_DSCC.removeZeros(Objects.requireNonNull(pexMatrix), this.pexMatrix, 1e-9);
-        this.transposedPtdfMatrix = Objects.requireNonNull(sparsePtdfMatrix).toCSCMatrix().transpose();
+        this.transposedPtdfMatrix = Objects.requireNonNull(sparsePtdfMatrix).transpose();
 
         this.pstFlowMatrix = Objects.requireNonNull(pstFlowMatrix).toMap();
 

@@ -9,7 +9,6 @@ package com.powsybl.flow_decomposition.partitioners;
 import com.powsybl.flow_decomposition.AbstractSensitivityAnalyser;
 import com.powsybl.flow_decomposition.FlowDecompositionParameters;
 import com.powsybl.flow_decomposition.FunctionVariableFactor;
-import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -49,10 +48,10 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
         this(loadFlowParameters, parameters, runner, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
     }
 
-    SparseMatrixWithIndexesTriplet getNodalPtdfMatrix(Map<String, Integer> injectionIdIndex) {
+    SparseMatrixWithIndexesCSC getNodalPtdfMatrix(Map<String, Integer> injectionIdIndex) {
         return run(List.copyOf(injectionIdIndex.keySet()),
             injectionIdIndex,
-            SensitivityVariableType.INJECTION_ACTIVE_POWER);
+            SensitivityVariableType.INJECTION_ACTIVE_POWER).toCSCMatrix().removeZerosInplace(parameters.getSensitivityEpsilon());
     }
 
     SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes) {

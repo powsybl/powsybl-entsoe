@@ -68,6 +68,11 @@ class SparseMatrixWithIndexesCSC extends AbstractSparseMatrixWithIndexes {
         return new SparseMatrixWithIndexesCSC(rowIndex, Map.of(colId, 0), colMatrix);
     }
 
+    public SparseMatrixWithIndexesCSC removeZerosInplace(double zeroTolerance) {
+        CommonOps_DSCC.removeZeros(cscMatrix, zeroTolerance);
+        return this;
+    }
+
     double[] getColumnAsArray(String colId) {
         int col = this.colIndex.get(colId);
         double[] out = new double[cscMatrix.numRows];
