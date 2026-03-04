@@ -31,6 +31,7 @@ public class PexMatrixCalculator {
     public static final int MAX_ITERATION = 1000;
     public static final double L1_NORM_RELATIVE_TOLERANCE = 1e-9;
     public static final double DROP_TOLERANCE = 1e-10;
+    public static final double SPARSE_COEFF = 0.001;
     private static final double EPSILON = 1e-5;
     private static final Logger LOGGER = LoggerFactory.getLogger(PexMatrixCalculator.class);
     private final PexGraph pexGraph;
@@ -66,14 +67,13 @@ public class PexMatrixCalculator {
     }
 
     private static DMatrixSparseCSC computeTransferMatrix(int matrixSize, boolean hasCycle, DMatrixSparseCSC distributionMatrix) {
-        LOGGER.debug("Computing approximate matrix inversion using Neumann series");
+        LOGGER.debug("Computing approximate matrix inversion using Neumann series. Matrix size={}", matrixSize);
 
         int maxIteration = matrixSize;
         if (hasCycle && matrixSize < MAX_ITERATION) {
             maxIteration = MAX_ITERATION;
             LOGGER.warn("Graph has some cycles. Increasing maximum number of iterations to {}", maxIteration);
         }
-        // Workspaces to reduce allocations inside EJML sparse ops
         IGrowArray gw = new IGrowArray();
         DGrowArray gx = new DGrowArray();
 
@@ -82,21 +82,20 @@ public class PexMatrixCalculator {
         DMatrixSparseCSC stack = distributionMatrix.copy();
         double initialStackL1Norm = l1Norm(stack);
 
-        DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(matrixSize, matrixSize, transfer.nz_length + stack.nz_length);
-        DMatrixSparseCSC nextStack = new DMatrixSparseCSC(matrixSize, matrixSize, stack.nz_length);
+        int arrayLength = (int) (matrixSize * matrixSize * SPARSE_COEFF);
+        DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(matrixSize, matrixSize, arrayLength);
+        DMatrixSparseCSC nextStack = new DMatrixSparseCSC(matrixSize, matrixSize, arrayLength);
 
         int i = 0;
         while (i <= maxIteration) {
-            nextTransfer.reshape(matrixSize, matrixSize, transfer.nz_length + stack.nz_length);
             CommonOps_DSCC.add(1.0, transfer, 1.0, stack, nextTransfer, gw, gx);
             CommonOps_DSCC.removeZeros(nextTransfer, transfer, DROP_TOLERANCE);
 
-            nextStack.reshape(matrixSize, matrixSize, stack.nz_length); // capacity hint
             CommonOps_DSCC.mult(stack, distributionMatrix, nextStack, gw, gx);
             CommonOps_DSCC.removeZeros(nextStack, stack, DROP_TOLERANCE);
 
             double stackL1Norm = l1Norm(stack);
-            LOGGER.debug(String.format("Iteration %s/%s: relative L1 norm of stack matrix is %.10f%% (nnz=%d)", i, maxIteration, 100 * stackL1Norm / initialStackL1Norm, stack.nz_length));
+            LOGGER.debug(String.format("Iteration %s/%s: relative L1 norm of stack matrix is %.10f%% (stack nnz=%d, transfer nnz=%d)", i, maxIteration, 100 * stackL1Norm / initialStackL1Norm, stack.nz_length, transfer.nz_length));
 
             if (stackL1Norm / initialStackL1Norm < L1_NORM_RELATIVE_TOLERANCE) {
                 LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
