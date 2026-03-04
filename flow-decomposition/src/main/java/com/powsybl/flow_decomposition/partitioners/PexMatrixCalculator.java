@@ -77,35 +77,28 @@ public class PexMatrixCalculator {
         IGrowArray gw = new IGrowArray();
         DGrowArray gx = new DGrowArray();
 
-        // transfer = I
         DMatrixSparseCSC transfer = CommonOps_DSCC.identity(matrixSize);
 
-        // stack = distribution
-        CommonOps_DSCC.removeZeros(distributionMatrix, DROP_TOLERANCE);
         DMatrixSparseCSC stack = distributionMatrix.copy();
         double initialStackL1Norm = l1Norm(stack);
 
-
-        // Temporaries to avoid .copy() every iteration
         DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(matrixSize, matrixSize, transfer.nz_length + stack.nz_length);
         DMatrixSparseCSC nextStack = new DMatrixSparseCSC(matrixSize, matrixSize, stack.nz_length);
 
         int i = 0;
         while (i <= maxIteration) {
-            // nextTransfer = transfer + stack
             nextTransfer.reshape(matrixSize, matrixSize, transfer.nz_length + stack.nz_length);
             CommonOps_DSCC.add(1.0, transfer, 1.0, stack, nextTransfer, gw, gx);
             CommonOps_DSCC.removeZeros(nextTransfer, transfer, DROP_TOLERANCE);
 
-            // nextStack = stack * distribution
             nextStack.reshape(matrixSize, matrixSize, stack.nz_length); // capacity hint
             CommonOps_DSCC.mult(stack, distributionMatrix, nextStack, gw, gx);
             CommonOps_DSCC.removeZeros(nextStack, stack, DROP_TOLERANCE);
 
             double stackL1Norm = l1Norm(stack);
-            LOGGER.debug(String.format("Iteration %s/%s: relative L1 norm of stack matrix is %.10f%% (nnz=%d)", i, maxIteration, 100*stackL1Norm/initialStackL1Norm, stack.nz_length));
+            LOGGER.debug(String.format("Iteration %s/%s: relative L1 norm of stack matrix is %.10f%% (nnz=%d)", i, maxIteration, 100 * stackL1Norm / initialStackL1Norm, stack.nz_length));
 
-            if (stackL1Norm/initialStackL1Norm < L1_NORM_RELATIVE_TOLERANCE) {
+            if (stackL1Norm / initialStackL1Norm < L1_NORM_RELATIVE_TOLERANCE) {
                 LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
                 break;
             }
@@ -172,6 +165,7 @@ public class PexMatrixCalculator {
 
         // convert into a format that's easier to perform math with
         DMatrixSparseCSC distributionMatrix = DConvertMatrixStruct.convert(distributionTriplet, (DMatrixSparseCSC) null);
+        CommonOps_DSCC.removeZeros(distributionMatrix, DROP_TOLERANCE);
 
         // Initialize transfer matrix
         DMatrixSparseCSC transferMatrix = computeTransferMatrix(matrixSize, hasCycle, distributionMatrix);
