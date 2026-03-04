@@ -8,10 +8,8 @@
 package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.flow_decomposition.NetworkUtil;
-import org.ejml.data.DGrowArray;
 import org.ejml.data.DMatrixSparseCSC;
 import org.ejml.data.DMatrixSparseTriplet;
-import org.ejml.data.IGrowArray;
 import org.ejml.ops.DConvertMatrixStruct;
 import org.ejml.sparse.csc.CommonOps_DSCC;
 import org.jgrapht.alg.cycle.CycleDetector;
@@ -65,7 +63,7 @@ public class PexMatrixCalculator {
         return sum;
     }
 
-    private static DMatrixSparseCSC computeTransferMatrix(int matrixSize, boolean hasCycle, DMatrixSparseCSC distributionMatrix) {
+    private static DMatrixSparseCSC computeLeftPexMatrix(int matrixSize, boolean hasCycle, DMatrixSparseCSC distributionMatrix, double[] generationCoeffs) {
         LOGGER.debug("Computing approximate matrix inversion using Neumann series. Matrix size={}", matrixSize);
 
         int maxIteration = matrixSize;
@@ -73,12 +71,11 @@ public class PexMatrixCalculator {
             maxIteration = MAX_ITERATION;
             LOGGER.warn("Graph has some cycles. Increasing maximum number of iterations to {}", maxIteration);
         }
-        IGrowArray gw = new IGrowArray();
-        DGrowArray gx = new DGrowArray();
 
-        DMatrixSparseCSC transfer = CommonOps_DSCC.identity(matrixSize);
-
+        DMatrixSparseCSC transfer = CommonOps_DSCC.diag(generationCoeffs);
         DMatrixSparseCSC stack = distributionMatrix.copy();
+        CommonOps_DSCC.multRows(generationCoeffs, 0, stack);
+        CommonOps_DSCC.removeZeros(stack, DROP_TOLERANCE);
         double initialStackL1Norm = l1Norm(stack);
 
         DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(transfer);
@@ -173,21 +170,16 @@ public class PexMatrixCalculator {
         DMatrixSparseCSC distributionMatrix = DConvertMatrixStruct.convert(distributionTriplet, (DMatrixSparseCSC) null);
         CommonOps_DSCC.removeZeros(distributionMatrix, DROP_TOLERANCE);
 
-        // Initialize transfer matrix
-        DMatrixSparseCSC transferMatrix = computeTransferMatrix(matrixSize, hasCycle, distributionMatrix);
-
         // Compute power injection matrix
         double[] generationCoeffs = new double[matrixSize];
         vertexMapper.forEach((key, value) -> generationCoeffs[value] = getGenerationCoeff(key));
-        DMatrixSparseCSC generationCoeffMatrix = CommonOps_DSCC.diag(generationCoeffs);
 
         double[] loadCoeffs = new double[matrixSize];
         vertexMapper.forEach((key, value) -> loadCoeffs[value] = key.getAssociatedLoad());
-        DMatrixSparseCSC loadCoeffMatrix = CommonOps_DSCC.diag(loadCoeffs);
 
-        // Compute PEX matrix
-        DMatrixSparseCSC pexMatrix = transferMatrix;
-        CommonOps_DSCC.multRowsCols(generationCoeffs, 0, pexMatrix, loadCoeffs, 0);
+        // Initialize transfer matrix
+        DMatrixSparseCSC pexMatrix = computeLeftPexMatrix(matrixSize, hasCycle, distributionMatrix, generationCoeffs);
+        CommonOps_DSCC.multColumns(pexMatrix, loadCoeffs, 0);
 
         return pexMatrix;
     }
