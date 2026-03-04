@@ -8,8 +8,6 @@
 package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.flow_decomposition.NetworkUtil;
-import org.ejml.data.DMatrix;
-import org.ejml.data.DMatrixRMaj;
 import org.ejml.data.DMatrixSparseCSC;
 import org.ejml.data.DMatrixSparseTriplet;
 import org.ejml.ops.DConvertMatrixStruct;
@@ -34,13 +32,13 @@ public class PexMatrixCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(PexMatrixCalculator.class);
     private final PexGraph pexGraph;
     private final Map<PexGraphVertex, Integer> vertexMapper = new HashMap<>();
-    private final Map<String, Integer> busMapper;
+    private final Map<String, Integer> vertexIdMapper;
 
     public PexMatrixCalculator(PexGraph pexGraph) {
         this.pexGraph = Objects.requireNonNull(pexGraph);
-        this.busMapper = NetworkUtil.getIndex(pexGraph.vertexSet().stream().map(PexGraphVertex::getId).toList());
+        this.vertexIdMapper = NetworkUtil.getIndex(pexGraph.vertexSet().stream().map(PexGraphVertex::getId).toList());
 
-        pexGraph.vertexSet().forEach(vertex -> vertexMapper.put(vertex, Objects.requireNonNull(busMapper.get(vertex.getId()))));
+        pexGraph.vertexSet().forEach(vertex -> vertexMapper.put(vertex, Objects.requireNonNull(vertexIdMapper.get(vertex.getId()))));
     }
 
     private static boolean determineIfGraphHasCycle(PexGraph pexGraph1) {
@@ -192,7 +190,7 @@ public class PexMatrixCalculator {
         return pexMatrix;
     }
 
-    public Map<String, Integer> getBusMapper() {
-        return busMapper;
+    public Map<String, Integer> getVertexIdMapper() {
+        return vertexIdMapper;
     }
 }

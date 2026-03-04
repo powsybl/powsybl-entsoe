@@ -49,12 +49,13 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
 
         LOGGER.info("{} === PEX matrix computation", LocalDateTime.now());
         PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph);
-        Map<String, Integer> vertexMapping = pexMatrixCalculator.getBusMapper();
+        Map<String, Integer> vertexIdMapping = pexMatrixCalculator.getVertexIdMapper();
         DMatrixSparseCSC pexMatrix = pexMatrixCalculator.computePexMatrix();
 
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
         LOGGER.info("{} === PTDF matrix computation", LocalDateTime.now());
-        SparseMatrixWithIndexesTriplet ptdfMatrix = getPtdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
+        Map<String, Integer> injectionIdIndex = NetworkUtil.chooseAnInjectionPerVertexAndKeepSameIndex(vertexIdMapping, network);
+        SparseMatrixWithIndexesTriplet ptdfMatrix = getNodalPtdfMatrix(injectionIdIndex, sensitivityAnalyser);
 
         LOGGER.info("{} === Final PST treatment", LocalDateTime.now());
         PstFlowComputer pstFlowComputer = new PstFlowComputer();
@@ -62,7 +63,7 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
 
         LOGGER.info("{} === Flow decomposition", LocalDateTime.now());
-        FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, vertexMapping);
+        FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, vertexIdMapping);
         Map<String, FlowPartition> results = flowDecompositionCalculator.computeDecomposition();
 
         LOGGER.info("{} === End of computation", LocalDateTime.now());
@@ -74,9 +75,9 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         return new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
     }
 
-    private SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
-                                                         SensitivityAnalyser sensitivityAnalyser) {
-        SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.getPtdfMatrix(networkMatrixIndexes);
+    private SparseMatrixWithIndexesTriplet getNodalPtdfMatrix(Map<String, Integer> injectionIdIndex,
+                                                              SensitivityAnalyser sensitivityAnalyser) {
+        SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.getNodalPtdfMatrix(injectionIdIndex);
         if (!observers.getObservers().isEmpty()) {
             observers.computedPtdfMatrix(ptdfMatrix.toMap());
         }

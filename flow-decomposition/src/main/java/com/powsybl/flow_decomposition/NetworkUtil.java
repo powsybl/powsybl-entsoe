@@ -9,10 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -187,5 +184,19 @@ public final class NetworkUtil {
         return network.getBusView().getBusStream()
                 .filter(Bus::isInMainSynchronousComponent)
                 .toList();
+    }
+
+    public static Map<String, Integer> chooseAnInjectionPerVertexAndKeepSameIndex(Map<String, Integer> vertexIdIndex, Network network) {
+        Map<String, Integer> injectionIdIndex = new HashMap<>();
+        vertexIdIndex.forEach((vertexId, index) -> {
+            if (Objects.nonNull(network.getDanglingLine(vertexId))) {
+                injectionIdIndex.put(vertexId, index);
+            } else {
+                Bus bus = network.getBusView().getBus(vertexId);
+                String injectionId = getInjectionStream(bus).findAny().orElseThrow().getId();
+                injectionIdIndex.put(injectionId, index);
+            }
+        });
+        return injectionIdIndex;
     }
 }

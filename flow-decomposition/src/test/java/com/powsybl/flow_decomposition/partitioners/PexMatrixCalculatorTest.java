@@ -32,7 +32,7 @@ class PexMatrixCalculatorTest {
     private static final double EPSILON = 1e-3;
 
     private PexGraph pexGraph;
-    private Map<String, Integer> busMapping;
+    private Map<String, Integer> vertexIdMapping;
 
     private double relativeError(double a, double b) {
         return a == 0 ? a - b : (a - b) / a;
@@ -51,8 +51,8 @@ class PexMatrixCalculatorTest {
     }
 
     private void checkMatrixOkForBus(DMatrixSparseCSC pexMatrix, PexGraphVertex vertex) {
-        checkIsColumnSumEqualToLoad(pexMatrix, busMapping.get(vertex.getId()), vertex.getAssociatedLoad());
-        checkIsRowSumEqualToGen(pexMatrix, busMapping.get(vertex.getId()), vertex.getAssociatedGeneration());
+        checkIsColumnSumEqualToLoad(pexMatrix, vertexIdMapping.get(vertex.getId()), vertex.getAssociatedLoad());
+        checkIsRowSumEqualToGen(pexMatrix, vertexIdMapping.get(vertex.getId()), vertex.getAssociatedGeneration());
     }
 
     private void checkMatrixOk(DMatrix pexMatrix) {
@@ -68,7 +68,7 @@ class PexMatrixCalculatorTest {
         List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
         pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
         PexMatrixCalculator calculator = new PexMatrixCalculator(pexGraph);
-        busMapping = calculator.getBusMapper();
+        vertexIdMapping = calculator.getVertexIdMapper();
         DMatrix pexMatrix = calculator.computePexMatrix();
         checkMatrixOk(pexMatrix);
     }
@@ -81,7 +81,7 @@ class PexMatrixCalculatorTest {
         List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
         pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
         PexMatrixCalculator calculator = new PexMatrixCalculator(pexGraph);
-        busMapping = calculator.getBusMapper();
+        vertexIdMapping = calculator.getVertexIdMapper();
         DMatrix pexMatrix = calculator.computePexMatrix();
         checkMatrixOk(pexMatrix);
     }

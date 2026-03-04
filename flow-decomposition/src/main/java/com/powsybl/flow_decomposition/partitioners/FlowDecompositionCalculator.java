@@ -40,7 +40,7 @@ public class FlowDecompositionCalculator {
     private final Map<Country, Integer> countryIndex;
     private final Map<String, Map<String, Double>> ptdfMatrix;
 
-    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrixSparseCSC pexMatrix, SparseMatrixWithIndexesTriplet sparsePtdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexMapping) {
+    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrixSparseCSC pexMatrix, SparseMatrixWithIndexesTriplet sparsePtdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexIdMapping) {
         this.xnecs = Objects.requireNonNull(xnecs);
         this.pexMatrix = new DMatrixSparseCSC(pexMatrix.numRows, pexMatrix.numCols, pexMatrix.nz_length);
         CommonOps_DSCC.removeZeros(Objects.requireNonNull(pexMatrix), this.pexMatrix, 1e-9);
@@ -53,7 +53,7 @@ public class FlowDecompositionCalculator {
         Map<String, Bus> idToBus = new HashMap<>();
         busesInMainSynchronousComponent.forEach(bus -> idToBus.put(bus.getId(), bus));
 
-        int nVertex = vertexMapping.size();
+        int nVertex = vertexIdMapping.size();
         this.vertexIds = new String[nVertex];
         this.injectionIdByVertexIndex = new String[nVertex];
         this.isBusByVertexIndex = new boolean[nVertex];
@@ -61,7 +61,7 @@ public class FlowDecompositionCalculator {
 
         this.countryIndex = NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(bus -> bus.getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null)).distinct().toList());
 
-        vertexMapping.forEach((id, index) -> {
+        vertexIdMapping.forEach((id, index) -> {
             this.vertexIds[index] = id;
             String inj = anyInjectionOnBus.get(id);
             this.injectionIdByVertexIndex[index] = Optional.ofNullable(inj).orElse(id); // dangling line fallback
@@ -76,6 +76,7 @@ public class FlowDecompositionCalculator {
             }
         });
 
+        int toto =0;
 
     }
 
