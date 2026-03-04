@@ -63,7 +63,7 @@ public class PexMatrixCalculator {
         return sum;
     }
 
-    private static DMatrixSparseCSC computeLeftPexMatrix(int matrixSize, boolean hasCycle, DMatrixSparseCSC distributionMatrix, double[] generationCoeffs) {
+    private static DMatrixSparseCSC computePexMatrixWithNeumann(int matrixSize, boolean hasCycle, DMatrixSparseCSC distributionMatrix, double[] generationCoeffs, double[] loadCoeffs) {
         LOGGER.debug("Computing approximate matrix inversion using Neumann series. Matrix size={}", matrixSize);
 
         int maxIteration = matrixSize;
@@ -73,10 +73,16 @@ public class PexMatrixCalculator {
         }
 
         DMatrixSparseCSC transfer = CommonOps_DSCC.diag(generationCoeffs);
+        CommonOps_DSCC.multColumns(transfer, loadCoeffs, 0);
         DMatrixSparseCSC stack = distributionMatrix.copy();
         CommonOps_DSCC.multRows(generationCoeffs, 0, stack);
         CommonOps_DSCC.removeZeros(stack, DROP_TOLERANCE);
-        double initialStackL1Norm = l1Norm(stack);
+
+        DMatrixSparseCSC neumannCoefficient = stack.copy();
+        CommonOps_DSCC.multColumns(neumannCoefficient, loadCoeffs, 0);
+        CommonOps_DSCC.removeZeros(neumannCoefficient, DROP_TOLERANCE);
+
+        double initialStackL1Norm = l1Norm(neumannCoefficient);
 
         DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(transfer);
         DMatrixSparseCSC nextStack = new DMatrixSparseCSC(stack);
@@ -84,11 +90,15 @@ public class PexMatrixCalculator {
 
         int i = 0;
         while (i <= maxIteration) {
-            CommonOps_DSCC.add(1.0, transfer, 1.0, stack, nextTransfer, null, null);
+            CommonOps_DSCC.add(1.0, transfer, 1.0, neumannCoefficient, nextTransfer, null, null);
             CommonOps_DSCC.removeZeros(nextTransfer, DROP_TOLERANCE);
 
             CommonOps_DSCC.mult(stack, distributionMatrix, nextStack);
             CommonOps_DSCC.removeZeros(nextStack, DROP_TOLERANCE);
+
+            neumannCoefficient = nextStack.copy();
+            CommonOps_DSCC.multColumns(neumannCoefficient, loadCoeffs, 0);
+            CommonOps_DSCC.removeZeros(neumannCoefficient, DROP_TOLERANCE);
 
             tmp = transfer;
             transfer = nextTransfer;
@@ -98,8 +108,8 @@ public class PexMatrixCalculator {
             stack = nextStack;
             nextStack = tmp;
 
-            double stackL1Norm = l1Norm(stack);
-            LOGGER.debug(String.format("Iteration %s/%s: relative L1 norm of stack matrix is %.10f%% (stack nnz=%d, transfer nnz=%d)", i, maxIteration, 100 * stackL1Norm / initialStackL1Norm, stack.nz_length, transfer.nz_length));
+            double stackL1Norm = l1Norm(neumannCoefficient);
+            LOGGER.debug(String.format("Iteration %s/%s: relative L1 norm of stack matrix is %.10f%% (stack nnz=%d, transfer nnz=%d, neumann nnz=%d)", i, maxIteration, 100 * stackL1Norm / initialStackL1Norm, stack.nz_length, transfer.nz_length, neumannCoefficient.nz_length));
 
             if (stackL1Norm / initialStackL1Norm < L1_NORM_RELATIVE_TOLERANCE) {
                 LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
@@ -177,11 +187,7 @@ public class PexMatrixCalculator {
         double[] loadCoeffs = new double[matrixSize];
         vertexMapper.forEach((key, value) -> loadCoeffs[value] = key.getAssociatedLoad());
 
-        // Initialize transfer matrix
-        DMatrixSparseCSC pexMatrix = computeLeftPexMatrix(matrixSize, hasCycle, distributionMatrix, generationCoeffs);
-        CommonOps_DSCC.multColumns(pexMatrix, loadCoeffs, 0);
-
-        return pexMatrix;
+        return computePexMatrixWithNeumann(matrixSize, hasCycle, distributionMatrix, generationCoeffs, loadCoeffs);
     }
 
     public Map<String, Integer> getVertexIdMapper() {
