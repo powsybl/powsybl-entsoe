@@ -31,7 +31,6 @@ public class PexMatrixCalculator {
     public static final int MAX_ITERATION = 1000;
     public static final double L1_NORM_RELATIVE_TOLERANCE = 1e-9;
     public static final double DROP_TOLERANCE = 1e-10;
-    public static final double SPARSE_COEFF = 0.001;
     private static final double EPSILON = 1e-5;
     private static final Logger LOGGER = LoggerFactory.getLogger(PexMatrixCalculator.class);
     private final PexGraph pexGraph;
@@ -82,17 +81,25 @@ public class PexMatrixCalculator {
         DMatrixSparseCSC stack = distributionMatrix.copy();
         double initialStackL1Norm = l1Norm(stack);
 
-        int arrayLength = (int) (matrixSize * matrixSize * SPARSE_COEFF);
-        DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(matrixSize, matrixSize, arrayLength);
-        DMatrixSparseCSC nextStack = new DMatrixSparseCSC(matrixSize, matrixSize, arrayLength);
+        DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(transfer);
+        DMatrixSparseCSC nextStack = new DMatrixSparseCSC(stack);
+        DMatrixSparseCSC tmp;
 
         int i = 0;
         while (i <= maxIteration) {
-            CommonOps_DSCC.add(1.0, transfer, 1.0, stack, nextTransfer, gw, gx);
-            CommonOps_DSCC.removeZeros(nextTransfer, transfer, DROP_TOLERANCE);
+            CommonOps_DSCC.add(1.0, transfer, 1.0, stack, nextTransfer, null, null);
+            CommonOps_DSCC.removeZeros(nextTransfer, DROP_TOLERANCE);
 
-            CommonOps_DSCC.mult(stack, distributionMatrix, nextStack, gw, gx);
-            CommonOps_DSCC.removeZeros(nextStack, stack, DROP_TOLERANCE);
+            CommonOps_DSCC.mult(stack, distributionMatrix, nextStack);
+            CommonOps_DSCC.removeZeros(nextStack, DROP_TOLERANCE);
+
+            tmp = transfer;
+            transfer = nextTransfer;
+            nextTransfer = tmp;
+
+            tmp = stack;
+            stack = nextStack;
+            nextStack = tmp;
 
             double stackL1Norm = l1Norm(stack);
             LOGGER.debug(String.format("Iteration %s/%s: relative L1 norm of stack matrix is %.10f%% (stack nnz=%d, transfer nnz=%d)", i, maxIteration, 100 * stackL1Norm / initialStackL1Norm, stack.nz_length, transfer.nz_length));
