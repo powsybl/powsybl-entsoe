@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class PexMatrixCalculator {
     public static final int MAX_ITERATION = 1000;
-    public static final double L1_NORM_PRECISION_TOLERANCE = 1e-9;
+    public static final double L1_NORM_RELATIVE_TOLERANCE = 1e-9;
     private static final double EPSILON = 1e-5;
     private static final Logger LOGGER = LoggerFactory.getLogger(PexMatrixCalculator.class);
     private final PexGraph pexGraph;
@@ -76,6 +76,8 @@ public class PexMatrixCalculator {
 
         // stack = distribution
         DMatrixSparseCSC stack = distributionMatrix.copy();
+        double initialStackL1Norm = l1Norm(stack);
+
 
         // Temporaries to avoid .copy() every iteration
         DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(matrixSize, matrixSize, transfer.nz_length + stack.nz_length);
@@ -92,7 +94,7 @@ public class PexMatrixCalculator {
             CommonOps_DSCC.mult(stack, distributionMatrix, nextStack);
 
             double stackL1Norm = l1Norm(nextStack);
-            LOGGER.debug("Iteration {}/{}: L1 norm of stack matrix is {}", i, maxIteration, stackL1Norm);
+            LOGGER.debug(String.format("Iteration %s/%s: relative L1 norm of stack matrix is %.10f%%", i, maxIteration, 100*stackL1Norm/initialStackL1Norm));
 
             // swap references (no copying)
             DMatrixSparseCSC tmpT = transfer;
@@ -102,7 +104,7 @@ public class PexMatrixCalculator {
             stack = nextStack;
             nextStack = tmpS;
 
-            if (stackL1Norm < L1_NORM_PRECISION_TOLERANCE) {
+            if (stackL1Norm/initialStackL1Norm < L1_NORM_RELATIVE_TOLERANCE) {
                 LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
                 break;
             }
