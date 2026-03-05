@@ -82,8 +82,8 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         return referenceFlow < 0 ? -ptdfValue : ptdfValue;
     }
 
-    private static String encodeFlowPartNameSourceAndSink(int sourceIndex, int sinkIndex, String flowPartName) {
-        return String.format("%s%s%s%s%s", flowPartName, SPLIT_CHARACTER, sourceIndex, SPLIT_CHARACTER, sinkIndex);
+    private static String encodeFlowPartNameVertex(String flowPartName, int sourceIndex, int sinkIndex, String vertex_type) {
+        return String.format("%s%s%s%s%s%s%s", flowPartName, SPLIT_CHARACTER, sourceIndex, SPLIT_CHARACTER, sinkIndex, SPLIT_CHARACTER, vertex_type);
     }
 
     private static String encodePst(String pst) {
@@ -106,25 +106,44 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         return Integer.valueOf(code.split(SPLIT_CHARACTER)[2]);
     }
 
+    private static int decodeVertexType(String code) {
+        String vertexType = code.split(SPLIT_CHARACTER)[3];
+        if (vertexType.equals("source")) {
+            return 1;
+        } else if (vertexType.equals("sink")) {
+            return -1;
+        } else {
+            throw new IllegalArgumentException("Invalid vertex type: " + vertexType);
+        }
+    }
+
     private String decodePst(String code) {
         return code.split(SPLIT_CHARACTER)[1];
     }
 
     public Map<String, Map<String, Double>> run() {
-        List<SensitivityVariableSet> sensitivityVariableSets = Streams.stream(pexMatrix.createCoordinateIterator())
-            .map(coordinateRealValue -> {
+        List<SensitivityVariableSet> sensitivityVariableSets = new ArrayList<>();
+        Streams.stream(pexMatrix.createCoordinateIterator())
+            .forEach(coordinateRealValue -> {
                 int sourceIndex = coordinateRealValue.row;
                 int sinkIndex = coordinateRealValue.col;
+                double exchangeBetweenFromAndTo = coordinateRealValue.value;
                 String sourceInjId = injByVertexId[sourceIndex];
                 String sinkInjId = injByVertexId[sinkIndex];
                 WeightedSensitivityVariable sourceVariable = new WeightedSensitivityVariable(sourceInjId, 1);
-                WeightedSensitivityVariable sinkVariable = new WeightedSensitivityVariable(sinkInjId, -1);
-                Optional<String> optionalVariableSetId = computeVariableSetId(sourceIndex, sinkIndex);
-                return optionalVariableSetId.map(s -> new SensitivityVariableSet(s, List.of(sourceVariable, sinkVariable)));
-            })
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .toList();
+                WeightedSensitivityVariable sinkVariable = new WeightedSensitivityVariable(sinkInjId, 1);
+                Optional<String> optionalFlowPartName = computeFlowPartName(sourceIndex, sinkIndex);
+                if (optionalFlowPartName.isEmpty()) {
+                    return;
+                }
+                String flowPartName = optionalFlowPartName.get();
+                String sourceVariableId = encodeFlowPartNameVertex(flowPartName, sourceIndex, sinkIndex, "source");
+                SensitivityVariableSet sourceVariableSet = new SensitivityVariableSet(sourceVariableId, List.of(sourceVariable));
+                sensitivityVariableSets.add(sourceVariableSet);
+                String sinkVariableId = encodeFlowPartNameVertex(flowPartName, sourceIndex, sinkIndex, "sink");
+                SensitivityVariableSet sinkVariableSet = new SensitivityVariableSet(sinkVariableId, List.of(sinkVariable));
+                sensitivityVariableSets.add(sinkVariableSet);
+            });
         Set<String> newFlowParts = sensitivityVariableSets.stream()
             .map(SensitivityVariableSet::getId)
             .collect(Collectors.toSet());
@@ -138,7 +157,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         return results;
     }
 
-    private Optional<String> computeVariableSetId(int sourceIndex, int sinkIndex) {
+    private Optional<String> computeFlowPartName(int sourceIndex, int sinkIndex) {
         if ((isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex])) {
             Country sourceCountry = countriesByVertexPos[sourceIndex];
             Country sinkCountry = countriesByVertexPos[sinkIndex];
@@ -149,12 +168,12 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                 return Optional.empty();
             }
             if (sourceCountry.equals(sinkCountry)) {
-                return Optional.of(encodeFlowPartNameSourceAndSink(sourceIndex, sinkIndex, NetworkUtil.getLoopFlowIdFromCountry(sourceCountry)));
+                return Optional.of(NetworkUtil.getLoopFlowIdFromCountry(sourceCountry));
             } else {
-                return Optional.of(encodeFlowPartNameSourceAndSink(sourceIndex, sinkIndex, ALLOCATED_COLUMN_NAME));
+                return Optional.of(ALLOCATED_COLUMN_NAME);
             }
         } else {
-            return Optional.of(encodeFlowPartNameSourceAndSink(sourceIndex, sinkIndex, XNODE_COLUMN_NAME));
+            return Optional.of(XNODE_COLUMN_NAME);
         }
     }
 
@@ -197,11 +216,12 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                 String flowPart = decodeFlowPart(codedVariableId);
                 int sourceIndex = decodeSource(codedVariableId);
                 int sinkIndex = decodeSink(codedVariableId);
+                int vertexTypeSign = decodeVertexType(codedVariableId);
                 double partialFlowPartValue = flowDecomposition.getOrDefault(flowPart, 0.0);
                 double exchange = pexMatrix.get(sourceIndex, sinkIndex);
-                double increase = respectFlowSignConvention(value * exchange, functionReference);
-                //increase = value * exchange;
-                flowDecomposition.put(flowPart, partialFlowPartValue + increase);
+                double increaseFlow = value * exchange;
+                double increaseWithSign = respectFlowSignConvention(increaseFlow, functionReference) * vertexTypeSign;
+                flowDecomposition.put(flowPart, partialFlowPartValue + increaseWithSign);
             }
         }
 
