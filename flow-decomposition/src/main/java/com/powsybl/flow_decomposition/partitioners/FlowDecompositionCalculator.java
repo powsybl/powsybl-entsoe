@@ -99,7 +99,8 @@ public class FlowDecompositionCalculator {
         double allocatedFlow = 0.0;
         double[] loopFlowsPerCountry = new double[countryIndex.size()];
 
-        Country branchCountry1 = NetworkUtil.getBranchSideCountry(branch, TwoSides.ONE);
+        Integer branchCountry1 = countryIndex.get(NetworkUtil.getBranchSideCountry(branch, TwoSides.ONE));
+        Integer branchCountry2 = countryIndex.get(NetworkUtil.getBranchSideCountry(branch, TwoSides.TWO));
         double[] column = transposedPtdfMatrix.getColumnAsArray(branchId);
 
         Iterator<DMatrixSparse.CoordinateRealValue> coordinateRealValueIterator = pexMatrix.createCoordinateIterator();
@@ -128,7 +129,7 @@ public class FlowDecompositionCalculator {
                     continue;
                 }
                 if (countryFrom.equals(countryTo)) {
-                    if (countryFrom.equals(countryIndex.get(branchCountry1))) {
+                    if (countryFrom.equals(branchCountry1) && countryFrom.equals(branchCountry2)) {
                         internalFlow += increase;
                     } else {
                         loopFlowsPerCountry[countryFrom] += increase;
