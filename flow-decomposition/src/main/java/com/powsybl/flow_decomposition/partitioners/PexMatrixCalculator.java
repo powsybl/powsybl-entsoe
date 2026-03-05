@@ -137,8 +137,8 @@ public class PexMatrixCalculator {
             double stackL1Norm = l1Norm(stack);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
-                    "Iteration {}/{}: relative L1 norm of stack matrix is {}% (stack nnz={}, transfer nnz={}, neumann nnz={})",
-                    i, maxIteration, 100.0 * stackL1Norm / initialStackL1Norm, stack.nz_length, transfer.nz_length, neumannCoefficient.nz_length
+                    "Iteration {}/{}: relative L1 norm of stack matrix is {}% (stack nnz={}, transfer nnz={}, ith neumann nnz={}, sparse pex matrix {}%)",
+                    i, maxIteration, 100.0 * stackL1Norm / initialStackL1Norm, stack.nz_length, transfer.nz_length, neumannCoefficient.nz_length, 100 * (double) transfer.nz_length / (transfer.numRows * transfer.numCols)
                 );
             }
 
@@ -152,6 +152,7 @@ public class PexMatrixCalculator {
             }
             i++;
         }
+        LOGGER.debug("Completed {} iterations for PEX matrix calculation (numRows {}, nnz {}, sparse {}%)", i, transfer.numRows, transfer.nz_length, 100 * (double) transfer.nz_length / (transfer.numRows * transfer.numCols));
         return transfer;
     }
 
