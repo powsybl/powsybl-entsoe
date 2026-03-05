@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -171,5 +172,20 @@ public final class TestUtils {
         assertEquals(internalFlow, l1.getInternalFlow(), EPSILON);
         assert l1.getLoopFlows().values().stream().filter(d -> Math.abs(d) > 1e-3).count() == loopFlow.size();
         loopFlow.forEach((country, loopFlowValue) -> assertEquals(loopFlowValue, l1.getLoopFlow(country), EPSILON));
+    }
+
+    public static void assertNoInternalFlowOnTieLines(FlowDecompositionResults flowDecompositionResults) {
+        List<DecomposedFlow> decomposedFlowsWithInternalIssues = flowDecompositionResults.getDecomposedFlowMap().values().stream()
+            .filter(decomposedFlow -> decomposedFlow.getCountry1() != decomposedFlow.getCountry2())
+            .filter(decomposedFlow -> decomposedFlow.getInternalFlow() != 0)
+            .toList();
+        if (!decomposedFlowsWithInternalIssues.isEmpty()) {
+            LOGGER.error("Found {} flows with internal flow on tie lines", decomposedFlowsWithInternalIssues.size());
+            decomposedFlowsWithInternalIssues.forEach(decomposedFlow -> LOGGER.error("Flow {}: Internal flow = {}", decomposedFlow.getId(), decomposedFlow.getInternalFlow()));
+        }
+        assertEquals(0, decomposedFlowsWithInternalIssues.size());
+
+
+
     }
 }
