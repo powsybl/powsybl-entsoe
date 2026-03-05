@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.flow_decomposition.partitioners.DirectSensitivityPartitioner;
+import com.powsybl.flow_decomposition.partitioners.FastFullLineDecompositionPartitioner;
 import com.powsybl.flow_decomposition.partitioners.FullLineDecompositionPartitioner;
 import com.powsybl.flow_decomposition.partitioners.MatrixBasedPartitioner;
 import com.powsybl.flow_decomposition.rescaler.*;
@@ -175,6 +176,8 @@ public class FlowDecompositionComputer {
                 new DirectSensitivityPartitioner(loadFlowParameters, sensitivityAnalysisRunner, observers);
             case FULL_LINE_DECOMPOSITION ->
                 new FullLineDecompositionPartitioner(loadFlowParameters, parameters, sensitivityAnalysisRunner, observers);
+            case FAST_FULL_LINE_DECOMPOSITION ->
+                new FastFullLineDecompositionPartitioner(loadFlowParameters, sensitivityAnalysisRunner);
         };
     }
 

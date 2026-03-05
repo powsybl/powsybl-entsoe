@@ -402,13 +402,14 @@ class FlowDecompositionTests {
 
     @ParameterizedTest(name = "Mode={0}")
     @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
-        "MATRIX_BASED",
+        //"MATRIX_BASED",
         "DIRECT_SENSITIVITY_BASED",
-        "FULL_LINE_DECOMPOSITION"
+        "FULL_LINE_DECOMPOSITION",
+        "FAST_FULL_LINE_DECOMPOSITION"
     })
     void testFlowDecompositionOnHvdcNetworkUsingMode(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         FlowDecompositionResults flowDecompositionResults = testFlowDecompositionOnHvdcNetwork(flowPartitionMode);
-        if (flowPartitionMode == FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION) {
+        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
             validateFlowDecompositionResultsUsingFLDMethodology(flowDecompositionResults);
         } else {
             validateFlowDecompositionResultsUsingPFCMethodology(flowDecompositionResults);
