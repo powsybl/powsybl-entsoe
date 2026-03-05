@@ -127,9 +127,8 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
             .forEach(coordinateRealValue -> {
                 int sourceIndex = coordinateRealValue.row;
                 int sinkIndex = coordinateRealValue.col;
-                double exchangeBetweenFromAndTo = coordinateRealValue.value;
-                String sourceInjId = injByVertexId[sourceIndex];
-                String sinkInjId = injByVertexId[sinkIndex];
+                String sourceInjId = Optional.ofNullable(injByVertexId[sourceIndex]).orElse(vertexIds[sourceIndex]);
+                String sinkInjId = Optional.ofNullable(injByVertexId[sinkIndex]).orElse(vertexIds[sinkIndex]);
                 WeightedSensitivityVariable sourceVariable = new WeightedSensitivityVariable(sourceInjId, 1);
                 WeightedSensitivityVariable sinkVariable = new WeightedSensitivityVariable(sinkInjId, 1);
                 Optional<String> optionalFlowPartName = computeFlowPartName(sourceIndex, sinkIndex);
