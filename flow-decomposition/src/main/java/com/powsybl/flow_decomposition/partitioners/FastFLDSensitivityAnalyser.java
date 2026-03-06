@@ -67,33 +67,6 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         return referenceFlow < 0 ? -ptdfValue : ptdfValue;
     }
 
-    private static String encodeFlowPartNameVertex(String flowPartName, int sourceIndex, int sinkIndex, String vertex_type) {
-        return String.format("%s%s%s%s%s%s%s", flowPartName, SPLIT_CHARACTER, sourceIndex, SPLIT_CHARACTER, sinkIndex, SPLIT_CHARACTER, vertex_type);
-    }
-
-    private static String decodeFlowPart(String code) {
-        return code.split(SPLIT_CHARACTER)[0];
-    }
-
-    private static Integer decodeSource(String code) {
-        return Integer.valueOf(code.split(SPLIT_CHARACTER)[1]);
-    }
-
-    private static Integer decodeSink(String code) {
-        return Integer.valueOf(code.split(SPLIT_CHARACTER)[2]);
-    }
-
-    private static int decodeVertexType(String code) {
-        String vertexType = code.split(SPLIT_CHARACTER)[3];
-        if (vertexType.equals("source")) {
-            return 1;
-        } else if (vertexType.equals("sink")) {
-            return -1;
-        } else {
-            throw new IllegalArgumentException("Invalid vertex type: " + vertexType);
-        }
-    }
-
     public Map<String, Map<String, Double>> run() {
         List<String> flowPartNameList = new ArrayList<>(List.of(PST_COLUMN_NAME, ALLOCATED_COLUMN_NAME, XNODE_COLUMN_NAME));
         network.getCountries().forEach(country -> flowPartNameList.add(NetworkUtil.getLoopFlowIdFromCountry(country)));
