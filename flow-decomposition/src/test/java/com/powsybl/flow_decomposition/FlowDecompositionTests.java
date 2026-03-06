@@ -8,6 +8,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderAllBranches;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderUnion;
@@ -15,18 +16,20 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.sensitivity.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import static com.powsybl.flow_decomposition.AbstractSensitivityAnalyser.CONTINGENCIES;
+import static com.powsybl.flow_decomposition.AbstractSensitivityAnalyser.SENSITIVITY_FUNCTION_TYPE;
 import static com.powsybl.flow_decomposition.TestUtils.validateFlowDecomposition;
 import static com.powsybl.flow_decomposition.TestUtils.validateFlowDecompositionWithMap;
+import static com.powsybl.flow_decomposition.partitioners.SensitivityAnalyser.EMPTY_SENSITIVITY_VARIABLE_SETS;
 import static java.lang.Double.NaN;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -329,6 +332,85 @@ class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.DE));
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
+    }
+
+    @Test
+    void shouldComputeVariableSetSensitivityAsWeightedSumOfElementarySensitivities() {
+        Network network = TestUtils.importNetwork("TestCase16NodesWithHvdc.xiidm");
+        SensitivityAnalysis.Runner runner = SensitivityAnalysis.find("OpenLoadFlow");
+        SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
+
+        List<String> xnecIds = network.getLineStream().map(Identifiable::getId).toList();
+        List<String> allVariableIds = NetworkUtil.getNodeList(network).stream().map(Identifiable::getId).toList();
+        List<String> variableIds = List.of("FFR5AA11_generator", "DDE3AA11_load", "NNL2AA11_load", "NNL3AA11_generator");
+        List<Double> weights = List.of(2.0, 0.5, 3.0, 1.0);
+        double sum = weights.stream().reduce(0.0, Double::sum);
+
+
+        SensitivityVariableSet variableSet = new SensitivityVariableSet(
+            "TEST_SET",
+            IntStream.range(0, variableIds.size()).mapToObj(i -> {
+                return new WeightedSensitivityVariable(variableIds.get(i), weights.get(i) / sum);
+            }).toList()
+        );
+
+        Map<String, Map<String, Double>> elementary = runElementarySensitivities(
+            network, parameters, runner, xnecIds, variableIds
+        );
+
+        Map<String, Double> grouped = runGroupedSensitivity(
+            network, parameters, runner, xnecIds, variableSet
+        );
+
+        double epsilon = 1e-8;
+
+        for (String xnecId : xnecIds) {
+            double expected = IntStream.range(0, variableIds.size()).mapToDouble(i -> {
+                return weights.get(i) * elementary.get(xnecId).get(variableIds.get(i)) / sum;
+            }).sum();
+
+            double actual = grouped.get(xnecId);
+
+            assertEquals(expected, actual, epsilon, "Mismatch for xnec " + xnecId);
+        }
+    }
+
+    private Map<String, Map<String, Double>> runElementarySensitivities(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, SensitivityAnalysis.Runner runner, List<String> xnecIds, List<String> variableIds) {
+        List<SensitivityFactor> sensitivityFactors = new ArrayList<>();
+        xnecIds.forEach(
+            xnecId -> variableIds.forEach(
+                variableId -> {
+                    SensitivityFactor sensitivityFactor = new SensitivityFactor(SENSITIVITY_FUNCTION_TYPE, xnecId, SensitivityVariableType.INJECTION_ACTIVE_POWER, variableId, false, ContingencyContext.none());
+                    sensitivityFactors.add(sensitivityFactor);
+                }));
+        SensitivityAnalysisRunParameters runParameters = new SensitivityAnalysisRunParameters()
+            .setContingencies(CONTINGENCIES)
+            .setVariableSets(EMPTY_SENSITIVITY_VARIABLE_SETS)
+            .setParameters(sensitivityAnalysisParameters);
+        SensitivityAnalysisResult analysisResult = runner.run(network, sensitivityFactors, runParameters);
+
+        return xnecIds.stream().collect(Collectors.toMap(
+            xnecId -> xnecId,
+            xnecId -> variableIds.stream().collect(Collectors.toMap(
+                variableId -> variableId,
+                variableId -> analysisResult.getSensitivityValue(variableId, xnecId, SENSITIVITY_FUNCTION_TYPE, SensitivityVariableType.INJECTION_ACTIVE_POWER)
+            ))
+        ));
+    }
+
+    private Map<String, Double> runGroupedSensitivity(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, SensitivityAnalysis.Runner runner, List<String> xnecIds, SensitivityVariableSet variableSet) {
+        List<SensitivityFactor> sensitivityFactors = xnecIds.stream().map(
+            xnecId -> new SensitivityFactor(SENSITIVITY_FUNCTION_TYPE, xnecId, SensitivityVariableType.INJECTION_ACTIVE_POWER, variableSet.getId(), true, ContingencyContext.none())).toList();
+        SensitivityAnalysisRunParameters runParameters = new SensitivityAnalysisRunParameters()
+            .setContingencies(CONTINGENCIES)
+            .setVariableSets(List.of(variableSet))
+            .setParameters(sensitivityAnalysisParameters);
+        SensitivityAnalysisResult analysisResult = runner.run(network, sensitivityFactors, runParameters);
+
+        return xnecIds.stream().collect(Collectors.toMap(
+            xnecId -> xnecId,
+            xnecId -> analysisResult.getSensitivityValue(variableSet.getId(), xnecId, SENSITIVITY_FUNCTION_TYPE, SensitivityVariableType.INJECTION_ACTIVE_POWER)
+        ));
     }
 
     @ParameterizedTest(name = "Mode={0}")

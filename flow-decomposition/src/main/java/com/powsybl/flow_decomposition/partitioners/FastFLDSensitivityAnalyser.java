@@ -88,9 +88,9 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                 double[] exchangesSink = exchangePerFlowPart.computeIfAbsent(sinkInjId, s -> new double[nFlowPart]);
                 exchangesSink[flowPartIndex.get(flowPartName)] -= exchangeBetweenFromAndTo;
             });
-        List<String> variableIds = exchangePerFlowPart.keySet().stream().toList();
 
         double[][] results = new double[nXnec][nFlowPart];
+
         LOGGER.debug("Running sensitivity analysis for PST flow for variables");
         List<FunctionVariableFactor> sensitivityFactorsPst = new ArrayList<>();
         List<String> pstIdList = NetworkUtil.getPstIdList(network);
@@ -98,16 +98,14 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         SensitivityFactorReader factorReaderPst = new FastFLDPstSensitivityFactorReader(sensitivityFactorsPst, xnecIds, pstIdList);
         SensitivityResultWriter valueWriterPst = new FastFLDPstSensitivityResultWriter(sensitivityFactorsPst, results, flowPartIndex.get(PST_COLUMN_NAME), xnecIndex, phaseTapChangerMap);
         runSensitivityAnalysis(network, factorReaderPst, valueWriterPst, Collections.emptyList());
-        int batchSize2 = 5000;
-        for (int iVariable = 0; iVariable < variableIds.size(); iVariable += batchSize2) {
-            int upperbound = Math.min(variableIds.size(), iVariable + batchSize2);
-            LOGGER.debug("Running sensitivity analysis for decomposed flow for variables {}-{}/{}", iVariable, upperbound, variableIds.size());
-            List<String> subVariableIds = variableIds.subList(iVariable, upperbound);
-            FLDFunctionVariableFactor[] sensitivityFactors = new FLDFunctionVariableFactor[subVariableIds.size() * xnecIds.size()];
-            SensitivityFactorReader factorReader = new FastFLDSensitivityFactorReader(subVariableIds, sensitivityFactors, xnecIds);
-            SensitivityResultWriter valueWriter = new FastFLDSensitivityResultWriter(sensitivityFactors, results, exchangePerFlowPart);
-            runSensitivityAnalysis(network, factorReader, valueWriter, EMPTY_SENSITIVITY_VARIABLE_SETS);
-        }
+
+        VariableSetBuildResult variableSetBuildResult = buildVariableSets(exchangePerFlowPart, flowPartNameList);
+        GroupedFLDFactor[] groupedFactors = new GroupedFLDFactor[variableSetBuildResult.factorCount()];
+        SensitivityFactorReader factorReader = new FastFLDGroupedSensitivityFactorReader(xnecIds, variableSetBuildResult.aggregations(), groupedFactors);
+        SensitivityResultWriter valueWriter = new FastFLDGroupedSensitivityResultWriter(groupedFactors, results, variableSetBuildResult.aggregations());
+
+        LOGGER.debug("Running sensitivity analysis for decomposed flow for {} grouped factors", groupedFactors.length);
+        runSensitivityAnalysis(network, factorReader, valueWriter, variableSetBuildResult.variableSets());
 
         return xnecIds.stream()
             .collect(Collectors.toMap(
@@ -137,32 +135,75 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
     }
 
-    private record FastFLDSensitivityResultWriter(FLDFunctionVariableFactor[] factors, double[][] results,
-                                                  Map<String, double[]> exchangePerFlowPart) implements SensitivityResultWriter {
+    private VariableSetBuildResult buildVariableSets(Map<String, double[]> exchangePerFlowPart, List<String> flowPartNameList) {
+        List<SensitivityVariableSet> variableSets = new ArrayList<>();
+        FlowPartAggregation[] aggregations = new FlowPartAggregation[flowPartNameList.size()];
+        int factorPerXnec = 0;
+
+        for (int flowPartIndex = 0; flowPartIndex < flowPartNameList.size(); flowPartIndex++) {
+            String flowPartName = flowPartNameList.get(flowPartIndex);
+
+            List<WeightedSensitivityVariable> positiveVariables = new ArrayList<>();
+            List<WeightedSensitivityVariable> negativeVariables = new ArrayList<>();
+            double positiveTotal = 0.0;
+            double negativeTotal = 0.0;
+
+            for (Map.Entry<String, double[]> entry : exchangePerFlowPart.entrySet()) {
+                double exchange = entry.getValue()[flowPartIndex];
+                if (exchange > 0.0) {
+                    positiveVariables.add(new WeightedSensitivityVariable(entry.getKey(), exchange));
+                    positiveTotal += exchange;
+                } else if (exchange < 0.0) {
+                    double absExchange = -exchange;
+                    negativeVariables.add(new WeightedSensitivityVariable(entry.getKey(), absExchange));
+                    negativeTotal += absExchange;
+                }
+            }
+
+            String positiveSetId = null;
+            String negativeSetId = null;
+
+            if (positiveTotal > 0.0) {
+                positiveSetId = flowPartName + "_POS";
+                variableSets.add(new SensitivityVariableSet(positiveSetId, normalizeVariables(positiveVariables, positiveTotal)));
+                factorPerXnec++;
+            }
+            if (negativeTotal > 0.0) {
+                negativeSetId = flowPartName + "_NEG";
+                variableSets.add(new SensitivityVariableSet(negativeSetId, normalizeVariables(negativeVariables, negativeTotal)));
+                factorPerXnec++;
+            }
+
+            aggregations[flowPartIndex] = new FlowPartAggregation(flowPartIndex, positiveSetId, negativeSetId, positiveTotal, negativeTotal);
+        }
+
+        return new VariableSetBuildResult(variableSets, aggregations, factorPerXnec * xnecIds.size());
+    }
+
+    private static List<WeightedSensitivityVariable> normalizeVariables(List<WeightedSensitivityVariable> variables, double total) {
+        return variables.stream()
+            .map(variable -> new WeightedSensitivityVariable(variable.getId(), variable.getWeight() / total))
+            .toList();
+    }
+
+    private record FastFLDGroupedSensitivityResultWriter(GroupedFLDFactor[] factors, double[][] results,
+                                                         FlowPartAggregation[] aggregations) implements SensitivityResultWriter {
 
         @Override
         public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
-            write(factorIndex, value, functionReference);
-        }
-
-        private void write(int factorIndex, double value, double functionReference) {
-            if (Double.isNaN(value)) {
+            if (Double.isNaN(value) || value == 0.0) {
                 return;
             }
-            if (value == 0.0) {
-                return;
-            }
-            FLDFunctionVariableFactor factor = factors[factorIndex];
-            int iXnec = factor.iXnec();
-            double[] flowDecomposition = results[iXnec];
-            String variableId = factor.variableId();
 
-            double[] exchanges = exchangePerFlowPart.get(variableId);
-            for (int flowPartIndex = 0; flowPartIndex < exchanges.length; flowPartIndex++) {
-                double increase = exchanges[flowPartIndex] * value;
-                double increaseWithSign = respectFlowSignConvention(increase, functionReference);
-                flowDecomposition[flowPartIndex] += increaseWithSign;
-            }
+            GroupedFLDFactor factor = factors[factorIndex];
+            FlowPartAggregation aggregation = aggregations[factor.flowPartIndex()];
+
+            double increase = factor.positive()
+                ? aggregation.positiveTotal() * value
+                : -aggregation.negativeTotal() * value;
+
+            double increaseWithSign = respectFlowSignConvention(increase, functionReference);
+            results[factor.iXnec()][factor.flowPartIndex()] += increaseWithSign;
         }
 
         @Override
@@ -171,29 +212,40 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
     }
 
-    private record FastFLDSensitivityFactorReader(List<String> variableIds, FLDFunctionVariableFactor[] factors,
-                                                  List<String> xnecs) implements SensitivityFactorReader {
+    private record FastFLDGroupedSensitivityFactorReader(List<String> xnecs, FlowPartAggregation[] aggregations,
+                                                         GroupedFLDFactor[] factors) implements SensitivityFactorReader {
 
         @Override
         public void read(Handler handler) {
-            readLocal(handler);
-        }
-
-        private void readLocal(Handler handler) {
             int i = 0;
             int iXnec = 0;
             for (String xnecId : xnecs) {
-                for (String variableId : variableIds) {
-                    factors[i] = new FLDFunctionVariableFactor(iXnec, variableId);
-                    handler.onFactor(SENSITIVITY_FUNCTION_TYPE, xnecId, SensitivityVariableType.INJECTION_ACTIVE_POWER, variableId, false, ContingencyContext.none());
-                    i++;
+                for (FlowPartAggregation aggregation : aggregations) {
+                    if (aggregation.positiveSetId() != null) {
+                        factors[i] = new GroupedFLDFactor(iXnec, aggregation.flowPartIndex(), true);
+                        handler.onFactor(SENSITIVITY_FUNCTION_TYPE, xnecId, SensitivityVariableType.INJECTION_ACTIVE_POWER, aggregation.positiveSetId(), true, ContingencyContext.none());
+                        i++;
+                    }
+                    if (aggregation.negativeSetId() != null) {
+                        factors[i] = new GroupedFLDFactor(iXnec, aggregation.flowPartIndex(), false);
+                        handler.onFactor(SENSITIVITY_FUNCTION_TYPE, xnecId, SensitivityVariableType.INJECTION_ACTIVE_POWER, aggregation.negativeSetId(), true, ContingencyContext.none());
+                        i++;
+                    }
                 }
                 iXnec++;
             }
         }
     }
 
-    private record FLDFunctionVariableFactor(int iXnec, String variableId) {
+    private record GroupedFLDFactor(int iXnec, int flowPartIndex, boolean positive) {
+    }
+
+    private record FlowPartAggregation(int flowPartIndex, String positiveSetId, String negativeSetId,
+                                       double positiveTotal, double negativeTotal) {
+    }
+
+    private record VariableSetBuildResult(List<SensitivityVariableSet> variableSets, FlowPartAggregation[] aggregations,
+                                          int factorCount) {
     }
 
     private record FastFLDPstSensitivityResultWriter(List<FunctionVariableFactor> factors, double[][] results,
