@@ -131,8 +131,8 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
             int upperbound = Math.min(variableIds.size(), iVariable + batchSize2);
             LOGGER.debug("Running sensitivity analysis for decomposed flow for variables {}-{}/{}", iVariable, upperbound, variableIds.size());
             List<String> subVariableIds = variableIds.subList(iVariable, upperbound);
-            FunctionVariableFactor[] sensitivityFactors = new FunctionVariableFactor[subVariableIds.size() * xnecIds.size()];
-            SensitivityFactorReader factorReader = new FastFLDSensitivityFactorReader(subVariableIds, sensitivityFactors, xnecIds);
+            FLDFunctionVariableFactor[] sensitivityFactors = new FLDFunctionVariableFactor[subVariableIds.size() * xnecIds.size()];
+            SensitivityFactorReader factorReader = new FastFLDSensitivityFactorReader(subVariableIds, sensitivityFactors, xnecIds, xnecIndex);
             SensitivityResultWriter valueWriter = new FastFLDSensitivityResultWriter(sensitivityFactors, results, xnecIndex, exchangePerFlowPart);
             runSensitivityAnalysis(network, factorReader, valueWriter, EMPTY_SENSITIVITY_VARIABLE_SETS);
         }
@@ -167,12 +167,12 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     private static class FastFLDSensitivityResultWriter implements SensitivityResultWriter {
 
-        private final FunctionVariableFactor[] factors;
+        private final FLDFunctionVariableFactor[] factors;
         private final double[][] results;
         private final Map<String, Integer> xnecIndex;
         private final Map<String, double[]> exchangePerFlowPart;
 
-        public FastFLDSensitivityResultWriter(FunctionVariableFactor[] factors, double[][] results, Map<String, Integer> xnecIndex, Map<String, double[]> exchangePerFlowPart) {
+        public FastFLDSensitivityResultWriter(FLDFunctionVariableFactor[] factors, double[][] results, Map<String, Integer> xnecIndex, Map<String, double[]> exchangePerFlowPart) {
             this.factors = factors;
             this.results = results;
             this.xnecIndex = xnecIndex;
@@ -187,8 +187,8 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
             if (value == 0.0) {
                 return;
             }
-            FunctionVariableFactor factor = factors[factorIndex];
-            Integer i = xnecIndex.get(factor.functionId());
+            FLDFunctionVariableFactor factor = factors[factorIndex];
+            int iXnec = factor.iXnec();
             double[] flowDecomposition = results[i];
             String variableId = factor.variableId();
 
@@ -208,26 +208,33 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     private static class FastFLDSensitivityFactorReader implements SensitivityFactorReader {
         private final List<String> variableIds;
-        private final FunctionVariableFactor[] factors;
+        private final FLDFunctionVariableFactor[] factors;
         private final List<String> xnecs;
+        private final Map<String, Integer> xnecIndex;
 
-        public FastFLDSensitivityFactorReader(List<String> variableIds, FunctionVariableFactor[] factors, List<String> xnecs) {
+        public FastFLDSensitivityFactorReader(List<String> variableIds, FLDFunctionVariableFactor[] factors, List<String> xnecs, Map<String, Integer> xnecIndex) {
             this.variableIds = variableIds;
             this.factors = factors;
             this.xnecs = xnecs;
+            this.xnecIndex = xnecIndex;
         }
 
         @Override
         public void read(Handler handler) {
             int i = 0;
+            int iXnec = 0;
             for (String xnecId : xnecs) {
                 for (String variableId : variableIds) {
-                    factors[i] = new FunctionVariableFactor(xnecId, variableId);
+                    factors[i] = new FLDFunctionVariableFactor(iXnec, variableId);
                     handler.onFactor(SENSITIVITY_FUNCTION_TYPE, xnecId, SensitivityVariableType.INJECTION_ACTIVE_POWER, variableId, false, ContingencyContext.none());
                     i++;
                 }
+                iXnec++;
             }
         }
+    }
+
+    private record FLDFunctionVariableFactor(int iXnec, String variableId) {
     }
 
     private static class FastFLDPstSensitivityResultWriter implements SensitivityResultWriter {
