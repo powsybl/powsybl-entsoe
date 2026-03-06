@@ -17,7 +17,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.flow_decomposition.DecomposedFlow.*;
-import static com.powsybl.flow_decomposition.partitioners.SensitivityAnalyser.EMPTY_SENSITIVITY_VARIABLE_SETS;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -64,6 +63,12 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     private static double respectFlowSignConvention(double ptdfValue, double referenceFlow) {
         return referenceFlow < 0 ? -ptdfValue : ptdfValue;
+    }
+
+    private static List<WeightedSensitivityVariable> normalizeVariables(List<WeightedSensitivityVariable> variables, double total) {
+        return variables.stream()
+            .map(variable -> new WeightedSensitivityVariable(variable.getId(), variable.getWeight() / total))
+            .toList();
     }
 
     public Map<String, Map<String, Double>> run() {
@@ -178,12 +183,6 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
 
         return new VariableSetBuildResult(variableSets, aggregations, factorPerXnec * xnecIds.size());
-    }
-
-    private static List<WeightedSensitivityVariable> normalizeVariables(List<WeightedSensitivityVariable> variables, double total) {
-        return variables.stream()
-            .map(variable -> new WeightedSensitivityVariable(variable.getId(), variable.getWeight() / total))
-            .toList();
     }
 
     private record FastFLDGroupedSensitivityResultWriter(GroupedFLDFactor[] factors, double[][] results,
