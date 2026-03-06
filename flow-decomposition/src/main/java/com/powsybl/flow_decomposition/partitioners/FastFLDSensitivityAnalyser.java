@@ -1,6 +1,7 @@
 package com.powsybl.flow_decomposition.partitioners;
 
 import com.google.common.collect.Streams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.flow_decomposition.AbstractSensitivityAnalyser;
 import com.powsybl.flow_decomposition.FunctionVariableFactor;
@@ -16,6 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.flow_decomposition.DecomposedFlow.*;
+import static com.powsybl.flow_decomposition.partitioners.SensitivityAnalyser.EMPTY_SENSITIVITY_VARIABLE_SETS;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -93,31 +95,21 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     public Map<String, Map<String, Double>> run() {
-        List<SensitivityVariableSet> sensitivityVariableSets = new ArrayList<>();
-        List<String> variableIds = new ArrayList<>();
+        Map<String, Map<String, Double>> exchangePerFlowPart = new HashMap<>();
         Streams.stream(pexMatrix.createCoordinateIterator())
             .forEach(coordinateRealValue -> {
                 int sourceIndex = coordinateRealValue.row;
                 int sinkIndex = coordinateRealValue.col;
+                double exchangeBetweenFromAndTo = coordinateRealValue.value;
                 String sourceInjId = Optional.ofNullable(injByVertexId[sourceIndex]).orElse(vertexIds[sourceIndex]);
                 String sinkInjId = Optional.ofNullable(injByVertexId[sinkIndex]).orElse(vertexIds[sinkIndex]);
-                WeightedSensitivityVariable sourceVariable = new WeightedSensitivityVariable(sourceInjId, 1);
-                WeightedSensitivityVariable sinkVariable = new WeightedSensitivityVariable(sinkInjId, 1);
-                Optional<String> optionalFlowPartName = computeFlowPartName(sourceIndex, sinkIndex);
-                if (optionalFlowPartName.isEmpty()) {
-                    return;
-                }
-                String flowPartName = optionalFlowPartName.get();
-                String sourceVariableId = encodeFlowPartNameVertex(flowPartName, sourceIndex, sinkIndex, "source");
-                SensitivityVariableSet sourceVariableSet = new SensitivityVariableSet(sourceVariableId, List.of(sourceVariable));
-                sensitivityVariableSets.add(sourceVariableSet);
-                variableIds.add(sourceVariableId);
-                String sinkVariableId = encodeFlowPartNameVertex(flowPartName, sourceIndex, sinkIndex, "sink");
-                SensitivityVariableSet sinkVariableSet = new SensitivityVariableSet(sinkVariableId, List.of(sinkVariable));
-                sensitivityVariableSets.add(sinkVariableSet);
-                variableIds.add(sinkVariableId);
+                String flowPartName = computeFlowPartName(sourceIndex, sinkIndex);
+                exchangePerFlowPart.computeIfAbsent(sourceInjId, s -> new HashMap<>())
+                    .merge(flowPartName, exchangeBetweenFromAndTo, Double::sum);
+                exchangePerFlowPart.computeIfAbsent(sinkInjId, s -> new HashMap<>())
+                    .merge(flowPartName, -exchangeBetweenFromAndTo, Double::sum);
             });
-
+        List<String> variableIds = exchangePerFlowPart.keySet().stream().toList();
 
         Map<String, Map<String, Double>> results = new HashMap<>();
         LOGGER.debug("Running sensitivity analysis for PST flow for variables");
@@ -125,37 +117,35 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         SensitivityFactorReader factorReaderPst = new FastFLDPstSensitivityFactorReader(sensitivityFactorsPst, xnecIds, network);
         SensitivityResultWriter valueWriterPst = new FastFLDPstSensitivityResultWriter(sensitivityFactorsPst, results, network);
         runSensitivityAnalysis(network, factorReaderPst, valueWriterPst, Collections.emptyList());
-        int batchSize2 = 1500;
+        int batchSize2 = 150000;
         for (int iVariable = 0; iVariable < variableIds.size(); iVariable += batchSize2) {
             LOGGER.debug("Running sensitivity analysis for decomposed flow for variables {}/{}", iVariable, variableIds.size());
             int upperbound = Math.min(variableIds.size(), iVariable + batchSize2);
-            List<String> localFlowPart = variableIds.subList(iVariable, upperbound);
-            List<SensitivityVariableSet> localSensitivityVariableSets = sensitivityVariableSets.subList(iVariable, upperbound);
+            List<String> subVariableIds = variableIds.subList(iVariable, upperbound);
             List<FunctionVariableFactor> sensitivityFactors = new ArrayList<>();
-            SensitivityFactorReader factorReader = new FastFLDSensitivityFactorReader(localFlowPart, sensitivityFactors, xnecIds);
-            SensitivityResultWriter valueWriter = new FastFLDSensitivityResultWriter(sensitivityFactors, results, pexMatrix);
-            runSensitivityAnalysis(network, factorReader, valueWriter, localSensitivityVariableSets);
+            SensitivityFactorReader factorReader = new FastFLDSensitivityFactorReader(subVariableIds, sensitivityFactors, xnecIds);
+            SensitivityResultWriter valueWriter = new FastFLDSensitivityResultWriter(sensitivityFactors, results, exchangePerFlowPart);
+            runSensitivityAnalysis(network, factorReader, valueWriter, EMPTY_SENSITIVITY_VARIABLE_SETS);
         }
         return results;
     }
 
-    private Optional<String> computeFlowPartName(int sourceIndex, int sinkIndex) {
+    private String computeFlowPartName(int sourceIndex, int sinkIndex) {
         if ((isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex])) {
             Country sourceCountry = countriesByVertexPos[sourceIndex];
             Country sinkCountry = countriesByVertexPos[sinkIndex];
             if (sourceCountry == null || sinkCountry == null) {
                 String sourceVertexId = vertexIds[sourceIndex];
                 String sinkVertexId = vertexIds[sinkIndex];
-                LOGGER.warn("Cannot compute loop flow for bus {} and {} because of invalid country", sourceVertexId, sinkVertexId);
-                return Optional.empty();
+                throw new PowsyblException(String.format("Cannot compute loop flow for bus %s and %s because of invalid country", sourceVertexId, sinkVertexId));
             }
             if (sourceCountry.equals(sinkCountry)) {
-                return Optional.of(NetworkUtil.getLoopFlowIdFromCountry(sourceCountry));
+                return NetworkUtil.getLoopFlowIdFromCountry(sourceCountry);
             } else {
-                return Optional.of(ALLOCATED_COLUMN_NAME);
+                return ALLOCATED_COLUMN_NAME;
             }
         } else {
-            return Optional.of(XNODE_COLUMN_NAME);
+            return XNODE_COLUMN_NAME;
         }
     }
 
@@ -163,12 +153,12 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
 
         private final List<FunctionVariableFactor> factors;
         private final Map<String, Map<String, Double>> results;
-        private final DMatrixSparseCSC localPexMatrix;
+        private final Map<String, Map<String, Double>> exchangePerFlowPart;
 
-        public FastFLDSensitivityResultWriter(List<FunctionVariableFactor> factors, Map<String, Map<String, Double>> results, DMatrixSparseCSC localPexMatrix) {
+        public FastFLDSensitivityResultWriter(List<FunctionVariableFactor> factors, Map<String, Map<String, Double>> results, Map<String, Map<String, Double>> exchangePerFlowPart) {
             this.factors = factors;
             this.results = results;
-            this.localPexMatrix = localPexMatrix;
+            this.exchangePerFlowPart = exchangePerFlowPart;
         }
 
         @Override
@@ -181,17 +171,14 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
             }
             FunctionVariableFactor factor = factors.get(factorIndex);
             Map<String, Double> flowDecomposition = results.computeIfAbsent(factor.functionId(), s -> new HashMap<>());
-            String codedVariableId = factor.variableId();
+            String variableId = factor.variableId();
 
-            String flowPart = decodeFlowPart(codedVariableId);
-            int sourceIndex = decodeSource(codedVariableId);
-            int sinkIndex = decodeSink(codedVariableId);
-            int vertexTypeSign = decodeVertexType(codedVariableId);
-            double partialFlowPartValue = flowDecomposition.getOrDefault(flowPart, 0.0);
-            double exchange = localPexMatrix.get(sourceIndex, sinkIndex);
-            double increaseFlow = value * exchange;
-            double increaseWithSign = respectFlowSignConvention(increaseFlow, functionReference) * vertexTypeSign;
-            flowDecomposition.put(flowPart, partialFlowPartValue + increaseWithSign);
+            exchangePerFlowPart.get(variableId)
+                .forEach((flowPart, exchange) -> {
+                    double increase = exchange * value;
+                    double increaseWithSign = respectFlowSignConvention(increase, functionReference);
+                    flowDecomposition.merge(flowPart, increaseWithSign, Double::sum);
+                });
         }
 
         @Override
@@ -201,12 +188,12 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private static class FastFLDSensitivityFactorReader implements SensitivityFactorReader {
-        private final List<String> flowParts;
+        private final List<String> variableIds;
         private final List<FunctionVariableFactor> factors;
         private final List<String> subsetXnecs;
 
-        public FastFLDSensitivityFactorReader(List<String> flowParts, List<FunctionVariableFactor> factors, List<String> xnecs) {
-            this.flowParts = flowParts;
+        public FastFLDSensitivityFactorReader(List<String> variableIds, List<FunctionVariableFactor> factors, List<String> xnecs) {
+            this.variableIds = variableIds;
             this.factors = factors;
             this.subsetXnecs = xnecs;
         }
@@ -214,9 +201,9 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         @Override
         public void read(Handler handler) {
             for (String xnecId : subsetXnecs) {
-                for (String flowPart : flowParts) {
-                    factors.add(new FunctionVariableFactor(xnecId, flowPart));
-                    handler.onFactor(SENSITIVITY_FUNCTION_TYPE, xnecId, SensitivityVariableType.INJECTION_ACTIVE_POWER, flowPart, true, ContingencyContext.none());
+                for (String variableId : variableIds) {
+                    factors.add(new FunctionVariableFactor(xnecId, variableId));
+                    handler.onFactor(SENSITIVITY_FUNCTION_TYPE, xnecId, SensitivityVariableType.INJECTION_ACTIVE_POWER, variableId, false, ContingencyContext.none());
                 }
             }
         }
