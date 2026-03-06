@@ -189,7 +189,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
             }
             FLDFunctionVariableFactor factor = factors[factorIndex];
             int iXnec = factor.iXnec();
-            double[] flowDecomposition = results[i];
+            double[] flowDecomposition = results[iXnec];
             String variableId = factor.variableId();
 
             double[] exchanges = exchangePerFlowPart.get(variableId);
