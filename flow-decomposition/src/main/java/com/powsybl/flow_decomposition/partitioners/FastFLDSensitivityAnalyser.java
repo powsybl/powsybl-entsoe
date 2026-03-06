@@ -95,9 +95,12 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     public Map<String, Map<String, Double>> run() {
-        Set<String> flowPartNames = new HashSet<>();
-        flowPartNames.add(PST_COLUMN_NAME);
-        Map<String, Map<String, Double>> exchangePerFlowPart = new HashMap<>();
+        List<String> flowPartNameList = new ArrayList<>(List.of(PST_COLUMN_NAME, ALLOCATED_COLUMN_NAME, XNODE_COLUMN_NAME));
+        network.getCountries().forEach(country -> flowPartNameList.add(NetworkUtil.getLoopFlowIdFromCountry(country)));
+        Map<String, Integer> flowPartIndex = NetworkUtil.getIndex(flowPartNameList);
+        int nFlowPart = flowPartIndex.size();
+
+        Map<String, double[]> exchangePerFlowPart = new HashMap<>();
         Streams.stream(pexMatrix.createCoordinateIterator())
             .forEach(coordinateRealValue -> {
                 int sourceIndex = coordinateRealValue.row;
@@ -106,25 +109,23 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                 String sourceInjId = Optional.ofNullable(injByVertexId[sourceIndex]).orElse(vertexIds[sourceIndex]);
                 String sinkInjId = Optional.ofNullable(injByVertexId[sinkIndex]).orElse(vertexIds[sinkIndex]);
                 String flowPartName = computeFlowPartName(sourceIndex, sinkIndex);
-                flowPartNames.add(flowPartName);
-                exchangePerFlowPart.computeIfAbsent(sourceInjId, s -> new HashMap<>())
-                    .merge(flowPartName, exchangeBetweenFromAndTo, Double::sum);
-                exchangePerFlowPart.computeIfAbsent(sinkInjId, s -> new HashMap<>())
-                    .merge(flowPartName, -exchangeBetweenFromAndTo, Double::sum);
+                double[] exchangesSource = exchangePerFlowPart.computeIfAbsent(sourceInjId, s -> new double[nFlowPart]);
+                exchangesSource[flowPartIndex.get(flowPartName)] += exchangeBetweenFromAndTo;
+                double[] exchangesSink = exchangePerFlowPart.computeIfAbsent(sinkInjId, s -> new double[nFlowPart]);
+                exchangesSink[flowPartIndex.get(flowPartName)] += -exchangeBetweenFromAndTo;
             });
         List<String> variableIds = exchangePerFlowPart.keySet().stream().toList();
 
-        Map<String, Map<String, Double>> results = new HashMap<>(xnecIds.size());
+        Map<String, double[]> results = new HashMap<>(xnecIds.size());
         xnecIds.forEach(xnecId -> {
-            results.put(xnecId, new HashMap<>());
-            flowPartNames.forEach(flowPartName -> results.get(xnecId).put(flowPartName, 0.0));
+            results.put(xnecId, new double[nFlowPart]);
         });
         LOGGER.debug("Running sensitivity analysis for PST flow for variables");
         List<FunctionVariableFactor> sensitivityFactorsPst = new ArrayList<>();
         List<String> pstIdList = NetworkUtil.getPstIdList(network);
         Map<String, PhaseTapChanger> phaseTapChangerMap = pstIdList.stream().collect(Collectors.toMap(pstId -> pstId, pstId -> network.getTwoWindingsTransformer(pstId).getPhaseTapChanger()));
         SensitivityFactorReader factorReaderPst = new FastFLDPstSensitivityFactorReader(sensitivityFactorsPst, xnecIds, pstIdList);
-        SensitivityResultWriter valueWriterPst = new FastFLDPstSensitivityResultWriter(sensitivityFactorsPst, results, phaseTapChangerMap);
+        SensitivityResultWriter valueWriterPst = new FastFLDPstSensitivityResultWriter(sensitivityFactorsPst, results, flowPartIndex.get(PST_COLUMN_NAME), phaseTapChangerMap);
         runSensitivityAnalysis(network, factorReaderPst, valueWriterPst, Collections.emptyList());
         int batchSize2 = 5000;
         for (int iVariable = 0; iVariable < variableIds.size(); iVariable += batchSize2) {
@@ -136,7 +137,14 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
             SensitivityResultWriter valueWriter = new FastFLDSensitivityResultWriter(sensitivityFactors, results, exchangePerFlowPart);
             runSensitivityAnalysis(network, factorReader, valueWriter, EMPTY_SENSITIVITY_VARIABLE_SETS);
         }
-        return results;
+
+        return xnecIds.stream()
+            .collect(Collectors.toMap(
+                xnecId -> xnecId,
+                xnecId -> flowPartNameList.stream().collect(Collectors.toMap(
+                    flowPartName -> flowPartName,
+                    flowPartName -> results.get(xnecId)[flowPartIndex.get(flowPartName)]
+                ))));
     }
 
     private String computeFlowPartName(int sourceIndex, int sinkIndex) {
@@ -161,10 +169,10 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static class FastFLDSensitivityResultWriter implements SensitivityResultWriter {
 
         private final List<FunctionVariableFactor> factors;
-        private final Map<String, Map<String, Double>> results;
-        private final Map<String, Map<String, Double>> exchangePerFlowPart;
+        private final Map<String, double[]> results;
+        private final Map<String, double[]> exchangePerFlowPart;
 
-        public FastFLDSensitivityResultWriter(List<FunctionVariableFactor> factors, Map<String, Map<String, Double>> results, Map<String, Map<String, Double>> exchangePerFlowPart) {
+        public FastFLDSensitivityResultWriter(List<FunctionVariableFactor> factors, Map<String, double[]> results, Map<String, double[]> exchangePerFlowPart) {
             this.factors = factors;
             this.results = results;
             this.exchangePerFlowPart = exchangePerFlowPart;
@@ -179,15 +187,15 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                 return;
             }
             FunctionVariableFactor factor = factors.get(factorIndex);
-            Map<String, Double> flowDecomposition = results.get(factor.functionId());
+            double[] flowDecomposition = results.get(factor.functionId());
             String variableId = factor.variableId();
 
-            exchangePerFlowPart.get(variableId)
-                .forEach((flowPart, exchange) -> {
-                    double increase = exchange * value;
-                    double increaseWithSign = respectFlowSignConvention(increase, functionReference);
-                    flowDecomposition.merge(flowPart, increaseWithSign, Double::sum);
-                });
+            double[] exchanges = exchangePerFlowPart.get(variableId);
+            for (int flowPartIndex = 0; flowPartIndex < exchanges.length; flowPartIndex++) {
+                double increase = exchanges[flowPartIndex] * value;
+                double increaseWithSign = respectFlowSignConvention(increase, functionReference);
+                flowDecomposition[flowPartIndex] += increaseWithSign;
+            }
         }
 
         @Override
@@ -221,12 +229,14 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static class FastFLDPstSensitivityResultWriter implements SensitivityResultWriter {
 
         private final List<FunctionVariableFactor> factors;
-        private final Map<String, Map<String, Double>> results;
+        private final Map<String, double[]> results;
+        private final int pstIndex;
         private final Map<String, PhaseTapChanger> phaseTapChangerMap;
 
-        public FastFLDPstSensitivityResultWriter(List<FunctionVariableFactor> factors, Map<String, Map<String, Double>> results, Map<String, PhaseTapChanger> phaseTapChangerMap) {
+        public FastFLDPstSensitivityResultWriter(List<FunctionVariableFactor> factors, Map<String, double[]> results, int pstIndexPos, Map<String, PhaseTapChanger> phaseTapChangerMap) {
             this.factors = factors;
             this.results = results;
+            this.pstIndex = pstIndexPos;
             this.phaseTapChangerMap = phaseTapChangerMap;
         }
 
@@ -239,7 +249,6 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                 return;
             }
             FunctionVariableFactor factor = factors.get(factorIndex);
-            Map<String, Double> flowDecomposition = results.computeIfAbsent(factor.functionId(), s -> new HashMap<>());
 
             String pstId = factor.variableId();
             PhaseTapChanger phaseTapChanger = phaseTapChangerMap.get(pstId);
@@ -248,9 +257,8 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
             if (neutralStep.isPresent()) {
                 deltaTap = phaseTapChanger.getCurrentStep().getAlpha() - neutralStep.get().getAlpha();
             }
-            double pstFlow = flowDecomposition.getOrDefault(PST_COLUMN_NAME, 0.0);
             double increase = respectFlowSignConvention(deltaTap * value, functionReference);
-            flowDecomposition.put(PST_COLUMN_NAME, pstFlow + increase);
+            results.get(factor.functionId())[pstIndex] += increase;
         }
 
         @Override
