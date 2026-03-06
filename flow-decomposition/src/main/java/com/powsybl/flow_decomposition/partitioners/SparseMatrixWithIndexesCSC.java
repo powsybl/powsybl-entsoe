@@ -31,6 +31,12 @@ class SparseMatrixWithIndexesCSC extends AbstractSparseMatrixWithIndexes {
         this(rowIndex, colIndex, new DMatrixSparseCSC(rowIndex.size(), colIndex.size()));
     }
 
+    static SparseMatrixWithIndexesCSC mult(SparseMatrixWithIndexesCSC matrix1, SparseMatrixWithIndexesCSC matrix2) {
+        SparseMatrixWithIndexesCSC multiplicationResult = new SparseMatrixWithIndexesCSC(matrix1.rowIndex, matrix2.colIndex);
+        CommonOps_DSCC.mult(matrix1.cscMatrix, matrix2.cscMatrix, multiplicationResult.cscMatrix);
+        return multiplicationResult;
+    }
+
     private Map<Integer, String> inverseIndex(Map<String, Integer> index) {
         return index.entrySet()
             .stream()
@@ -44,15 +50,9 @@ class SparseMatrixWithIndexesCSC extends AbstractSparseMatrixWithIndexes {
         for (Iterator<DMatrixSparse.CoordinateRealValue> iterator = cscMatrix.createCoordinateIterator(); iterator.hasNext(); ) {
             DMatrixSparse.CoordinateRealValue cell = iterator.next();
             result.computeIfAbsent(rowIndexInverse.get(cell.row), v -> new TreeMap<>())
-                    .put(colIndexInverse.get(cell.col), cell.value);
+                .put(colIndexInverse.get(cell.col), cell.value);
         }
         return result;
-    }
-
-    static SparseMatrixWithIndexesCSC mult(SparseMatrixWithIndexesCSC matrix1, SparseMatrixWithIndexesCSC matrix2) {
-        SparseMatrixWithIndexesCSC multiplicationResult = new SparseMatrixWithIndexesCSC(matrix1.rowIndex, matrix2.colIndex);
-        CommonOps_DSCC.mult(matrix1.cscMatrix, matrix2.cscMatrix, multiplicationResult.cscMatrix);
-        return multiplicationResult;
     }
 
     SparseMatrixWithIndexesCSC transpose() {
