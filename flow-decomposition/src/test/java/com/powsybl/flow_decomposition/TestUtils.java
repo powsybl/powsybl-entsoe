@@ -184,8 +184,5 @@ public final class TestUtils {
             decomposedFlowsWithInternalIssues.forEach(decomposedFlow -> LOGGER.error("Flow {}: Internal flow = {}", decomposedFlow.getId(), decomposedFlow.getInternalFlow()));
         }
         assertEquals(0, decomposedFlowsWithInternalIssues.size());
-
-
-
     }
 }

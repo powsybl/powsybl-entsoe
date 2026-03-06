@@ -122,7 +122,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private String computeFlowPartName(int sourceIndex, int sinkIndex) {
-        if ((isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex])) {
+        if (isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex]) {
             Country sourceCountry = countriesByVertexPos[sourceIndex];
             Country sinkCountry = countriesByVertexPos[sinkIndex];
             if (sourceCountry == null || sinkCountry == null) {

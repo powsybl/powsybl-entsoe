@@ -70,9 +70,6 @@ public class FlowDecompositionCalculator {
                 this.countriesByVertexPos[index] = countryIndex.get(country);
             }
         });
-
-        int toto =0;
-
     }
 
     public Map<String, FlowPartition> computeDecomposition() {
@@ -110,7 +107,6 @@ public class FlowDecompositionCalculator {
             int sinkIndex = e.col;
             double exchangeBetweenFromAndTo = e.value;
 
-
             Double ptdfFrom = column[sourceIndex];
             Double ptdfTo = column[sinkIndex];
             double increase = (ptdfFrom - ptdfTo) * exchangeBetweenFromAndTo;
@@ -118,7 +114,7 @@ public class FlowDecompositionCalculator {
                 continue;
             }
 
-            if ((isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex])) {
+            if (isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex]) {
                 // Loop flow
                 Integer countryFrom = countriesByVertexPos[sourceIndex];
                 Integer countryTo = countriesByVertexPos[sinkIndex];

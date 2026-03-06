@@ -341,11 +341,9 @@ class FlowDecompositionTests {
         SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
 
         List<String> xnecIds = network.getLineStream().map(Identifiable::getId).toList();
-        List<String> allVariableIds = NetworkUtil.getNodeList(network).stream().map(Identifiable::getId).toList();
         List<String> variableIds = List.of("FFR5AA11_generator", "DDE3AA11_load", "NNL2AA11_load", "NNL3AA11_generator");
         List<Double> weights = List.of(2.0, 0.5, 3.0, 1.0);
         double sum = weights.stream().reduce(0.0, Double::sum);
-
 
         SensitivityVariableSet variableSet = new SensitivityVariableSet(
             "TEST_SET",
@@ -812,7 +810,6 @@ class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
     }
-
 
     @ParameterizedTest(name = "Mode={0}")
     @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
