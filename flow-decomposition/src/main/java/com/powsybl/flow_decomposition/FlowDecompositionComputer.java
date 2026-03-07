@@ -33,10 +33,10 @@ import java.util.Set;
  */
 public class FlowDecompositionComputer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
+    public static final LoadFlowParameters.ComponentMode MAIN_CONNECTED_COMPONENT = LoadFlowParameters.ComponentMode.MAIN_CONNECTED;
     static final String DEFAULT_LOAD_FLOW_PROVIDER = "OpenLoadFlow";
     static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = "OpenLoadFlow";
-    public static final LoadFlowParameters.ComponentMode MAIN_CONNECTED_COMPONENT = LoadFlowParameters.ComponentMode.MAIN_CONNECTED;
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
     private final LoadFlowRunningService loadFlowRunningService;
@@ -122,6 +122,7 @@ public class FlowDecompositionComputer {
                                         Map<Country, Map<String, Double>> glsks,
                                         LoadFlowRunningService.Result loadFlowServiceAcResult) {
         if (!xnecs.isEmpty()) {
+            LOGGER.info("Computing flow decomposition results for N state");
             observers.computingBaseCase();
             FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder = flowDecompositionResults.getBuilder(xnecs);
             decomposeFlowForState(network, xnecs, flowDecompositionResultsBuilder, netPositions, glsks, loadFlowServiceAcResult);
@@ -136,6 +137,7 @@ public class FlowDecompositionComputer {
                                                   Map<Country, Double> netPositions,
                                                   Map<Country, Map<String, Double>> glsks) {
         if (!xnecList.isEmpty()) {
+            LOGGER.info("Computing flow decomposition results for N-1 state '{}'.", contingencyId);
             observers.computingContingency(contingencyId);
             networkStateManager.setNetworkVariant(contingencyId);
             LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
@@ -151,15 +153,19 @@ public class FlowDecompositionComputer {
                                        Map<Country, Map<String, Double>> glsks,
                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
         // AC load flow
+        LOGGER.info("Computing AC load flow");
         saveAcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecs, loadFlowServiceAcResult);
 
         // Losses compensation
+        LOGGER.info("Computing losses compensation");
         compensateLosses(network);
 
         // DC load flow
+        LOGGER.info("Computing DC load flow");
         LoadFlowRunningService.Result loadFlowServiceDcResult = runDcLoadFlow(network);
         saveDcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecs, loadFlowServiceDcResult);
 
+        LOGGER.info("Computing flow partitions");
         Map<String, FlowPartition> flowPartitions = getFlowPartitioner().computeFlowPartitions(network, xnecs, netPositions, glsks);
         flowDecompositionResultsBuilder.saveFlowPartitions(flowPartitions);
 
