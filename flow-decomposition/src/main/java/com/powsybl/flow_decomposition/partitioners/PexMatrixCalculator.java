@@ -74,9 +74,9 @@ public class PexMatrixCalculator {
             pexGraph1.edgeSet().size(),
             hasCycle);
 
-        if (hasCycle) {
-            LOGGER.info("PEX graph cycle vertices={}", detector.findCycles());
-        }
+        //if (hasCycle) {
+        //    LOGGER.info("PEX graph cycle vertices={}", detector.findCycles());
+        //}
         return hasCycle;
     }
 
@@ -135,12 +135,12 @@ public class PexMatrixCalculator {
 
             // Use the current stack (post-swap). Also avoid String.format overhead.
             double stackL1Norm = l1Norm(stack);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(
-                    "Iteration {}/{}: relative L1 norm of stack matrix is {}% (stack nnz={}, transfer nnz={}, ith neumann nnz={}, sparse pex matrix {}%)",
-                    i, maxIteration, 100.0 * stackL1Norm / initialStackL1Norm, stack.nz_length, transfer.nz_length, neumannCoefficient.nz_length, 100 * (double) transfer.nz_length / (transfer.numRows * transfer.numCols)
-                );
-            }
+            //if (LOGGER.isDebugEnabled()) {
+            //    LOGGER.debug(
+            //        "Iteration {}/{}: relative L1 norm of stack matrix is {}% (stack nnz={}, transfer nnz={}, ith neumann nnz={}, sparse pex matrix {}%)",
+            //        i, maxIteration, 100.0 * stackL1Norm / initialStackL1Norm, stack.nz_length, transfer.nz_length, neumannCoefficient.nz_length, 100 * (double) transfer.nz_length / (transfer.numRows * transfer.numCols)
+            //    );
+            //}
 
             if (stackL1Norm / initialStackL1Norm < L1_NORM_RELATIVE_TOLERANCE) {
                 LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");

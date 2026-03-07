@@ -160,10 +160,12 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
 
         if (Double.isNaN(branch.getTerminal1().getP())) {
             // To avoid possible cycles, remove NA transfer lines
-            LOGGER.debug("Branch {} filtered because of a flow NA", branch.getId());
+            //LOGGER.debug("Branch {} filtered because of a flow NA", branch.getId());
+            return;
         } else if (Math.abs(branch.getTerminal1().getP()) < 1e-5) {
             // To avoid possible cycles, remove 0 transfer lines
-            LOGGER.debug("Branch {} filtered because of a flow too low : {} MW", branch.getId(), branch.getTerminal1().getP());
+            //LOGGER.debug("Branch {} filtered because of a flow too low : {} MW", branch.getId(), branch.getTerminal1().getP());
+            return;
         } else {
             if (branch.getTerminal1().getP() > 0) {
                 addEdge(vertexPerBus.get(bus1), vertexPerBus.get(bus2), new PexGraphEdge(branch));
