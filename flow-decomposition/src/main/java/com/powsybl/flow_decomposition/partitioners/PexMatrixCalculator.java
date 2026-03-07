@@ -69,13 +69,13 @@ public class PexMatrixCalculator {
     private static boolean determineIfGraphHasCycle(PexGraph pexGraph1) {
         CycleDetector<PexGraphVertex, PexGraphEdge> detector = new CycleDetector<>(pexGraph1);
         boolean hasCycle = detector.detectCycles();
-        LOGGER.info("PEX graph: vertices={}, edges={}, hasDirectedCycle={}",
+        LOGGER.debug("PEX graph: vertices={}, edges={}, hasDirectedCycle={}",
             pexGraph1.vertexSet().size(),
             pexGraph1.edgeSet().size(),
             hasCycle);
 
         //if (hasCycle) {
-        //    LOGGER.info("PEX graph cycle vertices={}", detector.findCycles());
+        //    LOGGER.debug("PEX graph cycle vertices={}", detector.findCycles());
         //}
         return hasCycle;
     }

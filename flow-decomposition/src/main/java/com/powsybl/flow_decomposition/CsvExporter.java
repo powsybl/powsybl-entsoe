@@ -41,7 +41,7 @@ public class CsvExporter {
     }
 
     public void export(Path dirPath, FlowDecompositionResults flowDecompositionResults) {
-        LOGGER.info("Saving rescaled flow decomposition (id: {}) of network {} in directory {}",
+        LOGGER.debug("Saving rescaled flow decomposition (id: {}) of network {} in directory {}",
             flowDecompositionResults.getId(), flowDecompositionResults.getNetworkId(), dirPath);
         export(dirPath, flowDecompositionResults.getId(), flowDecompositionResults.getDecomposedFlowMap());
     }
