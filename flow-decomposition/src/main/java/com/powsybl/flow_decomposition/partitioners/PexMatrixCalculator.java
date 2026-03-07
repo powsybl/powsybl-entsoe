@@ -94,7 +94,7 @@ public class PexMatrixCalculator {
         int maxIteration = matrixSize;
         if (hasCycle && matrixSize < MAX_ITERATION) {
             maxIteration = MAX_ITERATION;
-            LOGGER.warn("Graph has some cycles. Increasing maximum number of iterations to {}", maxIteration);
+            LOGGER.debug("Graph has some cycles. Increasing maximum number of iterations to {}", maxIteration);
         }
 
         DMatrixSparseCSC transfer = CommonOps_DSCC.diag(generationCoeffs);
@@ -148,7 +148,7 @@ public class PexMatrixCalculator {
             }
 
             if (i == maxIteration) {
-                LOGGER.warn("Maximum number of iterations reached, matrix inversion may not be accurate");
+                LOGGER.debug("Maximum number of iterations reached, matrix inversion may not be accurate");
             }
             i++;
         }

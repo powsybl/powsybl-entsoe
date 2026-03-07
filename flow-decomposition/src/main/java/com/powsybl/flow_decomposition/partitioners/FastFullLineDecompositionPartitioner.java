@@ -37,7 +37,7 @@ public class FastFullLineDecompositionPartitioner implements FlowPartitioner {
 
     @Override
     public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch<?>> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
-        LOGGER.warn("Using fast mode of flow decomposition, detailed info (as nodal PTDF and PSDF matrices) won't be reported");
+        LOGGER.debug("Using fast mode of flow decomposition, detailed info (as nodal PTDF and PSDF matrices) won't be reported");
         LOGGER.debug("{} === Bus mapping", LocalDateTime.now());
         List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(network);
         List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(network);

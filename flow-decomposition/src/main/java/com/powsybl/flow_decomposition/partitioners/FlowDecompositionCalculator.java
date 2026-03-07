@@ -87,7 +87,7 @@ public class FlowDecompositionCalculator {
         String branchId = branch.getId();
 
         if (!NetworkUtil.isConnectedAndInMainSynchronousComponent(branch)) {
-            LOGGER.warn("Branch {} is not connected or not in main synchronous component. Returning empty decomposition", branchId);
+            LOGGER.debug("Branch {} is not connected or not in main synchronous component. Returning empty decomposition", branchId);
             return new FlowPartition(0., 0., Collections.emptyMap(), 0., 0.);
         }
 
@@ -121,7 +121,7 @@ public class FlowDecompositionCalculator {
                 if (countryFrom == null || countryTo == null) {
                     String sourceId = vertexIds[sourceIndex];
                     String sinkId = vertexIds[sinkIndex];
-                    LOGGER.warn("Cannot compute loop flow for bus {} and {} because of invalid country", sourceId, sinkId);
+                    LOGGER.debug("Cannot compute loop flow for bus {} and {} because of invalid country", sourceId, sinkId);
                     continue;
                 }
                 if (countryFrom.equals(countryTo)) {

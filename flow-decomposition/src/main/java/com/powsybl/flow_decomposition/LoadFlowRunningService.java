@@ -33,7 +33,7 @@ class LoadFlowRunningService {
         LoadFlowParameters acEnforcedParameters = enforceAcLoadFlowCalculation(loadFlowParameters);
         LoadFlowResult acLoadFlowResult = runner.run(network, acEnforcedParameters);
         if (!acLoadFlowResult.isFullyConverged() && isDcFallbackEnabledAfterAcDivergence) {
-            LOGGER.warn("AC loadflow divergence. Running DC loadflow as fallback procedure.");
+            LOGGER.debug("AC loadflow divergence. Running DC loadflow as fallback procedure.");
             return runDcLoadflow(network, loadFlowParameters)
                 .setFallbackHasBeenActivated(FALLBACK_HAS_BEEN_ACTIVATED);
         }

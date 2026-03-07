@@ -77,7 +77,7 @@ public final class XnecProviderByIds implements XnecProvider {
                         if (!contingency.getElements().contains(new BranchContingency(branchId))) {
                             contingencyToXnecMap.get(contingency).add(branchId);
                         } else {
-                            LOGGER.warn("Branch '{}' is used inside contingency '{}'. This pair of branch/contingency is ignored", branchId, contingencyId);
+                            LOGGER.debug("Branch '{}' is used inside contingency '{}'. This pair of branch/contingency is ignored", branchId, contingencyId);
                         }
                     });
                 } else {
@@ -102,7 +102,7 @@ public final class XnecProviderByIds implements XnecProvider {
             .map(xnecId -> {
                 Branch<?> branch = network.getBranch(xnecId);
                 if (branch == null) {
-                    LOGGER.warn("Branch {} without contingency was not found in network {}", xnecId, network.getId());
+                    LOGGER.debug("Branch {} without contingency was not found in network {}", xnecId, network.getId());
                 }
                 return branch;
             })

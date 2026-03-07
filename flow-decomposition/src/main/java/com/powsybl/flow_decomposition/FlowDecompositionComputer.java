@@ -55,7 +55,7 @@ public class FlowDecompositionComputer {
         this.parameters = flowDecompositionParameters;
         this.loadFlowParameters = loadFlowParameters.copy();
         if (!MAIN_CONNECTED_COMPONENT.equals(this.loadFlowParameters.getComponentMode())) {
-            LOGGER.warn("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode from {} to MAIN_CONNECTED.",
+            LOGGER.debug("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode from {} to MAIN_CONNECTED.",
                 this.loadFlowParameters.getComponentMode());
             this.loadFlowParameters.setComponentMode(MAIN_CONNECTED_COMPONENT);
         }
