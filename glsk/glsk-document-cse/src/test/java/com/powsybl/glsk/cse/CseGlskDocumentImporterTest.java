@@ -470,7 +470,7 @@ class CseGlskDocumentImporterTest {
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyImportManualGskBlocksWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyImportManualGskBlocksWithBoundaryLines() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false, false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MANUAL");
         assertEquals(1, list.size());
@@ -479,22 +479,22 @@ class CseGlskDocumentImporterTest {
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyConvertManualGskBlocksWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyConvertManualGskBlocksWithBoundaryLines() {
         Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
         Scalable manualScalable = glskDocument.getZonalScalable(network).getData("FR_MANUAL");
 
         assertNotNull(manualScalable);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(1000., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
 
         manualScalable.scale(network, 1000.);
         assertEquals(2700., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(700., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(700., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyImportPropGskBlocksWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyImportPropGskBlocksWithBoundaryLines() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false, false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGSK");
         assertEquals(1, list.size());
@@ -503,24 +503,24 @@ class CseGlskDocumentImporterTest {
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyConvertPropGskBlocksWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyConvertPropGskBlocksWithBoundaryLines() {
         Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
         Scalable propGskScalable = glskDocument.getZonalScalable(network).getData("FR_PROPGSK");
 
         assertNotNull(propGskScalable);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
-        assertEquals(1000, network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(-1000., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(1000, network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
 
         propGskScalable.scale(network, 400.);
         assertEquals(2200., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(-1100., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
-        assertEquals(900., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(-1100., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(900., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyImportPropGlskBlocksWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyImportPropGlskBlocksWithBoundaryLines() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false, false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_PROPGLSK");
         assertEquals(1, list.size());
@@ -530,7 +530,7 @@ class CseGlskDocumentImporterTest {
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyConvertPropGlskBlocksWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyConvertPropGlskBlocksWithBoundaryLines() {
         Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
         Scalable propGlskScalable = glskDocument.getZonalScalable(network).getData("FR_PROPGLSK");
@@ -538,20 +538,20 @@ class CseGlskDocumentImporterTest {
         assertNotNull(propGlskScalable);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
         assertEquals(2000., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(1000., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
         assertEquals(1000., network.getLoad("FFR1AA1 _load").getP0(), EPSILON);
-        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(-1000., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
 
         propGlskScalable.scale(network, -1000.);
         assertEquals(1720., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // 28 %
         assertEquals(1720., network.getGenerator("FFR2AA1 _generator").getTargetP(), EPSILON); // 28 %
-        assertEquals(1140., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // 14 %
+        assertEquals(1140., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // 14 %
         assertEquals(1150., network.getLoad("FFR1AA1 _load").getP0(), EPSILON); // 15 %
-        assertEquals(-850., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // 15 %
+        assertEquals(-850., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // 15 %
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyImportMeritOrderGskBlocksWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyImportMeritOrderGskBlocksWithBoundaryLines() {
         CseGlskDocument cseGlskDocument = CseGlskDocument.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"), false, false);
         List<GlskPoint> list = cseGlskDocument.getGlskPoints("FR_MERITORDER");
         assertEquals(1, list.size());
@@ -566,19 +566,19 @@ class CseGlskDocumentImporterTest {
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksDownWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksDownWithBoundaryLines() {
         Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER");
 
         assertNotNull(meritOrderGskScalable);
-        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
-        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(1000., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(-1000., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
 
         meritOrderGskScalable.scale(network, -4500.);
-        assertEquals(2000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // -1000
-        assertEquals(2000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // -3000
+        assertEquals(2000., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // -1000
+        assertEquals(2000., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // -3000
         assertEquals(1500., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // -500
     }
 
@@ -596,56 +596,56 @@ class CseGlskDocumentImporterTest {
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksUpWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksUpWithBoundaryLines() {
         Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERITORDER");
 
         assertNotNull(meritOrderGskScalable);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
-        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(-1000., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(1000., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
 
         meritOrderGskScalable.scale(network, 6500.);
         assertEquals(6000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // +4000
-        assertEquals(-2000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // +1000
-        assertEquals(-500., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // +1500
+        assertEquals(-2000., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // +1000
+        assertEquals(-500., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // +1500
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueDownWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueDownWithBoundaryLines() {
         Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERIT_ISSUE_PC");
 
         assertNotNull(meritOrderGskScalable);
-        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
-        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(1000., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(-1000., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
 
         double done = meritOrderGskScalable.scale(network, -4500.);
         assertEquals(-3500., done, EPSILON);
-        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // -0
-        assertEquals(500., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // -1500
+        assertEquals(1000., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // -0
+        assertEquals(500., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // -1500
         assertEquals(0., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // -2000
     }
 
     @Test
-    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueUpWithDanglingLines() {
+    void checkCseGlskDocumentImporterCorrectlyConvertMeritOrderGskBlocksWithTargetPIssueUpWithBoundaryLines() {
         Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskDocument glskDocument = GlskDocumentImporters.importGlsk(getClass().getResourceAsStream("/testGlskWithDanglingLines.xml"));
         Scalable meritOrderGskScalable = glskDocument.getZonalScalable(network).getData("FR_MERIT_ISSUE_PC");
 
         assertNotNull(meritOrderGskScalable);
         assertEquals(2000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON);
-        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
-        assertEquals(1000., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
+        assertEquals(-1000., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON);
+        assertEquals(1000., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON);
 
         double done = meritOrderGskScalable.scale(network, 6500.);
         assertEquals(5500., done, EPSILON);
         assertEquals(6000., network.getGenerator("FFR1AA1 _generator").getTargetP(), EPSILON); // +4000
-        assertEquals(-1000., network.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // +0
-        assertEquals(-500., network.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // +1500
+        assertEquals(-1000., network.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), EPSILON); // +0
+        assertEquals(-500., network.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), EPSILON); // +1500
     }
 
     @Test

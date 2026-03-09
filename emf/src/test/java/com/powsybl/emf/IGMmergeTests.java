@@ -74,11 +74,11 @@ class IGMmergeTests {
         // Check that we have subnetworks
         assertEquals(2, merged.getSubnetworks().size());
 
-        // Once the CGM ("merged") has been built, we do not need values (p0, q0) at dangling lines
+        // Once the CGM ("merged") has been built, we do not need values (p0, q0) at boundary lines
         // They are the values of the equivalent injections needed when only one IGM is considered
         for (TieLine tl : merged.getTieLineStream().toList()) {
-            tl.getDanglingLine1().setP0(0).setQ0(0);
-            tl.getDanglingLine2().setP0(0).setQ0(0);
+            tl.getBoundaryLine1().setP0(0).setQ0(0);
+            tl.getBoundaryLine2().setP0(0).setQ0(0);
         }
 
         LoadFlow.run(merged);
@@ -154,11 +154,11 @@ class IGMmergeTests {
     void cgmToCgmes() throws IOException {
         // read resources for BE and NL, merge the resources themselves and read a network from this set of resources
         Network networkBENL = createCGM();
-        // Once the CGM has been built, we do not need values (p0, q0) at dangling lines
+        // Once the CGM has been built, we do not need values (p0, q0) at boundary lines
         // They are the values of the equivalent injections needed when only one IGM is considered
         for (TieLine tl : networkBENL.getTieLineStream().toList()) {
-            tl.getDanglingLine1().setP0(0).setQ0(0);
-            tl.getDanglingLine2().setP0(0).setQ0(0);
+            tl.getBoundaryLine1().setP0(0).setQ0(0);
+            tl.getBoundaryLine2().setP0(0).setQ0(0);
         }
 
         Set<String> branchIds = new HashSet<>();
@@ -208,7 +208,7 @@ class IGMmergeTests {
         network.write("CGMES", exportParams, outputDir.resolve(baseName));
     }
 
-    private static void checkDanglingLine(DanglingLine dl1, DanglingLine dl2) {
+    private static void checkBoundaryLine(BoundaryLine dl1, BoundaryLine dl2) {
         assertEquals(dl1.getG(), dl2.getG(), TOLERANCE_GB);
         assertEquals(dl1.getB(), dl2.getB(), TOLERANCE_GB);
         assertEquals(dl1.getR(), dl2.getR(), TOLERANCE_RX);
@@ -224,8 +224,8 @@ class IGMmergeTests {
     private static void checkLineCharacteristics(LineCharacteristics line1, LineCharacteristics line2) {
         boolean halvesHaveSameOrder = true;
         if (line1 instanceof TieLine) {
-            String id11 = ((TieLine) line1).getDanglingLine1().getId();
-            String id21 = ((TieLine) line2).getDanglingLine1().getId();
+            String id11 = ((TieLine) line1).getBoundaryLine1().getId();
+            String id21 = ((TieLine) line2).getBoundaryLine1().getId();
             if (!id11.equals(id21)) {
                 halvesHaveSameOrder = false;
             }
@@ -246,12 +246,12 @@ class IGMmergeTests {
     }
 
     private static void compareNetwork(Network network1, Network network2) {
-        assertEquals(network1.getDanglingLineCount(), network2.getDanglingLineCount());
+        assertEquals(network1.getBoundaryLineCount(), network2.getBoundaryLineCount());
         assertEquals(network1.getLineCount(), network2.getLineCount());
         assertEquals(network1.getTieLineCount(), network2.getTieLineCount());
-        network1.getDanglingLineStream().forEach(dl1 -> {
-            DanglingLine dl2 = network2.getDanglingLine(dl1.getId());
-            checkDanglingLine(dl1, dl2);
+        network1.getBoundaryLineStream().forEach(dl1 -> {
+            BoundaryLine dl2 = network2.getBoundaryLine(dl1.getId());
+            checkBoundaryLine(dl1, dl2);
         });
         network1.getLineStream().forEach(line1 -> {
             LineCharacteristics line2 = network2.getLine(line1.getId()); // cgm should be always at network1

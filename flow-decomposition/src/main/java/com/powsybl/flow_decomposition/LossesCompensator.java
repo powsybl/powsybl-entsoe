@@ -112,12 +112,12 @@ class LossesCompensator {
     }
 
     private void compensateLossesOnTieLine(Network network, TieLine tieLine) {
-        DanglingLine danglingLine1 = tieLine.getDanglingLine1();
-        DanglingLine danglingLine2 = tieLine.getDanglingLine2();
-        Terminal terminal1 = danglingLine1.getTerminal();
-        Terminal terminal2 = danglingLine2.getTerminal();
-        double lossesSide1 = terminal1.getP() + danglingLine1.getBoundary().getP();
-        double lossesSide2 = terminal2.getP() + danglingLine2.getBoundary().getP();
+        BoundaryLine boundaryLine1 = tieLine.getBoundaryLine1();
+        BoundaryLine boundaryLine2 = tieLine.getBoundaryLine2();
+        Terminal terminal1 = boundaryLine1.getTerminal();
+        Terminal terminal2 = boundaryLine2.getTerminal();
+        double lossesSide1 = terminal1.getP() + boundaryLine1.getBoundary().getP();
+        double lossesSide2 = terminal2.getP() + boundaryLine2.getBoundary().getP();
         updateLoadForLossesOnTerminal(network, terminal1, lossesSide1);
         updateLoadForLossesOnTerminal(network, terminal2, lossesSide2);
     }

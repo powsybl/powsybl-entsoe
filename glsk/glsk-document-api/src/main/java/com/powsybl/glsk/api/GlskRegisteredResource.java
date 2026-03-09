@@ -63,7 +63,7 @@ public interface GlskRegisteredResource {
     String getLoadId();
 
     /**
-     * @return the dangling line Id according to the type of Glsk File
+     * @return the boundary line Id according to the type of Glsk File
      */
-    String getDanglingLineId(Network network);
+    String getBoundaryLineId(Network network);
 }
