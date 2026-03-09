@@ -188,7 +188,7 @@ class NetworkUtilTest {
         Network network = TestUtils.getMicroGridNetworkWithBusBarSectionOnly();
 
         List<Injection<?>> nodeList = NetworkUtil.getNodeList(network);
-        validateNodeListForMicroGridBE3DanglingLinesSameBoundary1Disconnected(nodeList, network);
+        validateNodeListForMicroGridBE3BoundaryLinesSameBoundary1Disconnected(nodeList, network);
     }
 
     @Test
@@ -196,20 +196,20 @@ class NetworkUtilTest {
         Network network = TestUtils.getMicroGridNetworkWithShuntCompensatorOnly();
 
         List<Injection<?>> nodeList = NetworkUtil.getNodeList(network);
-        validateNodeListForMicroGridBE3DanglingLinesSameBoundary1Disconnected(nodeList, network);
+        validateNodeListForMicroGridBE3BoundaryLinesSameBoundary1Disconnected(nodeList, network);
     }
 
-    private static void validateNodeListForMicroGridBE3DanglingLinesSameBoundary1Disconnected(List<Injection<?>> nodeList, Network network) {
+    private static void validateNodeListForMicroGridBE3BoundaryLinesSameBoundary1Disconnected(List<Injection<?>> nodeList, Network network) {
         assertEquals(9, nodeList.size());
         assertTrue(nodeList.contains(network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0")));
         assertTrue(nodeList.contains(network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa")));
         assertTrue(nodeList.contains(network.getLoad("b1480a00-b427-4001-a26c-51954d2bb7e9")));
         assertTrue(nodeList.contains(network.getLoad("1c6beed6-1acf-42e7-ba55-0cc9f04bddd8")));
         assertTrue(nodeList.contains(network.getLoad("cb459405-cc14-4215-a45c-416789205904")));
-        assertTrue(nodeList.contains(network.getDanglingLine("ed0c5d75-4a54-43c8-b782-b20d7431630b")));
-        assertTrue(nodeList.contains(network.getDanglingLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006")));
-        assertTrue(nodeList.contains(network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")));
-        assertTrue(nodeList.contains(network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da")));
+        assertTrue(nodeList.contains(network.getBoundaryLine("ed0c5d75-4a54-43c8-b782-b20d7431630b")));
+        assertTrue(nodeList.contains(network.getBoundaryLine("b18cd1aa-7808-49b9-a7cf-605eaf07b006")));
+        assertTrue(nodeList.contains(network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")));
+        assertTrue(nodeList.contains(network.getBoundaryLine("17086487-56ba-4979-b8de-064025a6b4da")));
     }
 
     @Test
@@ -228,7 +228,7 @@ class NetworkUtilTest {
 
         List<Injection<?>> nodeList = NetworkUtil.getXNodeList(network);
         assertEquals(1, nodeList.size());
-        assertTrue(nodeList.contains(network.getDanglingLine("BLOAD 11 X     11 1")));
+        assertTrue(nodeList.contains(network.getBoundaryLine("BLOAD 11 X     11 1")));
     }
 
     @Test

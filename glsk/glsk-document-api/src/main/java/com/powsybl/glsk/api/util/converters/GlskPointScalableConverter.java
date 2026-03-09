@@ -13,7 +13,7 @@ import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -170,7 +170,7 @@ public final class GlskPointScalableConverter {
             } else if (isLoad(network, resource)) {
                 return getLoadScalableWithLimits(network, resource);
             } else {
-                return getDanglingLineScalableWithLimits(network, resource);
+                return getBoundaryLineScalableWithLimits(network, resource);
             }
         };
     }
@@ -224,13 +224,13 @@ public final class GlskPointScalableConverter {
      * @param scalables list of scalable
      */
     private static void convertExplicitProportional(Network network, GlskShiftKey glskShiftKey, List<Double> percentages, List<Scalable> scalables) {
-        List<DanglingLine> danglingLines = glskShiftKey.getRegisteredResourceArrayList().stream()
-            .map(rr -> rr.getDanglingLineId(network))
+        List<BoundaryLine> boundaryLines = glskShiftKey.getRegisteredResourceArrayList().stream()
+            .map(rr -> rr.getBoundaryLineId(network))
             .filter(Objects::nonNull)
-            .map(network::getDanglingLine)
+            .map(network::getBoundaryLine)
             .filter(NetworkUtil::isCorrect)
             .toList();
-        double totalP = danglingLines.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
+        double totalP = boundaryLines.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
 
         if (glskShiftKey.getPsrType().equals("A04")) {
             LOGGER.debug("GLSK Type B42, not empty registered resources list --> (explicit/manual) proportional GSK");
@@ -266,11 +266,11 @@ public final class GlskPointScalableConverter {
                 scalables.add(Scalable.onLoad(load.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
             }
         }
-        for (DanglingLine danglingLine : danglingLines) {
-            double danglingLinePercentage = 100.0 * glskShiftKey.getQuantity() * NetworkUtil.pseudoP0(danglingLine) / totalP;
-            // For now glsk shift key maximum shift is not handled for dangling lines by lack of specification
-            percentages.add(danglingLinePercentage);
-            scalables.add(Scalable.onDanglingLine(danglingLine.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
+        for (BoundaryLine boundaryLine : boundaryLines) {
+            double boundaryLinePercentage = 100.0 * glskShiftKey.getQuantity() * NetworkUtil.pseudoP0(boundaryLine) / totalP;
+            // For now glsk shift key maximum shift is not handled for boundary lines by lack of specification
+            percentages.add(boundaryLinePercentage);
+            scalables.add(Scalable.onBoundaryLine(boundaryLine.getId(), -Double.MAX_VALUE, Double.MAX_VALUE));
         }
     }
 
@@ -282,11 +282,11 @@ public final class GlskPointScalableConverter {
      * @param scalables list of scalable
      */
     private static void convertParticipationFactor(Network network, GlskShiftKey glskShiftKey, List<Double> percentages, List<Scalable> scalables) {
-        List<GlskRegisteredResource> danglingLineResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-            .filter(danglingLineResource -> danglingLineResource.getDanglingLineId(network) != null &&
-                NetworkUtil.isCorrect(network.getDanglingLine(danglingLineResource.getDanglingLineId(network))))
+        List<GlskRegisteredResource> boundaryLineResources = glskShiftKey.getRegisteredResourceArrayList().stream()
+            .filter(boundaryLineResource -> boundaryLineResource.getBoundaryLineId(network) != null &&
+                NetworkUtil.isCorrect(network.getBoundaryLine(boundaryLineResource.getBoundaryLineId(network))))
             .toList();
-        double totalFactor = danglingLineResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
+        double totalFactor = boundaryLineResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
 
         if (glskShiftKey.getPsrType().equals("A04")) {
             LOGGER.debug("GLSK Type B43 GSK");
@@ -316,10 +316,10 @@ public final class GlskPointScalableConverter {
                 scalables.add(getLoadScalableWithLimits(network, loadResource));
             }
         }
-        for (GlskRegisteredResource danglingLineResource : danglingLineResources) {
-            double loadPercentage = 100.0 * glskShiftKey.getQuantity() * danglingLineResource.getParticipationFactor() / totalFactor;
+        for (GlskRegisteredResource boundaryLineResource : boundaryLineResources) {
+            double loadPercentage = 100.0 * glskShiftKey.getQuantity() * boundaryLineResource.getParticipationFactor() / totalFactor;
             percentages.add(loadPercentage);
-            scalables.add(getDanglingLineScalableWithLimits(network, danglingLineResource));
+            scalables.add(getBoundaryLineScalableWithLimits(network, boundaryLineResource));
         }
     }
 
@@ -379,26 +379,26 @@ public final class GlskPointScalableConverter {
         return Scalable.onLoad(loadId, incomingMinP, incomingMaxP);
     }
 
-    private static Scalable getDanglingLineScalableWithLimits(Network network, GlskRegisteredResource danglingLineRegisteredResource) {
-        String danglingLineId = danglingLineRegisteredResource.getDanglingLineId(network);
-        // We have to invert min and max because dangling lines act like loads but are scaled but in generator convention
-        double incomingMinP = -danglingLineRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
-        double incomingMaxP = -danglingLineRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
+    private static Scalable getBoundaryLineScalableWithLimits(Network network, GlskRegisteredResource boundaryLineRegisteredResource) {
+        String boundaryLineId = boundaryLineRegisteredResource.getBoundaryLineId(network);
+        // We have to invert min and max because boundary lines act like loads but are scaled but in generator convention
+        double incomingMinP = -boundaryLineRegisteredResource.getMaximumCapacity().orElse(Double.MAX_VALUE);
+        double incomingMaxP = -boundaryLineRegisteredResource.getMinimumCapacity().orElse(-Double.MAX_VALUE);
         // Fixes some inconsistencies between GLSK and network that may raise an exception in
         // PowSyBl when actually scaling the network.
         // TODO: Solve this issue in PowSyBl framework.
-        DanglingLine danglingLine = network.getDanglingLine(danglingLineId);
-        if (danglingLine != null) {
-            double danglingLineP0 = danglingLine.getP0();
-            if (!Double.isNaN(incomingMaxP) && incomingMaxP < danglingLineP0) {
-                LOGGER.warn("Dangling line '{}' has initial P0 that is above GLSK max P. Extending GLSK max P from {} to {}.", danglingLineId, incomingMaxP, danglingLineP0);
-                incomingMaxP = danglingLineP0;
+        BoundaryLine boundaryLine = network.getBoundaryLine(boundaryLineId);
+        if (boundaryLine != null) {
+            double boundaryLineP0 = boundaryLine.getP0();
+            if (!Double.isNaN(incomingMaxP) && incomingMaxP < boundaryLineP0) {
+                LOGGER.warn("Boundary line '{}' has initial P0 that is above GLSK max P. Extending GLSK max P from {} to {}.", boundaryLineId, incomingMaxP, boundaryLineP0);
+                incomingMaxP = boundaryLineP0;
             }
-            if (!Double.isNaN(incomingMinP) && incomingMinP > danglingLineP0) {
-                LOGGER.warn("Dangling line '{}' has initial P0 that is above GLSK min P. Extending GLSK min P from {} to {}.", danglingLineId, incomingMinP, danglingLineP0);
-                incomingMinP = danglingLineP0;
+            if (!Double.isNaN(incomingMinP) && incomingMinP > boundaryLineP0) {
+                LOGGER.warn("Boundary line '{}' has initial P0 that is above GLSK min P. Extending GLSK min P from {} to {}.", boundaryLineId, incomingMinP, boundaryLineP0);
+                incomingMinP = boundaryLineP0;
             }
         }
-        return Scalable.onDanglingLine(danglingLineId, incomingMinP, incomingMaxP);
+        return Scalable.onBoundaryLine(boundaryLineId, incomingMinP, incomingMaxP);
     }
 }

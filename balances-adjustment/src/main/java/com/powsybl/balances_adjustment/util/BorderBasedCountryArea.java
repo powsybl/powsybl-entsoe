@@ -22,10 +22,10 @@ public class BorderBasedCountryArea implements NetworkArea {
 
     private final List<Country> countries = new ArrayList<>();
 
-    // We should consider all dangling lines now, either paired or unpaired.
+    // We should consider all boundary lines now, either paired or unpaired.
     // The computation is more clean because we have the real value at boundary
     // for a tie line now.
-    private final List<DanglingLine> danglingLineBordersCache;
+    private final List<BoundaryLine> boundaryLineBordersCache;
     private final List<Line> lineBordersCache;
     private final List<HvdcLine> hvdcLineBordersCache;
     private final List<Load> loadsCache;
@@ -36,7 +36,7 @@ public class BorderBasedCountryArea implements NetworkArea {
     public BorderBasedCountryArea(Network network, List<Country> countries) {
         this.countries.addAll(countries);
 
-        danglingLineBordersCache = network.getDanglingLineStream()
+        boundaryLineBordersCache = network.getBoundaryLineStream()
                 .filter(this::isAreaBorder)
                 .toList();
         lineBordersCache = network.getLineStream()
@@ -63,7 +63,7 @@ public class BorderBasedCountryArea implements NetworkArea {
 
     @Override
     public double getNetPosition(boolean subtractLoadFlowBalancing) {
-        double netPosition = danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
+        double netPosition = boundaryLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + lineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + hvdcLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
         if (subtractLoadFlowBalancing) {
@@ -85,9 +85,9 @@ public class BorderBasedCountryArea implements NetworkArea {
             }
         });
         double sum = 0;
-        for (DanglingLine danglingLine : danglingLineBordersCache) {
-            if (isOtherSideInArea(danglingLine, otherCountryArea)) {
-                sum += getLeavingFlow(danglingLine);
+        for (BoundaryLine boundaryLine : boundaryLineBordersCache) {
+            if (isOtherSideInArea(boundaryLine, otherCountryArea)) {
+                sum += getLeavingFlow(boundaryLine);
             }
         }
         for (Line line : lineBordersCache) {
@@ -103,12 +103,12 @@ public class BorderBasedCountryArea implements NetworkArea {
         return sum;
     }
 
-    private boolean isOtherSideInArea(DanglingLine danglingLine, BorderBasedCountryArea countryArea) {
-        return TieLineUtil.getPairedDanglingLine(danglingLine).filter(countryArea::isAreaBorder).isPresent();
+    private boolean isOtherSideInArea(BoundaryLine boundaryLine, BorderBasedCountryArea countryArea) {
+        return TieLineUtil.getPairedBoundaryLine(boundaryLine).filter(countryArea::isAreaBorder).isPresent();
     }
 
-    private boolean isAreaBorder(DanglingLine danglingLine) {
-        Country country = danglingLine.getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null);
+    private boolean isAreaBorder(BoundaryLine boundaryLine) {
+        Country country = boundaryLine.getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null);
         return countries.contains(country);
     }
 
@@ -132,8 +132,8 @@ public class BorderBasedCountryArea implements NetworkArea {
                 !countries.contains(countrySide1) && countries.contains(countrySide2);
     }
 
-    private double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() ? zeroIfNan(-danglingLine.getBoundary().getP()) : 0;
+    private double getLeavingFlow(BoundaryLine boundaryLine) {
+        return boundaryLine.getTerminal().isConnected() ? zeroIfNan(-boundaryLine.getBoundary().getP()) : 0;
     }
 
     private double getLeavingFlow(Line line) {

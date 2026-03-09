@@ -120,13 +120,13 @@ public final class GlskPointLinearGlskConverter {
      * @param weightedSensitivityVariables linearGlsk to be filled
      */
     private static void convertExplicitProportional(Network network, GlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
-        List<DanglingLine> danglingLines = glskShiftKey.getRegisteredResourceArrayList().stream()
-            .map(rr -> rr.getDanglingLineId(network))
+        List<BoundaryLine> boundaryLines = glskShiftKey.getRegisteredResourceArrayList().stream()
+            .map(rr -> rr.getBoundaryLineId(network))
             .filter(Objects::nonNull)
-            .map(network::getDanglingLine)
+            .map(network::getBoundaryLine)
             .filter(NetworkUtil::isCorrect)
             .collect(Collectors.toList());
-        double totalP = danglingLines.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
+        double totalP = boundaryLines.stream().mapToDouble(NetworkUtil::pseudoP0).sum();
         //Generator A04 or Load A05
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
@@ -156,9 +156,9 @@ public final class GlskPointLinearGlskConverter {
             //unknown PsrType
             throw new GlskException("convertExplicitProportional PsrType not supported");
         }
-        for (DanglingLine danglingLine : danglingLines) {
-            weightedSensitivityVariables.add(new WeightedSensitivityVariable(danglingLine.getId(),
-                glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(danglingLine) / (float) totalP));
+        for (BoundaryLine boundaryLine : boundaryLines) {
+            weightedSensitivityVariables.add(new WeightedSensitivityVariable(boundaryLine.getId(),
+                glskShiftKey.getQuantity().floatValue() * (float) NetworkUtil.pseudoP0(boundaryLine) / (float) totalP));
         }
     }
 
@@ -169,11 +169,11 @@ public final class GlskPointLinearGlskConverter {
      */
     private static void convertParticipationFactor(Network network, GlskShiftKey glskShiftKey, List<WeightedSensitivityVariable> weightedSensitivityVariables) {
         //Generator A04 or Load A05
-        List<GlskRegisteredResource> danglingLineResources = glskShiftKey.getRegisteredResourceArrayList().stream()
-            .filter(danglingLineResource -> danglingLineResource.getDanglingLineId(network) != null &&
-                NetworkUtil.isCorrect(network.getDanglingLine(danglingLineResource.getDanglingLineId(network))))
+        List<GlskRegisteredResource> boundaryLineResources = glskShiftKey.getRegisteredResourceArrayList().stream()
+            .filter(boundaryLineResource -> boundaryLineResource.getBoundaryLineId(network) != null &&
+                NetworkUtil.isCorrect(network.getBoundaryLine(boundaryLineResource.getBoundaryLineId(network))))
             .collect(Collectors.toList());
-        double totalFactor = danglingLineResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
+        double totalFactor = boundaryLineResources.stream().mapToDouble(GlskRegisteredResource::getParticipationFactor).sum();
         if (glskShiftKey.getPsrType().equals("A04")) {
             //Generator A04
             List<GlskRegisteredResource> generatorResources = glskShiftKey.getRegisteredResourceArrayList().stream()
@@ -204,9 +204,9 @@ public final class GlskPointLinearGlskConverter {
             //unknown PsrType
             throw new GlskException("convertParticipationFactor PsrType not supported");
         }
-        for (GlskRegisteredResource danglingLineResource : danglingLineResources) {
-            weightedSensitivityVariables.add(new WeightedSensitivityVariable(danglingLineResource.getDanglingLineId(network),
-                glskShiftKey.getQuantity().floatValue() * (float) danglingLineResource.getParticipationFactor() / (float) totalFactor));
+        for (GlskRegisteredResource boundaryLineResource : boundaryLineResources) {
+            weightedSensitivityVariables.add(new WeightedSensitivityVariable(boundaryLineResource.getBoundaryLineId(network),
+                glskShiftKey.getQuantity().floatValue() * (float) boundaryLineResource.getParticipationFactor() / (float) totalFactor));
         }
     }
 }

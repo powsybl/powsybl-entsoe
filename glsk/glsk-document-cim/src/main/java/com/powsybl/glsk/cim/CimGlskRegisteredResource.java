@@ -44,7 +44,7 @@ public class CimGlskRegisteredResource extends AbstractGlskRegisteredResource {
     }
 
     @Override
-    public String getDanglingLineId(Network network) {
+    public String getBoundaryLineId(Network network) {
         return mRID;
     }
 }
