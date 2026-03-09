@@ -99,7 +99,7 @@ public final class NetworkUtil {
 
     public static List<Injection<?>> getNodeList(Network network) {
         return getAllNetworkInjections(network)
-            .filter(NetworkUtil::isNotPairedDanglingLine)
+            .filter(NetworkUtil::isNotPairedBoundaryLine)
             .filter(NetworkUtil::isInjectionConnected)
             .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
             .filter(NetworkUtil::hasReferenceInjections)
@@ -108,11 +108,11 @@ public final class NetworkUtil {
     }
 
     public static List<Injection<?>> getXNodeList(Network network) {
-        return network.getDanglingLineStream()
-            .filter(NetworkUtil::isNotPairedDanglingLine)
+        return network.getBoundaryLineStream()
+            .filter(NetworkUtil::isNotPairedBoundaryLine)
             .filter(NetworkUtil::isInjectionConnected)
             .filter(NetworkUtil::isInjectionInMainSynchronousComponent)
-            .map(danglingLine -> (Injection<?>) danglingLine)
+            .map(boundaryLine -> (Injection<?>) boundaryLine)
             .collect(Collectors.toList());
     }
 
@@ -122,8 +122,8 @@ public final class NetworkUtil {
             .map(connectable -> (Injection<?>) connectable);
     }
 
-    private static boolean isNotPairedDanglingLine(Injection<?> injection) {
-        return !(injection instanceof DanglingLine danglingLine && danglingLine.isPaired());
+    private static boolean isNotPairedBoundaryLine(Injection<?> injection) {
+        return !(injection instanceof BoundaryLine boundaryLine && boundaryLine.isPaired());
     }
 
     private static boolean isInjectionConnected(Injection<?> injection) {

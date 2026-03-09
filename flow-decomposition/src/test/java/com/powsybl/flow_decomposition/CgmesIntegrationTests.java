@@ -74,7 +74,7 @@ class CgmesIntegrationTests {
         Properties importParams = new Properties();
         Network network = Importers.importData("CGMES", Cgmes3Catalog.microGrid().dataSource(), importParams);
         LoadFlow.run(network, LoadFlowParameters.load().setDc(false));
-        assertEquals(0.0, network.getDanglingLineStream(DanglingLineFilter.PAIRED).filter(danglingLine -> Double.isFinite(danglingLine.getBoundary().getP())).mapToDouble(danglingLine -> danglingLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
+        assertEquals(0.0, network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).filter(boundaryLine -> Double.isFinite(boundaryLine.getBoundary().getP())).mapToDouble(boundaryLine -> boundaryLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
 
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
 

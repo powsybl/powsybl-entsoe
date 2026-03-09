@@ -43,7 +43,7 @@ public class UcteGlskRegisteredResource extends AbstractGlskRegisteredResource {
     }
 
     @Override
-    public String getDanglingLineId(Network network) {
-        return Util.findDanglingLineIdForXndoe(network, mRID);
+    public String getBoundaryLineId(Network network) {
+        return Util.findBoundaryLineIdForXndoe(network, mRID);
     }
 }
