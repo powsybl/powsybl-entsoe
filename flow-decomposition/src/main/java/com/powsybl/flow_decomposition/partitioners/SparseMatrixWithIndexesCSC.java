@@ -61,13 +61,6 @@ class SparseMatrixWithIndexesCSC extends AbstractSparseMatrixWithIndexes {
         return new SparseMatrixWithIndexesCSC(colIndex, rowIndex, transposedMatrix);
     }
 
-    SparseMatrixWithIndexesCSC getColumn(String colId) {
-        int colIndex = this.colIndex.get(colId);
-        DMatrixSparseCSC colMatrix = new DMatrixSparseCSC(cscMatrix.numRows, 1);
-        CommonOps_DSCC.extractColumn(cscMatrix, colIndex, colMatrix);
-        return new SparseMatrixWithIndexesCSC(rowIndex, Map.of(colId, 0), colMatrix);
-    }
-
     public SparseMatrixWithIndexesCSC removeZerosInplace(double zeroTolerance) {
         CommonOps_DSCC.removeZeros(cscMatrix, zeroTolerance);
         return this;
