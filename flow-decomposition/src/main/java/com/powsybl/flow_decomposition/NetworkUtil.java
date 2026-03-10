@@ -169,7 +169,7 @@ public final class NetworkUtil {
         Stream returnStream = Stream.empty();
         returnStream = Stream.concat(bus.getGeneratorStream(), returnStream);
         returnStream = Stream.concat(bus.getLoadStream(), returnStream);
-        returnStream = Stream.concat(bus.getDanglingLineStream(), returnStream);
+        returnStream = Stream.concat(bus.getBoundaryLineStream(), returnStream);
         return returnStream;
     }
 
