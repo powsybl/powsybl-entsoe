@@ -42,7 +42,6 @@ public class FastFullLineDecompositionPartitioner implements FlowPartitioner {
         List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(network);
         List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(network);
 
-        NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecs.stream().toList());
         LOGGER.debug("{} === PEX graph generation", LocalDateTime.now());
         PexGraph pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
 

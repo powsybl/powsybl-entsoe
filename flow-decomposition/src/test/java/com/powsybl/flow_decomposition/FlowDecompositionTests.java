@@ -347,9 +347,7 @@ class FlowDecompositionTests {
 
         SensitivityVariableSet variableSet = new SensitivityVariableSet(
             "TEST_SET",
-            IntStream.range(0, variableIds.size()).mapToObj(i -> {
-                return new WeightedSensitivityVariable(variableIds.get(i), weights.get(i) / sum);
-            }).toList()
+            IntStream.range(0, variableIds.size()).mapToObj(i -> new WeightedSensitivityVariable(variableIds.get(i), weights.get(i) / sum)).toList()
         );
 
         Map<String, Map<String, Double>> elementary = runElementarySensitivities(
@@ -363,9 +361,7 @@ class FlowDecompositionTests {
         double epsilon = 1e-8;
 
         for (String xnecId : xnecIds) {
-            double expected = IntStream.range(0, variableIds.size()).mapToDouble(i -> {
-                return weights.get(i) * elementary.get(xnecId).get(variableIds.get(i)) / sum;
-            }).sum();
+            double expected = IntStream.range(0, variableIds.size()).mapToDouble(i -> weights.get(i) * elementary.get(xnecId).get(variableIds.get(i)) / sum).sum();
 
             double actual = grouped.get(xnecId);
 
@@ -758,7 +754,7 @@ class FlowDecompositionTests {
         "MATRIX_BASED",
         "DIRECT_SENSITIVITY_BASED",
         "FULL_LINE_DECOMPOSITION",
-        "FAST_FULL_LINE_DECOMPOSITION" // TODO fix this test, paired xnode are not supported
+        "FAST_FULL_LINE_DECOMPOSITION"
     })
     void testSimpleNetworkWithXNodeGen(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         String networkFileName = "TestCaseDangling.xiidm";
@@ -816,7 +812,7 @@ class FlowDecompositionTests {
         "MATRIX_BASED",
         "DIRECT_SENSITIVITY_BASED",
         "FULL_LINE_DECOMPOSITION",
-        "FAST_FULL_LINE_DECOMPOSITION" // TODO fix this test, paired xnode are not supported
+        "FAST_FULL_LINE_DECOMPOSITION"
     })
     void testSimpleNetworkWithXNodeLoad(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         String networkFileName = "TestCaseDangling.xiidm";

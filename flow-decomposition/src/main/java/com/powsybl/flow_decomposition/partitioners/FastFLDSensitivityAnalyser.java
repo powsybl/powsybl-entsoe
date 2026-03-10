@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.flow_decomposition.partitioners;
 
 import com.google.common.collect.Streams;
@@ -10,6 +17,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.*;
 import org.ejml.data.DMatrixSparseCSC;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +87,43 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         Map<String, Integer> xnecIndex = NetworkUtil.getIndex(xnecIds);
         int nXnec = xnecIndex.size();
 
+        Map<String, double[]> exchangePerFlowPart = buildExchangePerfFlowPart(nFlowPart, flowPartIndex);
+
+        double[][] results = new double[nXnec][nFlowPart];
+
+        runSensitivityAnalysisAndFillResultsForPstFlow(flowPartIndex, xnecIndex, results);
+        runSensitivityAnalysisAndFillResultsForPex(exchangePerFlowPart, flowPartNameList, results);
+
+        return xnecIds.stream()
+            .collect(Collectors.toMap(
+                xnecId -> xnecId,
+                xnecId -> flowPartNameList.stream().collect(Collectors.toMap(
+                    flowPartName -> flowPartName,
+                    flowPartName -> results[xnecIndex.get(xnecId)][flowPartIndex.get(flowPartName)]
+                ))));
+    }
+
+    private void runSensitivityAnalysisAndFillResultsForPex(Map<String, double[]> exchangePerFlowPart, List<String> flowPartNameList, double[][] results) {
+        VariableSetBuildResult variableSetBuildResult = buildVariableSets(exchangePerFlowPart, flowPartNameList);
+        GroupedFLDFactor[] groupedFactors = new GroupedFLDFactor[variableSetBuildResult.factorCount()];
+        SensitivityFactorReader factorReader = new FastFLDGroupedSensitivityFactorReader(xnecIds, variableSetBuildResult.aggregations(), groupedFactors);
+        SensitivityResultWriter valueWriter = new FastFLDGroupedSensitivityResultWriter(groupedFactors, results, variableSetBuildResult.aggregations());
+
+        LOGGER.debug("Running sensitivity analysis for decomposed flow for {} grouped factors", groupedFactors.length);
+        runSensitivityAnalysis(network, factorReader, valueWriter, variableSetBuildResult.variableSets());
+    }
+
+    private void runSensitivityAnalysisAndFillResultsForPstFlow(Map<String, Integer> flowPartIndex, Map<String, Integer> xnecIndex, double[][] results) {
+        LOGGER.debug("Running sensitivity analysis for PST flow for variables");
+        List<FunctionVariableFactor> sensitivityFactorsPst = new ArrayList<>();
+        List<String> pstIdList = NetworkUtil.getPstIdList(network);
+        Map<String, PhaseTapChanger> phaseTapChangerMap = pstIdList.stream().collect(Collectors.toMap(pstId -> pstId, pstId -> network.getTwoWindingsTransformer(pstId).getPhaseTapChanger()));
+        SensitivityFactorReader factorReaderPst = new FastFLDPstSensitivityFactorReader(sensitivityFactorsPst, xnecIds, pstIdList);
+        SensitivityResultWriter valueWriterPst = new FastFLDPstSensitivityResultWriter(sensitivityFactorsPst, results, flowPartIndex.get(PST_COLUMN_NAME), xnecIndex, phaseTapChangerMap);
+        runSensitivityAnalysis(network, factorReaderPst, valueWriterPst, Collections.emptyList());
+    }
+
+    private @NonNull Map<String, double[]> buildExchangePerfFlowPart(int nFlowPart, Map<String, Integer> flowPartIndex) {
         Map<String, double[]> exchangePerFlowPart = new HashMap<>();
         Streams.stream(pexMatrix.createCoordinateIterator())
             .forEach(coordinateRealValue -> {
@@ -88,37 +133,10 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                 String sourceInjId = Optional.ofNullable(injByVertexId[sourceIndex]).orElse(vertexIds[sourceIndex]);
                 String sinkInjId = Optional.ofNullable(injByVertexId[sinkIndex]).orElse(vertexIds[sinkIndex]);
                 String flowPartName = computeFlowPartName(sourceIndex, sinkIndex);
-                double[] exchangesSource = exchangePerFlowPart.computeIfAbsent(sourceInjId, s -> new double[nFlowPart]);
-                exchangesSource[flowPartIndex.get(flowPartName)] += exchangeBetweenFromAndTo;
-                double[] exchangesSink = exchangePerFlowPart.computeIfAbsent(sinkInjId, s -> new double[nFlowPart]);
-                exchangesSink[flowPartIndex.get(flowPartName)] -= exchangeBetweenFromAndTo;
+                exchangePerFlowPart.computeIfAbsent(sourceInjId, s1 -> new double[nFlowPart])[flowPartIndex.get(flowPartName)] += exchangeBetweenFromAndTo;
+                exchangePerFlowPart.computeIfAbsent(sinkInjId, s -> new double[nFlowPart])[flowPartIndex.get(flowPartName)] -= exchangeBetweenFromAndTo;
             });
-
-        double[][] results = new double[nXnec][nFlowPart];
-
-        LOGGER.debug("Running sensitivity analysis for PST flow for variables");
-        List<FunctionVariableFactor> sensitivityFactorsPst = new ArrayList<>();
-        List<String> pstIdList = NetworkUtil.getPstIdList(network);
-        Map<String, PhaseTapChanger> phaseTapChangerMap = pstIdList.stream().collect(Collectors.toMap(pstId -> pstId, pstId -> network.getTwoWindingsTransformer(pstId).getPhaseTapChanger()));
-        SensitivityFactorReader factorReaderPst = new FastFLDPstSensitivityFactorReader(sensitivityFactorsPst, xnecIds, pstIdList);
-        SensitivityResultWriter valueWriterPst = new FastFLDPstSensitivityResultWriter(sensitivityFactorsPst, results, flowPartIndex.get(PST_COLUMN_NAME), xnecIndex, phaseTapChangerMap);
-        runSensitivityAnalysis(network, factorReaderPst, valueWriterPst, Collections.emptyList());
-
-        VariableSetBuildResult variableSetBuildResult = buildVariableSets(exchangePerFlowPart, flowPartNameList);
-        GroupedFLDFactor[] groupedFactors = new GroupedFLDFactor[variableSetBuildResult.factorCount()];
-        SensitivityFactorReader factorReader = new FastFLDGroupedSensitivityFactorReader(xnecIds, variableSetBuildResult.aggregations(), groupedFactors);
-        SensitivityResultWriter valueWriter = new FastFLDGroupedSensitivityResultWriter(groupedFactors, results, variableSetBuildResult.aggregations());
-
-        LOGGER.debug("Running sensitivity analysis for decomposed flow for {} grouped factors", groupedFactors.length);
-        runSensitivityAnalysis(network, factorReader, valueWriter, variableSetBuildResult.variableSets());
-
-        return xnecIds.stream()
-            .collect(Collectors.toMap(
-                xnecId -> xnecId,
-                xnecId -> flowPartNameList.stream().collect(Collectors.toMap(
-                    flowPartName -> flowPartName,
-                    flowPartName -> results[xnecIndex.get(xnecId)][flowPartIndex.get(flowPartName)]
-                ))));
+        return exchangePerFlowPart;
     }
 
     private String computeFlowPartName(int sourceIndex, int sinkIndex) {
