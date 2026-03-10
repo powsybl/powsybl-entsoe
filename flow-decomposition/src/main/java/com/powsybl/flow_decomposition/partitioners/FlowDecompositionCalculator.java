@@ -64,7 +64,7 @@ class FlowDecompositionCalculator {
         });
     }
 
-    public Map<String, FlowPartition> computeDecomposition() {
+    Map<String, FlowPartition> computeDecomposition() {
         LOGGER.debug("Decomposing flow on branches");
         return xnecs.stream()
             .collect(
@@ -83,55 +83,65 @@ class FlowDecompositionCalculator {
             return new FlowPartition(0., 0., Collections.emptyMap(), 0., 0.);
         }
 
-        double xNodeFlow = 0;
-        double internalFlow = 0.0;
-        double allocatedFlow = 0.0;
-        Map<Country, Double> loopFlowsPerCountry = new EnumMap<>(Country.class);
-
         Country branchCountry1 = NetworkUtil.getBranchSideCountry(branch, TwoSides.ONE);
         Country branchCountry2 = NetworkUtil.getBranchSideCountry(branch, TwoSides.TWO);
-        double[] column = transposedPtdfMatrix.getColumnAsArray(branchId);
+        double[] ptdfColumn = transposedPtdfMatrix.getColumnAsArray(branchId);
 
-        Iterator<DMatrixSparse.CoordinateRealValue> coordinateRealValueIterator = pexMatrix.createCoordinateIterator();
-        while (coordinateRealValueIterator.hasNext()) {
-            DMatrixSparse.CoordinateRealValue e = coordinateRealValueIterator.next();
-            int sourceIndex = e.row;
-            int sinkIndex = e.col;
-            double exchangeBetweenFromAndTo = e.value;
+        MutableTemporaryResult result = new MutableTemporaryResult(branchCountry1, branchCountry2);
+        Iterator<DMatrixSparse.CoordinateRealValue> it = pexMatrix.createCoordinateIterator();
+        while (it.hasNext()) {
+            DMatrixSparse.CoordinateRealValue e = it.next();
+            double exchange = e.value;
+            double ptdfFrom = ptdfColumn[e.row];
+            double ptdfTo = ptdfColumn[e.col];
+            double increase = (ptdfFrom - ptdfTo) * exchange;
 
-            Double ptdfFrom = column[sourceIndex];
-            Double ptdfTo = column[sinkIndex];
-            double increase = (ptdfFrom - ptdfTo) * exchangeBetweenFromAndTo;
-            if (Math.abs(increase) < 1e-10) {
-                continue;
-            }
-
-            if (isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex]) {
-                // Loop flow
-                Country countryFrom = countriesByVertexPos[sourceIndex];
-                Country countryTo = countriesByVertexPos[sinkIndex];
-                if (countryFrom == null || countryTo == null) {
-                    String sourceId = vertexIds[sourceIndex];
-                    String sinkId = vertexIds[sinkIndex];
-                    throw new PowsyblException(String.format("Cannot compute loop flow for bus %s and %s because of invalid country", sourceId, sinkId));
-                }
-                if (countryFrom.equals(countryTo)) {
-                    if (countryFrom.equals(branchCountry1) && countryFrom.equals(branchCountry2)) {
-                        internalFlow += increase;
-                    } else {
-                        loopFlowsPerCountry.compute(countryFrom, (country, value) -> value == null ? increase : value + increase);
-                    }
-                } else {
-                    allocatedFlow += increase;
-                }
-            } else {
-                xNodeFlow += increase;
+            if (Math.abs(increase) >= 1e-10) {
+                processIncrease(e.row, e.col, increase, result);
             }
         }
 
         double pstFlow = pstFlowMatrix.getOrDefault(branchId, Collections.emptyMap()).values().stream()
-            .mapToDouble(d -> d)
+            .mapToDouble(Double::doubleValue)
             .sum();
-        return new FlowPartition(internalFlow, allocatedFlow, loopFlowsPerCountry, pstFlow, xNodeFlow);
+        return new FlowPartition(result.internalFlow, result.allocatedFlow, result.loopFlowsPerCountry, pstFlow, result.xNodeFlow);
+    }
+
+    private void processIncrease(int sourceIndex, int sinkIndex, double increase, MutableTemporaryResult result) {
+        if (isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex]) {
+            Country countryFrom = countriesByVertexPos[sourceIndex];
+            Country countryTo = countriesByVertexPos[sinkIndex];
+
+            if (countryFrom == null || countryTo == null) {
+                throw new PowsyblException(String.format("Cannot compute loop flow for bus %s and %s because of invalid country",
+                    vertexIds[sourceIndex], vertexIds[sinkIndex]));
+            }
+
+            if (countryFrom == countryTo) {
+                if (countryFrom == result.branchCountry1 && countryFrom == result.branchCountry2) {
+                    result.internalFlow += increase;
+                } else {
+                    result.loopFlowsPerCountry.merge(countryFrom, increase, Double::sum);
+                }
+            } else {
+                result.allocatedFlow += increase;
+            }
+        } else {
+            result.xNodeFlow += increase;
+        }
+    }
+
+    private static class MutableTemporaryResult {
+        private final Country branchCountry1;
+        private final Country branchCountry2;
+        private double xNodeFlow = 0;
+        private double internalFlow = 0;
+        private double allocatedFlow = 0;
+        private final Map<Country, Double> loopFlowsPerCountry = new EnumMap<>(Country.class);
+
+        MutableTemporaryResult(Country branchCountry1, Country branchCountry2) {
+            this.branchCountry1 = branchCountry1;
+            this.branchCountry2 = branchCountry2;
+        }
     }
 }
