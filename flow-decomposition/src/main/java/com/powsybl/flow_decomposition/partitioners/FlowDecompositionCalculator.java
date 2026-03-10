@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
  */
 public class FlowDecompositionCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionCalculator.class);
-    private static final double EPSILON = 1e-5;
     private final Set<Branch<?>> xnecs;
     private final DMatrixSparseCSC pexMatrix;
     private final SparseMatrixWithIndexesCSC transposedPtdfMatrix;
@@ -59,7 +58,6 @@ public class FlowDecompositionCalculator {
 
         vertexIdMapping.forEach((id, index) -> {
             this.vertexIds[index] = id;
-            String inj = anyInjectionOnBus.get(id);
 
             Bus bus = idToBus.get(id);
             if (bus != null) {
@@ -70,9 +68,6 @@ public class FlowDecompositionCalculator {
                 this.countriesByVertexPos[index] = countryIndex.get(country);
             }
         });
-
-        int toto =0;
-
     }
 
     public Map<String, FlowPartition> computeDecomposition() {
@@ -109,7 +104,6 @@ public class FlowDecompositionCalculator {
             int sinkIndex = e.col;
             double exchangeBetweenFromAndTo = e.value;
 
-
             Double ptdfFrom = column[sourceIndex];
             Double ptdfTo = column[sinkIndex];
             double increase = (ptdfFrom - ptdfTo) * exchangeBetweenFromAndTo;
@@ -117,7 +111,7 @@ public class FlowDecompositionCalculator {
                 continue;
             }
 
-            if ((isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex])) {
+            if (isBusByVertexIndex[sourceIndex] && isBusByVertexIndex[sinkIndex]) {
                 // Loop flow
                 Integer countryFrom = countriesByVertexPos[sourceIndex];
                 Integer countryTo = countriesByVertexPos[sinkIndex];

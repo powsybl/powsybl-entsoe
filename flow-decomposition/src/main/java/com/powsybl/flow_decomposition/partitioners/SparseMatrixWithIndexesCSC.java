@@ -77,7 +77,7 @@ class SparseMatrixWithIndexesCSC extends AbstractSparseMatrixWithIndexes {
         int col = this.colIndex.get(colId);
         double[] out = new double[cscMatrix.numRows];
         int start = cscMatrix.col_idx[col];
-        int end   = cscMatrix.col_idx[col + 1];
+        int end = cscMatrix.col_idx[col + 1];
         for (int i = start; i < end; i++) {
             int row = cscMatrix.nz_rows[i];
             out[row] = cscMatrix.nz_values[i];

@@ -146,6 +146,15 @@ where:
 
 ## Full Line Decomposition
 
+### Implementation status
+
+The Full Line Decomposition (FLD) method is currently in **experimental** status. Some features are not yet implemented,
+including (but not limited to):
+- **Three Windings Transformer** handling,
+- **HVDC** handling,
+
+Moreover, implementation and interface may change depending on the feedbacks.
+
 ### Principle
 
 The **Full Line Decomposition (FLD)** approach provides an alternative formulation
