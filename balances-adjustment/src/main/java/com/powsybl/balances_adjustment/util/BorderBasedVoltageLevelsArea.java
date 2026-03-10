@@ -20,10 +20,10 @@ public class BorderBasedVoltageLevelsArea implements NetworkArea {
 
     private final List<String> voltageLevelIds = new ArrayList<>();
 
-    // We should consider all dangling lines now, either paired or unpaired.
+    // We should consider all boundary lines now, either paired or unpaired.
     // The computation is more clean because we have the real value at boundary
     // for a tie line now.
-    private final List<DanglingLine> danglingLineBordersCache;
+    private final List<BoundaryLine> boundaryLineBordersCache;
     private final List<Branch<?>> branchBordersCache;
     private final List<ThreeWindingsTransformer> threeWindingsTransformerBordersCache;
     private final List<HvdcLine> hvdcLineBordersCache;
@@ -35,7 +35,7 @@ public class BorderBasedVoltageLevelsArea implements NetworkArea {
     public BorderBasedVoltageLevelsArea(Network network, List<String> voltageLevelIds) {
         this.voltageLevelIds.addAll(voltageLevelIds);
 
-        danglingLineBordersCache = network.getDanglingLineStream()
+        boundaryLineBordersCache = network.getBoundaryLineStream()
                 .filter(this::isAreaBorder)
                 .collect(Collectors.toList());
         branchBordersCache = network.getLineStream()
@@ -61,7 +61,7 @@ public class BorderBasedVoltageLevelsArea implements NetworkArea {
 
     @Override
     public double getNetPosition(boolean subtractLoadFlowBalancing) {
-        double netPosition = danglingLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
+        double netPosition = boundaryLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + branchBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + threeWindingsTransformerBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum()
                 + hvdcLineBordersCache.parallelStream().mapToDouble(this::getLeavingFlow).sum();
@@ -80,8 +80,8 @@ public class BorderBasedVoltageLevelsArea implements NetworkArea {
         return voltageLevelIds.contains(injection.getTerminal().getVoltageLevel().getId());
     }
 
-    private boolean isAreaBorder(DanglingLine danglingLine) {
-        String voltageLevel = danglingLine.getTerminal().getVoltageLevel().getId();
+    private boolean isAreaBorder(BoundaryLine boundaryLine) {
+        String voltageLevel = boundaryLine.getTerminal().getVoltageLevel().getId();
         return voltageLevelIds.contains(voltageLevel);
     }
 
@@ -112,8 +112,8 @@ public class BorderBasedVoltageLevelsArea implements NetworkArea {
                 !voltageLevelIds.contains(voltageLevelSide1) && voltageLevelIds.contains(voltageLevelSide2);
     }
 
-    private double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() ? -danglingLine.getBoundary().getP() : 0;
+    private double getLeavingFlow(BoundaryLine boundaryLine) {
+        return boundaryLine.getTerminal().isConnected() ? -boundaryLine.getBoundary().getP() : 0;
     }
 
     private double getLeavingFlow(Branch<?> branch) {

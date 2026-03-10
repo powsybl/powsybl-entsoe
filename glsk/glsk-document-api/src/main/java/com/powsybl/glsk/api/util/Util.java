@@ -31,15 +31,15 @@ public final class Util {
             .orElseThrow(() -> new GlskException(String.format("Impossible to import GLSK: <%s> tag is missing", tag)));
     }
 
-    public static String findDanglingLineIdForXndoe(Network network, String xnode) {
-        Set<String> danglingLines = network.getDanglingLineStream()
+    public static String findBoundaryLineIdForXndoe(Network network, String xnode) {
+        Set<String> boundaryLines = network.getBoundaryLineStream()
             .filter(dl -> dl.getPairingKey().equals(xnode))
             .map(Identifiable::getId)
             .collect(Collectors.toSet());
-        if (danglingLines.size() != 1) {
-            // No / multiple dangling lines found for Xnode
+        if (boundaryLines.size() != 1) {
+            // No / multiple boundary lines found for Xnode
             return null;
         }
-        return danglingLines.iterator().next();
+        return boundaryLines.iterator().next();
     }
 }

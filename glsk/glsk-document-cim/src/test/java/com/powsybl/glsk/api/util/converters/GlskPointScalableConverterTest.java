@@ -211,7 +211,7 @@ class GlskPointScalableConverterTest {
     }
 
     @Test
-    void testConvertGlskPointToScalableB42ExplicitGskLskWithDanglingLines() {
+    void testConvertGlskPointToScalableB42ExplicitGskLskWithBoundaryLines() {
         testNetwork = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskPoint glsk = CimGlskDocument.importGlsk(getResourceAsStream("/GlskB42ExplicitWithDanglingLines.xml")).getGlskPoints().get(0);
         Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glsk);
@@ -220,42 +220,42 @@ class GlskPointScalableConverterTest {
         assertEquals(2000., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), DOUBLE_TOLERANCE);
         assertEquals(2000., testNetwork.getGenerator("FFR2AA1 _generator").getTargetP(), DOUBLE_TOLERANCE);
         assertEquals(3000., testNetwork.getGenerator("FFR3AA1 _generator").getTargetP(), DOUBLE_TOLERANCE);
-        assertEquals(-1000., testNetwork.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), DOUBLE_TOLERANCE);
+        assertEquals(-1000., testNetwork.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), DOUBLE_TOLERANCE);
         assertEquals(1000., testNetwork.getLoad("FFR1AA1 _load").getP0(), DOUBLE_TOLERANCE);
         assertEquals(3500., testNetwork.getLoad("FFR2AA1 _load").getP0(), DOUBLE_TOLERANCE);
         assertEquals(1500., testNetwork.getLoad("FFR3AA1 _load").getP0(), DOUBLE_TOLERANCE);
-        assertEquals(1000., testNetwork.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), DOUBLE_TOLERANCE);
+        assertEquals(1000., testNetwork.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), DOUBLE_TOLERANCE);
 
         double done = scalable.scale(testNetwork, -1000.);
         assertEquals(-1000., done, DOUBLE_TOLERANCE);
         assertEquals(1850., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), FUZZY_TOLERANCE); // 2/8 * 0.6 = 15 %
         assertEquals(1850., testNetwork.getGenerator("FFR2AA1 _generator").getTargetP(), FUZZY_TOLERANCE); // 2/8 * 0.6 = 15 %
         assertEquals(2775., testNetwork.getGenerator("FFR3AA1 _generator").getTargetP(), FUZZY_TOLERANCE); // 3/8 * 0.6 = 22.5 %
-        assertEquals(-925., testNetwork.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), FUZZY_TOLERANCE); // 1/8 * 0.6 = 7.5 %
+        assertEquals(-925., testNetwork.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), FUZZY_TOLERANCE); // 1/8 * 0.6 = 7.5 %
         assertEquals(1057., testNetwork.getLoad("FFR1AA1 _load").getP0(), FUZZY_TOLERANCE); // 1/7 * 0.4 = 5.7 %
         assertEquals(3700., testNetwork.getLoad("FFR2AA1 _load").getP0(), FUZZY_TOLERANCE); // 3.5/7 * 0.4 = 20 %
         assertEquals(1586., testNetwork.getLoad("FFR3AA1 _load").getP0(), FUZZY_TOLERANCE); // 1.5/7 * 0.4 = 8.6 %
-        assertEquals(1057., testNetwork.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), FUZZY_TOLERANCE); // 1/7 * 0.4 = 5.7 %
+        assertEquals(1057., testNetwork.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), FUZZY_TOLERANCE); // 1/7 * 0.4 = 5.7 %
     }
 
     @Test
-    void testConvertGlskPointToScalableB43GskLskWithDanglingLines() {
+    void testConvertGlskPointToScalableB43GskLskWithBoundaryLines() {
         testNetwork = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskPoint glsk = CimGlskDocument.importGlsk(getResourceAsStream("/GlskB43ParticipationFactorGskLskWithDanglingLines.xml")).getGlskPoints().get(0);
         Scalable scalable = GlskPointScalableConverter.convert(testNetwork, glsk);
 
         assertNotNull(scalable);
         assertEquals(2000., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), DOUBLE_TOLERANCE);
-        assertEquals(-1000., testNetwork.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), DOUBLE_TOLERANCE);
+        assertEquals(-1000., testNetwork.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), DOUBLE_TOLERANCE);
         assertEquals(1000., testNetwork.getLoad("FFR1AA1 _load").getP0(), DOUBLE_TOLERANCE);
-        assertEquals(1000., testNetwork.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), DOUBLE_TOLERANCE);
+        assertEquals(1000., testNetwork.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), DOUBLE_TOLERANCE);
 
         double done = scalable.scale(testNetwork, 1000.);
         assertEquals(1000., done, DOUBLE_TOLERANCE);
         assertEquals(2420., testNetwork.getGenerator("FFR1AA1 _generator").getTargetP(), DOUBLE_TOLERANCE); // 0.6 * 0.7 = 42 %
-        assertEquals(-1180., testNetwork.getDanglingLine("DDE3AA1  XNODE_1A 1").getP0(), DOUBLE_TOLERANCE); // 0.6 * 0.3 = 18 %
+        assertEquals(-1180., testNetwork.getBoundaryLine("DDE3AA1  XNODE_1A 1").getP0(), DOUBLE_TOLERANCE); // 0.6 * 0.3 = 18 %
         assertEquals(840., testNetwork.getLoad("FFR1AA1 _load").getP0(), DOUBLE_TOLERANCE); // 0.4 * 0.4 = 16 %
-        assertEquals(760., testNetwork.getDanglingLine("BBE2AA1  XNODE_1B 1").getP0(), DOUBLE_TOLERANCE); // 0.4 * 0.6 = 24 %
+        assertEquals(760., testNetwork.getBoundaryLine("BBE2AA1  XNODE_1B 1").getP0(), DOUBLE_TOLERANCE); // 0.4 * 0.6 = 24 %
     }
 
     @Test

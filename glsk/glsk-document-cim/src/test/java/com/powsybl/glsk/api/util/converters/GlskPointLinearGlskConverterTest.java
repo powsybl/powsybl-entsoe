@@ -116,7 +116,7 @@ class GlskPointLinearGlskConverterTest {
     }
 
     @Test
-    void testB42ExplicitWithDanglingLines() {
+    void testB42ExplicitWithBoundaryLines() {
         testNetwork = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskPoint glsk = CimGlskDocument.importGlsk(getResourceAsStream("/GlskB42ExplicitWithDanglingLines.xml")).getGlskPoints().get(0);
         SensitivityVariableSet linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glsk);
@@ -136,7 +136,7 @@ class GlskPointLinearGlskConverterTest {
     }
 
     @Test
-    void testConvertGlskPointToLinearGlskB43WithDanglingLines() {
+    void testConvertGlskPointToLinearGlskB43WithBoundaryLines() {
         testNetwork = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         GlskPoint glsk = CimGlskDocument.importGlsk(getResourceAsStream("/GlskB43ParticipationFactorGskLskWithDanglingLines.xml")).getGlskPoints().get(0);
         SensitivityVariableSet linearGlsk = GlskPointLinearGlskConverter.convert(testNetwork, glsk);

@@ -23,9 +23,9 @@ public class NetPositionComputer {
     public static Map<Country, Double> computeNetPositions(Network network) {
         Map<Country, Double> netPositions = new EnumMap<>(Country.class);
 
-        network.getDanglingLineStream().forEach(danglingLine -> {
-            Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
-            addLeavingFlow(netPositions, danglingLine, country);
+        network.getBoundaryLineStream().forEach(boundaryLine -> {
+            Country country = NetworkUtil.getTerminalCountry(boundaryLine.getTerminal());
+            addLeavingFlow(netPositions, boundaryLine, country);
         });
 
         network.getLineStream().forEach(line -> {
@@ -65,9 +65,9 @@ public class NetPositionComputer {
         netPositions.put(country, previousValue + getLeavingFlow(hvdcLine, country));
     }
 
-    private static void addLeavingFlow(Map<Country, Double> netPositions, DanglingLine danglingLine, Country country) {
+    private static void addLeavingFlow(Map<Country, Double> netPositions, BoundaryLine boundaryLine, Country country) {
         double previousValue = getPreviousValue(netPositions, country);
-        netPositions.put(country, previousValue + getLeavingFlow(danglingLine));
+        netPositions.put(country, previousValue + getLeavingFlow(boundaryLine));
     }
 
     private static double getLeavingFlow(Line line, Country country) {
@@ -84,7 +84,7 @@ public class NetPositionComputer {
         return country.equals(NetworkUtil.getTerminalCountry(hvdcLine.getConverterStation1().getTerminal())) ? directFlow : -directFlow;
     }
 
-    private static double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getBoundary().getP()) ? -danglingLine.getBoundary().getP() : 0;
+    private static double getLeavingFlow(BoundaryLine boundaryLine) {
+        return boundaryLine.getTerminal().isConnected() && !Double.isNaN(boundaryLine.getBoundary().getP()) ? -boundaryLine.getBoundary().getP() : 0;
     }
 }
