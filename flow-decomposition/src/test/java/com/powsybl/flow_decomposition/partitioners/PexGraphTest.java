@@ -16,7 +16,6 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -76,7 +75,7 @@ class PexGraphTest {
     }
 
     @Test
-    void testGraphInjectionSummedWithXNodeGen() throws IOException {
+    void testGraphInjectionSummedWithXNodeGen() {
         Network testNetwork = TestUtils.importNetwork("TestCaseDangling.xiidm");
         LoadFlow.run(testNetwork, LoadFlowParameters.load().setDc(true));
         List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(testNetwork);
@@ -125,7 +124,7 @@ class PexGraphTest {
     }
 
     @Test
-    void testGraphInjectionSummedWithXNodeLoad() throws IOException {
+    void testGraphInjectionSummedWithXNodeLoad() {
         Network testNetwork = TestUtils.importNetwork("TestCaseDangling.xiidm");
         testNetwork.getDanglingLine("BBE2AA1  X_BEFR1  1").setP0(300);
         testNetwork.getGenerator("BBE2AA1 _generator").setTargetP(3600);
