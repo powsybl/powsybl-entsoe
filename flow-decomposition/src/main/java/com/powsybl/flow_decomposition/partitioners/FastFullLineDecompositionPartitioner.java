@@ -37,20 +37,20 @@ public class FastFullLineDecompositionPartitioner implements FlowPartitioner {
 
     @Override
     public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch<?>> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
-        LOGGER.debug("Using fast mode of flow decomposition, detailed info (as nodal PTDF and PSDF matrices) won't be reported");
-        LOGGER.debug("{} === Bus mapping", LocalDateTime.now());
+        LOGGER.warn("Using fast mode of flow decomposition, detailed info (as nodal PTDF and PSDF matrices) won't be reported");
+        LOGGER.info("{} === Bus mapping", LocalDateTime.now());
         List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(network);
         List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(network);
 
-        LOGGER.debug("{} === PEX graph generation", LocalDateTime.now());
+        LOGGER.info("{} === PEX graph generation", LocalDateTime.now());
         PexGraph pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
 
-        LOGGER.debug("{} === PEX matrix computation", LocalDateTime.now());
+        LOGGER.info("{} === PEX matrix computation", LocalDateTime.now());
         PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph);
         Map<String, Integer> vertexIdMapping = pexMatrixCalculator.getVertexIdMapper();
         DMatrixSparseCSC pexMatrix = pexMatrixCalculator.computePexMatrix();
 
-        LOGGER.debug("{} === Fast Full Line decomposition", LocalDateTime.now());
+        LOGGER.info("{} === Fast Full Line decomposition", LocalDateTime.now());
         FastFLDSensitivityAnalyser sensitivityAnalyser = new FastFLDSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner, network, xnecs, vertexIdMapping, pexMatrix, busesInMainSynchronousComponent);
         Map<String, Map<String, Double>> decomposedFlow = sensitivityAnalyser.run();
 
@@ -59,7 +59,7 @@ public class FastFullLineDecompositionPartitioner implements FlowPartitioner {
             xnec -> buildFlowPartition(xnec, decomposedFlow.getOrDefault(xnec.getId(), Collections.emptyMap()))
         ));
 
-        LOGGER.debug("{} === End of computation", LocalDateTime.now());
+        LOGGER.info("{} === End of computation", LocalDateTime.now());
 
         return results;
     }

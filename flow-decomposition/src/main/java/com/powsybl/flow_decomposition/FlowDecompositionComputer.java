@@ -55,7 +55,7 @@ public class FlowDecompositionComputer {
         this.parameters = flowDecompositionParameters;
         this.loadFlowParameters = loadFlowParameters.copy();
         if (!MAIN_CONNECTED_COMPONENT.equals(this.loadFlowParameters.getComponentMode())) {
-            LOGGER.debug("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode from {} to MAIN_CONNECTED.",
+            LOGGER.warn("Flow decomposition is currently available only on the main synchronous component. Changing connected component mode from {} to MAIN_CONNECTED.",
                 this.loadFlowParameters.getComponentMode());
             this.loadFlowParameters.setComponentMode(MAIN_CONNECTED_COMPONENT);
         }
@@ -112,7 +112,7 @@ public class FlowDecompositionComputer {
             networkStateManager.deleteAllContingencyVariants();
             return flowDecompositionResults;
         } finally {
-            LOGGER.info("Starting flow decomposition for network {}", network.getId());
+            LOGGER.info("End flow decomposition for network {}", network.getId());
             observers.runDone();
         }
     }
@@ -124,7 +124,7 @@ public class FlowDecompositionComputer {
                                         Map<Country, Map<String, Double>> glsks,
                                         LoadFlowRunningService.Result loadFlowServiceAcResult) {
         if (!xnecs.isEmpty()) {
-            LOGGER.debug("Computing flow decomposition results for N state");
+            LOGGER.info("Computing flow decomposition results for N state");
             observers.computingBaseCase();
             FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder = flowDecompositionResults.getBuilder(xnecs);
             decomposeFlowForState(network, xnecs, flowDecompositionResultsBuilder, netPositions, glsks, loadFlowServiceAcResult);
@@ -139,7 +139,7 @@ public class FlowDecompositionComputer {
                                                   Map<Country, Double> netPositions,
                                                   Map<Country, Map<String, Double>> glsks) {
         if (!xnecList.isEmpty()) {
-            LOGGER.debug("Computing flow decomposition results for N-1 state '{}'.", contingencyId);
+            LOGGER.info("Computing flow decomposition results for N-1 state '{}'.", contingencyId);
             observers.computingContingency(contingencyId);
             networkStateManager.setNetworkVariant(contingencyId);
             LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
@@ -155,19 +155,19 @@ public class FlowDecompositionComputer {
                                        Map<Country, Map<String, Double>> glsks,
                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
         // AC load flow
-        LOGGER.debug("Computing AC load flow");
+        LOGGER.info("Computing AC load flow");
         saveAcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecs, loadFlowServiceAcResult);
 
         // Losses compensation
-        LOGGER.debug("Computing losses compensation");
+        LOGGER.info("Computing losses compensation");
         compensateLosses(network);
 
         // DC load flow
-        LOGGER.debug("Computing DC load flow");
+        LOGGER.info("Computing DC load flow");
         LoadFlowRunningService.Result loadFlowServiceDcResult = runDcLoadFlow(network);
         saveDcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecs, loadFlowServiceDcResult);
 
-        LOGGER.debug("Computing flow partitions");
+        LOGGER.info("Computing flow partitions");
         Map<String, FlowPartition> flowPartitions = getFlowPartitioner().computeFlowPartitions(network, xnecs, netPositions, glsks);
         flowDecompositionResultsBuilder.saveFlowPartitions(flowPartitions);
 

@@ -43,7 +43,7 @@ public class DirectSensitivityPartitioner implements FlowPartitioner {
 
     @Override
     public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch<?>> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
-        LOGGER.debug("Using fast mode of flow decomposition, detailed info (as nodal PTDF and PSDF matrices) won't be reported");
+        LOGGER.warn("Using fast mode of flow decomposition, detailed info (as nodal PTDF and PSDF matrices) won't be reported");
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecs));
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network, netPositions,
             networkMatrixIndexes, glsks);

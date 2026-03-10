@@ -104,12 +104,11 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
     }
 
     private void runSensitivityAnalysisAndFillResultsForPex(Map<String, double[]> exchangePerFlowPart, List<String> flowPartNameList, double[][] results) {
+        LOGGER.debug("Running sensitivity analysis for decomposed flow");
         VariableSetBuildResult variableSetBuildResult = buildVariableSets(exchangePerFlowPart, flowPartNameList);
         GroupedFLDFactor[] groupedFactors = new GroupedFLDFactor[variableSetBuildResult.factorCount()];
         SensitivityFactorReader factorReader = new FastFLDGroupedSensitivityFactorReader(xnecIds, variableSetBuildResult.aggregations(), groupedFactors);
         SensitivityResultWriter valueWriter = new FastFLDGroupedSensitivityResultWriter(groupedFactors, results, variableSetBuildResult.aggregations());
-
-        LOGGER.debug("Running sensitivity analysis for decomposed flow for {} grouped factors", groupedFactors.length);
         runSensitivityAnalysis(network, factorReader, valueWriter, variableSetBuildResult.variableSets());
     }
 
