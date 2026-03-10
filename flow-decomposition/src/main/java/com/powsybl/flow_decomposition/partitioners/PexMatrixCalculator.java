@@ -73,10 +73,6 @@ public class PexMatrixCalculator {
             pexGraph1.vertexSet().size(),
             pexGraph1.edgeSet().size(),
             hasCycle);
-
-        //if (hasCycle) {
-        //    LOGGER.debug("PEX graph cycle vertices={}", detector.findCycles());
-        //}
         return hasCycle;
     }
 
@@ -135,12 +131,6 @@ public class PexMatrixCalculator {
 
             // Use the current stack (post-swap). Also avoid String.format overhead.
             double stackL1Norm = l1Norm(stack);
-            //if (LOGGER.isDebugEnabled()) {
-            //    LOGGER.debug(
-            //        "Iteration {}/{}: relative L1 norm of stack matrix is {}% (stack nnz={}, transfer nnz={}, ith neumann nnz={}, sparse pex matrix {}%)",
-            //        i, maxIteration, 100.0 * stackL1Norm / initialStackL1Norm, stack.nz_length, transfer.nz_length, neumannCoefficient.nz_length, 100 * (double) transfer.nz_length / (transfer.numRows * transfer.numCols)
-            //    );
-            //}
 
             if (stackL1Norm / initialStackL1Norm < L1_NORM_RELATIVE_TOLERANCE) {
                 LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
@@ -222,7 +212,9 @@ public class PexMatrixCalculator {
         double[] loadCoeffs = new double[matrixSize];
         vertexMapper.forEach((key, value) -> loadCoeffs[value] = this.loadCoeffs[value]);
 
-        return computePexMatrixWithNeumann(matrixSize, hasCycle, distributionMatrix, generationCoeffs, loadCoeffs);
+        DMatrixSparseCSC pexMatrix = computePexMatrixWithNeumann(matrixSize, hasCycle, distributionMatrix, generationCoeffs, loadCoeffs);
+        CommonOps_DSCC.removeZeros(pexMatrix, DROP_TOLERANCE);
+        return pexMatrix;
     }
 
     public Map<String, Integer> getVertexIdMapper() {

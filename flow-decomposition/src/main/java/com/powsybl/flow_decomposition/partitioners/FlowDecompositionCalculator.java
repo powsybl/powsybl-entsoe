@@ -13,7 +13,6 @@ import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.*;
 import org.ejml.data.DMatrixSparse;
 import org.ejml.data.DMatrixSparseCSC;
-import org.ejml.sparse.csc.CommonOps_DSCC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FlowDecompositionCalculator {
+class FlowDecompositionCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionCalculator.class);
     private final Set<Branch<?>> xnecs;
     private final DMatrixSparseCSC pexMatrix;
@@ -36,10 +35,9 @@ public class FlowDecompositionCalculator {
     private final boolean[] isBusByVertexIndex;
     private final Country[] countriesByVertexPos;
 
-    public FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrixSparseCSC pexMatrix, SparseMatrixWithIndexesCSC sparsePtdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexIdMapping) {
+    FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrixSparseCSC pexMatrix, SparseMatrixWithIndexesCSC sparsePtdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexIdMapping) {
         this.xnecs = Objects.requireNonNull(xnecs);
-        this.pexMatrix = new DMatrixSparseCSC(pexMatrix.numRows, pexMatrix.numCols, pexMatrix.nz_length);
-        CommonOps_DSCC.removeZeros(Objects.requireNonNull(pexMatrix), this.pexMatrix, 1e-9);
+        this.pexMatrix = pexMatrix;
         this.transposedPtdfMatrix = Objects.requireNonNull(sparsePtdfMatrix).transpose();
 
         this.pstFlowMatrix = Objects.requireNonNull(pstFlowMatrix).toMap();
