@@ -45,7 +45,6 @@ public class FlowDecompositionCalculator {
 
         this.pstFlowMatrix = Objects.requireNonNull(pstFlowMatrix).toMap();
 
-        Map<String, String> anyInjectionOnBus = busesInMainSynchronousComponent.stream().collect(Collectors.toMap(Identifiable::getId, bus -> NetworkUtil.getInjectionStream(bus).findAny().orElseThrow().getId()));
         Map<String, Bus> idToBus = new HashMap<>();
         busesInMainSynchronousComponent.forEach(bus -> idToBus.put(bus.getId(), bus));
 

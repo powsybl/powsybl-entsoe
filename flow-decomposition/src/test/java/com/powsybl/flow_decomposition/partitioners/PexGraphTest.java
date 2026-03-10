@@ -14,14 +14,9 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.nad.NadParameters;
-import com.powsybl.nad.NetworkAreaDiagram;
-import com.powsybl.nad.build.iidm.VoltageLevelFilter;
-import com.powsybl.nad.layout.LayoutParameters;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,8 +28,6 @@ class PexGraphTest {
     @Test
     void testGraphInjectionSummed() {
         Network testNetwork = TestUtils.importNetwork("testCase.xiidm");
-        NadParameters nadParameters = new NadParameters().setLayoutParameters(new LayoutParameters().setInjectionsAdded(true));
-        NetworkAreaDiagram.draw(testNetwork, Path.of("/tmp/diagram.svg"), nadParameters, VoltageLevelFilter.NO_FILTER);
         List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(testNetwork);
         List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
         // Test while summing injections
