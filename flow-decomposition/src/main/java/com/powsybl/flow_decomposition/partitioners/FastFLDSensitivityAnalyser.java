@@ -203,6 +203,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         return new VariableSetBuildResult(variableSets, aggregations, factorPerXnec * xnecIds.size());
     }
 
+    @SuppressWarnings("java:S6218")
     private record FastFLDGroupedSensitivityResultWriter(GroupedFLDFactor[] factors, double[][] results,
                                                          FlowPartAggregation[] aggregations) implements SensitivityResultWriter {
 
@@ -229,6 +230,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
     }
 
+    @SuppressWarnings("java:S6218")
     private record FastFLDGroupedSensitivityFactorReader(List<String> xnecs, FlowPartAggregation[] aggregations,
                                                          GroupedFLDFactor[] factors) implements SensitivityFactorReader {
 
@@ -261,10 +263,12 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                                        double positiveTotal, double negativeTotal) {
     }
 
+    @SuppressWarnings("java:S6218")
     private record VariableSetBuildResult(List<SensitivityVariableSet> variableSets, FlowPartAggregation[] aggregations,
                                           int factorCount) {
     }
 
+    @SuppressWarnings("java:S6218")
     private record FastFLDPstSensitivityResultWriter(List<FunctionVariableFactor> factors, double[][] results,
                                                      int pstIndex, Map<String, Integer> xnecIndex,
                                                      Map<String, PhaseTapChanger> phaseTapChangerMap) implements SensitivityResultWriter {
