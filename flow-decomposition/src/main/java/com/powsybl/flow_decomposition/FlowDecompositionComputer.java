@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.flow_decomposition.partitioners.DirectSensitivityPartitioner;
+import com.powsybl.flow_decomposition.partitioners.FullLineDecompositionPartitioner;
 import com.powsybl.flow_decomposition.partitioners.MatrixBasedPartitioner;
 import com.powsybl.flow_decomposition.rescaler.*;
 import com.powsybl.iidm.network.Branch;
@@ -172,8 +173,8 @@ public class FlowDecompositionComputer {
                 new MatrixBasedPartitioner(loadFlowParameters, parameters, sensitivityAnalysisRunner, observers);
             case DIRECT_SENSITIVITY_BASED ->
                 new DirectSensitivityPartitioner(loadFlowParameters, sensitivityAnalysisRunner, observers);
-            default ->
-                throw new PowsyblException("FlowPartitioner not defined for mode: " + parameters.getFlowPartitioner());
+            case FULL_LINE_DECOMPOSITION ->
+                new FullLineDecompositionPartitioner(loadFlowParameters, parameters, sensitivityAnalysisRunner, observers);
         };
     }
 
