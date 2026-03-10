@@ -95,15 +95,15 @@ class PexGraphEdge {
 
     PexGraphEdge(Branch<?> branch) {
         Objects.requireNonNull(branch);
-        double associatedFlow = branch.getTerminal1().getP();
-        this.associatedFlow = (Double.isNaN(associatedFlow)) ? 0. : Math.abs(associatedFlow);
+        double branchSide1Flow = branch.getTerminal1().getP();
+        this.associatedFlow = (Double.isNaN(branchSide1Flow)) ? 0. : Math.abs(branchSide1Flow);
         this.id = branch.getId();
     }
 
     public PexGraphEdge(DanglingLine danglingLine) {
         Objects.requireNonNull(danglingLine);
-        double associatedFlow = danglingLine.getTerminal().getP();
-        this.associatedFlow = (Double.isNaN(associatedFlow)) ? 0. : Math.abs(associatedFlow);
+        double danglingLineFlow = danglingLine.getTerminal().getP();
+        this.associatedFlow = (Double.isNaN(danglingLineFlow)) ? 0. : Math.abs(danglingLineFlow);
         this.id = danglingLine.getId();
     }
 
@@ -159,13 +159,9 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
         Bus bus2 = branch.getTerminal2().getBusView().getBus();
 
         if (Double.isNaN(branch.getTerminal1().getP())) {
-            // To avoid possible cycles, remove NA transfer lines
-            //LOGGER.debug("Branch {} filtered because of a flow NA", branch.getId());
-            return;
+            LOGGER.debug("Branch {} filtered because of a flow NA", branch.getId());
         } else if (Math.abs(branch.getTerminal1().getP()) < 1e-5) {
-            // To avoid possible cycles, remove 0 transfer lines
-            //LOGGER.debug("Branch {} filtered because of a flow too low : {} MW", branch.getId(), branch.getTerminal1().getP());
-            return;
+            LOGGER.debug("Branch {} filtered because of a flow too low : {} MW", branch.getId(), branch.getTerminal1().getP());
         } else {
             if (branch.getTerminal1().getP() > 0) {
                 addEdge(vertexPerBus.get(bus1), vertexPerBus.get(bus2), new PexGraphEdge(branch));

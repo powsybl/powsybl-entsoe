@@ -37,59 +37,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class FlowDecompositionTests {
-    static void generateTestString(FlowDecompositionResults flowDecompositionResults) {
-        // TODO remove this
-        StringBuilder sb = new StringBuilder();
-        flowDecompositionResults.getDecomposedFlowMap().entrySet().stream()
-            .sorted(Map.Entry.comparingByKey())
-            .limit(100)
-            .forEach(stringDecomposedFlowEntry -> {
-                DecomposedFlow decomposedFlow = stringDecomposedFlowEntry.getValue();
-                sb.append("validateFlowDecompositionWithMap(flowDecompositionResults, \"");
-                sb.append(decomposedFlow.getId());
-                sb.append("\", \"");
-                sb.append(decomposedFlow.getBranchId());
-                sb.append("\", \"");
-                sb.append(decomposedFlow.getContingencyId());
-                sb.append("\", Country.");
-                sb.append(decomposedFlow.getCountry1());
-                sb.append(", Country.");
-                sb.append(decomposedFlow.getCountry2());
-                sb.append(", ");
-                sb.append(String.format("%.3f", decomposedFlow.getAcTerminal1ReferenceFlow()));
-                sb.append(", ");
-                sb.append(String.format("%.3f", decomposedFlow.getDcReferenceFlow()));
-                sb.append(", ");
-                sb.append(String.format("%.3f", decomposedFlow.getAllocatedFlow()));
-                sb.append(", ");
-                sb.append(String.format("%.3f", decomposedFlow.getXNodeFlow()));
-                sb.append(", ");
-                sb.append(String.format("%.3f", decomposedFlow.getPstFlow()));
-                sb.append(", ");
-                sb.append(String.format("%.3f", decomposedFlow.getInternalFlow()));
-                boolean first = true;
-                for (Country country : decomposedFlow.getLoopFlows().keySet().stream().sorted().toList()) {
-                    if (Math.abs(decomposedFlow.getLoopFlows().get(country)) > 1e-3) {
-                        if (first) {
-                            sb.append(", Map.of(");
-                        } else {
-                            sb.append(", ");
-                        }
-                        sb.append(String.format("Country.%s, %.3f", country.name(), decomposedFlow.getLoopFlow(country)));
-                        first = false;
-                    }
-                }
-                if (first) {
-                    sb.append(", Collections.emptyMap()");
-                } else {
-                    sb.append(")");
-                }
-                sb.append(");\n");
-
-            });
-        String s = sb.toString();
-        System.out.println(s);
-    }
 
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
@@ -100,7 +47,6 @@ class FlowDecompositionTests {
             .setFlowPartitioner(flowPartitionMode);
         FlowDecompositionComputer flowDecompositionComputer = new FlowDecompositionComputer(flowDecompositionParameters, LoadFlowParameters.load());
         FlowDecompositionResults flowDecompositionResults = flowDecompositionComputer.run(xnecProvider, network);
-        generateTestString(flowDecompositionResults);
         TestUtils.assertNoInternalFlowOnTieLines(flowDecompositionResults);
         TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
         return flowDecompositionResults;
@@ -554,7 +500,6 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
-        generateTestString(flowDecompositionResults);
         assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
@@ -614,11 +559,9 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
-        generateTestString(flowDecompositionResults);
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
-            // TODO fix this test, xnode flow is not supported
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.070, -100.000, 0.000, 75.000, 0.000, 25.000, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 BLOAD 11 1", "FGEN1 11 BLOAD 11 1", "", Country.FR, Country.BE, 100.133, 100.000, 25.000, 75.000, 0.000, 0.000, Collections.emptyMap());
         } else {
@@ -644,76 +587,14 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
-        generateTestString(flowDecompositionResults);
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
-            // TODO fix this test, xnode flow is not supported
             validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BLOAD 11 1", "BGEN1 11 BLOAD 11 1", "", Country.BE, Country.BE, -49.844, -49.984, 0.000, 49.984, 0.000, 0.000, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -100.000, -100.000, 50.016, 49.984, 0.000, 0.000, Collections.emptyMap());
         } else {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BLOAD 11 1", "BGEN1 11 BLOAD 11 1", "", Country.BE, Country.BE, -49.844, -49.984, 0.000, 150.000, 0.000, -100.016, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -100.000, -100.000, 0.000, -0.000, 0.000, 0.000, Map.of(Country.FR, 100.000));
-        }
-
-        assertEquals(2, flowDecompositionResults.getZoneSet().size());
-        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
-        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
-    }
-
-    @ParameterizedTest(name = "Mode={0}")
-    @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
-        "MATRIX_BASED",
-        "DIRECT_SENSITIVITY_BASED",
-        "FULL_LINE_DECOMPOSITION",
-        "FAST_FULL_LINE_DECOMPOSITION"
-    })
-    void testSimpleNetworkWithUnpairedXNodeGen2(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
-        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE_GEN_2.uct";
-
-        Network network = TestUtils.importNetwork(networkFileName);
-
-        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
-        generateTestString(flowDecompositionResults);
-        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
-
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
-            // TODO fix this test, xnode flow is not supported
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BGEN2 11 1", "BGEN1 11 BGEN2 11 1", "", Country.BE, Country.BE, -86.928, -86.920, 86.920, 0.000, 0.000, 0.000, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -150.000, -150.000, 100.000, 50.000, 0.000, 0.000, Collections.emptyMap());
-        } else {
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BGEN2 11 1", "BGEN1 11 BGEN2 11 1", "", Country.BE, Country.BE, -86.928, -86.920, 40.028, -25.000, 0.000, -3.108, Map.of(Country.FR, 75.000));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -150.000, -150.000, 0.000, -0.000, 0.000, 0.000, Map.of(Country.FR, 150.000));
-        }
-
-        assertEquals(2, flowDecompositionResults.getZoneSet().size());
-        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
-        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
-    }
-
-    @ParameterizedTest(name = "Mode={0}")
-    @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
-        "MATRIX_BASED",
-        "DIRECT_SENSITIVITY_BASED",
-        "FULL_LINE_DECOMPOSITION",
-        "FAST_FULL_LINE_DECOMPOSITION"
-    })
-    void testSimpleNetworkWithUnpairedXNodeGen3(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
-        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_UNBOUNDED_XNODE_GEN_3.uct";
-
-        Network network = TestUtils.importNetwork(networkFileName);
-
-        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
-        generateTestString(flowDecompositionResults);
-        assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
-
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
-            // TODO fix this test, xnode flow is not supported
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BLOAD 11 1", "BGEN1 11 BLOAD 11 1", "", Country.BE, Country.BE, -49.844, -49.984, 0.000, 49.984, 0.000, 0.000, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -100.000, -100.000, 50.016, 49.984, 0.000, 0.000, Collections.emptyMap());
-        } else {
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BLOAD 11 1", "BGEN1 11 BLOAD 11 1", "", Country.BE, Country.BE, -49.844, -49.984, 0.000, 150.000, 0.000, -100.016, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -100.000, -100.000, 0.000, 0.000, 0.000, 0.000, Map.of(Country.FR, 100.000));
         }
 
         assertEquals(2, flowDecompositionResults.getZoneSet().size());
@@ -765,39 +646,9 @@ class FlowDecompositionTests {
         assertEquals(16, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, 191.529, 107.446, 0.000, 550.311, Map.of(Country.FR, 31.596, Country.NL, -2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -191.529, 13.955, 0.000, 328.288, Map.of(Country.FR, -31.596, Country.NL, 2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1", "", Country.BE, Country.BE, -756.898, -756.667, 383.058, 93.491, 0.000, 222.024, Map.of(Country.FR, 63.191, Country.NL, -5.097));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1", "", Country.BE, Country.FR, 664.731, 665.000, 616.074, 99.063, 0.000, 0.000, Map.of(Country.BE, 37.004, Country.FR, -94.787, Country.NL, 7.645));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE2AA1  1", "DDE1AA1  DDE2AA1  1", "", Country.DE, Country.DE, -478.511, -478.333, 449.781, 11.840, 0.000, 0.000, Map.of(Country.BE, -12.335, Country.FR, 31.596, Country.NL, -2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE3AA1  1", "DDE1AA1  DDE3AA1  1", "", Country.DE, Country.DE, -821.489, -821.667, 810.333, 28.046, 0.000, 0.000, Map.of(Country.BE, 12.335, Country.FR, -31.596, Country.NL, 2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1", "", Country.DE, Country.DE, -343.242, -343.333, 360.553, 16.206, 0.000, 0.000, Map.of(Country.BE, 24.669, Country.FR, -63.191, Country.NL, 5.097));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  NNL3AA1  1", "DDE2AA1  NNL3AA1  1", "", Country.DE, Country.NL, -1135.269, -1135.000, 1052.919, 31.943, 0.000, 0.000, Map.of(Country.BE, -37.004, Country.FR, 94.787, Country.NL, -7.645));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR2AA1  1", "FFR1AA1  FFR2AA1  1", "", Country.FR, Country.FR, 1388.870, 1388.333, 819.102, 33.021, 0.000, 521.327, Map.of(Country.BE, 12.335, Country.NL, 2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR3AA1  1", "FFR1AA1  FFR3AA1  1", "", Country.FR, Country.FR, -388.870, -388.333, 293.036, 33.021, 0.000, 47.393, Map.of(Country.BE, 12.335, Country.NL, 2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1", "", Country.FR, Country.DE, 1664.731, 1665.000, 1657.183, 57.955, 0.000, 0.000, Map.of(Country.BE, 37.004, Country.FR, -94.787, Country.NL, 7.645));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  FFR3AA1  1", "FFR2AA1  FFR3AA1  1", "", Country.FR, Country.FR, -1775.862, -1776.667, 1112.138, 66.042, 0.000, 568.720, Map.of(Country.BE, 24.669, Country.NL, 5.097));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL2AA1  1", "NNL1AA1  NNL2AA1  1", "", Country.NL, Country.NL, -211.847, -211.667, 228.775, 17.148, 0.000, -53.517, Map.of(Country.BE, -12.335, Country.FR, 31.596));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL3AA1  1", "NNL1AA1  NNL3AA1  1", "", Country.NL, Country.NL, 711.847, 711.667, 575.869, 17.148, 0.000, 99.388, Map.of(Country.BE, -12.335, Country.FR, 31.596));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  BBE3AA1  1", "NNL2AA1  BBE3AA1  1", "", Country.NL, Country.BE, -1635.269, -1635.000, 1505.327, 79.536, 0.000, 0.000, Map.of(Country.BE, -37.004, Country.FR, 94.787, Country.NL, -7.645));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  NNL3AA1  1", "NNL2AA1  NNL3AA1  1", "", Country.NL, Country.NL, 923.422, 923.333, 804.644, 34.296, 0.000, 45.872, Map.of(Country.BE, -24.669, Country.FR, 63.191));
+            validateFullLineDecompositionResultsWithXnodeGen(flowDecompositionResults);
         } else {
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, -48.390, 57.500, 0.000, 814.035, Map.of(Country.DE, 4.444, Country.NL, 3.125, Country.FR, 47.619));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -336.259, -32.500, 0.000, 545.614, Map.of(Country.DE, -4.444, Country.NL, -3.125, Country.FR, -47.619));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1", "", Country.BE, Country.BE, -756.898, -756.667, 287.869, 90.000, 0.000, 268.421, Map.of(Country.DE, 8.889, Country.NL, 6.250, Country.FR, 95.238));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1", "", Country.BE, Country.FR, 664.731, 665.000, 460.960, 127.500, 0.000, 0.000, Map.of(Country.DE, -13.333, Country.BE, 242.105, Country.NL, -9.375, Country.FR, -142.857));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE2AA1  1", "DDE1AA1  DDE2AA1  1", "", Country.DE, Country.DE, -478.511, -478.333, 386.405, 7.500, 0.000, 26.667, Map.of(Country.BE, 7.018, Country.NL, 3.125, Country.FR, 47.619));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE3AA1  1", "DDE1AA1  DDE3AA1  1", "", Country.DE, Country.DE, -821.489, -821.667, 711.402, 17.500, 0.000, 106.667, Map.of(Country.BE, 36.842, Country.NL, -3.125, Country.FR, -47.619));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1", "", Country.DE, Country.DE, -343.242, -343.333, 324.997, 10.000, 0.000, 80.000, Map.of(Country.BE, 29.825, Country.NL, -6.250, Country.FR, -95.238));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  NNL3AA1  1", "DDE2AA1  NNL3AA1  1", "", Country.DE, Country.NL, -1135.269, -1135.000, 925.882, 22.500, 0.000, 0.000, Map.of(Country.DE, 13.333, Country.BE, 21.053, Country.NL, 9.375, Country.FR, 142.857));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR2AA1  1", "FFR1AA1  FFR2AA1  1", "", Country.FR, Country.FR, 1388.870, 1388.333, 555.846, 17.500, 0.000, 785.714, Map.of(Country.DE, -4.444, Country.BE, 36.842, Country.NL, -3.125));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR3AA1  1", "FFR1AA1  FFR3AA1  1", "", Country.FR, Country.FR, -388.870, -388.333, 201.272, 42.500, 0.000, 71.429, Map.of(Country.DE, -4.444, Country.BE, 80.702, Country.NL, -3.125));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1", "", Country.FR, Country.DE, 1664.731, 1665.000, 1667.539, 52.500, 0.000, 0.000, Map.of(Country.DE, -13.333, Country.BE, 110.526, Country.NL, -9.375, Country.FR, -142.857));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  FFR3AA1  1", "FFR2AA1  FFR3AA1  1", "", Country.FR, Country.FR, -1775.862, -1776.667, 757.119, 60.000, 0.000, 857.143, Map.of(Country.DE, -8.889, Country.BE, 117.544, Country.NL, -6.250));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL2AA1  1", "NNL1AA1  NNL2AA1  1", "", Country.NL, Country.NL, -211.847, -211.667, 448.101, 32.500, 0.000, -371.875, Map.of(Country.DE, 4.444, Country.BE, 50.877, Country.FR, 47.619));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL3AA1  1", "NNL1AA1  NNL3AA1  1", "", Country.NL, Country.NL, 711.847, 711.667, 329.461, 7.500, 0.000, 315.625, Map.of(Country.DE, 4.444, Country.BE, 7.018, Country.FR, 47.619));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  BBE3AA1  1", "NNL2AA1  BBE3AA1  1", "", Country.NL, Country.BE, -1635.269, -1635.000, 1219.303, 97.500, 0.000, 0.000, Map.of(Country.DE, 13.333, Country.BE, 152.632, Country.NL, 9.375, Country.FR, 142.857));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  NNL3AA1  1", "NNL2AA1  NNL3AA1  1", "", Country.NL, Country.NL, 923.422, 923.333, 777.562, 40.000, 0.000, -56.250, Map.of(Country.DE, 8.889, Country.BE, 57.895, Country.FR, 95.238));
+            validatePowerFlowColouringResultsWithXnodeGen(flowDecompositionResults);
         }
 
         assertEquals(4, flowDecompositionResults.getZoneSet().size());
@@ -805,6 +656,44 @@ class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.DE));
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
+    }
+
+    private static void validatePowerFlowColouringResultsWithXnodeGen(FlowDecompositionResults flowDecompositionResults) {
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, -48.390, 57.500, 0.000, 814.035, Map.of(Country.DE, 4.444, Country.NL, 3.125, Country.FR, 47.619));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -336.259, -32.500, 0.000, 545.614, Map.of(Country.DE, -4.444, Country.NL, -3.125, Country.FR, -47.619));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1", "", Country.BE, Country.BE, -756.898, -756.667, 287.869, 90.000, 0.000, 268.421, Map.of(Country.DE, 8.889, Country.NL, 6.250, Country.FR, 95.238));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1", "", Country.BE, Country.FR, 664.731, 665.000, 460.960, 127.500, 0.000, 0.000, Map.of(Country.DE, -13.333, Country.BE, 242.105, Country.NL, -9.375, Country.FR, -142.857));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE2AA1  1", "DDE1AA1  DDE2AA1  1", "", Country.DE, Country.DE, -478.511, -478.333, 386.405, 7.500, 0.000, 26.667, Map.of(Country.BE, 7.018, Country.NL, 3.125, Country.FR, 47.619));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE3AA1  1", "DDE1AA1  DDE3AA1  1", "", Country.DE, Country.DE, -821.489, -821.667, 711.402, 17.500, 0.000, 106.667, Map.of(Country.BE, 36.842, Country.NL, -3.125, Country.FR, -47.619));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1", "", Country.DE, Country.DE, -343.242, -343.333, 324.997, 10.000, 0.000, 80.000, Map.of(Country.BE, 29.825, Country.NL, -6.250, Country.FR, -95.238));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  NNL3AA1  1", "DDE2AA1  NNL3AA1  1", "", Country.DE, Country.NL, -1135.269, -1135.000, 925.882, 22.500, 0.000, 0.000, Map.of(Country.DE, 13.333, Country.BE, 21.053, Country.NL, 9.375, Country.FR, 142.857));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR2AA1  1", "FFR1AA1  FFR2AA1  1", "", Country.FR, Country.FR, 1388.870, 1388.333, 555.846, 17.500, 0.000, 785.714, Map.of(Country.DE, -4.444, Country.BE, 36.842, Country.NL, -3.125));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR3AA1  1", "FFR1AA1  FFR3AA1  1", "", Country.FR, Country.FR, -388.870, -388.333, 201.272, 42.500, 0.000, 71.429, Map.of(Country.DE, -4.444, Country.BE, 80.702, Country.NL, -3.125));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1", "", Country.FR, Country.DE, 1664.731, 1665.000, 1667.539, 52.500, 0.000, 0.000, Map.of(Country.DE, -13.333, Country.BE, 110.526, Country.NL, -9.375, Country.FR, -142.857));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  FFR3AA1  1", "FFR2AA1  FFR3AA1  1", "", Country.FR, Country.FR, -1775.862, -1776.667, 757.119, 60.000, 0.000, 857.143, Map.of(Country.DE, -8.889, Country.BE, 117.544, Country.NL, -6.250));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL2AA1  1", "NNL1AA1  NNL2AA1  1", "", Country.NL, Country.NL, -211.847, -211.667, 448.101, 32.500, 0.000, -371.875, Map.of(Country.DE, 4.444, Country.BE, 50.877, Country.FR, 47.619));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL3AA1  1", "NNL1AA1  NNL3AA1  1", "", Country.NL, Country.NL, 711.847, 711.667, 329.461, 7.500, 0.000, 315.625, Map.of(Country.DE, 4.444, Country.BE, 7.018, Country.FR, 47.619));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  BBE3AA1  1", "NNL2AA1  BBE3AA1  1", "", Country.NL, Country.BE, -1635.269, -1635.000, 1219.303, 97.500, 0.000, 0.000, Map.of(Country.DE, 13.333, Country.BE, 152.632, Country.NL, 9.375, Country.FR, 142.857));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  NNL3AA1  1", "NNL2AA1  NNL3AA1  1", "", Country.NL, Country.NL, 923.422, 923.333, 777.562, 40.000, 0.000, -56.250, Map.of(Country.DE, 8.889, Country.BE, 57.895, Country.FR, 95.238));
+    }
+
+    private static void validateFullLineDecompositionResultsWithXnodeGen(FlowDecompositionResults flowDecompositionResults) {
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, 191.529, 107.446, 0.000, 550.311, Map.of(Country.FR, 31.596, Country.NL, -2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -191.529, 13.955, 0.000, 328.288, Map.of(Country.FR, -31.596, Country.NL, 2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1", "", Country.BE, Country.BE, -756.898, -756.667, 383.058, 93.491, 0.000, 222.024, Map.of(Country.FR, 63.191, Country.NL, -5.097));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1", "", Country.BE, Country.FR, 664.731, 665.000, 616.074, 99.063, 0.000, 0.000, Map.of(Country.BE, 37.004, Country.FR, -94.787, Country.NL, 7.645));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE2AA1  1", "DDE1AA1  DDE2AA1  1", "", Country.DE, Country.DE, -478.511, -478.333, 449.781, 11.840, 0.000, 0.000, Map.of(Country.BE, -12.335, Country.FR, 31.596, Country.NL, -2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE3AA1  1", "DDE1AA1  DDE3AA1  1", "", Country.DE, Country.DE, -821.489, -821.667, 810.333, 28.046, 0.000, 0.000, Map.of(Country.BE, 12.335, Country.FR, -31.596, Country.NL, 2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1", "", Country.DE, Country.DE, -343.242, -343.333, 360.553, 16.206, 0.000, 0.000, Map.of(Country.BE, 24.669, Country.FR, -63.191, Country.NL, 5.097));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  NNL3AA1  1", "DDE2AA1  NNL3AA1  1", "", Country.DE, Country.NL, -1135.269, -1135.000, 1052.919, 31.943, 0.000, 0.000, Map.of(Country.BE, -37.004, Country.FR, 94.787, Country.NL, -7.645));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR2AA1  1", "FFR1AA1  FFR2AA1  1", "", Country.FR, Country.FR, 1388.870, 1388.333, 819.102, 33.021, 0.000, 521.327, Map.of(Country.BE, 12.335, Country.NL, 2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR3AA1  1", "FFR1AA1  FFR3AA1  1", "", Country.FR, Country.FR, -388.870, -388.333, 293.036, 33.021, 0.000, 47.393, Map.of(Country.BE, 12.335, Country.NL, 2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1", "", Country.FR, Country.DE, 1664.731, 1665.000, 1657.183, 57.955, 0.000, 0.000, Map.of(Country.BE, 37.004, Country.FR, -94.787, Country.NL, 7.645));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  FFR3AA1  1", "FFR2AA1  FFR3AA1  1", "", Country.FR, Country.FR, -1775.862, -1776.667, 1112.138, 66.042, 0.000, 568.720, Map.of(Country.BE, 24.669, Country.NL, 5.097));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL2AA1  1", "NNL1AA1  NNL2AA1  1", "", Country.NL, Country.NL, -211.847, -211.667, 228.775, 17.148, 0.000, -53.517, Map.of(Country.BE, -12.335, Country.FR, 31.596));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL3AA1  1", "NNL1AA1  NNL3AA1  1", "", Country.NL, Country.NL, 711.847, 711.667, 575.869, 17.148, 0.000, 99.388, Map.of(Country.BE, -12.335, Country.FR, 31.596));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  BBE3AA1  1", "NNL2AA1  BBE3AA1  1", "", Country.NL, Country.BE, -1635.269, -1635.000, 1505.327, 79.536, 0.000, 0.000, Map.of(Country.BE, -37.004, Country.FR, 94.787, Country.NL, -7.645));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  NNL3AA1  1", "NNL2AA1  NNL3AA1  1", "", Country.NL, Country.NL, 923.422, 923.333, 804.644, 34.296, 0.000, 45.872, Map.of(Country.BE, -24.669, Country.FR, 63.191));
     }
 
     @ParameterizedTest(name = "Mode={0}")
@@ -825,39 +714,9 @@ class FlowDecompositionTests {
         assertEquals(16, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, 220.064, 0.000, 0.000, 629.222, Map.of(Country.FR, 31.596, Country.NL, -2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -220.064, 0.000, 0.000, 370.778, Map.of(Country.FR, -31.596, Country.NL, 2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1", "", Country.BE, Country.BE, -756.898, -756.667, 440.128, 0.000, 0.000, 258.444, Map.of(Country.FR, 63.191, Country.NL, -5.097));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1", "", Country.BE, Country.FR, 664.731, 665.000, 709.067, 0.000, 0.000, 0.000, Map.of(Country.BE, 43.074, Country.FR, -94.787, Country.NL, 7.645));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE2AA1  1", "DDE1AA1  DDE2AA1  1", "", Country.DE, Country.DE, -478.511, -478.333, 463.644, 0.000, 0.000, 0.000, Map.of(Country.BE, -14.358, Country.FR, 31.596, Country.NL, -2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE3AA1  1", "DDE1AA1  DDE3AA1  1", "", Country.DE, Country.DE, -821.489, -821.667, 836.356, 0.000, 0.000, 0.000, Map.of(Country.BE, 14.358, Country.FR, -31.596, Country.NL, 2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1", "", Country.DE, Country.DE, -343.242, -343.333, 372.712, 0.000, 0.000, 0.000, Map.of(Country.BE, 28.716, Country.FR, -63.191, Country.NL, 5.097));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  NNL3AA1  1", "DDE2AA1  NNL3AA1  1", "", Country.DE, Country.NL, -1135.269, -1135.000, 1090.933, 0.000, 0.000, 0.000, Map.of(Country.BE, -43.074, Country.FR, 94.787, Country.NL, -7.645));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR2AA1  1", "FFR1AA1  FFR2AA1  1", "", Country.FR, Country.FR, 1388.870, 1388.333, 850.100, 0.000, 0.000, 521.327, Map.of(Country.BE, 14.358, Country.NL, 2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR3AA1  1", "FFR1AA1  FFR3AA1  1", "", Country.FR, Country.FR, -388.870, -388.333, 324.034, 0.000, 0.000, 47.393, Map.of(Country.BE, 14.358, Country.NL, 2.548));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1", "", Country.FR, Country.DE, 1664.731, 1665.000, 1709.067, 0.000, 0.000, 0.000, Map.of(Country.BE, 43.074, Country.FR, -94.787, Country.NL, 7.645));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  FFR3AA1  1", "FFR2AA1  FFR3AA1  1", "", Country.FR, Country.FR, -1775.862, -1776.667, 1174.133, 0.000, 0.000, 568.720, Map.of(Country.BE, 28.716, Country.NL, 5.097));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL2AA1  1", "NNL1AA1  NNL2AA1  1", "", Country.NL, Country.NL, -211.847, -211.667, 247.946, 0.000, 0.000, -53.517, Map.of(Country.BE, -14.358, Country.FR, 31.596));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL3AA1  1", "NNL1AA1  NNL3AA1  1", "", Country.NL, Country.NL, 711.847, 711.667, 595.041, 0.000, 0.000, 99.388, Map.of(Country.BE, -14.358, Country.FR, 31.596));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  BBE3AA1  1", "NNL2AA1  BBE3AA1  1", "", Country.NL, Country.BE, -1635.269, -1635.000, 1590.933, 0.000, 0.000, 0.000, Map.of(Country.BE, -43.074, Country.FR, 94.787, Country.NL, -7.645));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  NNL3AA1  1", "NNL2AA1  NNL3AA1  1", "", Country.NL, Country.NL, 923.422, 923.333, 842.987, 0.000, 0.000, 45.872, Map.of(Country.BE, -28.716, Country.FR, 63.191));
+            validateFullLineDecompositionResultsWithXnodeLoad(flowDecompositionResults);
         } else {
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, -36.764, -57.500, 0.000, 917.409, Map.of(Country.FR, 47.619, Country.NL, 3.125, Country.DE, 4.444));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -378.005, 32.500, 0.000, 522.360, Map.of(Country.FR, -47.619, Country.NL, -3.125, Country.DE, -4.444));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1", "", Country.BE, Country.BE, -756.898, -756.667, 341.240, -90.000, 0.000, 395.050, Map.of(Country.FR, 95.238, Country.NL, 6.250, Country.DE, 8.889));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1", "", Country.BE, Country.FR, 664.731, 665.000, 650.887, -127.500, 0.000, 0.000, Map.of(Country.BE, 307.178, Country.FR, -142.857, Country.NL, -9.375, Country.DE, -13.333));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE2AA1  1", "DDE1AA1  DDE2AA1  1", "", Country.DE, Country.DE, -478.511, -478.333, 403.555, -7.500, 0.000, 26.667, Map.of(Country.BE, 4.868, Country.FR, 47.619, Country.NL, 3.125));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE3AA1  1", "DDE1AA1  DDE3AA1  1", "", Country.DE, Country.DE, -821.489, -821.667, 734.482, -17.500, 0.000, 106.667, Map.of(Country.BE, 48.762, Country.FR, -47.619, Country.NL, -3.125));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1", "", Country.DE, Country.DE, -343.242, -343.333, 330.927, -10.000, 0.000, 80.000, Map.of(Country.BE, 43.894, Country.FR, -95.238, Country.NL, -6.250));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  NNL3AA1  1", "DDE2AA1  NNL3AA1  1", "", Country.DE, Country.NL, -1135.269, -1135.000, 977.331, -22.500, 0.000, 0.000, Map.of(Country.BE, 14.604, Country.FR, 142.857, Country.NL, 9.375, Country.DE, 13.333));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR2AA1  1", "FFR1AA1  FFR2AA1  1", "", Country.FR, Country.FR, 1388.870, 1388.333, 578.926, -17.500, 0.000, 785.714, Map.of(Country.BE, 48.762, Country.NL, -3.125, Country.DE, -4.444));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR3AA1  1", "FFR1AA1  FFR3AA1  1", "", Country.FR, Country.FR, -388.870, -388.333, 264.581, -42.500, 0.000, 71.429, Map.of(Country.BE, 102.393, Country.NL, -3.125, Country.DE, -4.444));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1", "", Country.FR, Country.DE, 1664.731, 1665.000, 1736.778, -52.500, 0.000, 0.000, Map.of(Country.BE, 146.287, Country.FR, -142.857, Country.NL, -9.375, Country.DE, -13.333));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  FFR3AA1  1", "FFR2AA1  FFR3AA1  1", "", Country.FR, Country.FR, -1775.862, -1776.667, 843.508, -60.000, 0.000, 857.143, Map.of(Country.BE, 151.155, Country.NL, -6.250, Country.DE, -8.889));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL2AA1  1", "NNL1AA1  NNL2AA1  1", "", Country.NL, Country.NL, -211.847, -211.667, 505.480, -32.500, 0.000, -371.875, Map.of(Country.BE, 58.498, Country.FR, 47.619, Country.DE, 4.444));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL3AA1  1", "NNL1AA1  NNL3AA1  1", "", Country.NL, Country.NL, 711.847, 711.667, 346.610, -7.500, 0.000, 315.625, Map.of(Country.BE, 4.868, Country.FR, 47.619, Country.DE, 4.444));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  BBE3AA1  1", "NNL2AA1  BBE3AA1  1", "", Country.NL, Country.BE, -1635.269, -1635.000, 1391.439, -97.500, 0.000, 0.000, Map.of(Country.BE, 175.495, Country.FR, 142.857, Country.NL, 9.375, Country.DE, 13.333));
-            validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  NNL3AA1  1", "NNL2AA1  NNL3AA1  1", "", Country.NL, Country.NL, 923.422, 923.333, 852.090, -40.000, 0.000, -56.250, Map.of(Country.BE, 63.366, Country.FR, 95.238, Country.DE, 8.889));
+            validatePowerFlowColouringResultsWithXnodeLoad(flowDecompositionResults);
         }
 
         assertEquals(4, flowDecompositionResults.getZoneSet().size());
@@ -865,5 +724,43 @@ class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.DE));
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
+    }
+
+    private static void validatePowerFlowColouringResultsWithXnodeLoad(FlowDecompositionResults flowDecompositionResults) {
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, -36.764, -57.500, 0.000, 917.409, Map.of(Country.FR, 47.619, Country.NL, 3.125, Country.DE, 4.444));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -378.005, 32.500, 0.000, 522.360, Map.of(Country.FR, -47.619, Country.NL, -3.125, Country.DE, -4.444));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1", "", Country.BE, Country.BE, -756.898, -756.667, 341.240, -90.000, 0.000, 395.050, Map.of(Country.FR, 95.238, Country.NL, 6.250, Country.DE, 8.889));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1", "", Country.BE, Country.FR, 664.731, 665.000, 650.887, -127.500, 0.000, 0.000, Map.of(Country.BE, 307.178, Country.FR, -142.857, Country.NL, -9.375, Country.DE, -13.333));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE2AA1  1", "DDE1AA1  DDE2AA1  1", "", Country.DE, Country.DE, -478.511, -478.333, 403.555, -7.500, 0.000, 26.667, Map.of(Country.BE, 4.868, Country.FR, 47.619, Country.NL, 3.125));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE3AA1  1", "DDE1AA1  DDE3AA1  1", "", Country.DE, Country.DE, -821.489, -821.667, 734.482, -17.500, 0.000, 106.667, Map.of(Country.BE, 48.762, Country.FR, -47.619, Country.NL, -3.125));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1", "", Country.DE, Country.DE, -343.242, -343.333, 330.927, -10.000, 0.000, 80.000, Map.of(Country.BE, 43.894, Country.FR, -95.238, Country.NL, -6.250));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  NNL3AA1  1", "DDE2AA1  NNL3AA1  1", "", Country.DE, Country.NL, -1135.269, -1135.000, 977.331, -22.500, 0.000, 0.000, Map.of(Country.BE, 14.604, Country.FR, 142.857, Country.NL, 9.375, Country.DE, 13.333));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR2AA1  1", "FFR1AA1  FFR2AA1  1", "", Country.FR, Country.FR, 1388.870, 1388.333, 578.926, -17.500, 0.000, 785.714, Map.of(Country.BE, 48.762, Country.NL, -3.125, Country.DE, -4.444));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR3AA1  1", "FFR1AA1  FFR3AA1  1", "", Country.FR, Country.FR, -388.870, -388.333, 264.581, -42.500, 0.000, 71.429, Map.of(Country.BE, 102.393, Country.NL, -3.125, Country.DE, -4.444));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1", "", Country.FR, Country.DE, 1664.731, 1665.000, 1736.778, -52.500, 0.000, 0.000, Map.of(Country.BE, 146.287, Country.FR, -142.857, Country.NL, -9.375, Country.DE, -13.333));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  FFR3AA1  1", "FFR2AA1  FFR3AA1  1", "", Country.FR, Country.FR, -1775.862, -1776.667, 843.508, -60.000, 0.000, 857.143, Map.of(Country.BE, 151.155, Country.NL, -6.250, Country.DE, -8.889));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL2AA1  1", "NNL1AA1  NNL2AA1  1", "", Country.NL, Country.NL, -211.847, -211.667, 505.480, -32.500, 0.000, -371.875, Map.of(Country.BE, 58.498, Country.FR, 47.619, Country.DE, 4.444));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL3AA1  1", "NNL1AA1  NNL3AA1  1", "", Country.NL, Country.NL, 711.847, 711.667, 346.610, -7.500, 0.000, 315.625, Map.of(Country.BE, 4.868, Country.FR, 47.619, Country.DE, 4.444));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  BBE3AA1  1", "NNL2AA1  BBE3AA1  1", "", Country.NL, Country.BE, -1635.269, -1635.000, 1391.439, -97.500, 0.000, 0.000, Map.of(Country.BE, 175.495, Country.FR, 142.857, Country.NL, 9.375, Country.DE, 13.333));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  NNL3AA1  1", "NNL2AA1  NNL3AA1  1", "", Country.NL, Country.NL, 923.422, 923.333, 852.090, -40.000, 0.000, -56.250, Map.of(Country.BE, 63.366, Country.FR, 95.238, Country.DE, 8.889));
+    }
+
+    private static void validateFullLineDecompositionResultsWithXnodeLoad(FlowDecompositionResults flowDecompositionResults) {
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, 220.064, 0.000, 0.000, 629.222, Map.of(Country.FR, 31.596, Country.NL, -2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -220.064, 0.000, 0.000, 370.778, Map.of(Country.FR, -31.596, Country.NL, 2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  BBE3AA1  1", "BBE2AA1  BBE3AA1  1", "", Country.BE, Country.BE, -756.898, -756.667, 440.128, 0.000, 0.000, 258.444, Map.of(Country.FR, 63.191, Country.NL, -5.097));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BBE2AA1  FFR3AA1  1", "BBE2AA1  FFR3AA1  1", "", Country.BE, Country.FR, 664.731, 665.000, 709.067, 0.000, 0.000, 0.000, Map.of(Country.BE, 43.074, Country.FR, -94.787, Country.NL, 7.645));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE2AA1  1", "DDE1AA1  DDE2AA1  1", "", Country.DE, Country.DE, -478.511, -478.333, 463.644, 0.000, 0.000, 0.000, Map.of(Country.BE, -14.358, Country.FR, 31.596, Country.NL, -2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE1AA1  DDE3AA1  1", "DDE1AA1  DDE3AA1  1", "", Country.DE, Country.DE, -821.489, -821.667, 836.356, 0.000, 0.000, 0.000, Map.of(Country.BE, 14.358, Country.FR, -31.596, Country.NL, 2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  DDE3AA1  1", "DDE2AA1  DDE3AA1  1", "", Country.DE, Country.DE, -343.242, -343.333, 372.712, 0.000, 0.000, 0.000, Map.of(Country.BE, 28.716, Country.FR, -63.191, Country.NL, 5.097));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "DDE2AA1  NNL3AA1  1", "DDE2AA1  NNL3AA1  1", "", Country.DE, Country.NL, -1135.269, -1135.000, 1090.933, 0.000, 0.000, 0.000, Map.of(Country.BE, -43.074, Country.FR, 94.787, Country.NL, -7.645));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR2AA1  1", "FFR1AA1  FFR2AA1  1", "", Country.FR, Country.FR, 1388.870, 1388.333, 850.100, 0.000, 0.000, 521.327, Map.of(Country.BE, 14.358, Country.NL, 2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR1AA1  FFR3AA1  1", "FFR1AA1  FFR3AA1  1", "", Country.FR, Country.FR, -388.870, -388.333, 324.034, 0.000, 0.000, 47.393, Map.of(Country.BE, 14.358, Country.NL, 2.548));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  DDE3AA1  1", "FFR2AA1  DDE3AA1  1", "", Country.FR, Country.DE, 1664.731, 1665.000, 1709.067, 0.000, 0.000, 0.000, Map.of(Country.BE, 43.074, Country.FR, -94.787, Country.NL, 7.645));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FFR2AA1  FFR3AA1  1", "FFR2AA1  FFR3AA1  1", "", Country.FR, Country.FR, -1775.862, -1776.667, 1174.133, 0.000, 0.000, 568.720, Map.of(Country.BE, 28.716, Country.NL, 5.097));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL2AA1  1", "NNL1AA1  NNL2AA1  1", "", Country.NL, Country.NL, -211.847, -211.667, 247.946, 0.000, 0.000, -53.517, Map.of(Country.BE, -14.358, Country.FR, 31.596));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL1AA1  NNL3AA1  1", "NNL1AA1  NNL3AA1  1", "", Country.NL, Country.NL, 711.847, 711.667, 595.041, 0.000, 0.000, 99.388, Map.of(Country.BE, -14.358, Country.FR, 31.596));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  BBE3AA1  1", "NNL2AA1  BBE3AA1  1", "", Country.NL, Country.BE, -1635.269, -1635.000, 1590.933, 0.000, 0.000, 0.000, Map.of(Country.BE, -43.074, Country.FR, 94.787, Country.NL, -7.645));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  NNL3AA1  1", "NNL2AA1  NNL3AA1  1", "", Country.NL, Country.NL, 923.422, 923.333, 842.987, 0.000, 0.000, 45.872, Map.of(Country.BE, -28.716, Country.FR, 63.191));
     }
 }

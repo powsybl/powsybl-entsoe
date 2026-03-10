@@ -50,8 +50,6 @@ class FlowDecompositionCalculator {
         this.isBusByVertexIndex = new boolean[nVertex];
         this.countriesByVertexPos = new Country[nVertex];
 
-        NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(bus -> bus.getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null)).distinct().toList());
-
         vertexIdMapping.forEach((id, index) -> {
             this.vertexIds[index] = id;
 

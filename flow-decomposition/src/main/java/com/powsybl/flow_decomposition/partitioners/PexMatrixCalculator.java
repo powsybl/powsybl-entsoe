@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class PexMatrixCalculator {
     public static final int MAX_ITERATION = 1000;
-    public static final double L1_NORM_RELATIVE_TOLERANCE = 1e-9;
+    public static final double L1_NORM_ABSOLUTE_TOLERANCE = 1e-9;
     public static final double DROP_TOLERANCE = 1e-10;
     private static final double EPSILON = 1e-5;
     private static final Logger LOGGER = LoggerFactory.getLogger(PexMatrixCalculator.class);
@@ -103,8 +103,6 @@ public class PexMatrixCalculator {
         CommonOps_DSCC.multColumns(neumannCoefficient, loadCoeffs, 0);
         CommonOps_DSCC.removeZeros(neumannCoefficient, DROP_TOLERANCE);
 
-        double initialStackL1Norm = l1Norm(stack);
-
         DMatrixSparseCSC nextTransfer = new DMatrixSparseCSC(transfer);
         DMatrixSparseCSC nextStack = new DMatrixSparseCSC(stack);
         DMatrixSparseCSC tmp;
@@ -129,10 +127,7 @@ public class PexMatrixCalculator {
             stack = nextStack;
             nextStack = tmp;
 
-            // Use the current stack (post-swap). Also avoid String.format overhead.
-            double stackL1Norm = l1Norm(stack);
-
-            if (stackL1Norm / initialStackL1Norm < L1_NORM_RELATIVE_TOLERANCE) {
+            if (l1Norm(stack) < L1_NORM_ABSOLUTE_TOLERANCE) {
                 LOGGER.debug("Stack matrix is close enough to zero, stopping iterations");
                 break;
             }
@@ -208,9 +203,6 @@ public class PexMatrixCalculator {
 
         double[] generationCoeffs = new double[matrixSize];
         vertexMapper.forEach((key, value) -> generationCoeffs[value] = getGenerationCoeff(key));
-
-        double[] loadCoeffs = new double[matrixSize];
-        vertexMapper.forEach((key, value) -> loadCoeffs[value] = this.loadCoeffs[value]);
 
         DMatrixSparseCSC pexMatrix = computePexMatrixWithNeumann(matrixSize, hasCycle, distributionMatrix, generationCoeffs, loadCoeffs);
         CommonOps_DSCC.removeZeros(pexMatrix, DROP_TOLERANCE);
