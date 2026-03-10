@@ -363,12 +363,13 @@ class FlowDecompositionTests {
     void testFlowDecompositionOnNetworkWithBusBarSectionOnly(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         Network network = TestUtils.getMicroGridNetworkWithBusBarSectionOnly();
 
+        XnecProviderAllBranches xnecProvider = new XnecProviderAllBranches();
         if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
             // TODO fix this test, FLD does not support three winding transformers
-            PowsyblException exception = assertThrows(PowsyblException.class, () -> runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode));
+            PowsyblException exception = assertThrows(PowsyblException.class, () -> runFlowDecomposition(network, xnecProvider, flowPartitionMode));
             assertEquals("Nodal generation and load do not match for vertex associated with bus: b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c_0", exception.getMessage());
         } else {
-            FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+            FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowPartitionMode);
             assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
             validateFlowDecompositionWithMap(flowDecompositionResults, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "", Country.BE, Country.BE, 105.335, 115.129, -8.896, 30.705, 33.030, 60.289, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "", Country.BE, Country.BE, -116.324, -118.550, -0.000, 126.160, -0.000, -7.610, Collections.emptyMap());
@@ -391,12 +392,13 @@ class FlowDecompositionTests {
     void testFlowDecompositionOnNetworkWithShuntCompensatorOnly(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         Network network = TestUtils.getMicroGridNetworkWithShuntCompensatorOnly();
 
+        XnecProviderAllBranches xnecProvider = new XnecProviderAllBranches();
         if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
             // TODO fix this test, FLD does not support three winding transformers
-            PowsyblException exception = assertThrows(PowsyblException.class, () -> runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode));
+            PowsyblException exception = assertThrows(PowsyblException.class, () -> runFlowDecomposition(network, xnecProvider, flowPartitionMode));
             assertEquals("Nodal generation and load do not match for vertex associated with bus: b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c_0", exception.getMessage());
         } else {
-            FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+            FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowPartitionMode);
             assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
             validateFlowDecompositionWithMap(flowDecompositionResults, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "", Country.BE, Country.BE, 105.189, 115.160, -8.896, 30.705, 33.030, 60.321, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "", Country.BE, Country.BE, -116.310, -118.537, -0.000, 126.160, -0.000, -7.623, Collections.emptyMap());

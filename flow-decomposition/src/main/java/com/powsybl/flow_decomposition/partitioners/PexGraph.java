@@ -174,10 +174,8 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
     private void addXNodesAsVertexAndEdges(Bus bus) {
         NetworkUtil.getUnpairedXNodeStream(bus).forEach(danglingLine -> {
             if (Double.isNaN(danglingLine.getTerminal().getP())) {
-                // To avoid possible cycles, remove NA transfer lines
                 LOGGER.debug("Unpaired dangling line {} filtered because of a flow NA", danglingLine.getId());
             } else if (Math.abs(danglingLine.getTerminal().getP()) < 1e-5) {
-                // To avoid possible cycles, remove 0 transfer unpaired dangling lines
                 LOGGER.debug("Unpaired dangling line {} filtered because of a flow too low : {} MW", danglingLine.getId(), danglingLine.getTerminal().getP());
             } else {
                 PexGraphVertex v = new PexGraphVertex(danglingLine);
