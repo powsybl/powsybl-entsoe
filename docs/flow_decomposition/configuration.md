@@ -11,7 +11,19 @@
 | proportional-rescaler-min-flow-tolerance | double  | 1e-6          | Option used from rescale modes PROPORTIONAL and MAX_CURRENT_OVERLOAD. Defines the minimum DC flow required in MW for the rescaling to happen.                                                                                                                                                                                                                                |    
 | dc-fallback-enabled-after-ac-divergence  | boolean | true          | Defines the fallback behavior after an AC divergence Use True to run DC loadflow if an AC loadflow diverges (default). Use False to throw an exception if an AC loadflow diverges.                                                                                                                                                                                           |
 | sensitivity-variable-batch-size          | int     | 15000         | When set to a lower value, this parameter will reduce memory usage, but it might increase computation time.                                                                                                                                                                                                                                                                  |
-| flow-partitioner                         | enum    | MATRIX_BASED  | Use DIRECT_SENSITIVITY_BASED for better performance. However, nodal PTDF aren't explicitely calculated anymore and won't be reported. Use MATRIX_BASED if all detailed node PTDF needs to be reported.                                                                                                                                                                       |
+| flow-partitioner                         | enum    | MATRIX_BASED  | See [below](#available-flow-partitioners) for more information on available flow partitioners.                                                                                                                                                                                                                                                                               |
+
+### Available flow partitioners
+
+Currently available flow partitioners are:
+- MATRIX_BASED : implementation of PFC methodology which uses the full sensitivity matrix to compute the flow parts.
+- DIRECT_SENSITIVITY_BASED : implementation of PFC methodology which directly computes the flow parts as a direct sensitivity calculation.
+  Faster than the previous one but does not provide some intermediate results.
+- FULL_LINE_DECOMPOSITION : implementation of FLD methodology which uses the full sensitivity matrix to compute the flow parts. 
+- FAST_FULL_LINE_DECOMPOSITION : implementation of FLD methodology which directly computes the flow parts as a direct sensitivity calculation.
+  Faster than the previous one but does not provide some intermediate results.
+
+For more detailed information on the methodologies, please refer to the [algorithm description](../flow_decomposition/algorithm-description.md).
 
 ## Impact of existing parameters
 
