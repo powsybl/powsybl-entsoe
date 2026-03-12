@@ -95,7 +95,7 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
 
         @Override
-        public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
+        public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
             if (Double.isNaN(value)) {
                 return;
             }
@@ -124,7 +124,7 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
 
         @Override
-        public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+        public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
             // We do not manage contingency yet
         }
     }

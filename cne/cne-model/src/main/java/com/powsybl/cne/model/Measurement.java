@@ -6,7 +6,7 @@
  */
 package com.powsybl.cne.model;
 
-import com.powsybl.security.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolation;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}

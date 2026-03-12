@@ -8,8 +8,8 @@ package com.powsybl.cne.converter;
 
 import com.powsybl.cne.model.ContingencySeries;
 import com.powsybl.cne.model.MonitoredRegisteredResource;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.results.PostContingencyResult;
 
