@@ -71,7 +71,7 @@ public class DirectSensitivityPartitioner implements FlowPartitioner {
             .collect(Collectors.toMap(entry -> Country.valueOf(entry.getKey().substring((LOOP_FLOWS_COLUMN_PREFIX + " ").length())), Map.Entry::getValue));
         Country country1 = NetworkUtil.getTerminalCountry(xnec.getTerminal1());
         Country country2 = NetworkUtil.getTerminalCountry(xnec.getTerminal2());
-        double allocatedFlow = value.get(ALLOCATED_COLUMN_NAME);
+        double allocatedFlow = value.getOrDefault(ALLOCATED_COLUMN_NAME, NO_FLOW);
         double pstFlow = value.getOrDefault(PST_COLUMN_NAME, NO_FLOW);
         double xNodeFlow = value.getOrDefault(XNODE_COLUMN_NAME, NO_FLOW);
         double internalFlow = extractInternalFlowFromMap(loopFlowsCountryMap, country1, country2);

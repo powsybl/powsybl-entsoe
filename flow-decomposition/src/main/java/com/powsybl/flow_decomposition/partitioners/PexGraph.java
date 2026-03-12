@@ -124,6 +124,8 @@ class PexGraphEdge {
 public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
     private static final InjectionStrategy DEFAULT_INJECTION_STRATEGY = InjectionStrategy.SUM_INJECTIONS;
     private static final Logger LOGGER = LoggerFactory.getLogger(PexGraph.class);
+    public static final double EPSILON_EDGE_POWER = 1e-5;
+    public static final double EPSILON_VERTEX_POWER = 1e-3;
 
     private final Map<Bus, PexGraphVertex> vertexPerBus = new HashMap<>();
 
@@ -155,7 +157,7 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
 
         if (Double.isNaN(branch.getTerminal1().getP())) {
             LOGGER.debug("Branch {} filtered because of a flow NA", branch.getId());
-        } else if (Math.abs(branch.getTerminal1().getP()) < 1e-5) {
+        } else if (Math.abs(branch.getTerminal1().getP()) < EPSILON_EDGE_POWER) {
             LOGGER.debug("Branch {} filtered because of a flow too low : {} MW", branch.getId(), branch.getTerminal1().getP());
         } else {
             if (branch.getTerminal1().getP() > 0) {
@@ -170,7 +172,7 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
         NetworkUtil.getUnpairedXNodeStream(bus).forEach(danglingLine -> {
             if (Double.isNaN(danglingLine.getTerminal().getP())) {
                 LOGGER.debug("Unpaired dangling line {} filtered because of a flow NA", danglingLine.getId());
-            } else if (Math.abs(danglingLine.getTerminal().getP()) < 1e-5) {
+            } else if (Math.abs(danglingLine.getTerminal().getP()) < EPSILON_EDGE_POWER) {
                 LOGGER.debug("Unpaired dangling line {} filtered because of a flow too low : {} MW", danglingLine.getId(), danglingLine.getTerminal().getP());
             } else {
                 PexGraphVertex v = new PexGraphVertex(danglingLine);
@@ -193,7 +195,7 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
             double nodalLoad = vertex.getAssociatedLoad() + outgoingEdgesOf(vertex).stream()
                 .mapToDouble(PexGraphEdge::getAssociatedFlow).sum();
 
-            if (Math.abs(nodalGeneration - nodalLoad) > 1e-3) {
+            if (Math.abs(nodalGeneration - nodalLoad) > EPSILON_VERTEX_POWER) {
                 throw new PowsyblException("Nodal generation and load do not match for vertex associated with bus: " + vertex.getId());
             }
         }

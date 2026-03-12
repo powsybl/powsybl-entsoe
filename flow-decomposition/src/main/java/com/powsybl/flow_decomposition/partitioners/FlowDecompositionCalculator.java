@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
  */
 class FlowDecompositionCalculator {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionCalculator.class);
+    public static final double EPSILON = 1e-10;
     private final Set<Branch<?>> xnecs;
     private final DMatrixSparseCSC pexMatrix;
     private final SparseMatrixWithIndexesCSC transposedPtdfMatrix;
@@ -99,7 +100,7 @@ class FlowDecompositionCalculator {
             double ptdfTo = ptdfColumn[e.col];
             double increase = (ptdfFrom - ptdfTo) * exchange;
 
-            if (Math.abs(increase) >= 1e-10) {
+            if (Math.abs(increase) >= EPSILON) {
                 processIncrease(e.row, e.col, increase, result);
             }
         }

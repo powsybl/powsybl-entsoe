@@ -36,13 +36,9 @@ public final class TestUtils {
         // Utility class
     }
 
-    public static Network importNetwork(String networkResourcePath, ReportNode reportNode) {
-        String networkName = Paths.get(networkResourcePath).getFileName().toString();
-        return Network.read(networkName, TestUtils.class.getResourceAsStream(networkResourcePath), reportNode);
-    }
-
     public static Network importNetwork(String networkResourcePath) {
-        return importNetwork(networkResourcePath, ReportNode.NO_OP);
+        String networkName = Paths.get(networkResourcePath).getFileName().toString();
+        return Network.read(networkName, TestUtils.class.getResourceAsStream(networkResourcePath));
     }
 
     public static GlskDocument importGlskDocument(String glskFileName) {
