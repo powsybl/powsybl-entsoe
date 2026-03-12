@@ -7,7 +7,6 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.cgmes.conformity.CgmesConformity3ModifiedCatalog;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.io.GlskDocumentImporters;
 import com.powsybl.iidm.network.*;
