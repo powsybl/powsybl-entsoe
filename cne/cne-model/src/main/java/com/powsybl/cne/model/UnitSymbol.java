@@ -7,7 +7,7 @@
 
 package com.powsybl.cne.model;
 
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.contingency.violations.LimitViolationType;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
