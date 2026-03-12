@@ -42,14 +42,17 @@ class FlowDecompositionCalculator {
 
         this.pstFlowMatrix = Objects.requireNonNull(pstFlowMatrix).toMap();
 
-        Map<String, Bus> idToBus = new HashMap<>();
-        busesInMainSynchronousComponent.forEach(bus -> idToBus.put(bus.getId(), bus));
-
         int nVertex = vertexIdMapping.size();
         this.vertexIds = new String[nVertex];
         this.isBusByVertexIndex = new boolean[nVertex];
         this.countriesByVertexPos = new Country[nVertex];
 
+        fillMemberArraysBasedOnVertexIndexMapping(busesInMainSynchronousComponent, vertexIdMapping);
+    }
+
+    private void fillMemberArraysBasedOnVertexIndexMapping(List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexIdMapping) {
+        Map<String, Bus> idToBus = new HashMap<>();
+        busesInMainSynchronousComponent.forEach(bus -> idToBus.put(bus.getId(), bus));
         vertexIdMapping.forEach((id, index) -> {
             this.vertexIds[index] = id;
 
