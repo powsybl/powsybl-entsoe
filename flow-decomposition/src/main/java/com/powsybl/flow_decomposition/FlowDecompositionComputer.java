@@ -9,6 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.glsk_provider.AutoGlskProvider;
 import com.powsybl.flow_decomposition.partitioners.DirectSensitivityPartitioner;
+import com.powsybl.flow_decomposition.partitioners.FastFullLineDecompositionPartitioner;
 import com.powsybl.flow_decomposition.partitioners.FullLineDecompositionPartitioner;
 import com.powsybl.flow_decomposition.partitioners.MatrixBasedPartitioner;
 import com.powsybl.flow_decomposition.rescaler.*;
@@ -32,10 +33,10 @@ import java.util.Set;
  */
 public class FlowDecompositionComputer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
+    public static final LoadFlowParameters.ComponentMode MAIN_CONNECTED_COMPONENT = LoadFlowParameters.ComponentMode.MAIN_CONNECTED;
     static final String DEFAULT_LOAD_FLOW_PROVIDER = "OpenLoadFlow";
     static final String DEFAULT_SENSITIVITY_ANALYSIS_PROVIDER = "OpenLoadFlow";
-    public static final LoadFlowParameters.ComponentMode MAIN_CONNECTED_COMPONENT = LoadFlowParameters.ComponentMode.MAIN_CONNECTED;
+    private static final Logger LOGGER = LoggerFactory.getLogger(FlowDecompositionComputer.class);
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
     private final LoadFlowRunningService loadFlowRunningService;
@@ -80,6 +81,7 @@ public class FlowDecompositionComputer {
     }
 
     public FlowDecompositionResults run(XnecProvider xnecProvider, GlskProvider glskProvider, Network network) {
+        LOGGER.info("Starting flow decomposition for network {}", network.getId());
         observers.runStart();
         try {
             NetworkStateManager networkStateManager = new NetworkStateManager(network, xnecProvider);
@@ -110,6 +112,7 @@ public class FlowDecompositionComputer {
             networkStateManager.deleteAllContingencyVariants();
             return flowDecompositionResults;
         } finally {
+            LOGGER.info("End flow decomposition for network {}", network.getId());
             observers.runDone();
         }
     }
@@ -121,6 +124,7 @@ public class FlowDecompositionComputer {
                                         Map<Country, Map<String, Double>> glsks,
                                         LoadFlowRunningService.Result loadFlowServiceAcResult) {
         if (!xnecs.isEmpty()) {
+            LOGGER.info("Computing flow decomposition results for N state");
             observers.computingBaseCase();
             FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder = flowDecompositionResults.getBuilder(xnecs);
             decomposeFlowForState(network, xnecs, flowDecompositionResultsBuilder, netPositions, glsks, loadFlowServiceAcResult);
@@ -135,6 +139,7 @@ public class FlowDecompositionComputer {
                                                   Map<Country, Double> netPositions,
                                                   Map<Country, Map<String, Double>> glsks) {
         if (!xnecList.isEmpty()) {
+            LOGGER.info("Computing flow decomposition results for N-1 state '{}'.", contingencyId);
             observers.computingContingency(contingencyId);
             networkStateManager.setNetworkVariant(contingencyId);
             LoadFlowRunningService.Result loadFlowServiceAcResult = runAcLoadFlow(network);
@@ -150,15 +155,19 @@ public class FlowDecompositionComputer {
                                        Map<Country, Map<String, Double>> glsks,
                                        LoadFlowRunningService.Result loadFlowServiceAcResult) {
         // AC load flow
+        LOGGER.info("Computing AC load flow");
         saveAcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecs, loadFlowServiceAcResult);
 
         // Losses compensation
+        LOGGER.info("Computing losses compensation");
         compensateLosses(network);
 
         // DC load flow
+        LOGGER.info("Computing DC load flow");
         LoadFlowRunningService.Result loadFlowServiceDcResult = runDcLoadFlow(network);
         saveDcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecs, loadFlowServiceDcResult);
 
+        LOGGER.info("Computing flow partitions");
         Map<String, FlowPartition> flowPartitions = getFlowPartitioner().computeFlowPartitions(network, xnecs, netPositions, glsks);
         flowDecompositionResultsBuilder.saveFlowPartitions(flowPartitions);
 
@@ -175,6 +184,8 @@ public class FlowDecompositionComputer {
                 new DirectSensitivityPartitioner(loadFlowParameters, sensitivityAnalysisRunner, observers);
             case FULL_LINE_DECOMPOSITION ->
                 new FullLineDecompositionPartitioner(loadFlowParameters, parameters, sensitivityAnalysisRunner, observers);
+            case FAST_FULL_LINE_DECOMPOSITION ->
+                new FastFullLineDecompositionPartitioner(loadFlowParameters, sensitivityAnalysisRunner);
         };
     }
 

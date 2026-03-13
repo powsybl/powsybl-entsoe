@@ -12,11 +12,12 @@ import com.powsybl.flow_decomposition.TestUtils;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.ejml.data.DMatrix;
 import org.ejml.data.DMatrixSparseCSC;
 import org.ejml.ops.DConvertMatrixStruct;
 import org.ejml.sparse.csc.CommonOps_DSCC;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -28,23 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class PexMatrixCalculatorTest {
-    private static final double EPSILON = 1e-3f;
+    private static final double EPSILON = 1e-3;
 
     private PexGraph pexGraph;
-    private Map<String, Integer> busMapping;
-
-    @BeforeEach
-    void setUp() {
-        Network testNetwork = TestUtils.importNetwork("testCase.xiidm");
-        List<Bus> busesInMainSynchronousComponent = testNetwork.getBusView().getBusStream()
-                .filter(Bus::isInMainSynchronousComponent)
-                .toList();
-        busMapping = NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(Bus::getId).toList());
-        List<Branch> branchesConnectedInMainSynchronousComponent = testNetwork.getBranchStream()
-                .filter(NetworkUtil::isConnectedAndInMainSynchronousComponent)
-                .toList();
-        pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
-    }
+    private Map<String, Integer> vertexIdMapping;
 
     private double relativeError(double a, double b) {
         return a == 0 ? a - b : (a - b) / a;
@@ -63,8 +51,8 @@ class PexMatrixCalculatorTest {
     }
 
     private void checkMatrixOkForBus(DMatrixSparseCSC pexMatrix, PexGraphVertex vertex) {
-        checkIsColumnSumEqualToLoad(pexMatrix, busMapping.get(vertex.getAssociatedBus().getId()), vertex.getAssociatedLoad());
-        checkIsRowSumEqualToGen(pexMatrix, busMapping.get(vertex.getAssociatedBus().getId()), vertex.getAssociatedGeneration());
+        checkIsColumnSumEqualToLoad(pexMatrix, vertexIdMapping.get(vertex.getId()), vertex.getAssociatedLoad());
+        checkIsRowSumEqualToGen(pexMatrix, vertexIdMapping.get(vertex.getId()), vertex.getAssociatedGeneration());
     }
 
     private void checkMatrixOk(DMatrix pexMatrix) {
@@ -75,7 +63,25 @@ class PexMatrixCalculatorTest {
 
     @Test
     void computePexMatrix() {
-        PexMatrixCalculator calculator = new PexMatrixCalculator(pexGraph, busMapping);
+        Network testNetwork = TestUtils.importNetwork("TestCaseDangling.xiidm");
+        List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(testNetwork);
+        List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
+        pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
+        PexMatrixCalculator calculator = new PexMatrixCalculator(pexGraph);
+        vertexIdMapping = calculator.getVertexIdMapper();
+        DMatrix pexMatrix = calculator.computePexMatrix();
+        checkMatrixOk(pexMatrix);
+    }
+
+    @Test
+    void computePexMatrixWithXNodes() {
+        Network testNetwork = TestUtils.importNetwork("TestCaseDangling.xiidm");
+        LoadFlow.run(testNetwork, LoadFlowParameters.load().setDc(true));
+        List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(testNetwork);
+        List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(testNetwork);
+        pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
+        PexMatrixCalculator calculator = new PexMatrixCalculator(pexGraph);
+        vertexIdMapping = calculator.getVertexIdMapper();
         DMatrix pexMatrix = calculator.computePexMatrix();
         checkMatrixOk(pexMatrix);
     }

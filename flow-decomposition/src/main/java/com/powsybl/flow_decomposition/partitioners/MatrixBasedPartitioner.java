@@ -74,14 +74,18 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
     private SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
         SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.getPtdfMatrix(networkMatrixIndexes);
-        observers.computedPtdfMatrix(ptdfMatrix.toMap());
+        if (!observers.getObservers().isEmpty()) {
+            observers.computedPtdfMatrix(ptdfMatrix.toMap());
+        }
         return ptdfMatrix;
     }
 
     private SparseMatrixWithIndexesTriplet getPsdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
         SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.getPsdfMatrix(networkMatrixIndexes);
-        observers.computedPsdfMatrix(psdfMatrix.toMap());
+        if (!observers.getObservers().isEmpty()) {
+            observers.computedPsdfMatrix(psdfMatrix.toMap());
+        }
         return psdfMatrix;
     }
 

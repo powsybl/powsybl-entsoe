@@ -27,14 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class NetPositionTest {
     private static final double DOUBLE_TOLERANCE = 1e-3;
 
-    private static void assertNetPosition(Network network, double netPositionBe, double netPositionNl, double netPositionDe) {
+    private static void assertNetPosition(Network network, double netPositionBe, double netPositionNl, double netPositionDe, double expectedSumNetPositions) {
         Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
         assertEquals(1000.0, netPositions.get(Country.FR), DOUBLE_TOLERANCE);
         assertEquals(netPositionBe, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
         assertEquals(netPositionNl, netPositions.get(Country.NL), DOUBLE_TOLERANCE);
         assertEquals(netPositionDe, netPositions.get(Country.DE), DOUBLE_TOLERANCE);
         double sumAllNetPositions = netPositions.values().stream().mapToDouble(Double::doubleValue).sum();
-        assertEquals(0.0, sumAllNetPositions, DOUBLE_TOLERANCE);
+        assertEquals(expectedSumNetPositions, sumAllNetPositions, DOUBLE_TOLERANCE);
     }
 
     private static void assertNetPositionForHvdc(Network network, double countryNetPosition) {
@@ -49,7 +49,7 @@ class NetPositionTest {
     void testLines() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
         LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
-        assertNetPosition(network, 1500.0, 0.0, -2500.0);
+        assertNetPosition(network, 1500.0, 0.0, -2500.0, 0.0);
     }
 
     @Test
@@ -58,7 +58,7 @@ class NetPositionTest {
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal1().disconnect();
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal2().disconnect();
         LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
-        assertNetPosition(network, 1500.0, 0.0, -2500.0);
+        assertNetPosition(network, 1500.0, 0.0, -2500.0, 0.0);
     }
 
     @Test
@@ -66,7 +66,7 @@ class NetPositionTest {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("testCase.xiidm"));
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal1().disconnect();
         LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
-        assertNetPosition(network, 1500.0, 0.0, -2500.0);
+        assertNetPosition(network, 1500.0, 0.0, -2500.0, 0.0);
     }
 
     @Test
@@ -75,22 +75,23 @@ class NetPositionTest {
         LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal1().setP(Double.NaN);
         network.getBranch("NNL2AA1  BBE3AA1  1").getTerminal2().setP(Double.NaN);
-        assertNetPosition(network, 324.666, 1175.334, -2500.0);
+        assertNetPosition(network, 324.666, 1175.334, -2500.0, 0.0);
     }
 
     @Test
     void testDanglingLinesBalanced() {
         Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
         LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
-        assertNetPosition(network, 2300.0, -500.0, -2800.0);
+        assertNetPosition(network, 2000.0, -500.0, -2800.0, -300.0);
     }
 
     @Test
     void testDanglingLinesDisconnected() {
         Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
         network.getDanglingLine("BBE2AA1  X_BEFR1  1").getTerminal().disconnect();
+        network.getGenerator("BBE3AA1 _generator").setTargetP(2800);
         LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
-        assertNetPosition(network, 2300.0, -500.0, -2800.0);
+        assertNetPosition(network, 2300.0, -500.0, -2800.0, 0.0);
     }
 
     @Test
@@ -98,7 +99,7 @@ class NetPositionTest {
         Network network = Network.read("TestCaseDangling.xiidm", getClass().getResourceAsStream("TestCaseDangling.xiidm"));
         LoadFlow.run(network, LoadFlowParameters.load().setDc(true));
         network.getDanglingLine("BBE2AA1  X_BEFR1  1").getTerminal().setP(Double.NaN);
-        assertNetPosition(network, 2300.0, -500.0, -2800.0);
+        assertNetPosition(network, 2300.0, -500.0, -2800.0, 0.0);
     }
 
     @Test

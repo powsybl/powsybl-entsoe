@@ -146,6 +146,15 @@ where:
 
 ## Full Line Decomposition
 
+### Implementation status
+
+The Full Line Decomposition (FLD) method is currently in **experimental** status. Some features are not yet implemented,
+including (but not limited to):
+- **Three Windings Transformer** handling,
+- **HVDC** handling,
+
+Moreover, implementation and interface may change depending on the feedbacks.
+
 ### Principle
 
 The **Full Line Decomposition (FLD)** approach provides an alternative formulation
@@ -226,11 +235,15 @@ nodes belonging to the corresponding zones. Combined with node-to-node or zonal 
 the PEX matrix allows computing the contribution of each zone-to-zone exchange to the
 flow on any given branch.
 
+XNodes are integrated in PEX matrix on specific nodes, with dedicated edge associated to zone $X$ in the final decomposition,
+that allows independent handling afterwards.
+
 $$
 \begin{array}{l}
 \mathrm{F}_\mathrm{AF}[l] = \sum_{i \in B, j \in C, B \neq C} \mathrm{PTDF}_{l,i2j} \cdot \mathrm{PEX}_{ij} \\
 \mathrm{F}_\mathrm{LF}[l,B] = \sum_{i,j \in B, B\neq A} \mathrm{PTDF}_{l,i2j} \cdot \mathrm{PEX}_{ij} \\
 \mathrm{F}_\mathrm{IF}[l] = \sum_{i,j \in A} \mathrm{PTDF}_{l,i2j} \cdot \mathrm{PEX}_{ij} \\
+\mathrm{F}_\mathrm{XF}[l] = \sum_{i \in X, j \in * \textrm{ or } i \in *, j \in X} \mathrm{PTDF}_{l,i2j} \cdot \mathrm{PEX}_{ij} \\
 \mathrm{F}_\mathrm{PST} = \mathrm{PSDF} \cdot \mathrm{\Delta}_\mathrm{PST} \\
 \end{array}
 $$
@@ -239,6 +252,7 @@ where:
 - $\mathrm{F}_\mathrm{AF}[l]$ is the network element $l$ allocated flow,
 - $\mathrm{F}_\mathrm{LF}[l,A]$ is the network element $l$ loop flow for zone $B$,
 - $\mathrm{F}_\mathrm{IF}[l]$ is the network element $l$ internal flow,
+- $\mathrm{F}_\mathrm{XF}[l]$ is the network element $l$ xNode flow,
 - $\mathrm{F}_\mathrm{PST}$ is the vector of the network element PST (phase shift transformer) flow,
 - $\mathrm{\Delta}_\mathrm{PST}$ is the phase shift transformers angle vector. The neutral tap position of each PST is used to compute this difference.
 
@@ -247,6 +261,8 @@ where:
 - The decomposition is performed **per branch**, without explicit nodal GLSK-based scaling.
 - The sum of all flow components equals the reference DC flow.
 - The result is less sensitive to modelling choices related to nodal injection allocation.
+- Two implementations are available, one fast that directly computes the flow parts as a direct sensitivity calculation,
+  and one slow that uses the full sensitivity matrix to compute the flow parts.
 
 An important limitation exists today on this implementation: xNode flows are not calculated yet.
 

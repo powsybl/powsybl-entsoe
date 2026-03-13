@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,19 +7,15 @@
  */
 package com.powsybl.flow_decomposition.partitioners;
 
-import com.powsybl.flow_decomposition.FlowDecompositionObserverList;
-import com.powsybl.flow_decomposition.FlowPartition;
-import com.powsybl.flow_decomposition.FlowPartitioner;
-import com.powsybl.flow_decomposition.NetworkUtil;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.flow_decomposition.*;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
+import org.ejml.data.DMatrixSparseCSC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,42 +23,45 @@ import static com.powsybl.flow_decomposition.DecomposedFlow.*;
 import static com.powsybl.flow_decomposition.NetworkUtil.LOOP_FLOWS_COLUMN_PREFIX;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
-public class DirectSensitivityPartitioner implements FlowPartitioner {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DirectSensitivityPartitioner.class);
+public class FastFullLineDecompositionPartitioner implements FlowPartitioner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FastFullLineDecompositionPartitioner.class);
     private final LoadFlowParameters loadFlowParameters;
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
-    private final FlowDecompositionObserverList observers;
 
-    public DirectSensitivityPartitioner(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner sensitivityAnalysisRunner, FlowDecompositionObserverList observers) {
+    public FastFullLineDecompositionPartitioner(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner sensitivityAnalysisRunner) {
         this.loadFlowParameters = loadFlowParameters;
         this.sensitivityAnalysisRunner = sensitivityAnalysisRunner;
-        this.observers = observers;
     }
 
     @Override
     public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch<?>> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
         LOGGER.warn("Using fast mode of flow decomposition, detailed info (as nodal PTDF and PSDF matrices) won't be reported");
-        NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, new ArrayList<>(xnecs));
-        SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = getNodalInjectionsMatrix(network, netPositions,
-            networkMatrixIndexes, glsks);
-        FastModeSensitivityAnalyser sensitivityAnalyser = new FastModeSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner, network, xnecs, nodalInjectionsMatrix);
+        LOGGER.info("{} === Bus mapping", LocalDateTime.now());
+        List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(network);
+        List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(network);
+
+        LOGGER.info("{} === PEX graph generation", LocalDateTime.now());
+        PexGraph pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
+
+        LOGGER.info("{} === PEX matrix computation", LocalDateTime.now());
+        PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph);
+        Map<String, Integer> vertexIdMapping = pexMatrixCalculator.getVertexIdMapper();
+        DMatrixSparseCSC pexMatrix = pexMatrixCalculator.computePexMatrix();
+
+        LOGGER.info("{} === Fast Full Line decomposition", LocalDateTime.now());
+        FastFLDSensitivityAnalyser sensitivityAnalyser = new FastFLDSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner, network, xnecs, vertexIdMapping, pexMatrix, busesInMainSynchronousComponent);
         Map<String, Map<String, Double>> decomposedFlow = sensitivityAnalyser.run();
-        return xnecs.stream().collect(Collectors.toMap(
+
+        Map<String, FlowPartition> results = xnecs.stream().collect(Collectors.toMap(
             Identifiable::getId,
             xnec -> buildFlowPartition(xnec, decomposedFlow.getOrDefault(xnec.getId(), Collections.emptyMap()))
         ));
-    }
 
-    private SparseMatrixWithIndexesTriplet getNodalInjectionsMatrix(Network network,
-                                                                    Map<Country, Double> netPositions,
-                                                                    NetworkMatrixIndexes networkMatrixIndexes,
-                                                                    Map<Country, Map<String, Double>> glsks) {
-        NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes);
-        SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = nodalInjectionComputer.run(network, glsks, netPositions);
-        observers.computedNodalInjectionsMatrix(nodalInjectionsMatrix.toMap());
-        return nodalInjectionsMatrix;
+        LOGGER.info("{} === End of computation", LocalDateTime.now());
+
+        return results;
     }
 
     private FlowPartition buildFlowPartition(Branch<?> xnec, Map<String, Double> value) {
