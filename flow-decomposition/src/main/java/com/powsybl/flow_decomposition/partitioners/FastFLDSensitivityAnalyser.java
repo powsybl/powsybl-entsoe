@@ -202,7 +202,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         return new VariableSetBuildResult(variableSets, aggregations, factorPerXnec * xnecIds.size());
     }
 
-    @SuppressWarnings("java:S6218")
+    @SuppressWarnings("java:S6218") // We do not want to generate code that will not be used just to please Sonar...
     private record FastFLDGroupedSensitivityResultWriter(GroupedFLDFactor[] factors, double[][] results,
                                                          FlowPartAggregation[] aggregations) implements SensitivityResultWriter {
 
@@ -229,7 +229,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
     }
 
-    @SuppressWarnings("java:S6218")
+    @SuppressWarnings("java:S6218") // We do not want to generate code that will not be used just to please Sonar...
     private record FastFLDGroupedSensitivityFactorReader(List<String> xnecs, FlowPartAggregation[] aggregations,
                                                          GroupedFLDFactor[] factors) implements SensitivityFactorReader {
 
@@ -262,12 +262,12 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                                        double positiveTotal, double negativeTotal) {
     }
 
-    @SuppressWarnings("java:S6218")
+    @SuppressWarnings("java:S6218") // We do not want to generate code that will not be used just to please Sonar...
     private record VariableSetBuildResult(List<SensitivityVariableSet> variableSets, FlowPartAggregation[] aggregations,
                                           int factorCount) {
     }
 
-    @SuppressWarnings("java:S6218")
+    @SuppressWarnings("java:S6218") // We do not want to generate code that will not be used just to please Sonar...
     private record FastFLDPstSensitivityResultWriter(List<FunctionVariableFactor> factors, double[][] results,
                                                      int pstIndex, Map<String, Integer> xnecIndex,
                                                      Map<String, PhaseTapChanger> phaseTapChangerMap) implements SensitivityResultWriter {
