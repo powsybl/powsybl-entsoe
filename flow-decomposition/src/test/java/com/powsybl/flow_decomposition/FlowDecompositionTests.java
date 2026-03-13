@@ -496,6 +496,35 @@ class FlowDecompositionTests {
         "FULL_LINE_DECOMPOSITION",
         "FAST_FULL_LINE_DECOMPOSITION"
     })
+    void testSimpleNetworkWith6NodesConnected(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
+        String networkFileName = "NETWORK_6_NODES_CONNECTED.uct";
+
+        Network network = TestUtils.importNetwork(networkFileName);
+
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        assertEquals(7, flowDecompositionResults.getDecomposedFlowMap().size());
+
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN  11 BLOAD 11 1", "BGEN  11 BLOAD 11 1", "", Country.BE, Country.BE, 100.063, 100.000, 0.000, 0.000, 0.000, 73.333, Map.of(Country.FR, 20.000, Country.ES, 6.667));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 FLOAD 11 1", "BLOAD 11 FLOAD 11 1", "", Country.BE, Country.FR, -0.000, 0.000, 0.000, 0.000, 0.000, 0.000, Map.of(Country.BE, -26.667, Country.FR, 20.000, Country.ES, 6.667));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "EGEN  11 ELOAD 11 1", "EGEN  11 ELOAD 11 1", "", Country.ES, Country.ES, 100.063, 100.000, 0.000, 0.000, 0.000, 73.333, Map.of(Country.BE, 6.667, Country.FR, 20.000));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "EGEN  11 FGEN  11 1", "EGEN  11 FGEN  11 1", "", Country.ES, Country.FR, 0.000, -0.000, 0.000, 0.000, 0.000, 0.000, Map.of(Country.BE, 6.667, Country.FR, 20.000, Country.ES, -26.667));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BGEN  11 1", "FGEN  11 BGEN  11 1", "", Country.FR, Country.BE, 0.000, -0.000, 0.000, 0.000, 0.000, 0.000, Map.of(Country.BE, 26.667, Country.FR, -20.000, Country.ES, -6.667));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 FLOAD 11 1", "FGEN  11 FLOAD 11 1", "", Country.FR, Country.FR, 100.063, 100.000, 0.000, 0.000, 0.000, 60.000, Map.of(Country.BE, 20.000, Country.ES, 20.000));
+        validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 ELOAD 11 1", "FLOAD 11 ELOAD 11 1", "", Country.FR, Country.ES, -0.000, 0.000, 0.000, 0.000, 0.000, 0.000, Map.of(Country.BE, -6.667, Country.FR, -20.000, Country.ES, 26.667));
+
+        assertEquals(3, flowDecompositionResults.getZoneSet().size());
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.ES));
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
+    }
+
+    @ParameterizedTest(name = "Mode={0}")
+    @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
+        "MATRIX_BASED",
+        "DIRECT_SENSITIVITY_BASED",
+        "FULL_LINE_DECOMPOSITION",
+        "FAST_FULL_LINE_DECOMPOSITION"
+    })
     void testSimpleNetworkWithPst(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES_NON_NEUTRAL.uct";
 
