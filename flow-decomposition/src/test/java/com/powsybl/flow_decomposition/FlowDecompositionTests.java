@@ -38,6 +38,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class FlowDecompositionTests {
 
+    public static final Set<FlowDecompositionParameters.FlowPartitionMode> FULL_LINE_DECOMPOSITION_MODES = Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION);
+
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
             .setEnableLossesCompensation(FlowDecompositionParameters.ENABLE_LOSSES_COMPENSATION)
@@ -364,7 +366,7 @@ class FlowDecompositionTests {
         Network network = TestUtils.getMicroGridNetworkWithBusBarSectionOnly();
 
         XnecProviderAllBranches xnecProvider = new XnecProviderAllBranches();
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             // TODO fix this test, FLD does not support three winding transformers
             PowsyblException exception = assertThrows(PowsyblException.class, () -> runFlowDecomposition(network, xnecProvider, flowPartitionMode));
             assertEquals("Nodal generation and load do not match for vertex associated with bus: b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c_0", exception.getMessage());
@@ -393,7 +395,7 @@ class FlowDecompositionTests {
         Network network = TestUtils.getMicroGridNetworkWithShuntCompensatorOnly();
 
         XnecProviderAllBranches xnecProvider = new XnecProviderAllBranches();
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             // TODO fix this test, FLD does not support three winding transformers
             PowsyblException exception = assertThrows(PowsyblException.class, () -> runFlowDecomposition(network, xnecProvider, flowPartitionMode));
             assertEquals("Nodal generation and load do not match for vertex associated with bus: b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c_0", exception.getMessage());
@@ -437,7 +439,7 @@ class FlowDecompositionTests {
     })
     void testFlowDecompositionOnHvdcNetworkUsingMode(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         FlowDecompositionResults flowDecompositionResults = testFlowDecompositionOnHvdcNetwork(flowPartitionMode);
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             validateFlowDecompositionResultsUsingFLDMethodology(flowDecompositionResults);
         } else {
             validateFlowDecompositionResultsUsingPFCMethodology(flowDecompositionResults);
@@ -469,7 +471,7 @@ class FlowDecompositionTests {
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
         assertEquals(5, flowDecompositionResults.getDecomposedFlowMap().size());
 
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN  11 BLOAD 11 1", "BGEN  11 BLOAD 11 1", "", Country.BE, Country.BE, NaN, 300.000, 200.000, 0.000, 0.000, 33.333, Map.of(Country.FR, 33.333, Country.ES, 33.333));
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 FLOAD 11 1", "BLOAD 11 FLOAD 11 1", "", Country.BE, Country.FR, NaN, 200.000, 133.333, 0.000, 0.000, 0.000, Map.of(Country.FR, 33.333, Country.ES, 33.333));
             validateFlowDecompositionWithMap(flowDecompositionResults, "EGEN  11 FGEN  11 1", "EGEN  11 FGEN  11 1", "", Country.ES, Country.FR, NaN, 100.000, 66.667, 0.000, 0.000, 0.000, Map.of(Country.ES, 33.333));
@@ -525,6 +527,47 @@ class FlowDecompositionTests {
         "FULL_LINE_DECOMPOSITION",
         "FAST_FULL_LINE_DECOMPOSITION"
     })
+    void testSimpleNetworkWith6NodesConnectedAsymmetrical(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
+        String networkFileName = "NETWORK_6_NODES_CONNECTED.uct";
+
+        Network network = TestUtils.importNetwork(networkFileName);
+        network.getGenerator("EGEN  11_generator").setTargetP(250.0);
+        network.getLoad("ELOAD 11_load").setP0(250.0);
+
+        FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        assertEquals(7, flowDecompositionResults.getDecomposedFlowMap().size());
+
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN  11 BLOAD 11 1", "BGEN  11 BLOAD 11 1", "", Country.BE, Country.BE, 110.820, 110.737, 15.152, 0.000, 0.000, 67.348, Map.of(Country.FR, 13.583, Country.ES, 14.654));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 FLOAD 11 1", "BLOAD 11 FLOAD 11 1", "", Country.BE, Country.FR, 10.589, 10.581, 6.834, 0.000, 0.000, 0.000, Map.of(Country.BE, -24.490, Country.FR, 13.583, Country.ES, 14.654));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "EGEN  11 ELOAD 11 1", "EGEN  11 ELOAD 11 1", "", Country.ES, Country.ES, 210.652, 209.439, 28.539, 0.000, 0.000, 161.195, Map.of(Country.BE, 6.123, Country.FR, 13.583));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "EGEN  11 FGEN  11 1", "EGEN  11 FGEN  11 1", "", Country.ES, Country.FR, 41.120, 38.364, -0.547, 0.000, 0.000, 0.000, Map.of(Country.BE, -6.123, Country.FR, -13.583, Country.ES, 58.616));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BGEN  11 1", "FGEN  11 BGEN  11 1", "", Country.FR, Country.BE, 9.258, 9.196, 5.450, 0.000, 0.000, 0.000, Map.of(Country.BE, -24.490, Country.FR, 13.583, Country.ES, 14.654));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 FLOAD 11 1", "FGEN  11 FLOAD 11 1", "", Country.FR, Country.FR, 130.463, 130.514, 27.436, 0.000, 0.000, 40.748, Map.of(Country.BE, 18.368, Country.ES, 43.962));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 ELOAD 11 1", "FLOAD 11 ELOAD 11 1", "", Country.FR, Country.ES, 40.681, 40.561, 1.650, 0.000, 0.000, 0.000, Map.of(Country.BE, -6.123, Country.FR, -13.583, Country.ES, 58.616));
+        } else {
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN  11 BLOAD 11 1", "BGEN  11 BLOAD 11 1", "", Country.BE, Country.BE, 110.820, 110.737, 0.421, 0.000, 0.000, 73.453, Map.of(Country.FR, 20.021, Country.ES, 16.842));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 FLOAD 11 1", "BLOAD 11 FLOAD 11 1", "", Country.BE, Country.FR, 10.589, 10.581, 0.421, 0.000, 0.000, 0.000, Map.of(Country.BE, -26.703, Country.FR, 20.021, Country.ES, 16.842));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "EGEN  11 ELOAD 11 1", "EGEN  11 ELOAD 11 1", "", Country.ES, Country.ES, 210.652, 209.439, -0.325, 0.000, 0.000, 183.070, Map.of(Country.BE, 6.673, Country.FR, 20.021));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "EGEN  11 FGEN  11 1", "EGEN  11 FGEN  11 1", "", Country.ES, Country.FR, 41.120, 38.364, -0.554, 0.000, 0.000, 0.000, Map.of(Country.BE, -6.682, Country.FR, -20.451, Country.ES, 66.052));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BGEN  11 1", "FGEN  11 BGEN  11 1", "", Country.FR, Country.BE, 9.258, 9.196, -0.937, 0.000, 0.000, 0.000, Map.of(Country.BE, -26.721, Country.FR, 20.451, Country.ES, 16.403));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 FLOAD 11 1", "FGEN  11 FLOAD 11 1", "", Country.FR, Country.FR, 130.463, 130.514, -0.096, 0.000, 0.000, 60.492, Map.of(Country.BE, 20.029, Country.ES, 50.088));
+            validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 ELOAD 11 1", "FLOAD 11 ELOAD 11 1", "", Country.FR, Country.ES, 40.681, 40.561, 0.325, 0.000, 0.000, 0.000, Map.of(Country.BE, -6.673, Country.FR, -20.021, Country.ES, 66.930));
+        }
+
+        assertEquals(3, flowDecompositionResults.getZoneSet().size());
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.ES));
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.FR));
+    }
+
+    @ParameterizedTest(name = "Mode={0}")
+    @EnumSource(value = FlowDecompositionParameters.FlowPartitionMode.class, names = {
+        "MATRIX_BASED",
+        "DIRECT_SENSITIVITY_BASED",
+        "FULL_LINE_DECOMPOSITION",
+        "FAST_FULL_LINE_DECOMPOSITION"
+    })
     void testSimpleNetworkWithPst(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         String networkFileName = "NETWORK_PST_FLOW_WITH_COUNTRIES_NON_NEUTRAL.uct";
 
@@ -533,7 +576,7 @@ class FlowDecompositionTests {
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
         assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
 
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BLOAD 12 2", "BLOAD 11 BLOAD 12 2", "", Country.BE, Country.BE, -160.006, -168.543, 4.890, 0.000, 163.653, 0.000, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BLOAD 11 1", "FGEN  11 BLOAD 11 1", "", Country.FR, Country.BE, 192.391, 200.671, 37.019, 0.000, 163.653, 0.000, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN  11 BLOAD 12 1", "FGEN  11 BLOAD 12 1", "", Country.FR, Country.BE, -76.188, -84.725, -78.927, 0.000, 163.653, 0.000, Collections.emptyMap());
@@ -562,7 +605,7 @@ class FlowDecompositionTests {
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
         assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
 
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -101.421, -101.420, 0.000, 0.000, 0.000, 101.420, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 FLOAD 11 1", "FGEN1 11 FLOAD 11 1", "", Country.FR, Country.FR, 104.268, 101.424, 98.580, 0.000, 0.000, 2.844, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BLOAD 11 1", "FLOAD 11 BLOAD 11 1", "", Country.FR, Country.BE, 101.424, 98.580, 98.580, 0.000, 0.000, 0.000, Collections.emptyMap());
@@ -592,7 +635,7 @@ class FlowDecompositionTests {
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
 
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.070, -100.000, 0.000, 75.000, 0.000, 25.000, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 BLOAD 11 1", "FGEN1 11 BLOAD 11 1", "", Country.FR, Country.BE, 100.133, 100.000, 25.000, 75.000, 0.000, 0.000, Collections.emptyMap());
         } else {
@@ -620,7 +663,7 @@ class FlowDecompositionTests {
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
 
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN1 11 BLOAD 11 1", "BGEN1 11 BLOAD 11 1", "", Country.BE, Country.BE, -49.844, -49.984, 0.000, 49.984, 0.000, 0.000, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FLOAD 11 BGEN1 11 1", "FLOAD 11 BGEN1 11 1", "", Country.FR, Country.BE, -100.000, -100.000, 50.016, 49.984, 0.000, 0.000, Collections.emptyMap());
         } else {
@@ -648,7 +691,7 @@ class FlowDecompositionTests {
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
 
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 BGEN2 11 1", "BLOAD 11 BGEN2 11 1", "", Country.BE, Country.BE, -100.000, -100.000, 0.000, 0.000, 0.000, 100.000, Collections.emptyMap());
             validateFlowDecompositionWithMap(flowDecompositionResults, "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "FGEN1 11 X     11 1 + X     11 BLOAD 11 1", "", Country.FR, Country.BE, 100.063, 100.047, 100.047, 0.000, 0.000, 0.000, Collections.emptyMap());
         } else {
@@ -676,7 +719,7 @@ class FlowDecompositionTests {
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
         assertEquals(16, flowDecompositionResults.getDecomposedFlowMap().size());
 
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             validateFullLineDecompositionResultsWithXnodeGen(flowDecompositionResults);
         } else {
             validatePowerFlowColouringResultsWithXnodeGen(flowDecompositionResults);
@@ -744,7 +787,7 @@ class FlowDecompositionTests {
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
         assertEquals(16, flowDecompositionResults.getDecomposedFlowMap().size());
 
-        if (Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION).contains(flowPartitionMode)) {
+        if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             validateFullLineDecompositionResultsWithXnodeLoad(flowDecompositionResults);
         } else {
             validatePowerFlowColouringResultsWithXnodeLoad(flowDecompositionResults);
