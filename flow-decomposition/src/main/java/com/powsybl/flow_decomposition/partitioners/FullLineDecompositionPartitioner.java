@@ -18,7 +18,6 @@ import org.ejml.data.DMatrixSparseCSC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,34 +38,34 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
 
     @Override
     public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch<?>> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
-        LOGGER.info("{} === Bus mapping", LocalDateTime.now());
+        LOGGER.info("[FLD] Bus mapping");
         List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(network);
         List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(network);
 
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecs.stream().toList());
-        LOGGER.info("{} === PEX graph generation", LocalDateTime.now());
+        LOGGER.info("[FLD] PEX graph generation");
         PexGraph pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
 
-        LOGGER.info("{} === PEX matrix computation", LocalDateTime.now());
+        LOGGER.info("[FLD] PEX matrix computation");
         PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph);
         Map<String, Integer> vertexIdMapping = pexMatrixCalculator.getVertexIdMapper();
         DMatrixSparseCSC pexMatrix = pexMatrixCalculator.computePexMatrix();
 
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
-        LOGGER.info("{} === PTDF matrix computation", LocalDateTime.now());
+        LOGGER.info("[FLD] PTDF matrix computation");
         Map<String, Integer> injectionIdIndex = NetworkUtil.chooseAnInjectionPerVertexAndKeepSameIndex(vertexIdMapping, network);
         SparseMatrixWithIndexesCSC ptdfMatrix = getNodalPtdfMatrix(injectionIdIndex, sensitivityAnalyser);
 
-        LOGGER.info("{} === Final PST treatment", LocalDateTime.now());
+        LOGGER.info("[FLD] Final PST treatment");
         PstFlowComputer pstFlowComputer = new PstFlowComputer();
         SparseMatrixWithIndexesTriplet psdfMatrix = getPsdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
         SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
 
-        LOGGER.info("{} === Flow decomposition", LocalDateTime.now());
+        LOGGER.info("[FLD] Flow decomposition");
         FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, vertexIdMapping);
         Map<String, FlowPartition> results = flowDecompositionCalculator.computeDecomposition();
 
-        LOGGER.info("{} === End of computation", LocalDateTime.now());
+        LOGGER.info("[FLD] End of computation");
 
         return results;
     }
