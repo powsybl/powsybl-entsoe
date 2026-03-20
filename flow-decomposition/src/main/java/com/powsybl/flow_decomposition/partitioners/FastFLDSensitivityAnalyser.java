@@ -87,7 +87,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         Map<String, Integer> xnecIndex = NetworkUtil.getIndex(xnecIds);
         int nXnec = xnecIndex.size();
 
-        Map<String, double[]> exchangePerFlowPart = buildExchangePerfFlowPart(nFlowPart, flowPartIndex);
+        Map<String, double[]> exchangePerFlowPart = buildExchangePerFlowPart(nFlowPart, flowPartIndex);
 
         double[][] results = new double[nXnec][nFlowPart];
 
@@ -122,20 +122,37 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         runSensitivityAnalysis(network, factorReaderPst, valueWriterPst, Collections.emptyList());
     }
 
-    private @NonNull Map<String, double[]> buildExchangePerfFlowPart(int nFlowPart, Map<String, Integer> flowPartIndex) {
+    private @NonNull Map<String, double[]> buildExchangePerFlowPart(int nFlowPart, Map<String, Integer> flowPartIndex) {
+        /*
+          This method builds a map that associates injections with flow parts.
+          For each exchange between two vertices, the exchange can be categorized (internal, loop flow, x node, etc., ...).
+          Exchanges are then added to the map.
+          This map will be used with PTDFs to compute decomposed flows.
+          **/
         Map<String, double[]> exchangePerFlowPart = new HashMap<>();
         Streams.stream(pexMatrix.createCoordinateIterator())
-            .forEach(coordinateRealValue -> {
-                int sourceIndex = coordinateRealValue.row;
-                int sinkIndex = coordinateRealValue.col;
-                double exchangeBetweenFromAndTo = coordinateRealValue.value;
-                String sourceInjId = Optional.ofNullable(injByVertexId[sourceIndex]).orElse(vertexIds[sourceIndex]);
-                String sinkInjId = Optional.ofNullable(injByVertexId[sinkIndex]).orElse(vertexIds[sinkIndex]);
+            .forEach(coordinateAndExchange -> {
+                int sourceIndex = coordinateAndExchange.row;
+                int sinkIndex = coordinateAndExchange.col;
+                double exchangeBetweenFromAndTo = coordinateAndExchange.value;
+                String sourceInjId = getAssociatedInjectionIdOrXnodeId(sourceIndex);
+                String sinkInjId = getAssociatedInjectionIdOrXnodeId(sinkIndex);
                 String flowPartName = computeFlowPartName(sourceIndex, sinkIndex);
                 exchangePerFlowPart.computeIfAbsent(sourceInjId, s1 -> new double[nFlowPart])[flowPartIndex.get(flowPartName)] += exchangeBetweenFromAndTo;
                 exchangePerFlowPart.computeIfAbsent(sinkInjId, s -> new double[nFlowPart])[flowPartIndex.get(flowPartName)] -= exchangeBetweenFromAndTo;
             });
         return exchangePerFlowPart;
+    }
+
+    private String getAssociatedInjectionIdOrXnodeId(int vertexIndex) {
+        /*
+          In the graph, a vertex can be a bus or an x node.
+          If the vertex is a bus, an associated injection can be found.
+          If the vertex is an x node, it has no associated injection; the injection is the x node.
+         */
+        String nullableInjectionForVertex = injByVertexId[vertexIndex];
+        String vertexId = vertexIds[vertexIndex];
+        return Optional.ofNullable(nullableInjectionForVertex).orElse(vertexId);
     }
 
     private String computeFlowPartName(int sourceIndex, int sinkIndex) {
