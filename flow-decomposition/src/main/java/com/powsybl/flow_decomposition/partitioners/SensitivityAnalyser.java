@@ -16,9 +16,7 @@ import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -48,6 +46,12 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     SensitivityAnalyser(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters, SensitivityAnalysis.Runner runner, Network network, NetworkMatrixIndexes networkMatrixIndexes) {
         this(loadFlowParameters, parameters, runner, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
+    }
+
+    SparseMatrixWithIndexesCSC getNodalPtdfMatrix(Map<String, Integer> injectionIdIndex) {
+        return run(List.copyOf(injectionIdIndex.keySet()),
+            injectionIdIndex,
+            SensitivityVariableType.INJECTION_ACTIVE_POWER).toCSCMatrix().removeZerosInplace(parameters.getSensitivityEpsilon());
     }
 
     SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes) {
