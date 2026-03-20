@@ -36,16 +36,12 @@ public abstract class AbstractSensitivityAnalyser {
     }
 
     protected static SensitivityAnalysisParameters initSensitivityAnalysisParameters(LoadFlowParameters loadFlowParameters) {
-        SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
-        parameters.setLoadFlowParameters(enforceDcLoadFlowCalculation(loadFlowParameters));
-        LOGGER.debug("Using following sensitivity analysis parameters: {}", parameters);
-        return parameters;
+        LOGGER.debug("Initializing DC sensitivity analysis parameters");
+        return SensitivityAnalysisParameters.load().setLoadFlowParameters(enforceDcLoadFlowCalculation(loadFlowParameters));
     }
 
     private static LoadFlowParameters enforceDcLoadFlowCalculation(LoadFlowParameters initialLoadFlowParameters) {
-        LoadFlowParameters dcEnforcedParameters = initialLoadFlowParameters.copy();
-        dcEnforcedParameters.setDc(DC_LOAD_FLOW);
-        return dcEnforcedParameters;
+        return initialLoadFlowParameters.copy().setDc(DC_LOAD_FLOW);
     }
 
     protected List<FunctionVariableFactor> getFunctionVariableFactors(List<String> variableList,

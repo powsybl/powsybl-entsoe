@@ -38,7 +38,8 @@ public class FlowDecompositionParameters {
     public enum FlowPartitionMode {
         MATRIX_BASED,
         DIRECT_SENSITIVITY_BASED,
-        FULL_LINE_DECOMPOSITION
+        FULL_LINE_DECOMPOSITION,
+        FAST_FULL_LINE_DECOMPOSITION
     }
 
     public static final RescaleMode DEFAULT_RESCALE_MODE = RescaleMode.NONE;

@@ -8,19 +8,22 @@
 package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.flow_decomposition.*;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.sensitivity.SensitivityAnalysis;
-import org.ejml.data.DMatrix;
+import org.ejml.data.DMatrixSparseCSC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class FullLineDecompositionPartitioner implements FlowPartitioner {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FullLineDecompositionPartitioner.class);
     private final LoadFlowParameters loadFlowParameters;
     private final FlowDecompositionParameters parameters;
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
@@ -33,41 +36,36 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         this.observers = observers;
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FullLineDecompositionPartitioner.class);
-
     @Override
     public Map<String, FlowPartition> computeFlowPartitions(Network network, Set<Branch<?>> xnecs, Map<Country, Double> netPositions, Map<Country, Map<String, Double>> glsks) {
-        LOGGER.info("{} === Bus mapping", LocalDateTime.now());
-        List<Bus> busesInMainSynchronousComponent = network.getBusView().getBusStream()
-                .filter(Bus::isInMainSynchronousComponent)
-                .toList();
-        Map<String, Integer> busMapping = NetworkUtil.getIndex(busesInMainSynchronousComponent.stream().map(Bus::getId).toList());
-        List<Branch> branchesConnectedInMainSynchronousComponent = network.getBranchStream()
-                .filter(NetworkUtil::isConnectedAndInMainSynchronousComponent)
-                .toList();
+        LOGGER.info("[FLD] Bus mapping");
+        List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(network);
+        List<Branch<?>> branchesConnectedInMainSynchronousComponent = NetworkUtil.getAllValidBranches(network);
 
         NetworkMatrixIndexes networkMatrixIndexes = new NetworkMatrixIndexes(network, xnecs.stream().toList());
-        LOGGER.info("{} === PEX graph generation", LocalDateTime.now());
+        LOGGER.info("[FLD] PEX graph generation");
         PexGraph pexGraph = new PexGraph(busesInMainSynchronousComponent, branchesConnectedInMainSynchronousComponent);
 
-        LOGGER.info("{} === PEX matrix computation", LocalDateTime.now());
-        PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph, busMapping);
-        DMatrix pexMatrix = pexMatrixCalculator.computePexMatrix();
+        LOGGER.info("[FLD] PEX matrix computation");
+        PexMatrixCalculator pexMatrixCalculator = new PexMatrixCalculator(pexGraph);
+        Map<String, Integer> vertexIdMapping = pexMatrixCalculator.getVertexIdMapper();
+        DMatrixSparseCSC pexMatrix = pexMatrixCalculator.computePexMatrix();
 
         SensitivityAnalyser sensitivityAnalyser = getSensitivityAnalyser(network, networkMatrixIndexes);
-        LOGGER.info("{} === PTDF matrix computation", LocalDateTime.now());
-        SparseMatrixWithIndexesTriplet ptdfMatrix = getPtdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
+        LOGGER.info("[FLD] PTDF matrix computation");
+        Map<String, Integer> injectionIdIndex = NetworkUtil.chooseAnInjectionPerVertexAndKeepSameIndex(vertexIdMapping, network);
+        SparseMatrixWithIndexesCSC ptdfMatrix = getNodalPtdfMatrix(injectionIdIndex, sensitivityAnalyser);
 
-        LOGGER.info("{} === Final PST treatment", LocalDateTime.now());
+        LOGGER.info("[FLD] Final PST treatment");
         PstFlowComputer pstFlowComputer = new PstFlowComputer();
         SparseMatrixWithIndexesTriplet psdfMatrix = getPsdfMatrix(networkMatrixIndexes, sensitivityAnalyser);
         SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
 
-        LOGGER.info("{} === Flow decomposition", LocalDateTime.now());
-        FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, busMapping);
+        LOGGER.info("[FLD] Flow decomposition");
+        FlowDecompositionCalculator flowDecompositionCalculator = new FlowDecompositionCalculator(xnecs, pexMatrix, ptdfMatrix, pstFlowMatrix, busesInMainSynchronousComponent, vertexIdMapping);
         Map<String, FlowPartition> results = flowDecompositionCalculator.computeDecomposition();
 
-        LOGGER.info("{} === End of computation", LocalDateTime.now());
+        LOGGER.info("[FLD] End of computation");
 
         return results;
     }
@@ -76,17 +74,21 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
         return new SensitivityAnalyser(loadFlowParameters, parameters, sensitivityAnalysisRunner, network, networkMatrixIndexes);
     }
 
-    private SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
-                                                         SensitivityAnalyser sensitivityAnalyser) {
-        SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.getPtdfMatrix(networkMatrixIndexes);
-        observers.computedPtdfMatrix(ptdfMatrix.toMap());
+    private SparseMatrixWithIndexesCSC getNodalPtdfMatrix(Map<String, Integer> injectionIdIndex,
+                                                              SensitivityAnalyser sensitivityAnalyser) {
+        SparseMatrixWithIndexesCSC ptdfMatrix = sensitivityAnalyser.getNodalPtdfMatrix(injectionIdIndex);
+        if (!observers.getObservers().isEmpty()) {
+            observers.computedPtdfMatrix(ptdfMatrix.toMap());
+        }
         return ptdfMatrix;
     }
 
     private SparseMatrixWithIndexesTriplet getPsdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
         SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.getPsdfMatrix(networkMatrixIndexes);
-        observers.computedPsdfMatrix(psdfMatrix.toMap());
+        if (!observers.getObservers().isEmpty()) {
+            observers.computedPsdfMatrix(psdfMatrix.toMap());
+        }
         return psdfMatrix;
     }
 }
