@@ -125,7 +125,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
     private @NonNull Map<String, double[]> buildExchangePerFlowPart(int nFlowPart, Map<String, Integer> flowPartIndex) {
         /*
           This method builds a map that associates injections with flow parts.
-          For each exchange between two vertices, the exchange can be categorized (internal, loop flow, x node, etc., ...).
+          For each exchange between two vertices, the exchange can be categorized (loop flow, x node, etc., ...).
           Exchanges are then added to the map.
           This map will be used with PTDFs to compute decomposed flows.
           **/
