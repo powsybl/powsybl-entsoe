@@ -189,7 +189,7 @@ public final class NetworkUtil {
     public static Map<String, Integer> chooseAnInjectionPerVertexAndKeepSameIndex(Map<String, Integer> vertexIdIndex, Network network) {
         Map<String, Integer> injectionIdIndex = new HashMap<>();
         vertexIdIndex.forEach((vertexId, index) -> {
-            if (Objects.nonNull(network.getDanglingLine(vertexId))) {
+            if (Objects.nonNull(network.getBoundaryLine(vertexId))) {
                 injectionIdIndex.put(vertexId, index);
             } else {
                 Bus bus = network.getBusView().getBus(vertexId);
