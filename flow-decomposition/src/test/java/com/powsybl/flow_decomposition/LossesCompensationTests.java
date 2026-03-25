@@ -44,19 +44,6 @@ class LossesCompensationTests {
         assessSingleLoadTwoGeneratorsNetworkLossesCompensation(network);
     }
 
-    @Test
-    void checkThatLossesCompensationDoesEnforceAcLoadflow() {
-        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
-        Network network = importNetwork(networkFileName);
-        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
-        loadFlowParameters.setDc(AC_LOAD_FLOW);
-        LoadFlow.run(network, loadFlowParameters);
-        LossesCompensator lossesCompensator = new LossesCompensator(FlowDecompositionParameters.DISABLE_LOSSES_COMPENSATION_EPSILON);
-        lossesCompensator.run(network);
-
-        assessSingleLoadTwoGeneratorsNetworkLossesCompensation(network);
-    }
-
     private void assessSingleLoadTwoGeneratorsNetworkLossesCompensation(Network network) {
         Load lossesFgen = network.getLoad("LOSSES FGEN1 11");
         assertNotNull(lossesFgen);

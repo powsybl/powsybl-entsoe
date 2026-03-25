@@ -9,6 +9,8 @@ package com.powsybl.flow_decomposition;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,12 +19,14 @@ import java.util.stream.Collectors;
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
  */
 class VariantManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VariantManager.class);
     private final String defaultVariantId;
     private final List<Contingency> contingencies;
 
     VariantManager(Network network, XnecProvider xnecProvider) {
         this.defaultVariantId = network.getVariantManager().getWorkingVariantId();
         contingencies = xnecProvider.getContingencies(network);
+        LOGGER.debug("Found {} contingencies. Default variant is '{}'", contingencies.size(), defaultVariantId);
     }
 
     void createAVariantPerContingency(Network network) {
@@ -30,7 +34,9 @@ class VariantManager {
             List<String> variantIdList = contingencies.stream().map(Contingency::getId).collect(Collectors.toList());
             network.getVariantManager().cloneVariant(defaultVariantId, variantIdList);
             contingencies.forEach(contingency -> {
+                LOGGER.debug("Creating variant for contingency: {}", contingency.getId());
                 setNetworkVariant(network, contingency.getId());
+                LOGGER.debug("Applying contingency modification");
                 contingency.toModification().apply(network);
             });
             setDefaultNetworkVariant(network);
@@ -38,14 +44,18 @@ class VariantManager {
     }
 
     void setDefaultNetworkVariant(Network network) {
+        LOGGER.debug("Setting default network variant ({})", defaultVariantId);
         setNetworkVariant(network, defaultVariantId);
     }
 
     void setNetworkVariant(Network network, String variantId) {
+        LOGGER.debug("Setting network variant to: {}", variantId);
         network.getVariantManager().setWorkingVariant(variantId);
     }
 
     void deleteAllContingencyVariants(Network network) {
+        LOGGER.debug("Deleting all contingency variants");
         contingencies.forEach(contingency -> network.getVariantManager().removeVariant(contingency.getId()));
+        setDefaultNetworkVariant(network);
     }
 }

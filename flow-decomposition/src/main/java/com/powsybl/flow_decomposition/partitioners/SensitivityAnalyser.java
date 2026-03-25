@@ -16,9 +16,7 @@ import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
@@ -50,7 +48,24 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
         this(loadFlowParameters, parameters, runner, network, networkMatrixIndexes.getXnecList(), networkMatrixIndexes.getXnecIndex());
     }
 
-    SparseMatrixWithIndexesTriplet run(List<String> variableList,
+    SparseMatrixWithIndexesCSC getNodalPtdfMatrix(Map<String, Integer> injectionIdIndex) {
+        return run(List.copyOf(injectionIdIndex.keySet()),
+            injectionIdIndex,
+            SensitivityVariableType.INJECTION_ACTIVE_POWER).toCSCMatrix().removeZerosInplace(parameters.getSensitivityEpsilon());
+    }
+
+    SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes) {
+        return run(networkMatrixIndexes.getNodeIdList(),
+                networkMatrixIndexes.getNodeIndex(),
+                SensitivityVariableType.INJECTION_ACTIVE_POWER);
+    }
+
+    SparseMatrixWithIndexesTriplet getPsdfMatrix(NetworkMatrixIndexes networkMatrixIndexes) {
+        return run(networkMatrixIndexes.getPstList(),
+                networkMatrixIndexes.getPstIndex(), SensitivityVariableType.TRANSFORMER_PHASE);
+    }
+
+    private SparseMatrixWithIndexesTriplet run(List<String> variableList,
                                        Map<String, Integer> variableIndex,
                                        SensitivityVariableType sensitivityVariableType) {
         SparseMatrixWithIndexesTriplet sensiMatrixTriplet = initSensitivityMatrixTriplet(variableIndex);

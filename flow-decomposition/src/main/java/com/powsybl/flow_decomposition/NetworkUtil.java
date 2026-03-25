@@ -9,10 +9,7 @@ package com.powsybl.flow_decomposition;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -60,7 +57,7 @@ public final class NetworkUtil {
         return optionalCountry.get();
     }
 
-    public static Map<String, Integer> getIndex(List<String> idList) {
+    public static <T> Map<T, Integer> getIndex(List<T> idList) {
         return IntStream.range(0, idList.size())
             .boxed()
             .collect(Collectors.toMap(idList::get, Function.identity()));
@@ -155,5 +152,51 @@ public final class NetworkUtil {
 
     private static boolean hasNeutralStep(TwoWindingsTransformer pst) {
         return pst.getPhaseTapChanger().getNeutralStep().isPresent();
+    }
+
+    public static Country getBranchSideCountry(Branch<?> branch, TwoSides side) {
+        return branch.getTerminal(side).getVoltageLevel().getSubstation().orElseThrow().getCountry().orElse(null);
+    }
+
+    public static boolean isConnectedAndInMainSynchronousComponent(Branch<?> branch) {
+        return isConnected(branch) && isInMainSynchronousComponent(branch);
+    }
+
+    public static Stream<Injection<?>> getInjectionStream(Bus bus) {
+        Stream<Injection<?>> returnStream = Stream.empty();
+        returnStream = Stream.concat(bus.getGeneratorStream(), returnStream);
+        returnStream = Stream.concat(bus.getLoadStream(), returnStream);
+        return returnStream.filter(NetworkUtil::isConnectedAndInMainSynchronousComponent);
+    }
+
+    public static Stream<DanglingLine> getUnpairedXNodeStream(Bus bus) {
+        return bus.getDanglingLineStream()
+            .filter(NetworkUtil::isNotPairedDanglingLine)
+            .filter(NetworkUtil::isInjectionConnected)
+            .filter(NetworkUtil::isInjectionInMainSynchronousComponent);
+    }
+
+    public static boolean isConnectedAndInMainSynchronousComponent(Injection<?> injection) {
+        return isInjectionConnected(injection) && isInjectionInMainSynchronousComponent(injection);
+    }
+
+    public static List<Bus> getBusesInMainSynchronousComponent(Network network) {
+        return network.getBusView().getBusStream()
+                .filter(Bus::isInMainSynchronousComponent)
+                .toList();
+    }
+
+    public static Map<String, Integer> chooseAnInjectionPerVertexAndKeepSameIndex(Map<String, Integer> vertexIdIndex, Network network) {
+        Map<String, Integer> injectionIdIndex = new HashMap<>();
+        vertexIdIndex.forEach((vertexId, index) -> {
+            if (Objects.nonNull(network.getDanglingLine(vertexId))) {
+                injectionIdIndex.put(vertexId, index);
+            } else {
+                Bus bus = network.getBusView().getBus(vertexId);
+                String injectionId = getInjectionStream(bus).findAny().orElseThrow().getId();
+                injectionIdIndex.put(injectionId, index);
+            }
+        });
+        return injectionIdIndex;
     }
 }
