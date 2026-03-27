@@ -85,7 +85,6 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
             @Override
             public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
                 // We do not manage contingency yet
-
             }
         };
     }
