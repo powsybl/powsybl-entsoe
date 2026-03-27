@@ -24,7 +24,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: powsybl/powsybl-open-loadflow
-        ref: refs/v2.2.0
+        ref: refs/tags/v2.2.0
         path: powsybl-open-loadflow
 
     - name: Set up JDK 21
