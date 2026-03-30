@@ -11,7 +11,7 @@ The aim of flow decomposition algorithm is to provide for each network element a
 - Internal flow: flow due to electricity exchange inside the network element's zone.
 - Loop flow: flow due to electricity exchange inside another zone.
 - PST flow: flow due to a shift commanded by the action of an active phase shifting transformer on the network.
-- Xnode flow: flow due to all unmerged interconnections and HVDC connections modelled as dangling lines in IIDM.
+- Xnode flow: flow due to all unmerged interconnections and HVDC connections modelled as boundary lines in IIDM.
 
 > This decomposition does not reflect the exact reality of how electric flows act on a real network, but it
 > is a useful approximation needed for some cross zonal coordination processes.

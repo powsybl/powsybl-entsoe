@@ -224,7 +224,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                                                          FlowPartAggregation[] aggregations) implements SensitivityResultWriter {
 
         @Override
-        public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
+        public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
             if (Double.isNaN(value) || value == 0.0) {
                 return;
             }
@@ -241,7 +241,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
 
         @Override
-        public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+        public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
             // We do not manage contingency yet
         }
     }
@@ -290,7 +290,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                                                      Map<String, PhaseTapChanger> phaseTapChangerMap) implements SensitivityResultWriter {
 
         @Override
-        public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
+        public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
             if (Double.isNaN(value)) {
                 return;
             }
@@ -311,7 +311,7 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
 
         @Override
-        public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+        public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
             // We do not manage contingency yet
         }
     }

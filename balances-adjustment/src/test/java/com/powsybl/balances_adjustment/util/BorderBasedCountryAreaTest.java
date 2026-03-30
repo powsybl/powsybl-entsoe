@@ -48,7 +48,7 @@ class BorderBasedCountryAreaTest {
         Stream returnStream = Stream.empty();
         returnStream = Stream.concat(network.getGeneratorStream(), returnStream);
         returnStream = Stream.concat(network.getLoadStream(), returnStream);
-        returnStream = Stream.concat(network.getDanglingLineStream(), returnStream);
+        returnStream = Stream.concat(network.getBoundaryLineStream(), returnStream);
         return returnStream;
     }
 
@@ -131,7 +131,7 @@ class BorderBasedCountryAreaTest {
     }
 
     @Test
-    void testNetPositionIsZeroWhenDanglingLineBorderPIsNaN() {
+    void testNetPositionIsZeroWhenBoundaryLineBorderPIsNaN() {
         Network testNetwork = Network.read("testCaseNanInNetPositionComputation.uct", NetworkAreaTest.class.getResourceAsStream("/testCaseNanInNetPositionComputation.uct"));
         NetworkAreaFactory countryAreaCH = new CountryAreaFactory(Country.CH);
         NetworkAreaFactory countryAreaIT = new CountryAreaFactory(Country.IT);

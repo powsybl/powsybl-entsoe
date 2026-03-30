@@ -104,13 +104,13 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static SensitivityResultWriter getSensitivityResultWriter(List<FunctionVariableFactor> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet) {
         return new SensitivityResultWriter() {
             @Override
-            public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
+            public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
                 FunctionVariableFactor factor = factors.get(factorIndex);
                 sensitivityMatrixTriplet.addItem(factor.functionId(), factor.variableId(), respectFlowSignConvention(value, functionReference));
             }
 
             @Override
-            public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+            public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
                 // We do not manage contingency yet
             }
         };

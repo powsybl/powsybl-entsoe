@@ -92,8 +92,8 @@ class LossesCompensationTests {
         lossesCompensator.run(network);
 
         TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
-        assertEquals(0.0, tieLine.getDanglingLine1().getB(), EPSILON);
-        assertEquals(0.0, tieLine.getDanglingLine2().getB(), EPSILON);
+        assertEquals(0.0, tieLine.getBoundaryLine1().getB(), EPSILON);
+        assertEquals(0.0, tieLine.getBoundaryLine2().getB(), EPSILON);
 
         Load lossesFgenBload = network.getLoad("LOSSES FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
         assertNull(lossesFgenBload);
@@ -114,8 +114,8 @@ class LossesCompensationTests {
 
         Network network = importNetwork(networkFileName);
         TieLine tieLine = network.getTieLine("FGEN1 11 X     11 1 + X     11 BLOAD 11 1");
-        tieLine.getDanglingLine1().setB(1E-3);
-        tieLine.getDanglingLine2().setB(1E-3);
+        tieLine.getBoundaryLine1().setB(1E-3);
+        tieLine.getBoundaryLine2().setB(1E-3);
         LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
         loadFlowParameters.setDc(AC_LOAD_FLOW);
         LoadFlow.run(network, loadFlowParameters);

@@ -781,7 +781,7 @@ class FlowDecompositionTests {
         String networkFileName = "TestCaseDangling.xiidm";
 
         Network network = TestUtils.importNetwork(networkFileName);
-        network.getDanglingLine("BBE2AA1  X_BEFR1  1").setP0(300);
+        network.getBoundaryLine("BBE2AA1  X_BEFR1  1").setP0(300);
         network.getGenerator("BBE2AA1 _generator").setTargetP(3600);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);

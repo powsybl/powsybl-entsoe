@@ -11,7 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.flow_decomposition.NetworkUtil;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,12 +57,12 @@ class PexGraphVertex {
         this.id = associatedBus.getId();
     }
 
-    PexGraphVertex(DanglingLine danglingLine) {
-        Objects.requireNonNull(danglingLine);
-        double power = danglingLine.getTerminal().getP();
+    PexGraphVertex(BoundaryLine boundaryLine) {
+        Objects.requireNonNull(boundaryLine);
+        double power = boundaryLine.getTerminal().getP();
         this.associatedGeneration = Math.max(0, -power);
         this.associatedLoad = Math.max(0, power);
-        this.id = danglingLine.getId();
+        this.id = boundaryLine.getId();
     }
 
     double getAssociatedLoad() {
@@ -100,11 +100,11 @@ class PexGraphEdge {
         this.id = branch.getId();
     }
 
-    public PexGraphEdge(DanglingLine danglingLine) {
-        Objects.requireNonNull(danglingLine);
-        double danglingLineFlow = danglingLine.getTerminal().getP();
-        this.associatedFlow = (Double.isNaN(danglingLineFlow)) ? 0. : Math.abs(danglingLineFlow);
-        this.id = danglingLine.getId();
+    public PexGraphEdge(BoundaryLine boundaryLine) {
+        Objects.requireNonNull(boundaryLine);
+        double boundaryLineFlow = boundaryLine.getTerminal().getP();
+        this.associatedFlow = (Double.isNaN(boundaryLineFlow)) ? 0. : Math.abs(boundaryLineFlow);
+        this.id = boundaryLine.getId();
     }
 
     double getAssociatedFlow() {
@@ -169,16 +169,16 @@ public class PexGraph extends DirectedMultigraph<PexGraphVertex, PexGraphEdge> {
     }
 
     private void addXNodesAsVertexAndEdges(Bus bus) {
-        NetworkUtil.getUnpairedXNodeStream(bus).forEach(danglingLine -> {
-            if (Double.isNaN(danglingLine.getTerminal().getP())) {
-                LOGGER.debug("Unpaired dangling line {} filtered because of a flow NA", danglingLine.getId());
-            } else if (Math.abs(danglingLine.getTerminal().getP()) < EPSILON_EDGE_POWER) {
-                LOGGER.debug("Unpaired dangling line {} filtered because of a flow too low : {} MW", danglingLine.getId(), danglingLine.getTerminal().getP());
+        NetworkUtil.getUnpairedXNodeStream(bus).forEach(boundaryLine -> {
+            if (Double.isNaN(boundaryLine.getTerminal().getP())) {
+                LOGGER.debug("Unpaired boundary line {} filtered because of a flow NA", boundaryLine.getId());
+            } else if (Math.abs(boundaryLine.getTerminal().getP()) < EPSILON_EDGE_POWER) {
+                LOGGER.debug("Unpaired boundary line {} filtered because of a flow too low : {} MW", boundaryLine.getId(), boundaryLine.getTerminal().getP());
             } else {
-                PexGraphVertex v = new PexGraphVertex(danglingLine);
+                PexGraphVertex v = new PexGraphVertex(boundaryLine);
                 addVertex(v);
-                PexGraphEdge edge = new PexGraphEdge(danglingLine);
-                if (danglingLine.getTerminal().getP() > 0) {
+                PexGraphEdge edge = new PexGraphEdge(boundaryLine);
+                if (boundaryLine.getTerminal().getP() > 0) {
                     addEdge(vertexPerBus.get(bus), v, edge);
                 } else {
                     addEdge(v, vertexPerBus.get(bus), edge);
