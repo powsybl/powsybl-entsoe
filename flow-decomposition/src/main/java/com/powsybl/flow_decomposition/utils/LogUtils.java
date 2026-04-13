@@ -27,7 +27,7 @@ public final class LogUtils {
         long start = System.currentTimeMillis();
         LOGGER.info("{} started", s);
         T result = sneakyCall(suppl);
-        LOGGER.info("{} completed. Time={}", s, System.currentTimeMillis() - start);
+        LOGGER.info("{} completed. Time={} ms", s, System.currentTimeMillis() - start);
         return result;
     }
 
