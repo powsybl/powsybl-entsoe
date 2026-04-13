@@ -65,13 +65,13 @@ where:
 ### Nodal Injections partitioning
 
 > **_NOTE:_** In PowSyBl terminology, nodal injections are injection connectables that 
-> - are not paired dangling lines, 
+> - are not paired boundary lines, 
 > - are connected to the network,
 > - are in the main synchronous component (for sensitivity computation reasons),
 > - are not a bus bar section (because of a lack of reference injection),
 > - are not shunt compensator or static var compensator (for sensitivity computation reasons).
 
-> **_NOTE:_** In PowSyBl terminology, xnodes are unpaired dangling lines connected to the network and in the main synchronous component. 
+> **_NOTE:_** In PowSyBl terminology, xnodes are unpaired boundary lines connected to the network and in the main synchronous component. 
 
 In order to distinguish internal/loop flows and allocated flows, the nodal injections in each zone must de decomposed in two parts:
 - Nodal injections for allocated flows
@@ -95,7 +95,7 @@ $$
 
 where:
 - $\mathrm{NI}$ is the vector of the network injections,
-- $\mathrm{NI}_\mathrm{X}$ is the vector of the network injections from dangling lines,
+- $\mathrm{NI}_\mathrm{X}$ is the vector of the network injections from boundary lines,
 - $\mathrm{NI}_\mathrm{AF}$ is the vector of allocated flow part of the network injections,
 - $\mathrm{NI}_\mathrm{LIF}$ is the vector of loop flow and internal flow part of the network injections,
 - $\mathrm{NP}$ is the vector of the zones' net position,

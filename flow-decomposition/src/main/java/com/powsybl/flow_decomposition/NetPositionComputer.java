@@ -17,79 +17,97 @@ import java.util.Map;
  * @author Hugo Schindler{@literal <hugo.schindler at rte-france.com>}
  */
 public class NetPositionComputer {
-    Map<Country, Double> run(Network network) {
-        return computeNetPositions(network);
-    }
 
-    public static Map<Country, Double> computeNetPositions(Network network) {
-        return LogUtils.info("Net position calculation", () -> {
-            Map<Country, Double> netPositions = new EnumMap<>(Country.class);
+  Map<Country, Double> run(Network network) {
+    return computeNetPositions(network);
+  }
 
-            network.getDanglingLineStream().forEach(danglingLine -> {
-                Country country = NetworkUtil.getTerminalCountry(danglingLine.getTerminal());
-                addLeavingFlow(netPositions, danglingLine, country);
-            });
+  public static Map<Country, Double> computeNetPositions(Network network) {
 
-            network.getLineStream().forEach(line -> {
-                Country countrySide1 = NetworkUtil.getTerminalCountry(line.getTerminal1());
-                Country countrySide2 = NetworkUtil.getTerminalCountry(line.getTerminal2());
-                if (countrySide1.equals(countrySide2)) {
-                    return;
-                }
-                addLeavingFlow(netPositions, line, countrySide1);
-                addLeavingFlow(netPositions, line, countrySide2);
-            });
+    return LogUtils.info("Net position calculation", () -> {
+      Map<Country, Double> netPositions = new EnumMap<>(Country.class);
 
-            network.getHvdcLineStream().forEach(hvdcLine -> {
-                Country countrySide1 = NetworkUtil.getTerminalCountry(
-                    hvdcLine.getConverterStation1().getTerminal());
-                Country countrySide2 = NetworkUtil.getTerminalCountry(
-                    hvdcLine.getConverterStation2().getTerminal());
-                if (countrySide1.equals(countrySide2)) {
-                    return;
-                }
-                addLeavingFlow(netPositions, hvdcLine, countrySide1);
-                addLeavingFlow(netPositions, hvdcLine, countrySide2);
-            });
+      network.getBoundaryLineStream().forEach(boundaryLine -> {
+        Country country = NetworkUtil.getTerminalCountry(boundaryLine.getTerminal());
+        addLeavingFlow(netPositions, boundaryLine, country);
+      });
 
-            return netPositions;
-        });
-    }
+      network.getLineStream().forEach(line -> {
+        Country countrySide1 = NetworkUtil.getTerminalCountry(line.getTerminal1());
+        Country countrySide2 = NetworkUtil.getTerminalCountry(line.getTerminal2());
+        if (countrySide1.equals(countrySide2)) {
+          return;
+        }
+        addLeavingFlow(netPositions, line, countrySide1);
+        addLeavingFlow(netPositions, line, countrySide2);
+      });
 
-    private static double getPreviousValue(Map<Country, Double> netPositions, Country country) {
-        return netPositions.getOrDefault(country, 0.);
-    }
+      network.getHvdcLineStream().forEach(hvdcLine -> {
+        Country countrySide1 = NetworkUtil.getTerminalCountry(
+            hvdcLine.getConverterStation1().getTerminal());
+        Country countrySide2 = NetworkUtil.getTerminalCountry(
+            hvdcLine.getConverterStation2().getTerminal());
+        if (countrySide1.equals(countrySide2)) {
+          return;
+        }
+        addLeavingFlow(netPositions, hvdcLine, countrySide1);
+        addLeavingFlow(netPositions, hvdcLine, countrySide2);
+      });
 
-    private static void addLeavingFlow(Map<Country, Double> netPositions, Line line, Country country) {
-        double previousValue = getPreviousValue(netPositions, country);
-        netPositions.put(country, previousValue + getLeavingFlow(line, country));
-    }
+      return netPositions;
+    });
+  }
 
-    private static void addLeavingFlow(Map<Country, Double> netPositions, HvdcLine hvdcLine, Country country) {
-        double previousValue = getPreviousValue(netPositions, country);
-        netPositions.put(country, previousValue + getLeavingFlow(hvdcLine, country));
-    }
+  private static double getPreviousValue(Map<Country, Double> netPositions, Country country) {
+    return netPositions.getOrDefault(country, 0.);
+  }
 
-    private static void addLeavingFlow(Map<Country, Double> netPositions, DanglingLine danglingLine, Country country) {
-        double previousValue = getPreviousValue(netPositions, country);
-        netPositions.put(country, previousValue + getLeavingFlow(danglingLine));
-    }
+  private static void addLeavingFlow(Map<Country, Double> netPositions, Line line,
+      Country country) {
+    double previousValue = getPreviousValue(netPositions, country);
+    netPositions.put(country, previousValue + getLeavingFlow(line, country));
+  }
 
-    private static double getLeavingFlow(Line line, Country country) {
-        double flowSide1 = line.getTerminal1().isConnected() && !Double.isNaN(line.getTerminal1().getP()) ? line.getTerminal1().getP() : 0;
-        double flowSide2 = line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP()) ? line.getTerminal2().getP() : 0;
-        double directFlow = (flowSide1 - flowSide2) / 2;
-        return country.equals(NetworkUtil.getTerminalCountry(line.getTerminal1())) ? directFlow : -directFlow;
-    }
+  private static void addLeavingFlow(Map<Country, Double> netPositions, HvdcLine hvdcLine,
+      Country country) {
+    double previousValue = getPreviousValue(netPositions, country);
+    netPositions.put(country, previousValue + getLeavingFlow(hvdcLine, country));
+  }
 
-    private static double getLeavingFlow(HvdcLine hvdcLine, Country country) {
-        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation1().getTerminal().getP()) ? hvdcLine.getConverterStation1().getTerminal().getP() : 0;
-        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation2().getTerminal().getP()) ? hvdcLine.getConverterStation2().getTerminal().getP() : 0;
-        double directFlow = (flowSide1 - flowSide2) / 2;
-        return country.equals(NetworkUtil.getTerminalCountry(hvdcLine.getConverterStation1().getTerminal())) ? directFlow : -directFlow;
-    }
+  private static void addLeavingFlow(Map<Country, Double> netPositions, BoundaryLine boundaryLine,
+      Country country) {
+    double previousValue = getPreviousValue(netPositions, country);
+    netPositions.put(country, previousValue + getLeavingFlow(boundaryLine));
+  }
 
-    private static double getLeavingFlow(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() && !Double.isNaN(danglingLine.getBoundary().getP()) ? -danglingLine.getBoundary().getP() : 0;
-    }
+  private static double getLeavingFlow(Line line, Country country) {
+    double flowSide1 =
+        line.getTerminal1().isConnected() && !Double.isNaN(line.getTerminal1().getP())
+            ? line.getTerminal1().getP() : 0;
+    double flowSide2 =
+        line.getTerminal2().isConnected() && !Double.isNaN(line.getTerminal2().getP())
+            ? line.getTerminal2().getP() : 0;
+    double directFlow = (flowSide1 - flowSide2) / 2;
+    return country.equals(NetworkUtil.getTerminalCountry(line.getTerminal1())) ? directFlow
+        : -directFlow;
+  }
+
+  private static double getLeavingFlow(HvdcLine hvdcLine, Country country) {
+    double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() && !Double.isNaN(
+        hvdcLine.getConverterStation1().getTerminal().getP()) ? hvdcLine.getConverterStation1()
+        .getTerminal().getP() : 0;
+    double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() && !Double.isNaN(
+        hvdcLine.getConverterStation2().getTerminal().getP()) ? hvdcLine.getConverterStation2()
+        .getTerminal().getP() : 0;
+    double directFlow = (flowSide1 - flowSide2) / 2;
+    return country.equals(
+        NetworkUtil.getTerminalCountry(hvdcLine.getConverterStation1().getTerminal())) ? directFlow
+        : -directFlow;
+  }
+
+  private static double getLeavingFlow(BoundaryLine boundaryLine) {
+    return
+        boundaryLine.getTerminal().isConnected() && !Double.isNaN(boundaryLine.getBoundary().getP())
+            ? -boundaryLine.getBoundary().getP() : 0;
+  }
 }

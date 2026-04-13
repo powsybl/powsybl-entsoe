@@ -11,7 +11,7 @@ For each network element of interest, flow decomposition outputs contain the fol
   which network element is part of (interconnections are considered as part of no specific country, so will always have an internal flow to 0).
 - Loop flows : map of the loop flow part of the network element's flow for each zone.
 - PST flow : PST flow part of the network element's flow.
-- Xnode flow : flow part due to all unmerged interconnections and HVDC connections modelled as dangling lines in IIDM.
+- Xnode flow : flow part due to all unmerged interconnections and HVDC connections modelled as boundary lines in IIDM.
 
 ## Flow sign conventions
 

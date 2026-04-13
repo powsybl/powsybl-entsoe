@@ -126,7 +126,7 @@ class PexGraphTest {
     @Test
     void testGraphInjectionSummedWithXNodeLoad() {
         Network testNetwork = TestUtils.importNetwork("TestCaseDangling.xiidm");
-        testNetwork.getDanglingLine("BBE2AA1  X_BEFR1  1").setP0(300);
+        testNetwork.getBoundaryLine("BBE2AA1  X_BEFR1  1").setP0(300);
         testNetwork.getGenerator("BBE2AA1 _generator").setTargetP(3600);
         LoadFlow.run(testNetwork, LoadFlowParameters.load().setDc(true));
         List<Bus> busesInMainSynchronousComponent = NetworkUtil.getBusesInMainSynchronousComponent(testNetwork);

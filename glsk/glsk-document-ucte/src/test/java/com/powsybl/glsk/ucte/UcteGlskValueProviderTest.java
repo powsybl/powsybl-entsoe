@@ -170,7 +170,7 @@ class UcteGlskValueProviderTest {
     }
 
     @Test
-    void testWithDanglingLines() {
+    void testWithBoundaryLines() {
         Network network = Network.read("testCaseWithDanglingLines.xiidm", getClass().getResourceAsStream("/testCaseWithDanglingLines.xiidm"));
         Instant instant = Instant.parse("2016-07-29T10:00:00Z");
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/GlskWithDanglingLines.xml"));

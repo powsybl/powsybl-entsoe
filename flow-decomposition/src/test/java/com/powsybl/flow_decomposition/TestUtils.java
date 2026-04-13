@@ -82,7 +82,7 @@ public final class TestUtils {
     }
 
     public static Network getMicroGridNetworkWithBusBarSectionOnly() {
-        Network network = Importers.importData("CGMES", CgmesConformity3ModifiedCatalog.microGridBE3DanglingLinesSameBoundary1Disconnected().dataSource(), null);
+        Network network = Importers.importData("CGMES", CgmesConformity3ModifiedCatalog.microGridBE3BoundaryLinesSameBoundary1Disconnected().dataSource(), null);
         network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da").remove();
         network.getShuntCompensator("002b0a40-3957-46db-b84a-30420083558f").remove();
         network.getStaticVarCompensator("3c69652c-ff14-4550-9a87-b6fdaccbb5f4").remove();
@@ -93,7 +93,7 @@ public final class TestUtils {
     }
 
     public static Network getMicroGridNetworkWithShuntCompensatorOnly() {
-        Network network = Importers.importData("CGMES", CgmesConformity3ModifiedCatalog.microGridBE3DanglingLinesSameBoundary1Disconnected().dataSource(), null);
+        Network network = Importers.importData("CGMES", CgmesConformity3ModifiedCatalog.microGridBE3BoundaryLinesSameBoundary1Disconnected().dataSource(), null);
         network.getBusbarSection("5caf27ed-d2f8-458a-834a-6b3193a982e6").remove();
         network.getBusbarSection("64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c").remove();
         network.getBusbarSection("364c9ca2-0d1d-4363-8f46-e586f8f66a8c").remove();

@@ -74,7 +74,7 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
     private static SensitivityResultWriter getSensitivityResultWriter(List<FunctionVariableFactor> factors, Map<String, Map<Country, Double>> zonalPtdf) {
         return new SensitivityResultWriter() {
             @Override
-            public void writeSensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
+            public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
                 FunctionVariableFactor factor = factors.get(factorIndex);
                 String branchId = factor.functionId();
                 zonalPtdf.putIfAbsent(branchId, new EnumMap<>(Country.class));
@@ -83,7 +83,7 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
             }
 
             @Override
-            public void writeContingencyStatus(int contingencyIndex, SensitivityAnalysisResult.Status status) {
+            public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
                 // We do not manage contingency yet
             }
         };

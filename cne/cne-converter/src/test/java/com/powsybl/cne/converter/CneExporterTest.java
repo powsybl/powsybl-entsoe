@@ -11,6 +11,8 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.violations.LimitViolation;
+import com.powsybl.contingency.violations.LimitViolationType;
 import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
@@ -19,6 +21,8 @@ import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
+import com.powsybl.security.results.ConnectivityResult;
+import com.powsybl.security.results.NetworkResult;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -123,7 +127,8 @@ class CneExporterTest extends AbstractSerDeTest {
         // Create a preContingencyResult & postContingencyResult
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1));
         LimitViolationsResult postContingencyLimitViolationResult = new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, postContingencyLimitViolationResult);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED,
+                postContingencyLimitViolationResult, NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
         // Create SecurityAnalysisResult
         return new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
     }
