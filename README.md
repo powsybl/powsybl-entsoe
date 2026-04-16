@@ -11,3 +11,10 @@
 
 This framework provides components specific to ENTSO-E-orientated processes such as balances adjustment.
 Balances adjustment is a process that consists in acting on specified injections to ensure given balance on specific network areas.
+
+## Contributing
+
+See [Contributing.md](https://github.com/powsybl/.github/blob/main/CONTRIBUTING.md) for explanations
+on how to contribute to the code.
+
+See [Security.md](https://github.com/powsybl/.github/blob/main/SECURITY.md) to read about the security policy.
