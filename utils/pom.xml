@@ -10,19 +10,19 @@
     </parent>
 
     <artifactId>powsybl-entsoe-utils</artifactId>
-    <packaging>pom</packaging>
     <name>Utility methods and enums</name>
     <description>Module that gathers Utility methods and enums</description>
 
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-config-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
