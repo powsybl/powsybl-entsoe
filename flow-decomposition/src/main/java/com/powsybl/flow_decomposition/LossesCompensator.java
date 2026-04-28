@@ -7,6 +7,7 @@
 package com.powsybl.flow_decomposition;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.flow_decomposition.utils.LogUtils;
 import com.powsybl.iidm.network.*;
 
 import java.util.stream.Stream;
@@ -39,11 +40,13 @@ class LossesCompensator {
     }
 
     public void run(Network network) {
-        if (networkHash == null || networkHash != network.hashCode()) {
-            addZeroMWLossesLoadsOnBuses(network);
-            networkHash = network.hashCode();
-        }
-        compensateLossesOnBranches(network);
+        LogUtils.info("Nodal injections balancing after considering the losses", () -> {
+            if (networkHash == null || networkHash != network.hashCode()) {
+                addZeroMWLossesLoadsOnBuses(network);
+                networkHash = network.hashCode();
+            }
+            compensateLossesOnBranches(network);
+        });
     }
 
     private void addZeroMWLossesLoadsOnBuses(Network network) {
