@@ -8,6 +8,7 @@
 package com.powsybl.flow_decomposition.partitioners;
 
 import com.powsybl.flow_decomposition.*;
+import com.powsybl.flow_decomposition.utils.LogUtils;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Identifiable;
@@ -61,10 +62,12 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
                                                                     Map<Country, Double> netPositions,
                                                                     NetworkMatrixIndexes networkMatrixIndexes,
                                                                     Map<Country, Map<String, Double>> glsks) {
+      return LogUtils.info("Nodal injection calculation started", () -> {
         NodalInjectionComputer nodalInjectionComputer = new NodalInjectionComputer(networkMatrixIndexes);
         SparseMatrixWithIndexesTriplet nodalInjectionsMatrix = nodalInjectionComputer.run(network, glsks, netPositions);
         observers.computedNodalInjectionsMatrix(nodalInjectionsMatrix.toMap());
         return nodalInjectionsMatrix;
+      });
     }
 
     private SensitivityAnalyser getSensitivityAnalyser(Network network, NetworkMatrixIndexes networkMatrixIndexes) {
@@ -73,20 +76,24 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
 
     private SparseMatrixWithIndexesTriplet getPtdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
+      return LogUtils.info("Computation of node-to-hub PTDF", () -> {
         SparseMatrixWithIndexesTriplet ptdfMatrix = sensitivityAnalyser.getPtdfMatrix(networkMatrixIndexes);
         if (!observers.getObservers().isEmpty()) {
-            observers.computedPtdfMatrix(ptdfMatrix.toMap());
+          observers.computedPtdfMatrix(ptdfMatrix.toMap());
         }
         return ptdfMatrix;
+      });
     }
 
     private SparseMatrixWithIndexesTriplet getPsdfMatrix(NetworkMatrixIndexes networkMatrixIndexes,
                                                          SensitivityAnalyser sensitivityAnalyser) {
+      return LogUtils.info("Computation of node-to-hub PSDF", () -> {
         SparseMatrixWithIndexesTriplet psdfMatrix = sensitivityAnalyser.getPsdfMatrix(networkMatrixIndexes);
         if (!observers.getObservers().isEmpty()) {
-            observers.computedPsdfMatrix(psdfMatrix.toMap());
+          observers.computedPsdfMatrix(psdfMatrix.toMap());
         }
         return psdfMatrix;
+      });
     }
 
     private FlowPartition flowPartitionForXnec(Branch<?> xnec, Map<String, Double> allocatedLoopFlowsMap, double pstFlow) {
