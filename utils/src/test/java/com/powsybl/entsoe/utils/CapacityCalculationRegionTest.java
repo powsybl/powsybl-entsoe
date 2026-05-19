@@ -37,7 +37,7 @@ public class CapacityCalculationRegionTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> CapacityCalculationRegion.fromEIC("10YABCDEFGHIJKLM"));
         assertEquals("No Capacity Calculation region found with EIC 10YABCDEFGHIJKLM.", exception.getMessage());
     }
-    
+
     @Test
     void testGetEIC() {
         assertEquals("10Y1001C--00120B", CapacityCalculationRegion.BALTIC.getEIC());
