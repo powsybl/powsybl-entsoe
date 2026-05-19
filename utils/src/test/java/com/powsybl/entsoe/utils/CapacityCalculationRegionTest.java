@@ -37,4 +37,19 @@ public class CapacityCalculationRegionTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> CapacityCalculationRegion.fromEIC("10YABCDEFGHIJKLM"));
         assertEquals("No Capacity Calculation region found with EIC 10YABCDEFGHIJKLM.", exception.getMessage());
     }
+    
+    @Test
+    void testGetEIC() {
+        assertEquals("10Y1001C--00120B", CapacityCalculationRegion.BALTIC.getEIC());
+        assertEquals("10Y1001C--00145W", CapacityCalculationRegion.CENTRAL_EUROPE.getEIC());
+        assertEquals("10Y1001C--000239", CapacityCalculationRegion.CHANNEL.getEIC());
+        assertEquals("10Y1001C--00059P", CapacityCalculationRegion.CORE.getEIC());
+        assertEquals("10Y1001C--00138T", CapacityCalculationRegion.GREECE_ITALY.getEIC());
+        assertEquals("10Y1001C--00136X", CapacityCalculationRegion.HANSA.getEIC());
+        assertEquals("10Y1001C--00022B", CapacityCalculationRegion.IRELAND_UK.getEIC());
+        assertEquals("10Y1001C--00137V", CapacityCalculationRegion.ITALY_NORTH.getEIC());
+        assertEquals("10Y1001A1001A91G", CapacityCalculationRegion.NORDIC.getEIC());
+        assertEquals("10Y1001C--00139R", CapacityCalculationRegion.SELENE.getEIC());
+        assertEquals("10Y1001C--00095L", CapacityCalculationRegion.SOUTH_WESTERN_EUROPE.getEIC());
+    }
 }
