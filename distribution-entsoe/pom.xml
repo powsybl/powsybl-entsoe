@@ -72,6 +72,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-quality-check-ucte</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-entsoe-utils</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
