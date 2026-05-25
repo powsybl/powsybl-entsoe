@@ -120,7 +120,9 @@ public final class LogUtils {
     }
 
     private static void timed(String s, ThrowingRunnable run, BooleanSupplier isLogEnabled, Consumer<String> logger) {
-        timed(s, () -> { run.run(); return null; }, isLogEnabled, logger);
+        timed(s, () -> {
+            run.run(); return null;
+        }, isLogEnabled, logger);
     }
 
     private static <T> T sneakyCall(ThrowingSupplier<T> run) {
