@@ -13,6 +13,7 @@ import com.powsybl.flow_decomposition.partitioners.FastFullLineDecompositionPart
 import com.powsybl.flow_decomposition.partitioners.FullLineDecompositionPartitioner;
 import com.powsybl.flow_decomposition.partitioners.MatrixBasedPartitioner;
 import com.powsybl.flow_decomposition.rescaler.*;
+import com.powsybl.flow_decomposition.utils.LogUtils;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -92,7 +93,7 @@ public class FlowDecompositionComputer {
             observers.computedGlsk(glsks);
 
             Map<Country, Double> netPositions = getZonesNetPosition(network);
-            observers.computedNetPositions(netPositions);
+            LogUtils.info("Net position calculation", () -> observers.computedNetPositions(netPositions));
 
             FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
             decomposeFlowForNState(network,
@@ -159,8 +160,7 @@ public class FlowDecompositionComputer {
         saveAcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecs, loadFlowServiceAcResult);
 
         // Losses compensation
-        LOGGER.info("Computing losses compensation");
-        compensateLosses(network);
+        LogUtils.info("Nodal injections balancing after considering the losses", () -> compensateLosses(network));
 
         // DC load flow
         LOGGER.info("Computing DC load flow");
