@@ -18,5 +18,5 @@
         <appender-ref ref="STDOUT"/>
     </root>
     <!-- To be modified if debug analysis needed -->
-    <logger name="com.powsybl.glsk.ucte.quality_check" level="error"/>
+    <logger name="com.powsybl.cne.converter" level="error"/>
 </configuration>
