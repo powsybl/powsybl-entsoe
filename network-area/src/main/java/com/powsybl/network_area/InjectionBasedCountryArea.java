@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.balances_adjustment.util;
+package com.powsybl.network_area;
 
 import com.powsybl.iidm.network.*;
 

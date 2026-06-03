@@ -76,6 +76,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-entsoe-utils</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-network-area</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
