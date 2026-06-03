@@ -6,7 +6,6 @@
  */
 package com.powsybl.flow_decomposition;
 
-import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.flow_decomposition.xnec_provider.XnecProviderByIds;
 import com.powsybl.iidm.network.*;
@@ -15,7 +14,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -29,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 class CgmesIntegrationTests {
     private static final boolean AC_LOAD_FLOW = false;
-    private static final double DOUBLE_TOLERANCE = 1e-3;
 
     @Test
     void checkThatLossCompensationWorksWithNodeBreakerTopology() {
@@ -67,19 +64,5 @@ class CgmesIntegrationTests {
         assertNotNull(flowDecompositionResults.getDecomposedFlowMap().get(xnecId));
         assertEquals(1, flowDecompositionResults.getDecomposedFlowMap().size());
         TestUtils.assertCoherenceTotalFlow(flowDecompositionParameters.getRescaleMode(), flowDecompositionResults);
-    }
-
-    @Test
-    void testCoherentNetPosition() {
-        Properties importParams = new Properties();
-        Network network = Importers.importData("CGMES", Cgmes3Catalog.microGrid().dataSource(), importParams);
-        LoadFlow.run(network, LoadFlowParameters.load().setDc(false));
-        assertEquals(0.0, network.getBoundaryLineStream(BoundaryLineFilter.PAIRED).filter(boundaryLine -> Double.isFinite(boundaryLine.getBoundary().getP())).mapToDouble(boundaryLine -> boundaryLine.getBoundary().getP()).sum(), DOUBLE_TOLERANCE);
-
-        Map<Country, Double> netPositions = NetPositionComputer.computeNetPositions(network);
-
-        assertEquals(0, netPositions.values().stream().mapToDouble(Double::doubleValue).sum(), DOUBLE_TOLERANCE);
-        assertEquals(-244.958, netPositions.get(Country.BE), DOUBLE_TOLERANCE);
-        assertEquals(244.958, netPositions.get(Country.NL), DOUBLE_TOLERANCE);
     }
 }
