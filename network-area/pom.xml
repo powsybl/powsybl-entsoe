@@ -9,10 +9,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>powsybl-balances-adjustment</artifactId>
+    <artifactId>powsybl-network-area</artifactId>
     <packaging>jar</packaging>
-    <name>Balances adjustment algorithm</name>
-    <description>PowSyBl balances adjustment algorithm project</description>
+    <name>Network area</name>
+    <description>Network area management</description>
 
     <build>
         <plugins>
@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.balances.adjustment</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.network.area</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -47,14 +47,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-modification</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-network-area</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-time-series-api</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
@@ -90,27 +82,12 @@
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-serde</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-open-loadflow</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
             <artifactId>powsybl-ucte-converter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-cgmes-extensions</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
