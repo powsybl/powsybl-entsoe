@@ -40,12 +40,12 @@ No new permanent variants are created by this treatment; it only modifies the on
 
 Users may wonder what happens if the sum of the target net positions of the provided areas is not zero.
 
-In a physical power system, the global balance must be maintained: `Generation = Load + Losses + Net Export`. If the sum of the target net positions (Net Export) for all areas is not zero, the difference must be compensated by other parts of the network or by the slack bus during the load flow calculation.
+In a physical power system, the global balance must be maintained: `Generation = Load + Losses + Net Export`. If the sum of the target net positions (Net Export) for all areas is not zero, the difference must be compensated by other parts of the network or by the slack mechanism during the load flow calculation.
 
 - **Iterative Adjustment**: The balance adjustment will still attempt to reach the target net position for each specified area by scaling its internal generation/load.
-- **Slack Bus Role**: If the targets don't sum to zero, the load flow's slack bus will automatically adjust its production to maintain the frequency/global balance of the network.
-- **Convergence**: The computation converges only if each area reaches its individual target within the defined threshold. If the requested imbalance is too large or causes the slack bus to reach its limits (if limits are enforced in load flow), the process might fail to converge.
-- **Omitted Areas**: Any part of the network not included in a `BalanceComputationArea` will not be scaled, but its actual net position will still be affected by the global load flow and the slack bus adjustment.
+- **Slack Bus Role**: If the targets don't sum to zero, the load flow's balancing mechanism will automatically adjust injections to maintain the global balance of the network. Depending on the load flow configuration, this can be handled by a single **slack bus** or **distributed** across multiple buses (e.g., proportional to load).
+- **Convergence**: The computation converges only if each area reaches its individual target within the defined threshold. If the requested imbalance is too large or causes the slack mechanism to reach its limits, the process might fail to converge.
+- **Omitted Areas**: Any part of the network not included in a `BalanceComputationArea` will not be scaled, but its actual net position will still be affected by the global load flow and the slack adjustment.
 
 ## Parameters
 
@@ -55,10 +55,10 @@ The behavior of the balance computation can be tuned using `BalanceComputationPa
 
 The following parameters are available:
 - **Threshold Net Position**: The convergence criteria for the total mismatch.
-- **Max Number of Iterations**: The maximum number of scaling/load flow loops.
 - **Mismatch Mode**: How the total mismatch is calculated (`SQUARED` for sum of squares, or `MAX_ABS` for the maximum absolute value).
+- **Max Number of Iterations**: The maximum number of scaling/load flow loops.
 - **With Load Flow**: Whether to run a load flow after each scaling step.
-- **Subtract Load Flow Balancing**: If `true`, the area net position used for mismatch computation is adjusted by subtracting the internal "load flow balance" (the difference between target and actual injections). This is useful to compensate for slack bus adjustments or network losses when using border-based areas.
+- **Subtract Load Flow Balancing**: If `true`, the area net position used for mismatch computation is adjusted by subtracting the internal "load flow balance" (the difference between target and actual injections). This is useful to compensate for slack adjustments or network losses when using border-based areas.
 - **Scaling Parameters**: Specific parameters for the scaling process (e.g., whether to scale only generation, only load, or both).
 - **Load Flow Parameters**: Parameters passed to the load flow engine.
 
