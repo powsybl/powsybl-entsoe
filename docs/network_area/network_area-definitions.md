@@ -48,7 +48,7 @@ Both types of implementations support an optional parameter `subtractLoadFlowBal
 ### Why is it needed?
 In a load flow study, the calculated physical flows on lines might not perfectly match the initial target injections due to:
 - Network losses.
-- The presence of a slack bus that absorbs the global mismatch.
+- The presence of a slack mechanism (single slack bus or distributed slack) that absorbs the global mismatch.
 - Differences between target power (`targetP`, `p0`) and actual computed power (`p`) after load flow convergence.
 
 ### Effect on calculation
@@ -56,7 +56,7 @@ When `subtractLoadFlowBalancing` is set to `true`:
 
 1.  **For Injection-based areas**: Currently, the implementation might ignore this flag or handle it by returning the raw injection balance. (Refer to specific implementation details).
 2.  **For Border-based areas**: The net position is adjusted by the local "mismatch" found within the area:
-    
+
     $$NP_{adjusted} = NP_{physical\_borders} - (\sum (P_{target} - P_{computed}))$$
-    
-    This helps in aligning the border-based net position with the intended injection-based balance by removing the influence of the load flow's balancing mechanism (like slack bus adjustments) if they occurred inside the area.
+
+    This helps in aligning the border-based net position with the intended injection-based balance by removing the influence of the load flow's balancing mechanism (like slack adjustments) if they occurred inside the area.
