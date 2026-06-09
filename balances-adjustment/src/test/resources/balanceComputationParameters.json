@@ -25,11 +25,12 @@
     "dcPowerFactor" : 1.0
   },
   "scaling-parameters" : {
-    "version" : "1.2",
+    "version" : "1.3",
     "scalingConvention" : "GENERATOR",
     "constantPowerFactor" : false,
     "reconnect" : false,
     "priority" : "ONESHOT",
-    "ignoredInjectionIds" : [ ]
+    "ignoredInjectionIds" : [ ],
+    "loadMinPowerFactor" : 0.0
   }
 }
