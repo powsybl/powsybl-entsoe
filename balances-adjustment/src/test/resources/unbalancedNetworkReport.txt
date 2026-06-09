@@ -8,7 +8,6 @@
                Network balance: active generation=4000.0 MW, active load=4000.0 MW, reactive generation=0.0 MVar, reactive load=0.0 MVar
                Angle reference bus: VOLTAGE_LEVEL_BE_0
                Slack bus: VOLTAGE_LEVEL_BE_0
-            Outer loop DcHvdcAcEmulationLimits
             DC load flow completed (solverSuccess=true, outerloopStatus=STABLE)
       + Checking load flow status
          Network CC0 SC0 Load flow complete with status 'CONVERGED'
@@ -27,7 +26,6 @@
                Angle reference bus: VOLTAGE_LEVEL_BE_0
                Slack bus: VOLTAGE_LEVEL_BE_0
             Slack bus active power (100.0 MW) distributed in 1 distribution iteration(s)
-            Outer loop DcHvdcAcEmulationLimits
             DC load flow completed (solverSuccess=true, outerloopStatus=STABLE)
       + Checking load flow status
          Network CC0 SC0 Load flow complete with status 'CONVERGED'
@@ -46,7 +44,6 @@
                Angle reference bus: VOLTAGE_LEVEL_BE_0
                Slack bus: VOLTAGE_LEVEL_BE_0
             Slack bus active power (200.0 MW) distributed in 1 distribution iteration(s)
-            Outer loop DcHvdcAcEmulationLimits
             DC load flow completed (solverSuccess=true, outerloopStatus=STABLE)
       + Checking load flow status
          Network CC0 SC0 Load flow complete with status 'CONVERGED'
@@ -65,7 +62,6 @@
                Angle reference bus: VOLTAGE_LEVEL_BE_0
                Slack bus: VOLTAGE_LEVEL_BE_0
             Slack bus active power (300.0 MW) distributed in 1 distribution iteration(s)
-            Outer loop DcHvdcAcEmulationLimits
             DC load flow completed (solverSuccess=true, outerloopStatus=STABLE)
       + Checking load flow status
          Network CC0 SC0 Load flow complete with status 'CONVERGED'
@@ -84,7 +80,6 @@
                Angle reference bus: VOLTAGE_LEVEL_BE_0
                Slack bus: VOLTAGE_LEVEL_BE_0
             Slack bus active power (399.99999999999983 MW) distributed in 1 distribution iteration(s)
-            Outer loop DcHvdcAcEmulationLimits
             DC load flow completed (solverSuccess=true, outerloopStatus=STABLE)
       + Checking load flow status
          Network CC0 SC0 Load flow complete with status 'CONVERGED'
