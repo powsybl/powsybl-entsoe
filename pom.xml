@@ -78,11 +78,13 @@
     <modules>
         <module>balances-adjustment</module>
         <module>cne</module>
+        <module>commons</module>
         <module>distribution-entsoe</module>
+        <module>emf</module>
         <module>flow-decomposition</module>
         <module>glsk</module>
-        <module>emf</module>
-        <module>commons</module>
+        <module>network-area</module>
+        <module>utils</module>
     </modules>
 
     <build>
@@ -145,6 +147,11 @@
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-entsoe-utils</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-flow-decomposition</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -181,6 +188,11 @@
             <dependency>
                 <groupId>com.powsybl</groupId>
                 <artifactId>powsybl-glsk-quality-check-ucte</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-network-area</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
