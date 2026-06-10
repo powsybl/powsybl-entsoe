@@ -93,7 +93,7 @@ public class FlowDecompositionComputer {
             observers.computedGlsk(glsks);
 
             Map<Country, Double> netPositions = getZonesNetPosition(network);
-            LogUtils.info("Net position calculation", () -> observers.computedNetPositions(netPositions));
+            observers.computedNetPositions(netPositions);
 
             FlowDecompositionResults flowDecompositionResults = new FlowDecompositionResults(network);
             decomposeFlowForNState(network,
@@ -160,7 +160,7 @@ public class FlowDecompositionComputer {
         saveAcLoadFlowResults(flowDecompositionResultsBuilder, network, xnecs, loadFlowServiceAcResult);
 
         // Losses compensation
-        LogUtils.info("Nodal injections balancing after considering the losses", () -> compensateLosses(network));
+        LogUtils.info("Computing losses compensation", () -> compensateLosses(network));
 
         // DC load flow
         LOGGER.info("Computing DC load flow");
@@ -222,8 +222,10 @@ public class FlowDecompositionComputer {
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network) {
-        NetPositionComputer netPositionComputer = new NetPositionComputer();
-        return netPositionComputer.run(network);
+        return LogUtils.info("Net position calculation", () -> {
+            NetPositionComputer netPositionComputer = new NetPositionComputer();
+            return netPositionComputer.run(network);
+        });
     }
 
     private void compensateLosses(Network network) {
