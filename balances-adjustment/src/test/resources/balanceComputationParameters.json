@@ -6,7 +6,7 @@
   "withLoadFlow" : true,
   "subtractLoadFlowBalancing" : false,
   "load-flow-parameters" : {
-    "version" : "1.10",
+    "version" : "1.11",
     "voltageInitMode" : "DC_VALUES",
     "transformerVoltageControlOn" : true,
     "phaseShifterRegulationOn" : true,
