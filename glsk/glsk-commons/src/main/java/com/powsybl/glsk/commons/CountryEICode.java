@@ -74,6 +74,14 @@ public class CountryEICode {
             case "10YDK-1--------W" -> Country.DK;
             case "10Y1001C--00100H" -> Country.XK;
             case "10YLU-CEGEDEL-NQ" -> Country.LU;
+            case "10Y1001A1001A990" -> Country.MD;
+            case "10YIE-1001A00010" -> Country.IE;
+            case "10YLT-1001A0008Q" -> Country.LT;
+            case "10YLV-1001A00074" -> Country.LV;
+            case "10Y1001A1001A39I" -> Country.EE;
+            case "10YFI-1--------U" -> Country.FI;
+            case "10YSE-1--------K" -> Country.SE;
+            case "10YNO-0--------C" -> Country.NO;
             default -> throw new IllegalArgumentException("Unknown CountryEICode: " + codeString + ".");
         };
     }
@@ -108,6 +116,14 @@ public class CountryEICode {
             case DK -> "10YDK-1--------W";
             case XK -> "10Y1001C--00100H";
             case LU -> "10YLU-CEGEDEL-NQ";
+            case MD -> "10Y1001A1001A990";
+            case IE -> "10YIE-1001A00010";
+            case LT -> "10YLT-1001A0008Q";
+            case LV -> "10YLV-1001A00074";
+            case EE -> "10Y1001A1001A39I";
+            case FI -> "10YFI-1--------U";
+            case SE -> "10YSE-1--------K";
+            case NO -> "10YNO-0--------C";
             default -> throw new IllegalArgumentException("Unknown CountryEICode for Country " + country + ".");
         };
     }
