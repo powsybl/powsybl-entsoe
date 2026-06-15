@@ -27,6 +27,7 @@
   "scaling-parameters" : {
     "version" : "1.3",
     "scalingConvention" : "GENERATOR",
+    "scalingType" : "DELTA_P",
     "constantPowerFactor" : false,
     "reconnect" : false,
     "priority" : "ONESHOT",
