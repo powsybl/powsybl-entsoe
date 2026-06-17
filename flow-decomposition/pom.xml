@@ -38,17 +38,14 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-network-area</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>${commonscsv.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ejml</groupId>
             <artifactId>ejml-all</artifactId>
-            <version>${ejml.version}</version>
         </dependency>
         <!-- Test dependencies -->
         <dependency>
