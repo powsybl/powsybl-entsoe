@@ -3,6 +3,8 @@ package com.powsybl.flow_decomposition.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -72,14 +74,24 @@ public final class LogUtils {
     }
 
     private static <T> T timed(String stepName, Supplier<T> supplier, BooleanSupplier isLogEnabled, Consumer<String> logger) {
+        Objects.requireNonNull(stepName, "stepName is null");
+        Objects.requireNonNull(supplier, "supplier is null");
+        Objects.requireNonNull(logger, "logger is null");
         if (!isLogEnabled.getAsBoolean()) {
             return supplier.get();
         }
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         logger.accept(stepName + " started");
-        T result = supplier.get();
-        logger.accept(stepName + " completed. Time=" + (System.currentTimeMillis() - start) + " ms");
-        return result;
+        try {
+            T result = supplier.get();
+            long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+            logger.accept(stepName + " completed. Time=" + elapsedMillis + " ms");
+            return result;
+        } catch (Exception e) {
+            long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+            logger.accept(stepName + " failed. Time=" + elapsedMillis + " ms");
+            throw e;
+        }
     }
 
     private static void timed(String stepName, Runnable runnable, BooleanSupplier isLogEnabled, Consumer<String> logger) {
