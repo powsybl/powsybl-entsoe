@@ -51,9 +51,11 @@ public class CneExporter implements SecurityAnalysisResultExporter {
     // Current datetime (now) is used, if no created datetime is given
     private static final Parameter CREATED_DATETIME_PARAMETER = new Parameter(PREFIX + CREATED_DATETIME, ParameterType.STRING, "", formatDateTime(Instant.now()));
     // Current datetime (now) is used, if no start datetime is given
-    private static final Parameter TIME_PERIOD_START_PARAMETER = new Parameter(PREFIX + TIME_PERIOD + "." + TIME_INTERVAL + "." + START, ParameterType.STRING, "", formatDateTime(Instant.now()));
+    private static final String TIME_PREFIX = PREFIX + TIME_PERIOD + "." + TIME_INTERVAL + ".";
+    private static final Parameter TIME_PERIOD_START_PARAMETER = new Parameter(TIME_PREFIX + START, ParameterType.STRING, "", formatDateTime(Instant.now()));
     // Current datetime (now) + 1 hour is used, if no end datetime is given
-    private static final Parameter TIME_PERIOD_END_PARAMETER = new Parameter(PREFIX + TIME_PERIOD + "." + TIME_INTERVAL + "." + END, ParameterType.STRING, "", formatDateTime(Instant.now().plusMillis(3600L * 1000L)));
+    private static final Instant INSTANT_IN_AN_HOUR = Instant.now().plusMillis(3600L * 1000L);
+    private static final Parameter TIME_PERIOD_END_PARAMETER = new Parameter(TIME_PREFIX + END, ParameterType.STRING, "", formatDateTime(INSTANT_IN_AN_HOUR));
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
