@@ -7,7 +7,6 @@
 package com.powsybl.glsk.commons.chronology;
 
 import com.powsybl.glsk.commons.GlskException;
-
 import org.threeten.extra.Interval;
 
 import java.time.*;

@@ -123,11 +123,11 @@ Example `parameters.json`:
 The following example shows how to create the necessary objects and run a balance computation.
 
 ```java
-import com.powsybl.balances_adjustment.balance_computation.*;
+import com.powsybl.balancesadjustment.computation.*;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.network_area.CountryAreaFactory;
+import com.powsybl.network.area.CountryAreaFactory;
 import com.powsybl.iidm.modification.scalable.GeneratorsScalable;
 
 import java.util.Arrays;

@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.flowdecomposition.glskprovider;
+
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+
+import static com.powsybl.flowdecomposition.TestUtils.importNetwork;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+/**
+ * @author Hugo Schindler {@literal <hugo.schindler at rte-france.com>}
+ */
+class AutoGlskProviderTests {
+    private static final double EPSILON = 1e-3;
+
+    @Test
+    void testThatGlskAreWellComputed() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
+        String genBe = "BGEN2 11_generator";
+        String loadBe = "BLOAD 11_load";
+        String genFr = "FGEN1 11_generator";
+        Network network = importNetwork(networkFileName);
+
+        Map<Country, Map<String, Double>> glsks = new AutoGlskProvider().getGlsk(network);
+
+        assertEquals(1.0, glsks.get(Country.FR).get(genFr), EPSILON);
+        assertEquals(1.0, glsks.get(Country.BE).get(genBe), EPSILON);
+        assertNull(glsks.get(Country.BE).get(loadBe));
+    }
+
+    @Test
+    void testThatGlskIgnoreDisconnectedGenerators() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
+        String genBe = "BGEN2 11_generator";
+        String loadBe = "BLOAD 11_load";
+        String genFr = "FGEN1 11_generator";
+        Network network = importNetwork(networkFileName);
+
+        network.getGenerator(genFr).getTerminal().disconnect();
+
+        Map<Country, Map<String, Double>> glsks = new AutoGlskProvider().getGlsk(network);
+
+        assertNull(glsks.get(Country.FR).get(genFr));
+
+        assertEquals(1.0, glsks.get(Country.BE).get(genBe), EPSILON);
+        assertNull(glsks.get(Country.BE).get(loadBe));
+    }
+
+    @Test
+    void testThatGlskWorkForNullTargetP() {
+        String networkFileName = "NETWORK_SINGLE_LOAD_TWO_GENERATORS_WITH_COUNTRIES.uct";
+        String genBe = "BGEN2 11_generator";
+        String loadBe = "BLOAD 11_load";
+        String genFr = "FGEN1 11_generator";
+        Network network = importNetwork(networkFileName);
+
+        network.getGenerator(genFr).setTargetP(0.0);
+
+        Map<Country, Map<String, Double>> glsks = new AutoGlskProvider().getGlsk(network);
+
+        assertEquals(1.0, glsks.get(Country.FR).get(genFr), EPSILON);
+        assertEquals(1.0, glsks.get(Country.BE).get(genBe), EPSILON);
+        assertNull(glsks.get(Country.BE).get(loadBe));
+    }
+
+}
