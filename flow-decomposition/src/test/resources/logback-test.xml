@@ -18,5 +18,5 @@
         <appender-ref ref="STDOUT"/>
     </root>
     <!-- To be modified if debug analysis needed -->
-    <logger name="com.powsybl.flow_decomposition" level="error"/>
+    <logger name="com.powsybl.flowdecomposition" level="error"/>
 </configuration>
