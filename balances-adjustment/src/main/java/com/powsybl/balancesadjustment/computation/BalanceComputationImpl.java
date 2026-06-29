@@ -4,10 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.balances_adjustment.balance_computation;
+package com.powsybl.balancesadjustment.computation;
 
-import com.powsybl.network.area.NetworkArea;
-import com.powsybl.balances_adjustment.util.Reports;
+import com.powsybl.balancesadjustment.util.Reports;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -17,6 +16,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowRunParameters;
+import com.powsybl.network.area.NetworkArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -226,7 +226,10 @@ public class BalanceComputationImpl implements BalanceComputation {
             this.parameters = parameters;
             this.reportNode = reportNode;
             this.iterationReportNode = ReportNode.NO_OP;
-            networkAreas = areas.stream().collect(Collectors.toMap(Function.identity(), ba -> ba.getNetworkAreaFactory().create(network, !parameters.isWithLoadFlow()), (v1, v2) -> v1, LinkedHashMap::new));
+            networkAreas = areas.stream().collect(Collectors.toMap(
+                Function.identity(),
+                ba -> ba.getNetworkAreaFactory().create(network, !parameters.isWithLoadFlow()), (v1, v2) -> v1, LinkedHashMap::new)
+            );
             balanceOffsets.clear();
             balanceMismatches.clear();
         }

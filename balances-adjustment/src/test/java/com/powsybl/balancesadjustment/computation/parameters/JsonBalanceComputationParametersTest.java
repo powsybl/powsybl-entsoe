@@ -4,17 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.balances_adjustment.balance_computation.json_parameters;
+package com.powsybl.balancesadjustment.computation.parameters;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.balances_adjustment.balance_computation.BalanceComputationParameters;
+import com.powsybl.balancesadjustment.computation.BalanceComputationParameters;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
-import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
 

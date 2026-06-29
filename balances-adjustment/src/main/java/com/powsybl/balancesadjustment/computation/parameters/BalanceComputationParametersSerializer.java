@@ -4,12 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.balances_adjustment.balance_computation.json_parameters;
+package com.powsybl.balancesadjustment.computation.parameters;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.balances_adjustment.balance_computation.BalanceComputationParameters;
+import com.powsybl.balancesadjustment.computation.BalanceComputationParameters;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.modification.scalable.json.JsonScalingParameters;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;

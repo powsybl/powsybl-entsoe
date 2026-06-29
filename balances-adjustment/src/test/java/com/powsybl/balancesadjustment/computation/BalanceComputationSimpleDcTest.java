@@ -4,10 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.balances_adjustment.balance_computation;
+package com.powsybl.balancesadjustment.computation;
 
-import com.powsybl.balances_adjustment.util.BalanceComputationAssert;
-import com.powsybl.network.area.CountryAreaFactory;
+import com.powsybl.balancesadjustment.util.BalanceComputationAssert;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -16,6 +15,7 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.*;
 import com.powsybl.math.matrix.DenseMatrixFactory;
+import com.powsybl.network.area.CountryAreaFactory;
 import com.powsybl.openloadflow.OpenLoadFlowProvider;
 import com.powsybl.openloadflow.util.report.PowsyblOpenLoadFlowReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;

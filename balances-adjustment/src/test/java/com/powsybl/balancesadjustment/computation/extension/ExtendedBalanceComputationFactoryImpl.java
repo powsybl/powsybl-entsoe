@@ -4,11 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.balances_adjustment.balance_computation.extension;
+package com.powsybl.balancesadjustment.computation.extension;
 
-import com.powsybl.balances_adjustment.balance_computation.BalanceComputation;
-import com.powsybl.balances_adjustment.balance_computation.BalanceComputationArea;
-import com.powsybl.balances_adjustment.balance_computation.BalanceComputationFactory;
+import com.powsybl.balancesadjustment.computation.BalanceComputation;
+import com.powsybl.balancesadjustment.computation.BalanceComputationArea;
+import com.powsybl.balancesadjustment.computation.BalanceComputationFactory;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.loadflow.LoadFlow;
 

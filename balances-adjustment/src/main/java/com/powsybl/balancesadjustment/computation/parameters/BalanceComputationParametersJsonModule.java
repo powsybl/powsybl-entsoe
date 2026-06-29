@@ -4,10 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.balances_adjustment.balance_computation.json_parameters;
+package com.powsybl.balancesadjustment.computation.parameters;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.balances_adjustment.balance_computation.BalanceComputationParameters;
+import com.powsybl.balancesadjustment.computation.BalanceComputationParameters;
 
 /**
  * @author Mohamed Ben Rejeb {@literal <mohamed.benrejeb at rte-france.com>}
