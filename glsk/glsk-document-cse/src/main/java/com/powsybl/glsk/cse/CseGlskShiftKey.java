@@ -43,6 +43,21 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
         }
     }
 
+    public CseGlskShiftKey(BlockWrapper blockWrapper,
+                           NodeWrapper nodeWrapper,
+                           BusinessTypeList businessType,
+                           Interval pointInterval,
+                           String subjectDomainmRID,
+                           int position,
+                           BigDecimal sumBlockFactors) {
+        initCommonMemberVariables(blockWrapper, businessType, pointInterval, subjectDomainmRID, sumBlockFactors);
+        this.meritOrderPosition = position;
+
+        this.businessType = "B45";
+        CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeWrapper);
+        registeredResourceArrayList.add(cseRegisteredResource);
+    }
+
     private void handleManualGskBlock(BlockWrapper blockWrapper) {
         double factorsSum = 0;
         Optional<List<NodeWrapper>> nodeList = blockWrapper.getNodeList();
@@ -69,15 +84,6 @@ public class CseGlskShiftKey extends AbstractGlskShiftKey {
                 cseRegisteredResource.setParticipationFactor(initialFactor.get() / factorsSum);
             }
         }
-    }
-
-    public CseGlskShiftKey(BlockWrapper blockWrapper, NodeWrapper nodeWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID, int position, BigDecimal sumBlockFactors) {
-        initCommonMemberVariables(blockWrapper, businessType, pointInterval, subjectDomainmRID, sumBlockFactors);
-        this.meritOrderPosition = position;
-
-        this.businessType = "B45";
-        CseGlskRegisteredResource cseRegisteredResource = new CseGlskRegisteredResource(nodeWrapper);
-        registeredResourceArrayList.add(cseRegisteredResource);
     }
 
     private void initCommonMemberVariables(BlockWrapper blockWrapper, BusinessTypeList businessType, Interval pointInterval, String subjectDomainmRID, BigDecimal sumBlockFactors) {
