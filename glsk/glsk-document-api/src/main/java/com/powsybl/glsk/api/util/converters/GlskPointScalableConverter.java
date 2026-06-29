@@ -12,8 +12,8 @@ import com.powsybl.glsk.api.GlskShiftKey;
 import com.powsybl.glsk.commons.CountryEICode;
 import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.iidm.modification.scalable.Scalable;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -115,7 +115,10 @@ public final class GlskPointScalableConverter {
         scalables.add(Scalable.upDown(upScalable, downScalable));
     }
 
-    private static Scalable createRemainingCapacityScalable(Network network, GlskShiftKey glskShiftKey, List<GlskRegisteredResource> generatorResources, BiFunction<GlskRegisteredResource, Network, Double> remainingCapacityFunction) {
+    private static Scalable createRemainingCapacityScalable(Network network,
+                                                            GlskShiftKey glskShiftKey,
+                                                            List<GlskRegisteredResource> generatorResources,
+                                                            BiFunction<GlskRegisteredResource, Network, Double> remainingCapacityFunction) {
         List<Double> percentages = new ArrayList<>();
         List<Scalable> scalables = new ArrayList<>();
         double totalFactor = generatorResources.stream().mapToDouble(resource -> remainingCapacityFunction.apply(resource, network)).sum();

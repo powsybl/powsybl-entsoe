@@ -7,15 +7,15 @@
 
 package com.powsybl.glsk.api.util;
 
+import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.GlskPoint;
+import com.powsybl.glsk.api.util.converters.GlskPointToLinearDataConverter;
+import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.commons.ZonalData;
 import com.powsybl.glsk.commons.ZonalDataChronology;
 import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.glsk.commons.chronology.Chronology;
 import com.powsybl.glsk.commons.chronology.ChronologyImpl;
-import com.powsybl.glsk.api.GlskDocument;
-import com.powsybl.glsk.commons.GlskException;
-import com.powsybl.glsk.api.util.converters.GlskPointToLinearDataConverter;
 import com.powsybl.iidm.network.Network;
 import org.threeten.extra.Interval;
 
