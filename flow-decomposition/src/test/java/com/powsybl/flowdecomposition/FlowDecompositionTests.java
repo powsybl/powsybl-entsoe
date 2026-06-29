@@ -38,7 +38,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class FlowDecompositionTests {
 
-    public static final Set<FlowDecompositionParameters.FlowPartitionMode> FULL_LINE_DECOMPOSITION_MODES = Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION, FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION);
+    public static final Set<FlowDecompositionParameters.FlowPartitionMode> FULL_LINE_DECOMPOSITION_MODES = Set.of(FlowDecompositionParameters.FlowPartitionMode.FULL_LINE_DECOMPOSITION,
+        FlowDecompositionParameters.FlowPartitionMode.FAST_FULL_LINE_DECOMPOSITION);
 
     private static FlowDecompositionResults runFlowDecomposition(Network network, XnecProvider xnecProvider, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         FlowDecompositionParameters flowDecompositionParameters = new FlowDecompositionParameters()
@@ -70,6 +71,7 @@ class FlowDecompositionTests {
         return flowDecompositionResults;
     }
 
+    @SuppressWarnings("checkstyle:LineLength")
     private static void validateFlowDecompositionResultsUsingPFCMethodology(FlowDecompositionResults flowDecompositionResults) {
         validateFlowDecomposition(flowDecompositionResults, "BBE1AA11 BBE3AA11 1_contingency_split_network", "BBE1AA11 BBE3AA11 1", "contingency_split_network", Country.BE, Country.BE, -571.575251, -571.428571, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000);
         validateFlowDecomposition(flowDecompositionResults, "FFR2AA11 FFR3AA11 2", "FFR2AA11 FFR3AA11 2", "", Country.FR, Country.FR, -1048.852694, -1044.697128, 418.391705, 0.000000, 38.815350, 611.949424, -16.125814, -4.610042, 0.000000, -3.723495);
@@ -176,6 +178,7 @@ class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
     }
 
+    @SuppressWarnings("checkstyle:LineLength")
     private static void validateFlowDecompositionResultsUsingFLDMethodology(FlowDecompositionResults flowDecompositionResults) {
         validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA11 BBE2AA11 1", "BBE1AA11 BBE2AA11 1", "", Country.BE, Country.BE, -1073.022, -1072.819, 833.251, 0.000, 2.665, 251.523, Map.of(Country.FR, -14.047, Country.DE, -1.944, Country.NL, 1.370));
         validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA11 BBE2AA11 1_contingency_1", "BBE1AA11 BBE2AA11 1", "contingency_1", Country.BE, Country.BE, -1213.943, -1214.286, 990.286, 0.000, 0.000, 224.000, Collections.emptyMap());
@@ -317,12 +320,21 @@ class FlowDecompositionTests {
         }
     }
 
-    private Map<String, Map<String, Double>> runElementarySensitivities(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, SensitivityAnalysis.Runner runner, List<String> xnecIds, List<String> variableIds) {
+    private Map<String, Map<String, Double>> runElementarySensitivities(Network network,
+                                                                        SensitivityAnalysisParameters sensitivityAnalysisParameters,
+                                                                        SensitivityAnalysis.Runner runner,
+                                                                        List<String> xnecIds,
+                                                                        List<String> variableIds) {
         List<SensitivityFactor> sensitivityFactors = new ArrayList<>();
         xnecIds.forEach(
             xnecId -> variableIds.forEach(
                 variableId -> {
-                    SensitivityFactor sensitivityFactor = new SensitivityFactor(SENSITIVITY_FUNCTION_TYPE, xnecId, SensitivityVariableType.INJECTION_ACTIVE_POWER, variableId, false, ContingencyContext.none());
+                    SensitivityFactor sensitivityFactor = new SensitivityFactor(SENSITIVITY_FUNCTION_TYPE,
+                        xnecId,
+                        SensitivityVariableType.INJECTION_ACTIVE_POWER,
+                        variableId,
+                        false,
+                        ContingencyContext.none());
                     sensitivityFactors.add(sensitivityFactor);
                 }));
         SensitivityAnalysisRunParameters runParameters = new SensitivityAnalysisRunParameters()
@@ -340,7 +352,11 @@ class FlowDecompositionTests {
         ));
     }
 
-    private Map<String, Double> runGroupedSensitivity(Network network, SensitivityAnalysisParameters sensitivityAnalysisParameters, SensitivityAnalysis.Runner runner, List<String> xnecIds, SensitivityVariableSet variableSet) {
+    private Map<String, Double> runGroupedSensitivity(Network network,
+                                                      SensitivityAnalysisParameters sensitivityAnalysisParameters,
+                                                      SensitivityAnalysis.Runner runner,
+                                                      List<String> xnecIds,
+                                                      SensitivityVariableSet variableSet) {
         List<SensitivityFactor> sensitivityFactors = xnecIds.stream().map(
             xnecId -> new SensitivityFactor(SENSITIVITY_FUNCTION_TYPE, xnecId, SensitivityVariableType.INJECTION_ACTIVE_POWER, variableSet.getId(), true, ContingencyContext.none())).toList();
         SensitivityAnalysisRunParameters runParameters = new SensitivityAnalysisRunParameters()
@@ -372,16 +388,21 @@ class FlowDecompositionTests {
             assertEquals("Nodal generation and load do not match for vertex associated with bus: b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c_0", exception.getMessage());
         } else {
             FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowPartitionMode);
-            assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "", Country.BE, Country.BE, 105.335, 115.129, -8.896, 30.705, 33.030, 60.289, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "", Country.BE, Country.BE, -116.324, -118.550, -0.000, 126.160, -0.000, -7.610, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "b94318f6-6d24-4f56-96b9-df2531ad6543", "b94318f6-6d24-4f56-96b9-df2531ad6543", "", Country.BE, Country.BE, 0.299, 0.289, -5.505, 76.274, -33.030, -37.450, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "df16b3dd-c905-4a6f-84ee-f067be86f5da", "df16b3dd-c905-4a6f-84ee-f067be86f5da", "", Country.BE, Country.BE, -99.797, -103.741, 0.000, 103.741, -0.000, -0.000, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "e482b89a-fa84-4ea9-8e70-a83d44790957", "e482b89a-fa84-4ea9-8e70-a83d44790957", "", Country.BE, Country.BE, -94.902, -84.583, 14.401, -106.980, -0.000, 177.161, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "", Country.BE, Country.BE, -53.551, -57.104, -0.000, 60.770, -0.000, -3.666, Collections.emptyMap());
-            assertEquals(1, flowDecompositionResults.getZoneSet().size());
-            assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
+            validateFlowDecompositionResultsWithBusBarSectionOnly(flowDecompositionResults);
         }
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    private static void validateFlowDecompositionResultsWithBusBarSectionOnly(FlowDecompositionResults flowDecompositionResults) {
+        assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "", Country.BE, Country.BE, 105.335, 115.129, -8.896, 30.705, 33.030, 60.289, Collections.emptyMap());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "", Country.BE, Country.BE, -116.324, -118.550, -0.000, 126.160, -0.000, -7.610, Collections.emptyMap());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "b94318f6-6d24-4f56-96b9-df2531ad6543", "b94318f6-6d24-4f56-96b9-df2531ad6543", "", Country.BE, Country.BE, 0.299, 0.289, -5.505, 76.274, -33.030, -37.450, Collections.emptyMap());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "df16b3dd-c905-4a6f-84ee-f067be86f5da", "df16b3dd-c905-4a6f-84ee-f067be86f5da", "", Country.BE, Country.BE, -99.797, -103.741, 0.000, 103.741, -0.000, -0.000, Collections.emptyMap());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "e482b89a-fa84-4ea9-8e70-a83d44790957", "e482b89a-fa84-4ea9-8e70-a83d44790957", "", Country.BE, Country.BE, -94.902, -84.583, 14.401, -106.980, -0.000, 177.161, Collections.emptyMap());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "", Country.BE, Country.BE, -53.551, -57.104, -0.000, 60.770, -0.000, -3.666, Collections.emptyMap());
+        assertEquals(1, flowDecompositionResults.getZoneSet().size());
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
     }
 
     @ParameterizedTest(name = "Mode={0}")
@@ -401,16 +422,21 @@ class FlowDecompositionTests {
             assertEquals("Nodal generation and load do not match for vertex associated with bus: b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c_0", exception.getMessage());
         } else {
             FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, xnecProvider, flowPartitionMode);
-            assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "", Country.BE, Country.BE, 105.189, 115.160, -8.896, 30.705, 33.030, 60.321, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "", Country.BE, Country.BE, -116.310, -118.537, -0.000, 126.160, -0.000, -7.623, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "b94318f6-6d24-4f56-96b9-df2531ad6543", "b94318f6-6d24-4f56-96b9-df2531ad6543", "", Country.BE, Country.BE, -0.732, 0.248, -5.505, 76.274, -33.030, -37.492, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "df16b3dd-c905-4a6f-84ee-f067be86f5da", "df16b3dd-c905-4a6f-84ee-f067be86f5da", "", Country.BE, Country.BE, -99.793, -103.741, 0.000, 103.741, -0.000, -0.000, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "e482b89a-fa84-4ea9-8e70-a83d44790957", "e482b89a-fa84-4ea9-8e70-a83d44790957", "", Country.BE, Country.BE, -95.912, -84.604, 14.401, -106.980, -0.000, 177.183, Collections.emptyMap());
-            validateFlowDecompositionWithMap(flowDecompositionResults, "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "", Country.BE, Country.BE, -53.540, -57.098, -0.000, 60.770, -0.000, -3.672, Collections.emptyMap());
-            assertEquals(1, flowDecompositionResults.getZoneSet().size());
-            assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
+            validateFlowDecompositionResultsWithShuntCompensatorOnly(flowDecompositionResults);
         }
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    private static void validateFlowDecompositionResultsWithShuntCompensatorOnly(FlowDecompositionResults flowDecompositionResults) {
+        assertEquals(6, flowDecompositionResults.getDecomposedFlowMap().size());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", "", Country.BE, Country.BE, 105.189, 115.160, -8.896, 30.705, 33.030, 60.321, Collections.emptyMap());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "b58bf21a-096a-4dae-9a01-3f03b60c24c7", "", Country.BE, Country.BE, -116.310, -118.537, -0.000, 126.160, -0.000, -7.623, Collections.emptyMap());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "b94318f6-6d24-4f56-96b9-df2531ad6543", "b94318f6-6d24-4f56-96b9-df2531ad6543", "", Country.BE, Country.BE, -0.732, 0.248, -5.505, 76.274, -33.030, -37.492, Collections.emptyMap());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "df16b3dd-c905-4a6f-84ee-f067be86f5da", "df16b3dd-c905-4a6f-84ee-f067be86f5da", "", Country.BE, Country.BE, -99.793, -103.741, 0.000, 103.741, -0.000, -0.000, Collections.emptyMap());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "e482b89a-fa84-4ea9-8e70-a83d44790957", "e482b89a-fa84-4ea9-8e70-a83d44790957", "", Country.BE, Country.BE, -95.912, -84.604, 14.401, -106.980, -0.000, 177.183, Collections.emptyMap());
+        validateFlowDecompositionWithMap(flowDecompositionResults, "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "ffbabc27-1ccd-4fdc-b037-e341706c8d29", "", Country.BE, Country.BE, -53.540, -57.098, -0.000, 60.770, -0.000, -3.672, Collections.emptyMap());
+        assertEquals(1, flowDecompositionResults.getZoneSet().size());
+        assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
     }
 
     @ParameterizedTest(name = "Mode={0}")
@@ -471,6 +497,11 @@ class FlowDecompositionTests {
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
         assertEquals(5, flowDecompositionResults.getDecomposedFlowMap().size());
 
+        validateFlowDecompositionResultsWith6Nodes(flowPartitionMode, flowDecompositionResults);
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    private static void validateFlowDecompositionResultsWith6Nodes(FlowDecompositionParameters.FlowPartitionMode flowPartitionMode, FlowDecompositionResults flowDecompositionResults) {
         if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
             validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN  11 BLOAD 11 1", "BGEN  11 BLOAD 11 1", "", Country.BE, Country.BE, NaN, 300.000, 200.000, 0.000, 0.000, 33.333, Map.of(Country.FR, 33.333, Country.ES, 33.333));
             validateFlowDecompositionWithMap(flowDecompositionResults, "BLOAD 11 FLOAD 11 1", "BLOAD 11 FLOAD 11 1", "", Country.BE, Country.FR, NaN, 200.000, 133.333, 0.000, 0.000, 0.000, Map.of(Country.FR, 33.333, Country.ES, 33.333));
@@ -504,6 +535,11 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        validateFlowDecompositionResultsWith6NodesConnected(flowDecompositionResults);
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    private static void validateFlowDecompositionResultsWith6NodesConnected(FlowDecompositionResults flowDecompositionResults) {
         assertEquals(7, flowDecompositionResults.getDecomposedFlowMap().size());
 
         validateFlowDecompositionWithMap(flowDecompositionResults, "BGEN  11 BLOAD 11 1", "BGEN  11 BLOAD 11 1", "", Country.BE, Country.BE, 100.063, 100.000, 0.000, 0.000, 0.000, 73.333, Map.of(Country.FR, 20.000, Country.ES, 6.667));
@@ -535,6 +571,11 @@ class FlowDecompositionTests {
         network.getLoad("ELOAD 11_load").setP0(250.0);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        validateFlowDecompositionResultsWith6NodesConnectedAsymmetrical(flowDecompositionResults, flowPartitionMode);
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    private static void validateFlowDecompositionResultsWith6NodesConnectedAsymmetrical(FlowDecompositionResults flowDecompositionResults, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         assertEquals(7, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
@@ -574,6 +615,11 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        validateFlowDecompositionResultsWithPst(flowDecompositionResults, flowPartitionMode);
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    private static void validateFlowDecompositionResultsWithPst(FlowDecompositionResults flowDecompositionResults, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
@@ -603,6 +649,11 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        validateFlowDecompositionResultsWithSubStation(flowDecompositionResults, flowPartitionMode);
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    private static void validateFlowDecompositionResultsWithSubStation(FlowDecompositionResults flowDecompositionResults, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         assertEquals(3, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
@@ -633,6 +684,11 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        validateFlowDecompositionResultsWithUnpairedXNodeLoad(flowDecompositionResults, flowPartitionMode);
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    private static void validateFlowDecompositionResultsWithUnpairedXNodeLoad(FlowDecompositionResults flowDecompositionResults, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
@@ -661,6 +717,11 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        validateFlowDecompositionResultsWithUnpairedXNodeGen(flowDecompositionResults, flowPartitionMode);
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    private static void validateFlowDecompositionResultsWithUnpairedXNodeGen(FlowDecompositionResults flowDecompositionResults, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
@@ -689,6 +750,11 @@ class FlowDecompositionTests {
         Network network = TestUtils.importNetwork(networkFileName);
 
         FlowDecompositionResults flowDecompositionResults = runFlowDecomposition(network, new XnecProviderAllBranches(), flowPartitionMode);
+        validateFlowDecompositionResultsWithPairedXNode(flowDecompositionResults, flowPartitionMode);
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    private static void validateFlowDecompositionResultsWithPairedXNode(FlowDecompositionResults flowDecompositionResults, FlowDecompositionParameters.FlowPartitionMode flowPartitionMode) {
         assertEquals(2, flowDecompositionResults.getDecomposedFlowMap().size());
 
         if (FULL_LINE_DECOMPOSITION_MODES.contains(flowPartitionMode)) {
@@ -732,6 +798,7 @@ class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
     }
 
+    @SuppressWarnings("checkstyle:LineLength")
     private static void validatePowerFlowColouringResultsWithXnodeGen(FlowDecompositionResults flowDecompositionResults) {
         validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, -48.390, 57.500, 0.000, 814.035, Map.of(Country.DE, 4.444, Country.NL, 3.125, Country.FR, 47.619));
         validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -336.259, -32.500, 0.000, 545.614, Map.of(Country.DE, -4.444, Country.NL, -3.125, Country.FR, -47.619));
@@ -751,6 +818,7 @@ class FlowDecompositionTests {
         validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  NNL3AA1  1", "NNL2AA1  NNL3AA1  1", "", Country.NL, Country.NL, 923.422, 923.333, 777.562, 40.000, 0.000, -56.250, Map.of(Country.DE, 8.889, Country.BE, 57.895, Country.FR, 95.238));
     }
 
+    @SuppressWarnings("checkstyle:LineLength")
     private static void validateFullLineDecompositionResultsWithXnodeGen(FlowDecompositionResults flowDecompositionResults) {
         validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, 191.529, 107.446, 0.000, 550.311, Map.of(Country.FR, 31.596, Country.NL, -2.548));
         validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -191.529, 13.955, 0.000, 328.288, Map.of(Country.FR, -31.596, Country.NL, 2.548));
@@ -800,6 +868,7 @@ class FlowDecompositionTests {
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.NL));
     }
 
+    @SuppressWarnings("checkstyle:LineLength")
     private static void validatePowerFlowColouringResultsWithXnodeLoad(FlowDecompositionResults flowDecompositionResults) {
         validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, -36.764, -57.500, 0.000, 917.409, Map.of(Country.FR, 47.619, Country.NL, 3.125, Country.DE, 4.444));
         validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -378.005, 32.500, 0.000, 522.360, Map.of(Country.FR, -47.619, Country.NL, -3.125, Country.DE, -4.444));
@@ -819,6 +888,7 @@ class FlowDecompositionTests {
         validateFlowDecompositionWithMap(flowDecompositionResults, "NNL2AA1  NNL3AA1  1", "NNL2AA1  NNL3AA1  1", "", Country.NL, Country.NL, 923.422, 923.333, 852.090, -40.000, 0.000, -56.250, Map.of(Country.BE, 63.366, Country.FR, 95.238, Country.DE, 8.889));
     }
 
+    @SuppressWarnings("checkstyle:LineLength")
     private static void validateFullLineDecompositionResultsWithXnodeLoad(FlowDecompositionResults flowDecompositionResults) {
         validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE2AA1  1", "BBE1AA1  BBE2AA1  1", "", Country.BE, Country.BE, -878.370, -878.333, 220.064, 0.000, 0.000, 629.222, Map.of(Country.FR, 31.596, Country.NL, -2.548));
         validateFlowDecompositionWithMap(flowDecompositionResults, "BBE1AA1  BBE3AA1  1", "BBE1AA1  BBE3AA1  1", "", Country.BE, Country.BE, -121.630, -121.667, -220.064, 0.000, 0.000, 370.778, Map.of(Country.FR, -31.596, Country.NL, 2.548));

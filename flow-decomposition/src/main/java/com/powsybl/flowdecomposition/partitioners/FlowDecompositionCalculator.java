@@ -36,7 +36,12 @@ class FlowDecompositionCalculator {
     private final boolean[] isBusByVertexIndex;
     private final Country[] countriesByVertexPos;
 
-    FlowDecompositionCalculator(Set<Branch<?>> xnecs, DMatrixSparseCSC pexMatrix, SparseMatrixWithIndexesCSC sparsePtdfMatrix, SparseMatrixWithIndexesCSC pstFlowMatrix, List<Bus> busesInMainSynchronousComponent, Map<String, Integer> vertexIdMapping) {
+    FlowDecompositionCalculator(Set<Branch<?>> xnecs,
+                                DMatrixSparseCSC pexMatrix,
+                                SparseMatrixWithIndexesCSC sparsePtdfMatrix,
+                                SparseMatrixWithIndexesCSC pstFlowMatrix,
+                                List<Bus> busesInMainSynchronousComponent,
+                                Map<String, Integer> vertexIdMapping) {
         this.xnecs = Objects.requireNonNull(xnecs);
         this.pexMatrix = pexMatrix;
         this.transposedPtdfMatrix = Objects.requireNonNull(sparsePtdfMatrix).transpose();

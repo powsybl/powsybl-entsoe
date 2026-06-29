@@ -6,8 +6,8 @@
  */
 package com.powsybl.flowdecomposition;
 
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.BoundaryLineFilter;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.loadflow.LoadFlow;

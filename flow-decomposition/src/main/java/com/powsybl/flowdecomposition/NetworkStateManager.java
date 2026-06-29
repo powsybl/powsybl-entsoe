@@ -18,7 +18,7 @@ class NetworkStateManager {
     private final Network network;
     private final VariantManager variantManager;
 
-    public NetworkStateManager(Network network, XnecProvider xnecProvider) {
+    NetworkStateManager(Network network, XnecProvider xnecProvider) {
         this.network = network;
         this.variantManager = new VariantManager(network, xnecProvider);
         variantManager.createAVariantPerContingency(network);

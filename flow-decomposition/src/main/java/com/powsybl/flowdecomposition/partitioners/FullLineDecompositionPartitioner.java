@@ -29,7 +29,10 @@ public class FullLineDecompositionPartitioner implements FlowPartitioner {
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
     private final FlowDecompositionObserverList observers;
 
-    public FullLineDecompositionPartitioner(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters, SensitivityAnalysis.Runner sensitivityAnalysisRunner, FlowDecompositionObserverList observers) {
+    public FullLineDecompositionPartitioner(LoadFlowParameters loadFlowParameters,
+                                            FlowDecompositionParameters parameters,
+                                            SensitivityAnalysis.Runner sensitivityAnalysisRunner,
+                                            FlowDecompositionObserverList observers) {
         this.loadFlowParameters = loadFlowParameters;
         this.parameters = parameters;
         this.sensitivityAnalysisRunner = sensitivityAnalysisRunner;

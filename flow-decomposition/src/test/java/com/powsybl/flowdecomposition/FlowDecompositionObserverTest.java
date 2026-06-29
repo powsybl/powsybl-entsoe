@@ -172,13 +172,17 @@ class FlowDecompositionObserverTest {
 
         private void computedAcFlowsTerminal1(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_FLOWS);
-            Map<String, Double> flows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()), fallbackHasBeenActivated, TwoSides.ONE);
+            Map<String, Double> flows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()),
+                fallbackHasBeenActivated,
+                TwoSides.ONE);
             this.acFlowsTerminal1.put(currentContingency, flows);
         }
 
         private void computedAcFlowsTerminal2(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_FLOWS);
-            Map<String, Double> flows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()), fallbackHasBeenActivated, TwoSides.TWO);
+            Map<String, Double> flows = FlowComputerUtils.calculateAcTerminalReferenceFlows(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()),
+                fallbackHasBeenActivated,
+                TwoSides.TWO);
             this.acFlowsTerminal2.put(currentContingency, flows);
         }
 
@@ -190,13 +194,17 @@ class FlowDecompositionObserverTest {
 
         private void computedAcCurrentsTerminal1(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_CURRENTS);
-            Map<String, Double> currents = FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()), fallbackHasBeenActivated, TwoSides.ONE);
+            Map<String, Double> currents = FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()),
+                fallbackHasBeenActivated,
+                TwoSides.ONE);
             this.acCurrentsTerminal1.put(currentContingency, currents);
         }
 
         private void computedAcCurrentsTerminal2(Network network, boolean fallbackHasBeenActivated) {
             addEvent(Event.COMPUTED_AC_CURRENTS);
-            Map<String, Double> currents = FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()), fallbackHasBeenActivated, TwoSides.TWO);
+            Map<String, Double> currents = FlowComputerUtils.calculateAcTerminalCurrents(network.getBranchStream().map(branch -> (Branch<?>) branch).collect(Collectors.toList()),
+                fallbackHasBeenActivated,
+                TwoSides.TWO);
             this.acCurrentsTerminal2.put(currentContingency, currents);
         }
 

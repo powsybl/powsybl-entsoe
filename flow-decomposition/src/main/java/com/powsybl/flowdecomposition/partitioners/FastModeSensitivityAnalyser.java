@@ -103,7 +103,10 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
         private final Set<String> flowParts;
         private final Map<String, Double> nodalInjectionsPartitionSumByFlowPart;
 
-        public FastModeSensitivityResultWriter(List<FunctionVariableFactor> factors, Map<String, Map<String, Double>> results, Set<String> flowParts, Map<String, Double> nodalInjectionsPartitionSumByFlowPart) {
+        FastModeSensitivityResultWriter(List<FunctionVariableFactor> factors,
+                                        Map<String, Map<String, Double>> results,
+                                        Set<String> flowParts,
+                                        Map<String, Double> nodalInjectionsPartitionSumByFlowPart) {
             this.factors = factors;
             this.results = results;
             this.flowParts = flowParts;
@@ -120,11 +123,13 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
             for (String flowPart : flowParts) {
                 if (factor.variableId().equals(getPositiveFlowPartName(flowPart))) {
                     double partialFlowPartValue = flowDecomposition.getOrDefault(flowPart, 0.0);
-                    flowDecomposition.put(flowPart, partialFlowPartValue + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getPositiveFlowPartName(flowPart)), functionReference));
+                    double newValue = partialFlowPartValue + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getPositiveFlowPartName(flowPart)), functionReference);
+                    flowDecomposition.put(flowPart, newValue);
                     return;
                 } else if (factor.variableId().equals(getNegativeFlowPartName(flowPart))) {
                     double partialFlowPartValue = flowDecomposition.getOrDefault(flowPart, 0.0);
-                    flowDecomposition.put(flowPart, partialFlowPartValue + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getNegativeFlowPartName(flowPart)), functionReference));
+                    double newValue = partialFlowPartValue + respectFlowSignConvention(value * nodalInjectionsPartitionSumByFlowPart.get(getNegativeFlowPartName(flowPart)), functionReference);
+                    flowDecomposition.put(flowPart, newValue);
                     return;
                 }
             }
@@ -149,7 +154,7 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
         private final Set<String> flowParts;
         private final List<FunctionVariableFactor> factors;
 
-        public FastModeSensitivityFactorReader(Set<String> flowParts, List<FunctionVariableFactor> factors) {
+        FastModeSensitivityFactorReader(Set<String> flowParts, List<FunctionVariableFactor> factors) {
             this.flowParts = flowParts;
             this.factors = factors;
         }

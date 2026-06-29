@@ -47,7 +47,7 @@ class SparseMatrixWithIndexesCSC extends AbstractSparseMatrixWithIndexes {
         Map<Integer, String> colIndexInverse = inverseIndex(colIndex);
         Map<Integer, String> rowIndexInverse = inverseIndex(rowIndex);
         Map<String, Map<String, Double>> result = new TreeMap<>();
-        for (Iterator<DMatrixSparse.CoordinateRealValue> iterator = cscMatrix.createCoordinateIterator(); iterator.hasNext(); ) {
+        for (Iterator<DMatrixSparse.CoordinateRealValue> iterator = cscMatrix.createCoordinateIterator(); iterator.hasNext();) {
             DMatrixSparse.CoordinateRealValue cell = iterator.next();
             result.computeIfAbsent(rowIndexInverse.get(cell.row), v -> new TreeMap<>())
                 .put(colIndexInverse.get(cell.col), cell.value);

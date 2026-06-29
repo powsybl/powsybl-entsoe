@@ -56,7 +56,7 @@ class LoadFlowRunningService {
         private final LoadFlowResult loadFlowResult;
         private boolean fallbackHasBeenActivated;
 
-        public Result(LoadFlowResult loadFlowResult, boolean fallbackHasBeenActivated) {
+        Result(LoadFlowResult loadFlowResult, boolean fallbackHasBeenActivated) {
             this.loadFlowResult = loadFlowResult;
             this.fallbackHasBeenActivated = fallbackHasBeenActivated;
         }

@@ -201,7 +201,10 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runAcLoadflow(network, loadFlowParameters, parameters.isDcFallbackEnabledAfterAcDivergence());
     }
 
-    private void saveAcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder, Network network, Set<Branch<?>> xnecList, LoadFlowRunningService.Result loadFlowServiceAcResult) {
+    private void saveAcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultsBuilder,
+                                       Network network,
+                                       Set<Branch<?>> xnecList,
+                                       LoadFlowRunningService.Result loadFlowServiceAcResult) {
         saveAcReferenceFlows(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult.fallbackHasBeenActivated());
         saveAcCurrents(flowDecompositionResultsBuilder, xnecList, loadFlowServiceAcResult.fallbackHasBeenActivated());
         observers.computedAcLoadFlowResults(network, loadFlowServiceAcResult);
@@ -249,7 +252,10 @@ public class FlowDecompositionComputer {
         return loadFlowRunningService.runDcLoadflow(network, loadFlowParameters);
     }
 
-    private void saveDcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder, Network network, Set<Branch<?>> xnecList, LoadFlowRunningService.Result loadFlowServiceDcResult) {
+    private void saveDcLoadFlowResults(FlowDecompositionResults.PerStateBuilder flowDecompositionResultBuilder,
+                                       Network network,
+                                       Set<Branch<?>> xnecList,
+                                       LoadFlowRunningService.Result loadFlowServiceDcResult) {
         flowDecompositionResultBuilder.saveDcReferenceFlow(FlowComputerUtils.getTerminalReferenceFlow(xnecList, TwoSides.ONE));
         observers.computedDcLoadFlowResults(network, loadFlowServiceDcResult);
     }

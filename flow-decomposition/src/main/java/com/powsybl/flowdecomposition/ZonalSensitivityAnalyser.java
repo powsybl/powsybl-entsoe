@@ -63,7 +63,10 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
         return new WeightedSensitivityVariable(stringDoubleEntry.getKey(), stringDoubleEntry.getValue());
     }
 
-    private Map<String, Map<Country, Double>> getSensitivityAnalysisResult(Network network, List<FunctionVariableFactor> factors, List<SensitivityVariableSet> sensitivityVariableSets, SensitivityVariableType sensitivityVariableType) {
+    private Map<String, Map<Country, Double>> getSensitivityAnalysisResult(Network network,
+                                                                           List<FunctionVariableFactor> factors,
+                                                                           List<SensitivityVariableSet> sensitivityVariableSets,
+                                                                           SensitivityVariableType sensitivityVariableType) {
         Map<String, Map<Country, Double>> zonalPtdf = new HashMap<>();
         SensitivityFactorReader factorReader = getSensitivityFactorReader(factors, sensitivityVariableType, SENSITIVITY_VARIABLE_SET);
         SensitivityResultWriter valueWriter = getSensitivityResultWriter(factors, zonalPtdf);

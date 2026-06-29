@@ -30,7 +30,10 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
     private final SensitivityAnalysis.Runner sensitivityAnalysisRunner;
     private final FlowDecompositionObserverList observers;
 
-    public MatrixBasedPartitioner(LoadFlowParameters loadFlowParameters, FlowDecompositionParameters parameters, SensitivityAnalysis.Runner sensitivityAnalysisRunner, FlowDecompositionObserverList observers) {
+    public MatrixBasedPartitioner(LoadFlowParameters loadFlowParameters,
+                                  FlowDecompositionParameters parameters,
+                                  SensitivityAnalysis.Runner sensitivityAnalysisRunner,
+                                  FlowDecompositionObserverList observers) {
         this.loadFlowParameters = loadFlowParameters;
         this.parameters = parameters;
         this.sensitivityAnalysisRunner = sensitivityAnalysisRunner;
@@ -53,7 +56,9 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
         SparseMatrixWithIndexesCSC pstFlowMatrix = pstFlowComputer.run(network, networkMatrixIndexes, psdfMatrix);
         return xnecs.stream().collect(Collectors.toMap(
             Identifiable::getId,
-            xnec -> flowPartitionForXnec(xnec, allocatedLoopFlowsMatrix.toMap().getOrDefault(xnec.getId(), Collections.emptyMap()), pstFlowMatrix.toMap().getOrDefault(xnec.getId(), Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW))
+            xnec -> flowPartitionForXnec(xnec,
+                allocatedLoopFlowsMatrix.toMap().getOrDefault(xnec.getId(), Collections.emptyMap()),
+                pstFlowMatrix.toMap().getOrDefault(xnec.getId(), Collections.emptyMap()).getOrDefault(PST_COLUMN_NAME, NO_FLOW))
         ));
     }
 

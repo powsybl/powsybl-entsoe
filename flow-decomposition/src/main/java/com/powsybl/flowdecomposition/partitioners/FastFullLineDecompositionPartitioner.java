@@ -50,7 +50,13 @@ public class FastFullLineDecompositionPartitioner implements FlowPartitioner {
         DMatrixSparseCSC pexMatrix = pexMatrixCalculator.computePexMatrix();
 
         LOGGER.info("[FLD] Fast Full Line decomposition");
-        FastFLDSensitivityAnalyser sensitivityAnalyser = new FastFLDSensitivityAnalyser(loadFlowParameters, sensitivityAnalysisRunner, network, xnecs, vertexIdMapping, pexMatrix, busesInMainSynchronousComponent);
+        FastFLDSensitivityAnalyser sensitivityAnalyser = new FastFLDSensitivityAnalyser(loadFlowParameters,
+            sensitivityAnalysisRunner,
+            network,
+            xnecs,
+            vertexIdMapping,
+            pexMatrix,
+            busesInMainSynchronousComponent);
         Map<String, Map<String, Double>> decomposedFlow = sensitivityAnalyser.run();
 
         Map<String, FlowPartition> results = xnecs.stream().collect(Collectors.toMap(

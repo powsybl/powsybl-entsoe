@@ -33,7 +33,7 @@ public class XnecProviderUnion implements XnecProvider {
         private final Set<Contingency> contingencies = new HashSet<>();
         private final int networkHash;
 
-        public ContingencyConsistencyCache(Network network) {
+        ContingencyConsistencyCache(Network network) {
             networkHash = network.hashCode();
             xnecProviders.forEach(xnecProvider -> xnecProvider.getContingencies(network).forEach(
                 contingency -> {

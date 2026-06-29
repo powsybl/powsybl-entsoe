@@ -30,7 +30,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class RescalingTests {
     private static final double EPSILON = 1e-5;
 
-    private void checkRescaleAcReference(double acReferenceFlow, double dcReferenceFlow, DecomposedFlow rescaledFlow, double expectedAllocatedFlow, double expectedPstFlow, double expectedLoopFlowBE, double expectedLoopFlowES) {
+    private void checkRescaleAcReference(double acReferenceFlow,
+                                         double dcReferenceFlow,
+                                         DecomposedFlow rescaledFlow,
+                                         double expectedAllocatedFlow,
+                                         double expectedPstFlow,
+                                         double expectedLoopFlowBE,
+                                         double expectedLoopFlowES) {
         double expectedInternalFlow = -300;
         double expectedLoopFlowGE = -100;
         assertEquals(Math.abs(acReferenceFlow), rescaledFlow.getTotalFlow(), EPSILON);

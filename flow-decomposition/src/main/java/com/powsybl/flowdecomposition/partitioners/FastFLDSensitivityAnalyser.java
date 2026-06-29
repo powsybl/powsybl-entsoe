@@ -39,13 +39,20 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
     private final Country[] countriesByVertexPos;
     private final String[] injByVertexId;
 
-    public FastFLDSensitivityAnalyser(LoadFlowParameters loadFlowParameters, SensitivityAnalysis.Runner runner, Network network, Set<Branch<?>> xnecs, Map<String, Integer> vertexIdMapping, DMatrixSparseCSC pexMatrix, List<Bus> busesInMainSynchronousComponent) {
+    public FastFLDSensitivityAnalyser(LoadFlowParameters loadFlowParameters,
+                                      SensitivityAnalysis.Runner runner,
+                                      Network network,
+                                      Set<Branch<?>> xnecs,
+                                      Map<String, Integer> vertexIdMapping,
+                                      DMatrixSparseCSC pexMatrix,
+                                      List<Bus> busesInMainSynchronousComponent) {
         super(loadFlowParameters, runner);
         this.network = network;
         this.xnecIds = xnecs.stream().map(Identifiable::getId).toList();
         this.pexMatrix = pexMatrix;
 
-        Map<String, String> anyInjectionOnBus = busesInMainSynchronousComponent.stream().collect(Collectors.toMap(Identifiable::getId, bus -> NetworkUtil.getInjectionStream(bus).findAny().orElseThrow().getId()));
+        Map<String, String> anyInjectionOnBus = busesInMainSynchronousComponent.stream()
+            .collect(Collectors.toMap(Identifiable::getId, bus -> NetworkUtil.getInjectionStream(bus).findAny().orElseThrow().getId()));
         Map<String, Bus> idToBus = new HashMap<>();
         busesInMainSynchronousComponent.forEach(bus -> idToBus.put(bus.getId(), bus));
 

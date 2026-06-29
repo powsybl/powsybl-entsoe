@@ -284,7 +284,8 @@ class XnecProviderByIdsTests {
 
     @Test
     void testContingencyIdNotDefined() {
-        Exception exception = assertThrows(PowsyblException.class, () -> XnecProviderByIds.builder().addNetworkElementsAfterContingencies(Collections.emptySet(), Collections.singleton("NON EXISTING CONTINGENCY ID")));
+        Exception exception = assertThrows(PowsyblException.class,
+            () -> XnecProviderByIds.builder().addNetworkElementsAfterContingencies(Collections.emptySet(), Collections.singleton("NON EXISTING CONTINGENCY ID")));
         assertEquals("Contingency Id 'NON EXISTING CONTINGENCY ID' have not been defined. See addContingency and/or addContingencies", exception.getMessage());
     }
 

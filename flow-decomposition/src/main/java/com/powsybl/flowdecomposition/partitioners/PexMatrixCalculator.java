@@ -137,7 +137,11 @@ public class PexMatrixCalculator {
             }
             i++;
         }
-        LOGGER.debug("Completed {} iterations for PEX matrix calculation (numRows {}, nnz {}, sparse {}%)", i, transfer.numRows, transfer.nz_length, 100 * (double) transfer.nz_length / (transfer.numRows * transfer.numCols));
+        LOGGER.debug("Completed {} iterations for PEX matrix calculation (numRows {}, nnz {}, sparse {}%)",
+            i,
+            transfer.numRows,
+            transfer.nz_length,
+            100 * (double) transfer.nz_length / (transfer.numRows * transfer.numCols));
         return transfer;
     }
 
