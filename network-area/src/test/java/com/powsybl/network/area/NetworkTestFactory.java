@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network_area;
+package com.powsybl.network.area;
 import com.powsybl.iidm.network.*;
 
 /**
@@ -65,72 +65,9 @@ final class NetworkTestFactory {
                 .setName("busFr2A")
                 .add();
 
-        ThreeWindingsTransformer transformerFr1A = substationFr1.newThreeWindingsTransformer()
-                .setId("twtFr1A")
-                .setName("twtName")
-                .newLeg1()
-                .setR(1.3)
-                .setX(1.4)
-                .setG(1.6)
-                .setB(1.7)
-                .setRatedU(1.1)
-                .setVoltageLevel("vlFr1A")
-                .setConnectableBus("busFr1A")
-                .setBus("busFr1A")
-                .add()
-                .newLeg2()
-                .setR(2.03)
-                .setX(2.04)
-                .setRatedU(2.05)
-                .setVoltageLevel("vlFr1B")
-                .setConnectableBus("busFr1B")
-                .setBus("busFr1B")
-                .add()
-                .newLeg3()
-                .setR(3.3)
-                .setX(3.4)
-                .setRatedU(3.5)
-                .setVoltageLevel("vlFr1B")
-                .setConnectableBus("busFr1B")
-                .setBus("busFr1B")
-                .add()
-                .add();
-        transformerFr1A.getLeg1().getTerminal().setP(20).setQ(0);
-        transformerFr1A.getLeg2().getTerminal().setP(-12).setQ(0);
-        transformerFr1A.getLeg3().getTerminal().setP(-8).setQ(0);
+        addTransformerFr1A(substationFr1);
 
-        ThreeWindingsTransformer transformerFr1B = substationFr1.newThreeWindingsTransformer()
-                .setId("twtFr1B")
-                .newLeg1()
-                .setR(1.3)
-                .setX(1.4)
-                .setG(1.6)
-                .setB(1.7)
-                .setRatedU(1.1)
-                .setVoltageLevel("vlFr1A")
-                .setConnectableBus("busFr1A")
-                .setBus("busFr1A")
-                .add()
-                .newLeg2()
-                .setR(2.03)
-                .setX(2.04)
-                .setRatedU(2.05)
-                .setVoltageLevel("vlFr1A")
-                .setConnectableBus("busFr1A")
-                .setBus("busFr1A")
-                .add()
-                .newLeg3()
-                .setR(3.3)
-                .setX(3.4)
-                .setRatedU(3.5)
-                .setVoltageLevel("vlFr1A")
-                .setConnectableBus("busFr1A")
-                .setBus("busFr1A")
-                .add()
-                .add();
-        transformerFr1B.getLeg1().getTerminal().setP(20).setQ(0);
-        transformerFr1B.getLeg2().getTerminal().setP(-20).setQ(0);
-        transformerFr1B.getLeg3().getTerminal().setP(0).setQ(0);
+        addTransformerFr1B(substationFr1);
 
         Substation substationEs1 = network.newSubstation()
                 .setId("subEs1")
@@ -161,38 +98,7 @@ final class NetworkTestFactory {
                 .setName("busEs1B")
                 .add();
 
-        ThreeWindingsTransformer transformerEs1A = substationEs1.newThreeWindingsTransformer()
-                .setId("twtEs1A")
-                .newLeg1()
-                .setR(1.3)
-                .setX(1.4)
-                .setG(1.6)
-                .setB(1.7)
-                .setRatedU(1.1)
-                .setVoltageLevel("vlEs1A")
-                .setConnectableBus("busEs1A")
-                .setBus("busEs1A")
-                .add()
-                .newLeg2()
-                .setR(2.03)
-                .setX(2.04)
-                .setRatedU(2.05)
-                .setVoltageLevel("vlEs1A")
-                .setConnectableBus("busEs1A")
-                .setBus("busEs1A")
-                .add()
-                .newLeg3()
-                .setR(3.3)
-                .setX(3.4)
-                .setRatedU(3.5)
-                .setVoltageLevel("vlEs1B")
-                .setConnectableBus("busEs1B")
-                .setBus("busEs1B")
-                .add()
-                .add();
-        transformerEs1A.getLeg1().getTerminal().setP(20).setQ(0);
-        transformerEs1A.getLeg2().getTerminal().setP(-15).setQ(0);
-        transformerEs1A.getLeg3().getTerminal().setP(-5).setQ(0);
+        addTransformerEs1A(substationEs1);
 
         VscConverterStation csFr1A = voltageLevelFr1A.newVscConverterStation()
                 .setId("CFr1A")
@@ -250,5 +156,111 @@ final class NetworkTestFactory {
 
         return network;
 
+    }
+
+    private static void addTransformerFr1A(Substation substationFr1) {
+        ThreeWindingsTransformer transformerFr1A = substationFr1.newThreeWindingsTransformer()
+                .setId("twtFr1A")
+                .setName("twtName")
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setVoltageLevel("vlFr1A")
+                .setConnectableBus("busFr1A")
+                .setBus("busFr1A")
+                .add()
+                .newLeg2()
+                .setR(2.03)
+                .setX(2.04)
+                .setRatedU(2.05)
+                .setVoltageLevel("vlFr1B")
+                .setConnectableBus("busFr1B")
+                .setBus("busFr1B")
+                .add()
+                .newLeg3()
+                .setR(3.3)
+                .setX(3.4)
+                .setRatedU(3.5)
+                .setVoltageLevel("vlFr1B")
+                .setConnectableBus("busFr1B")
+                .setBus("busFr1B")
+                .add()
+                .add();
+        transformerFr1A.getLeg1().getTerminal().setP(20).setQ(0);
+        transformerFr1A.getLeg2().getTerminal().setP(-12).setQ(0);
+        transformerFr1A.getLeg3().getTerminal().setP(-8).setQ(0);
+    }
+
+    private static void addTransformerFr1B(Substation substationFr1) {
+        ThreeWindingsTransformer transformerFr1B = substationFr1.newThreeWindingsTransformer()
+            .setId("twtFr1B")
+            .newLeg1()
+            .setR(1.3)
+            .setX(1.4)
+            .setG(1.6)
+            .setB(1.7)
+            .setRatedU(1.1)
+            .setVoltageLevel("vlFr1A")
+            .setConnectableBus("busFr1A")
+            .setBus("busFr1A")
+            .add()
+            .newLeg2()
+            .setR(2.03)
+            .setX(2.04)
+            .setRatedU(2.05)
+            .setVoltageLevel("vlFr1A")
+            .setConnectableBus("busFr1A")
+            .setBus("busFr1A")
+            .add()
+            .newLeg3()
+            .setR(3.3)
+            .setX(3.4)
+            .setRatedU(3.5)
+            .setVoltageLevel("vlFr1A")
+            .setConnectableBus("busFr1A")
+            .setBus("busFr1A")
+            .add()
+            .add();
+        transformerFr1B.getLeg1().getTerminal().setP(20).setQ(0);
+        transformerFr1B.getLeg2().getTerminal().setP(-20).setQ(0);
+        transformerFr1B.getLeg3().getTerminal().setP(0).setQ(0);
+    }
+
+    private static void addTransformerEs1A(Substation substationEs1) {
+        ThreeWindingsTransformer transformerEs1A = substationEs1.newThreeWindingsTransformer()
+            .setId("twtEs1A")
+            .newLeg1()
+            .setR(1.3)
+            .setX(1.4)
+            .setG(1.6)
+            .setB(1.7)
+            .setRatedU(1.1)
+            .setVoltageLevel("vlEs1A")
+            .setConnectableBus("busEs1A")
+            .setBus("busEs1A")
+            .add()
+            .newLeg2()
+            .setR(2.03)
+            .setX(2.04)
+            .setRatedU(2.05)
+            .setVoltageLevel("vlEs1A")
+            .setConnectableBus("busEs1A")
+            .setBus("busEs1A")
+            .add()
+            .newLeg3()
+            .setR(3.3)
+            .setX(3.4)
+            .setRatedU(3.5)
+            .setVoltageLevel("vlEs1B")
+            .setConnectableBus("busEs1B")
+            .setBus("busEs1B")
+            .add()
+            .add();
+        transformerEs1A.getLeg1().getTerminal().setP(20).setQ(0);
+        transformerEs1A.getLeg2().getTerminal().setP(-15).setQ(0);
+        transformerEs1A.getLeg3().getTerminal().setP(-5).setQ(0);
     }
 }

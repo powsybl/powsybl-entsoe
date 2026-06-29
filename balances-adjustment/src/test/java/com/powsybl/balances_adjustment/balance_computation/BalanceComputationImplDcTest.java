@@ -6,7 +6,7 @@
  */
 package com.powsybl.balances_adjustment.balance_computation;
 
-import com.powsybl.network_area.CountryAreaFactory;
+import com.powsybl.network.area.CountryAreaFactory;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;

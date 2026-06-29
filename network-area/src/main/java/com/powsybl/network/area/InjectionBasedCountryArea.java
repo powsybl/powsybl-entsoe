@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.network_area;
+package com.powsybl.network.area;
 
 import com.powsybl.iidm.network.*;
 
