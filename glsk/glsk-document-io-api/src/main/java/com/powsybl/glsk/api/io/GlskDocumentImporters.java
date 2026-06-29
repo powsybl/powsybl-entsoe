@@ -7,10 +7,10 @@
 
 package com.powsybl.glsk.api.io;
 
-import com.powsybl.glsk.api.GlskDocument;
-import com.powsybl.glsk.commons.GlskException;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.glsk.api.GlskDocument;
+import com.powsybl.glsk.commons.GlskException;
 
 import java.io.*;
 import java.nio.file.Path;
