@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.glsk.ucte.quality_check;
+package com.powsybl.glsk.ucte.qualitycheck;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.entsoe.commons.PowsyblEntsoeReportResourceBundle;

@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.glsk.ucte.quality_check;
+package com.powsybl.glsk.ucte.qualitycheck;
 
 import com.powsybl.glsk.ucte.UcteGlskDocument;
 import com.powsybl.iidm.network.Network;
@@ -34,7 +34,7 @@ class GlskQualityCheckInput {
         return instant;
     }
 
-    public GlskQualityCheckInput(UcteGlskDocument ucteGlskDocument, Network network, Instant instant) {
+    GlskQualityCheckInput(UcteGlskDocument ucteGlskDocument, Network network, Instant instant) {
         this.ucteGlskDocument = ucteGlskDocument;
         this.network = network;
         this.instant = instant;
