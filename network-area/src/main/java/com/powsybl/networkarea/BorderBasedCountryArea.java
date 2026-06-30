@@ -144,9 +144,17 @@ public class BorderBasedCountryArea implements NetworkArea {
     }
 
     private double getLeavingFlow(HvdcLine hvdcLine) {
-        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() ? zeroIfNan(hvdcLine.getConverterStation1().getTerminal().getP()) : 0;
-        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() ? zeroIfNan(hvdcLine.getConverterStation2().getTerminal().getP()) : 0;
-        double directFlow = (flowSide1 - flowSide2) / 2;
+        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation1().getTerminal().getP()) ? hvdcLine.getConverterStation1().getTerminal().getP() : Double.NaN;
+        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() && !Double.isNaN(hvdcLine.getConverterStation2().getTerminal().getP()) ? hvdcLine.getConverterStation2().getTerminal().getP() : Double.NaN;
+
+        double directFlow;
+        if (((Double) flowSide1).isNaN() && ((Double) flowSide2).isNaN()) {
+            directFlow = 0;
+        } else if (!((Double) flowSide1).isNaN() && !((Double) flowSide2).isNaN()) {
+            directFlow = (flowSide1 - flowSide2) / 2;
+        } else {
+            directFlow = !((Double) flowSide1).isNaN() ? flowSide1 : -flowSide2;
+        }
         return countries.contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null)) ? directFlow : -directFlow;
     }
 

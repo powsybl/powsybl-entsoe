@@ -124,15 +124,33 @@ class NetPositionTest {
         Network network = Network.read("TestCaseHvdc.xiidm", getClass().getResourceAsStream("TestCaseHvdc.xiidm"));
         network.getHvdcLine("hvdc_line_FR_1_DE").getConverterStation1().getTerminal().disconnect();
         network.getHvdcLine("hvdc_line_FR_1_DE").getConverterStation2().getTerminal().disconnect();
-        assertNetPositionForHvdc(network, 200.0);
+        assertNetPositionForHvdc(network, 400.0);
     }
 
     @Test
-    void testHvdcLinesNaN() {
+    void testHvdcLinesNaNSide2() {
         Network network = Network.read("TestCaseHvdc.xiidm", getClass().getResourceAsStream("TestCaseHvdc.xiidm"));
         network.getHvdcLine("hvdc_line_FR_1_DE").getConverterStation1().getTerminal().setP(Double.NaN);
         network.getHvdcLine("hvdc_line_FR_1_DE").getConverterStation2().getTerminal().setP(Double.NaN);
-        assertNetPositionForHvdc(network, 200.0);
+        assertNetPositionForHvdc(network, 400.0);
+    }
+
+    @Test
+    void testHvdcLinesNaNSide1() {
+        Network network = Network.read("TestCaseHvdc.xiidm", getClass().getResourceAsStream("TestCaseHvdc.xiidm"));
+        network.getHvdcLine("hvdc_line_FR_1_FR_2").getConverterStation1().getTerminal().setP(Double.NaN);
+        network.getHvdcLine("hvdc_line_FR_1_FR_2").getConverterStation2().getTerminal().setP(Double.NaN);
+        assertNetPositionForHvdc(network, -112.0);
+    }
+
+    @Test
+    void testHvdcLinesNaNBothSide() {
+        Network network = Network.read("TestCaseHvdc.xiidm", getClass().getResourceAsStream("TestCaseHvdc.xiidm"));
+        network.getHvdcLine("hvdc_line_FR_1_DE").getConverterStation1().getTerminal().setP(Double.NaN);
+        network.getHvdcLine("hvdc_line_FR_1_DE").getConverterStation2().getTerminal().setP(Double.NaN);
+        network.getHvdcLine("hvdc_line_FR_1_FR_2").getConverterStation1().getTerminal().setP(Double.NaN);
+        network.getHvdcLine("hvdc_line_FR_1_FR_2").getConverterStation2().getTerminal().setP(Double.NaN);
+        assertNetPositionForHvdc(network, 0.0);
     }
 
     @Test
