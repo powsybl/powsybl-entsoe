@@ -13,6 +13,7 @@ import com.powsybl.flow_decomposition.partitioners.FastFullLineDecompositionPart
 import com.powsybl.flow_decomposition.partitioners.FullLineDecompositionPartitioner;
 import com.powsybl.flow_decomposition.partitioners.MatrixBasedPartitioner;
 import com.powsybl.flow_decomposition.rescaler.*;
+import com.powsybl.flow_decomposition.utils.LogUtils;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -222,8 +223,10 @@ public class FlowDecompositionComputer {
     }
 
     private Map<Country, Double> getZonesNetPosition(Network network) {
-        NetPositionComputer netPositionComputer = new NetPositionComputer();
-        return netPositionComputer.run(network);
+        return LogUtils.info("Net position calculation", () -> {
+            NetPositionComputer netPositionComputer = new NetPositionComputer();
+            return netPositionComputer.run(network);
+        });
     }
 
     private void compensateLosses(Network network) {
