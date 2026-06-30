@@ -6,7 +6,7 @@
  */
 package com.powsybl.balances_adjustment.balance_computation;
 
-import com.powsybl.network_area.NetworkArea;
+import com.powsybl.networkarea.NetworkArea;
 import com.powsybl.balances_adjustment.util.Reports;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
