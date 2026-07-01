@@ -45,6 +45,20 @@ class LogUtilsTest {
         }
 
         @Test
+        void infoRunnableShouldRun() {
+            boolean[] ran = {false};
+            LogUtils.info("step", () -> ran[0] = true);
+            assertTrue(ran[0]);
+        }
+
+        @Test
+        void traceRunnableShouldRun() {
+            boolean[] ran = {false};
+            LogUtils.trace("step", () -> ran[0] = true);
+            assertTrue(ran[0]);
+        }
+
+        @Test
         void runnableShouldThrowException() {
             IllegalStateException cause = new IllegalStateException("testing");
             assertSame(cause, assertThrows(IllegalStateException.class,
@@ -92,6 +106,68 @@ class LogUtilsTest {
         @Test
         void runnableShouldRun() {
             assertEquals("hello", LogUtils.trace("step", () -> "hello"));
+        }
+
+        @Test
+        void infoRunnableShouldRun() {
+            boolean[] ran = {false};
+            LogUtils.info("step", () -> ran[0] = true);
+            assertTrue(ran[0]);
+        }
+
+        @Test
+        void infoRunnableShouldLogStartAndCompleted() {
+            LogUtils.info("myStep", () -> {
+            });
+
+            List<String> messages = capturedMessages();
+            assertEquals(2, messages.size());
+            assertEquals("myStep started", messages.get(0));
+            assertTrue(messages.get(1).startsWith("myStep completed. Time="));
+        }
+
+        @Test
+        void infoRunnableShouldLogStartAndFailed() {
+            assertThrows(RuntimeException.class,
+                    () -> LogUtils.info("myStep", (Runnable) () -> {
+                        throw new RuntimeException("testing");
+                    }));
+
+            List<String> messages = capturedMessages();
+            assertEquals(2, messages.size());
+            assertEquals("myStep started", messages.get(0));
+            assertTrue(messages.get(1).startsWith("myStep failed. Time="));
+        }
+
+        @Test
+        void traceRunnableShouldRun() {
+            boolean[] ran = {false};
+            LogUtils.trace("step", () -> ran[0] = true);
+            assertTrue(ran[0]);
+        }
+
+        @Test
+        void traceRunnableShouldLogStartAndCompleted() {
+            LogUtils.trace("myStep", () -> {
+            });
+
+            List<String> messages = capturedMessages();
+            assertEquals(2, messages.size());
+            assertEquals("myStep started", messages.get(0));
+            assertTrue(messages.get(1).startsWith("myStep completed. Time="));
+        }
+
+        @Test
+        void traceRunnableShouldLogStartAndFailed() {
+            assertThrows(RuntimeException.class,
+                    () -> LogUtils.trace("myStep", (Runnable) () -> {
+                        throw new RuntimeException("testing");
+                    }));
+
+            List<String> messages = capturedMessages();
+            assertEquals(2, messages.size());
+            assertEquals("myStep started", messages.get(0));
+            assertTrue(messages.get(1).startsWith("myStep failed. Time="));
         }
 
         @Test
