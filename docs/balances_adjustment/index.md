@@ -143,48 +143,34 @@ BalanceComputationArea areaFR = new BalanceComputationArea(
     500.0
 );
 
-    BalanceComputationArea areaBE = new BalanceComputationArea(
-        "Belgium",
-        new CountryAreaFactory(Country.BE),
-        Scalable.stack("BE gen", "BE load"),
-        -500.0
-    );
+BalanceComputationArea areaBE = new BalanceComputationArea(
+    "Belgium",
+    new CountryAreaFactory(Country.BE),
+    Scalable.stack("BE gen", "BE load"),
+    -500.0
+);
 
-    List<BalanceComputationArea> areas = Arrays.asList(areaFR, areaBE);
+List<BalanceComputationArea> areas = Arrays.asList(areaFR, areaBE);
 
-    // 2. Configure parameters
-    BalanceComputationParameters parameters = new BalanceComputationParameters()
-        .setThresholdNetPosition(1.0)  // 1 MW threshold
-        .setMaxNumberIterations(5)
-        .setWithLoadFlow(true);
+// 2. Configure parameters
+BalanceComputationParameters parameters = new BalanceComputationParameters()
+    .setThresholdNetPosition(1.0)  // 1 MW threshold
+    .setMaxNumberIterations(5)
+    .setWithLoadFlow(true);
 
-    // 3. Run the computation
-    BalanceComputation balanceComputation = new BalanceComputationFactoryImpl().create(
-        areas,
-        LoadFlow.find(),
-        new LocalComputationManager()
-    );
+// 3. Run the computation
+BalanceComputation balanceComputation = new BalanceComputationFactoryImpl().create(
+    areas,
+    LoadFlow.find(),
+    new LocalComputationManager()
+);
 
-balanceComputation.
-
-    run(network, network.getVariantManager().
-
-    getWorkingVariantId(),parameters)
-    .
-
-    thenAccept(result ->{
-    if(result.
-
-    getStatus() ==BalanceComputationResult.Status.SUCCESS){
-    System.out.
-
-    println("Balance adjustment converged in "+result.getIterationCount() +" iterations.");
-    }else{
-    System.err.
-
-    println("Balance adjustment failed to converge.");
+balanceComputation.run(network, network.getVariantManager().getWorkingVariantId(), parameters)
+    .thenAccept(result -> {
+        if (result.getStatus() == BalanceComputationResult.Status.SUCCESS) {
+            System.out.println("Balance adjustment converged in " + result.getIterationCount() + " iterations.");
+        } else {
+            System.err.println("Balance adjustment failed to converge.");
         }
-            }).
-
-    join();
+    }).join();
 ```
