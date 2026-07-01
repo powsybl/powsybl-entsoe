@@ -112,7 +112,7 @@ Example `parameters.json`:
     "dc" : false
   },
   "scaling-parameters" : {
-    "version" : "1.2",
+    "version" : "1.3",
     "scalingConvention" : "GENERATOR"
   }
 }
