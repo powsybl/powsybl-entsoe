@@ -10,6 +10,7 @@ package com.powsybl.flow_decomposition.rescaler;
 import com.powsybl.flow_decomposition.DecomposedFlow;
 import com.powsybl.flow_decomposition.DecomposedFlowBuilder;
 import com.powsybl.flow_decomposition.FlowPartition;
+import com.powsybl.flow_decomposition.utils.LogUtils;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -27,24 +28,29 @@ abstract class AbstractDecomposedFlowRescaler implements DecomposedFlowRescaler 
 
     @Override
     public DecomposedFlow rescale(DecomposedFlow decomposedFlow, Network network) {
-        if (!shouldRescaleFlows(decomposedFlow)) {
-            return decomposedFlow;
-        }
 
-        FlowPartition rescaledFlowPartition = computeRescaledFlowsPartition(decomposedFlow, network);
+        var xnecId = DecomposedFlow.getXnecId(decomposedFlow.getContingencyId(), decomposedFlow.getBranchId());
+        return LogUtils.trace("Flow components rescaling | XNECID: " + xnecId, () -> {
 
-        return new DecomposedFlowBuilder()
-                .withBranchId(decomposedFlow.getBranchId())
-                .withContingencyId(decomposedFlow.getContingencyId())
-                .withCountry1(decomposedFlow.getCountry1())
-                .withCountry2(decomposedFlow.getCountry2())
-                .withAcTerminal1ReferenceFlow(decomposedFlow.getAcTerminal1ReferenceFlow())
-                .withAcTerminal2ReferenceFlow(decomposedFlow.getAcTerminal2ReferenceFlow())
-                .withDcReferenceFlow(decomposedFlow.getDcReferenceFlow())
-                .withAcCurrentTerminal1(decomposedFlow.getAcTerminal1Current())
-                .withAcCurrentTerminal2(decomposedFlow.getAcTerminal2Current())
-                .withFlowPartition(rescaledFlowPartition)
-                .build();
+            if (!shouldRescaleFlows(decomposedFlow)) {
+                return decomposedFlow;
+            }
+
+            FlowPartition rescaledFlowPartition = computeRescaledFlowsPartition(decomposedFlow, network);
+
+            return new DecomposedFlowBuilder()
+                    .withBranchId(decomposedFlow.getBranchId())
+                    .withContingencyId(decomposedFlow.getContingencyId())
+                    .withCountry1(decomposedFlow.getCountry1())
+                    .withCountry2(decomposedFlow.getCountry2())
+                    .withAcTerminal1ReferenceFlow(decomposedFlow.getAcTerminal1ReferenceFlow())
+                    .withAcTerminal2ReferenceFlow(decomposedFlow.getAcTerminal2ReferenceFlow())
+                    .withDcReferenceFlow(decomposedFlow.getDcReferenceFlow())
+                    .withAcCurrentTerminal1(decomposedFlow.getAcTerminal1Current())
+                    .withAcCurrentTerminal2(decomposedFlow.getAcTerminal2Current())
+                    .withFlowPartition(rescaledFlowPartition)
+                    .build();
+        });
     }
 
     static boolean hasFiniteAcFlowsOnEachTerminal(DecomposedFlow decomposedFlow) {
