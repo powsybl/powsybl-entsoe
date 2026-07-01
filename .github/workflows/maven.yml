@@ -25,14 +25,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Checkout powsybl-core branch
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      with:
-        repository: powsybl/powsybl-core
-        ref: refs/heads/main
-        path: powsybl-core
-        fetch-depth: 0
-
     - name: Checkout powsybl-open-loadflow branch
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
@@ -47,9 +39,6 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
         cache: 'maven'
-
-    - name: Build and install powsybl-core with Maven
-      run: mvn --batch-mode -DskipTests=true --file ./powsybl-core/pom.xml install
 
     - name: Build and install powsybl-open-loadflow with Maven
       run: mvn --batch-mode -DskipTests=true --file ./powsybl-open-loadflow/pom.xml install
