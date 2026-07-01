@@ -6,7 +6,7 @@
  */
 package com.powsybl.balances_adjustment.balance_computation;
 
-import com.powsybl.network_area.NetworkAreaFactory;
+import com.powsybl.networkarea.NetworkAreaFactory;
 import com.powsybl.iidm.modification.scalable.Scalable;
 
 import java.util.Objects;
