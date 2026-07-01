@@ -29,7 +29,7 @@ jobs:
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         repository: powsybl/powsybl-open-loadflow
-        ref: refs/heads/ci/core-7.3.0-SNAPSHOT
+        ref: refs/heads/bump_core_7_3_0
         path: powsybl-open-loadflow
         fetch-depth: 0
 
