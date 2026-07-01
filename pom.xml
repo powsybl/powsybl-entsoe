@@ -59,7 +59,7 @@
     <properties>
         <java.version>21</java.version>
         <powsyblcore.version>7.3.0</powsyblcore.version>
-        <powsyblopenloadflow.version>2.3.0-SNAPSHOT</powsyblopenloadflow.version>
+        <powsyblopenloadflow.version>2.3.0</powsyblopenloadflow.version>
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution-entsoe/target/site/jacoco-aggregate/jacoco.xml,
