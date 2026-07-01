@@ -4,18 +4,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.network_area;
+package com.powsybl.networkarea;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
+import com.powsybl.loadflow.LoadFlow;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.openloadflow.OpenLoadFlowParameters;
+import com.powsybl.openloadflow.network.SlackBusSelectionMode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +37,28 @@ class BorderBasedCountryAreaTest {
     private CountryAreaFactory countryAreaFactoryFR;
     private CountryAreaFactory countryAreaFactoryES;
     private CountryAreaFactory countryAreaFactoryBE;
+    private CountryAreaFactory countryAreaFactoryNL;
+    private CountryAreaFactory countryAreaFactoryDE;
+
+    private static Network get2SynchronousComponentNetwork() {
+        // The network has 2 synchronous components (NL+BE and FR+DE) linked with HVDC line (BE-FR).
+        Network network = Network.read("testCase16Nodes.xiidm", BorderBasedCountryAreaTest.class.getResourceAsStream("/TestCase16NodesWithHvdc.xiidm"));
+        network.getLine("BBE1AA11 FFR5AA11 1").disconnect();
+        network.getLine("BBE4AA11 FFR5AA11 1").disconnect();
+        network.getLine("DDE2AA11 NNL3AA11 1").disconnect();
+        network.getHvdcLine("BBE2AA11 FFR3AA11 1").setActivePowerSetpoint(2000);
+        return network;
+    }
+
+    private static void runLoadFlowAndAssertPartial(Network network) {
+        LoadFlowParameters loadFlowParameters = LoadFlowParameters.load();
+        loadFlowParameters.getExtension(OpenLoadFlowParameters.class)
+            .setSlackBusId("FFR5AA1_0")
+            .setSlackBusSelectionMode(SlackBusSelectionMode.NAME);
+
+        LoadFlowResult result = LoadFlow.run(network, loadFlowParameters.setDc(false));
+        assertEquals(LoadFlowResult.Status.PARTIALLY_CONVERGED, result.getStatus());
+    }
 
     @BeforeEach
     void setUp() {
@@ -42,6 +68,8 @@ class BorderBasedCountryAreaTest {
         countryAreaFactoryFR = new CountryAreaFactory(Country.FR);
         countryAreaFactoryES = new CountryAreaFactory(Country.ES);
         countryAreaFactoryBE = new CountryAreaFactory(Country.BE);
+        countryAreaFactoryNL = new CountryAreaFactory(Country.NL);
+        countryAreaFactoryDE = new CountryAreaFactory(Country.DE);
     }
 
     private Stream<Injection> getInjectionStream(Network network) {
@@ -54,8 +82,9 @@ class BorderBasedCountryAreaTest {
 
     private double getSumFlowCountry(Network network, Country country) {
         double sumFlow = 0;
-        List<Injection> injections = getInjectionStream(network).filter(i -> country.equals(i.getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null)))
-                .collect(Collectors.toList());
+        List<Injection> injections = getInjectionStream(network)
+            .filter(i -> country.equals(i.getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null)))
+            .toList();
         for (Injection injection : injections) {
             sumFlow += injection.getTerminal().getBusBreakerView().getBus().isInMainConnectedComponent() ? injection.getTerminal().getP() : 0;
 
@@ -155,5 +184,35 @@ class BorderBasedCountryAreaTest {
         network.getHvdcLine("HVDC_FR_ES").getConverterStation2().getTerminal().disconnect();
         assertEquals(50, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
         assertEquals(-50, countryAreaFactoryES.create(network).getNetPosition(), 1e-3);
+    }
+
+    @Test
+    void testNetPositionOn16NodesNetworkWith2SynchronousComponentsLinkedWithHvdcAndPartiallyConvergedNetworkSide1() {
+        Network network = get2SynchronousComponentNetwork();
+
+        // Set huge power mismatch with a fixed slack to have a load flow failure
+        network.getGenerator("NNL1AA11_generator").setTargetP(6500);
+
+        runLoadFlowAndAssertPartial(network);
+
+        assertEquals(40.770, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
+        assertEquals(1959.230, countryAreaFactoryBE.create(network).getNetPosition(), 1e-3);
+        assertEquals(0, countryAreaFactoryNL.create(network).getNetPosition(), 1e-3);
+        assertEquals(-2000, countryAreaFactoryDE.create(network).getNetPosition(), 1e-3);
+    }
+
+    @Test
+    void testNetPositionOn16NodesNetworkWith2SynchronousComponentsLinkedWithHvdcAndPartiallyConvergedNetworkSide2() {
+        Network network = get2SynchronousComponentNetwork();
+
+        // Set huge power mismatch with a fixed slack to have a load flow failure
+        network.getGenerator("FFR1AA11_generator").setTargetP(6500);
+
+        runLoadFlowAndAssertPartial(network);
+
+        assertEquals(-2000, countryAreaFactoryFR.create(network).getNetPosition(), 1e-3);
+        assertEquals(2499.997, countryAreaFactoryBE.create(network).getNetPosition(), 1e-3);
+        assertEquals(-499.997, countryAreaFactoryNL.create(network).getNetPosition(), 1e-3);
+        assertEquals(0, countryAreaFactoryDE.create(network).getNetPosition(), 1e-3);
     }
 }

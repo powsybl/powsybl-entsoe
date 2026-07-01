@@ -57,6 +57,14 @@ class CountryEICodeTest {
         assertEquals(Country.DK, new CountryEICode("10YDK-1--------W").getCountry());
         assertEquals(Country.XK, new CountryEICode("10Y1001C--00100H").getCountry());
         assertEquals(Country.LU, new CountryEICode("10YLU-CEGEDEL-NQ").getCountry());
+        assertEquals(Country.MD, new CountryEICode("10Y1001A1001A990").getCountry());
+        assertEquals(Country.IE, new CountryEICode("10YIE-1001A00010").getCountry());
+        assertEquals(Country.LT, new CountryEICode("10YLT-1001A0008Q").getCountry());
+        assertEquals(Country.LV, new CountryEICode("10YLV-1001A00074").getCountry());
+        assertEquals(Country.EE, new CountryEICode("10Y1001A1001A39I").getCountry());
+        assertEquals(Country.FI, new CountryEICode("10YFI-1--------U").getCountry());
+        assertEquals(Country.SE, new CountryEICode("10YSE-1--------K").getCountry());
+        assertEquals(Country.NO, new CountryEICode("10YNO-0--------C").getCountry());
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new CountryEICode("invalid code"));
         assertEquals("Unknown CountryEICode: invalid code.", e.getMessage());
     }
@@ -91,6 +99,14 @@ class CountryEICodeTest {
         assertEquals("10YDK-1--------W", new CountryEICode(Country.DK).getCode());
         assertEquals("10Y1001C--00100H", new CountryEICode(Country.XK).getCode());
         assertEquals("10YLU-CEGEDEL-NQ", new CountryEICode(Country.LU).getCode());
+        assertEquals("10Y1001A1001A990", new CountryEICode(Country.MD).getCode());
+        assertEquals("10YIE-1001A00010", new CountryEICode(Country.IE).getCode());
+        assertEquals("10YLT-1001A0008Q", new CountryEICode(Country.LT).getCode());
+        assertEquals("10YLV-1001A00074", new CountryEICode(Country.LV).getCode());
+        assertEquals("10Y1001A1001A39I", new CountryEICode(Country.EE).getCode());
+        assertEquals("10YFI-1--------U", new CountryEICode(Country.FI).getCode());
+        assertEquals("10YSE-1--------K", new CountryEICode(Country.SE).getCode());
+        assertEquals("10YNO-0--------C", new CountryEICode(Country.NO).getCode());
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new CountryEICode(Country.BR));
         assertEquals("Unknown CountryEICode for Country BR.", e.getMessage());
     }

@@ -7,7 +7,7 @@
 package com.powsybl.balances_adjustment.balance_computation;
 
 import com.powsybl.balances_adjustment.util.BalanceComputationAssert;
-import com.powsybl.network_area.CountryAreaFactory;
+import com.powsybl.networkarea.CountryAreaFactory;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
