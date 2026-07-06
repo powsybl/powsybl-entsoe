@@ -5,7 +5,7 @@
     <parent>
         <artifactId>powsybl-entsoe</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>3.3.0-SNAPSHOT</version>
+        <version>3.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -38,17 +38,14 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-network-area</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
-            <version>${commonscsv.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ejml</groupId>
             <artifactId>ejml-all</artifactId>
-            <version>${ejml.version}</version>
         </dependency>
         <!-- Test dependencies -->
         <dependency>

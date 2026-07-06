@@ -23,6 +23,13 @@ This includes:
 
 The flow is counted positively if it leaves the area. For AC lines, the flow is usually calculated as $(P_{side1} - P_{side2}) / 2$ to account for losses, oriented from the internal side to the external side.
 
+> **Warning:** 
+> If a HVDC line connects a first synchronous component with load flow convergence to another non-synchronous component with load flow divergence, the flow is only computed on the side with load flow convergence. 
+> There is no split of the losses. 
+> This approximation is used to simplify the calculation and provide a reasonable estimate of the net position on the converged synchronous component.
+> But the implementation relies on the power flow result at the conversion stations of the HVDC lines to determine if a divergence has occurred.
+> It can lead to inaccuracies with other load flow implementations. 
+
 ## Injection-based Implementations
 
 Injection-based areas compute the net position by summing all power injections located inside the area.

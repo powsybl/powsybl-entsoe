@@ -112,7 +112,7 @@ Example `parameters.json`:
     "dc" : false
   },
   "scaling-parameters" : {
-    "version" : "1.2",
+    "version" : "1.3",
     "scalingConvention" : "GENERATOR"
   }
 }
@@ -127,7 +127,7 @@ import com.powsybl.balancesadjustment.computation.*;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.network.area.CountryAreaFactory;
+import com.powsybl.networkarea.CountryAreaFactory;
 import com.powsybl.iidm.modification.scalable.GeneratorsScalable;
 
 import java.util.Arrays;

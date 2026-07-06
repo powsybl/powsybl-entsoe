@@ -144,9 +144,19 @@ public class BorderBasedCountryArea implements NetworkArea {
     }
 
     private double getLeavingFlow(HvdcLine hvdcLine) {
-        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() ? zeroIfNan(hvdcLine.getConverterStation1().getTerminal().getP()) : 0;
-        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() ? zeroIfNan(hvdcLine.getConverterStation2().getTerminal().getP()) : 0;
-        double directFlow = (flowSide1 - flowSide2) / 2;
+        double flowSide1 = hvdcLine.getConverterStation1().getTerminal().isConnected() ?
+                hvdcLine.getConverterStation1().getTerminal().getP() : Double.NaN;
+        double flowSide2 = hvdcLine.getConverterStation2().getTerminal().isConnected() ?
+                hvdcLine.getConverterStation2().getTerminal().getP() : Double.NaN;
+
+        double directFlow;
+        if (Double.isNaN(flowSide1) && Double.isNaN(flowSide2)) {
+            directFlow = 0;
+        } else if (!Double.isNaN(flowSide1) && !Double.isNaN(flowSide2)) {
+            directFlow = (flowSide1 - flowSide2) / 2;
+        } else {
+            directFlow = !Double.isNaN(flowSide1) ? flowSide1 : -flowSide2;
+        }
         return countries.contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().map(Substation::getNullableCountry).orElse(null)) ? directFlow : -directFlow;
     }
 
