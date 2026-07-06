@@ -8,7 +8,7 @@
 package com.powsybl.flowdecomposition;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.network.area.BorderBasedCountryArea;
+import com.powsybl.networkarea.BorderBasedCountryArea;
 
 import java.util.Collections;
 import java.util.EnumMap;

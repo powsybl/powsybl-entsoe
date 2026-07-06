@@ -15,7 +15,7 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.*;
 import com.powsybl.math.matrix.DenseMatrixFactory;
-import com.powsybl.network.area.CountryAreaFactory;
+import com.powsybl.networkarea.CountryAreaFactory;
 import com.powsybl.openloadflow.OpenLoadFlowProvider;
 import com.powsybl.openloadflow.util.report.PowsyblOpenLoadFlowReportResourceBundle;
 import org.junit.jupiter.api.BeforeEach;

@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowRunParameters;
-import com.powsybl.network.area.NetworkArea;
+import com.powsybl.networkarea.NetworkArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
