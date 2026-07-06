@@ -1,4 +1,4 @@
-package com.powsybl.flow_decomposition.utils;
+package com.powsybl.flowdecomposition.utils;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;

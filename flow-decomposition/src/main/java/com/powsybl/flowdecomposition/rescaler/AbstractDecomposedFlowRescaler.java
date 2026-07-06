@@ -31,7 +31,6 @@ abstract class AbstractDecomposedFlowRescaler implements DecomposedFlowRescaler 
 
         var xnecId = DecomposedFlow.getXnecId(decomposedFlow.getContingencyId(), decomposedFlow.getBranchId());
         return LogUtils.trace("Flow components rescaling | XNECID: " + xnecId, () -> {
-
             if (!shouldRescaleFlows(decomposedFlow)) {
                 return decomposedFlow;
             }
