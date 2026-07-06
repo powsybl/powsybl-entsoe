@@ -30,7 +30,7 @@ class VariantManagerTests {
     private Collection<String> variantIds;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         String networkFileName = "19700101_0000_FO4_UX1.uct";
         String branchId = "DB000011 DF000011 1";
         String contingencyElementId1 = "FB000011 FD000011 1";
