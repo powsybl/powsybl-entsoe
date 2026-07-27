@@ -117,6 +117,8 @@ public class MatrixBasedPartitioner implements FlowPartitioner {
     }
 
     private double extractInternalFlow(Map<String, Double> loopFlowsMap, Country country1, Country country2) {
+        Objects.requireNonNull(country1);
+        Objects.requireNonNull(country2);
         if (Objects.equals(country1, country2)) {
             return Optional.ofNullable(loopFlowsMap.remove(NetworkUtil.getLoopFlowIdFromCountry(country1)))
                 .orElse(NO_FLOW);

@@ -22,6 +22,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,8 @@ class FlowDecompositionTests {
     }
 
     private static void validateFlowDecompositionResultsUsingPFCMethodology(FlowDecompositionResults flowDecompositionResults) throws IOException {
-        FlowDecompositionAssertionsImporter.importFromResource(FlowDecompositionTests.class.getResourceAsStream("validateFlowDecompositionResultsUsingPFCMethodology.csv"), "validateFlowDecompositionResultsUsingPFCMethodology.csv")
+        InputStream inputStream = FlowDecompositionTests.class.getResourceAsStream("validateFlowDecompositionResultsUsingPFCMethodology.csv");
+        FlowDecompositionAssertionsImporter.importFromResource(inputStream, "validateFlowDecompositionResultsUsingPFCMethodology.csv")
             .forEach(assertion -> assertion.validate(flowDecompositionResults));
         assertEquals(4, flowDecompositionResults.getZoneSet().size());
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
@@ -85,7 +87,8 @@ class FlowDecompositionTests {
     }
 
     private static void validateFlowDecompositionResultsUsingFLDMethodology(FlowDecompositionResults flowDecompositionResults) throws IOException {
-        FlowDecompositionAssertionsImporter.importFromResource(FlowDecompositionTests.class.getResourceAsStream("validateFlowDecompositionResultsUsingFLDMethodology.csv"), "validateFlowDecompositionResultsUsingFLDMethodology.csv")
+        InputStream inputStream = FlowDecompositionTests.class.getResourceAsStream("validateFlowDecompositionResultsUsingFLDMethodology.csv");
+        FlowDecompositionAssertionsImporter.importFromResource(inputStream, "validateFlowDecompositionResultsUsingFLDMethodology.csv")
             .forEach(assertion -> assertion.validate(flowDecompositionResults));
         assertEquals(4, flowDecompositionResults.getZoneSet().size());
         assertTrue(flowDecompositionResults.getZoneSet().contains(Country.BE));
@@ -848,7 +851,8 @@ class FlowDecompositionTests {
     }
 
     private static void validatePowerFlowColouringResultsWithXnodeGen(FlowDecompositionResults flowDecompositionResults) throws IOException {
-        FlowDecompositionAssertionsImporter.importFromResource(FlowDecompositionTests.class.getResourceAsStream("validatePowerFlowColouringResultsWithXnodeGen.csv"), "validatePowerFlowColouringResultsWithXnodeGen.csv")
+        InputStream inputStream = FlowDecompositionTests.class.getResourceAsStream("validatePowerFlowColouringResultsWithXnodeGen.csv");
+        FlowDecompositionAssertionsImporter.importFromResource(inputStream, "validatePowerFlowColouringResultsWithXnodeGen.csv")
             .forEach(assertion -> assertion.validate(flowDecompositionResults));
     }
 
@@ -1048,7 +1052,8 @@ class FlowDecompositionTests {
     }
 
     private static void validatePowerFlowColouringResultsWithXnodeLoad(FlowDecompositionResults flowDecompositionResults) throws IOException {
-        FlowDecompositionAssertionsImporter.importFromResource(FlowDecompositionTests.class.getResourceAsStream("validatePowerFlowColouringResultsWithXnodeLoad.csv"), "validatePowerFlowColouringResultsWithXnodeLoad.csv")
+        InputStream inputStream = FlowDecompositionTests.class.getResourceAsStream("validatePowerFlowColouringResultsWithXnodeLoad.csv");
+        FlowDecompositionAssertionsImporter.importFromResource(inputStream, "validatePowerFlowColouringResultsWithXnodeLoad.csv")
             .forEach(assertion -> assertion.validate(flowDecompositionResults));
     }
 

@@ -9,7 +9,7 @@ package com.powsybl.flowdecomposition;
 
 import com.powsybl.iidm.network.Country;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,7 +34,7 @@ public final class DecomposedFlowAssert {
     private double xNodeFlow = 0.0;
     private double pstFlow = 0.0;
     private double internalFlow = 0.0;
-    private final Map<Country, Double> loopFlows = new HashMap<>();
+    private final Map<Country, Double> loopFlows = new EnumMap<>(Country.class);
 
     private DecomposedFlowAssert(FlowDecompositionResults flowDecompositionResults) {
         this.flowDecompositionResults = flowDecompositionResults;
