@@ -16,11 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * This class contains helper functions for tests.
@@ -112,61 +109,6 @@ public final class TestUtils {
         assertEquals(0, network.getShuntCompensatorCount());
         assertEquals(1, network.getStaticVarCompensatorCount());
         return network;
-    }
-
-    public static void validateFlowDecomposition(FlowDecompositionResults flowDecompositionResults,
-                                                 String id,
-                                                 String branchId,
-                                                 String contingencyId,
-                                                 Country country1,
-                                                 Country country2,
-                                                 double acReferenceFlow,
-                                                 double dcReferenceFlow,
-                                                 double allocatedFlow,
-                                                 double xNodeFlow,
-                                                 double pstFlow,
-                                                 double internalFlow,
-                                                 double loopFlowBe,
-                                                 double loopFlowDe,
-                                                 double loopFLowFr,
-                                                 double loopFlowNl) {
-        Map<Country, Double> loopFlow = Map.of(Country.BE, loopFlowBe, Country.DE, loopFlowDe, Country.FR, loopFLowFr, Country.NL, loopFlowNl)
-            .entrySet().stream()
-            .filter(e -> Math.abs(e.getValue()) > 1e-3)
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        validateFlowDecompositionWithMap(flowDecompositionResults, id, branchId, contingencyId, country1, country2,
-            acReferenceFlow, dcReferenceFlow, allocatedFlow, xNodeFlow, pstFlow, internalFlow,
-            loopFlow);
-    }
-
-    public static void validateFlowDecompositionWithMap(FlowDecompositionResults flowDecompositionResults,
-                                                        String id,
-                                                        String branchId,
-                                                        String contingencyId,
-                                                        Country country1,
-                                                        Country country2,
-                                                        double acReferenceFlow,
-                                                        double dcReferenceFlow,
-                                                        double allocatedFlow,
-                                                        double xNodeFlow,
-                                                        double pstFlow,
-                                                        double internalFlow,
-                                                        Map<Country, Double> loopFlow) {
-        DecomposedFlow l1 = flowDecompositionResults.getDecomposedFlowMap().get(id);
-        assertNotNull(l1);
-        assertEquals(id, l1.getId());
-        assertEquals(branchId, l1.getBranchId());
-        assertEquals(contingencyId, l1.getContingencyId());
-        assertEquals(country1, l1.getCountry1());
-        assertEquals(country2, l1.getCountry2());
-        assertEquals(acReferenceFlow, l1.getAcTerminal1ReferenceFlow(), EPSILON);
-        assertEquals(dcReferenceFlow, l1.getDcReferenceFlow(), EPSILON);
-        assertEquals(allocatedFlow, l1.getAllocatedFlow(), EPSILON);
-        assertEquals(xNodeFlow, l1.getXNodeFlow(), EPSILON);
-        assertEquals(pstFlow, l1.getPstFlow(), EPSILON);
-        assertEquals(internalFlow, l1.getInternalFlow(), EPSILON);
-        assert l1.getLoopFlows().values().stream().filter(d -> Math.abs(d) > 1e-3).count() == loopFlow.size();
-        loopFlow.forEach((country, loopFlowValue) -> assertEquals(loopFlowValue, l1.getLoopFlow(country), EPSILON));
     }
 
     public static void assertNoInternalFlowOnTieLines(FlowDecompositionResults flowDecompositionResults) {
