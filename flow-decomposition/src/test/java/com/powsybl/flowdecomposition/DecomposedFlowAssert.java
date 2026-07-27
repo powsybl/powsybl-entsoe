@@ -44,6 +44,10 @@ public final class DecomposedFlowAssert {
         return new DecomposedFlowAssert(flowDecompositionResults);
     }
 
+    public static DecomposedFlowAssert newAssert() {
+        return new DecomposedFlowAssert(null);
+    }
+
     public DecomposedFlowAssert branchId(String branchId) {
         this.branchId = branchId;
         return this;
@@ -100,8 +104,12 @@ public final class DecomposedFlowAssert {
     }
 
     public void validate() {
+        validate(flowDecompositionResults);
+    }
+
+    public void validate(FlowDecompositionResults results) {
         String id = contingencyId.isEmpty() ? branchId : branchId + "_" + contingencyId;
-        DecomposedFlow decomposedFlow = flowDecompositionResults.getDecomposedFlowMap().get(id);
+        DecomposedFlow decomposedFlow = results.getDecomposedFlowMap().get(id);
         assertNotNull(decomposedFlow);
         assertEquals(id, decomposedFlow.getId());
         assertEquals(branchId, decomposedFlow.getBranchId());
