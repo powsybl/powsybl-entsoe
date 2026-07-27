@@ -38,19 +38,19 @@ final class FlowDecompositionAssertionsImporter {
             .setHeader()
             .setSkipHeaderRecord(true)
             .get();
-        for (CSVRecord record : format.parse(new InputStreamReader(is))) {
+        for (CSVRecord csvRecord : format.parse(new InputStreamReader(is))) {
             DecomposedFlowAssert assertion = DecomposedFlowAssert.newAssert()
-                .branchId(record.get("branchId"))
-                .contingencyId(record.get("contingencyId"))
-                .country1(Country.valueOf(record.get("country1")))
-                .country2(Country.valueOf(record.get("country2")))
-                .acReferenceFlow(Double.parseDouble(record.get("acReferenceFlow")))
-                .dcReferenceFlow(Double.parseDouble(record.get("dcReferenceFlow")))
-                .allocatedFlow(Double.parseDouble(record.get("allocatedFlow")))
-                .xNodeFlow(Double.parseDouble(record.get("xNodeFlow")))
-                .pstFlow(Double.parseDouble(record.get("pstFlow")))
-                .internalFlow(Double.parseDouble(record.get("internalFlow")));
-            String loopFlowsStr = record.get("loopFlows");
+                .branchId(csvRecord.get("branchId"))
+                .contingencyId(csvRecord.get("contingencyId"))
+                .country1(Country.valueOf(csvRecord.get("country1")))
+                .country2(Country.valueOf(csvRecord.get("country2")))
+                .acReferenceFlow(Double.parseDouble(csvRecord.get("acReferenceFlow")))
+                .dcReferenceFlow(Double.parseDouble(csvRecord.get("dcReferenceFlow")))
+                .allocatedFlow(Double.parseDouble(csvRecord.get("allocatedFlow")))
+                .xNodeFlow(Double.parseDouble(csvRecord.get("xNodeFlow")))
+                .pstFlow(Double.parseDouble(csvRecord.get("pstFlow")))
+                .internalFlow(Double.parseDouble(csvRecord.get("internalFlow")));
+            String loopFlowsStr = csvRecord.get("loopFlows");
             if (!loopFlowsStr.isEmpty()) {
                 for (String part : loopFlowsStr.split(";")) {
                     String[] kv = part.split(":");
