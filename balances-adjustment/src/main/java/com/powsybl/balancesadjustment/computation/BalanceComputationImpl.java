@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
 /**
  * This class contains the balance adjustment computation process.
  * <p>
- *     The calculation starts with defined network and areas and consists
- *     of several stages :
+ * The calculation starts with defined network and areas and consists
+ * of several stages :
  * <ul>
  *     <li>LoadFlow computation (optional)</li>
  *     <li>Comparison of network area's net position with the target value</li>
@@ -165,17 +165,18 @@ public class BalanceComputationImpl implements BalanceComputation {
 
     /**
      * default implementation is sum of squared mismatches
+     *
      * @return total mismatch to compare with balance computation net position threshold
      */
     protected double computeTotalMismatch(BalanceComputationRunningContext context) {
         if (context.parameters.getMismatchMode() == BalanceComputationParameters.MismatchMode.SQUARED) {
             return context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue)
-                    .map(v -> v * v)
-                    .sum();
+                .map(v -> v * v)
+                .sum();
         } else {
             return context.getBalanceMismatches().values().stream().mapToDouble(Double::doubleValue)
-                    .map(Math::abs).max()
-                    .orElse(0.0);
+                .map(Math::abs).max()
+                .orElse(0.0);
         }
     }
 
@@ -207,13 +208,13 @@ public class BalanceComputationImpl implements BalanceComputation {
     }
 
     protected static class BalanceComputationRunningContext {
-        Network network;
-        BalanceComputationParameters parameters;
-        private int iterationNum;
         private final Map<BalanceComputationArea, NetworkArea> networkAreas;
         private final Map<BalanceComputationArea, Double> balanceOffsets = new LinkedHashMap<>();
         private final Map<BalanceComputationArea, Double> balanceMismatches = new HashMap<>();
         private final ReportNode reportNode;
+        Network network;
+        BalanceComputationParameters parameters;
+        private int iterationNum;
         private ReportNode iterationReportNode;
 
         public BalanceComputationRunningContext(List<BalanceComputationArea> areas, Network network, BalanceComputationParameters parameters) {
@@ -228,8 +229,10 @@ public class BalanceComputationImpl implements BalanceComputation {
             this.iterationReportNode = ReportNode.NO_OP;
             networkAreas = areas.stream().collect(Collectors.toMap(
                 Function.identity(),
-                ba -> ba.getNetworkAreaFactory().create(network, !parameters.isWithLoadFlow()), (v1, v2) -> v1, LinkedHashMap::new)
-            );
+                ba -> ba.getNetworkAreaFactory().create(network, !parameters.isWithLoadFlow()),
+                (v1, v2) -> v1,
+                LinkedHashMap::new
+            ));
             balanceOffsets.clear();
             balanceMismatches.clear();
         }
