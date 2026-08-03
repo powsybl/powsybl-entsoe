@@ -28,9 +28,9 @@ public class UcteGlskShiftKey extends AbstractGlskShiftKey {
     public UcteGlskShiftKey(String businessType, String ucteBusinessType, String subjectDomainmRID, Interval pointInterval, Double shareFactor) {
         //for ucte format country gsk
         this.businessType = businessType;
-        if (ucteBusinessType.equals("Z02")) {
+        if ("Z02".equals(ucteBusinessType)) {
             this.psrType = "A04";
-        } else if (ucteBusinessType.equals("Z05")) {
+        } else if ("Z05".equals(ucteBusinessType)) {
             this.psrType = "A05";
         } else {
             throw new GlskException("in GlskShiftKey UCTE constructor: unknown ucteBusinessType: " + ucteBusinessType);

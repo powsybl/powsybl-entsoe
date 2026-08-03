@@ -8,8 +8,8 @@
 package com.powsybl.glsk.api.util.converters;
 
 import com.powsybl.glsk.api.GlskPoint;
-import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.cim.CimGlskDocument;
+import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import com.powsybl.sensitivity.WeightedSensitivityVariable;

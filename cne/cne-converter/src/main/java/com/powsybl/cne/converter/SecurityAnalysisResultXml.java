@@ -51,7 +51,9 @@ public final class SecurityAnalysisResultXml {
         writer.writeCharacters(Integer.toString(1));
         writer.writeEndElement(); // revisionNumber
         // type
-        writer.writeComment(" type B15 for \"Network constraint document\" : \"A document providing the network constraint situations used for the load flow studies. A network constraint situation includes contingencies, monitored elements and remedial actions.\" ");
+        writer.writeComment("""
+             type B15 for "Network constraint document" : "A document providing the network constraint situations used for the load flow studies. A network constraint situation includes contingencies, monitored elements and remedial actions." \
+            """);
         writer.writeStartElement(CneConstants.TYPE);
         writer.writeCharacters("B15");
         writer.writeEndElement(); // type
@@ -122,8 +124,12 @@ public final class SecurityAnalysisResultXml {
         writer.writeStartElement(CneConstants.MRID);
         writer.writeCharacters(parameters.getTimeSeriesMRID());
         writer.writeEndElement(); // mRID
-        writer.writeComment(" B37 - Constraint situation : Constraint situation \"The timeseries describes the constraint situation for a given TimeInterval. A constraint situation can be: - composed of a list of network elements in outage associated for each outage to a list of network elements on which remedial actions have been carried out accordingly to contingency process  - or it can be an external constraint. ");
-        writer.writeComment(" B54 - Network Constraint Situation : The TimeSeries describes the network elements to be taken into account to simulate a network constraint during the network load flow studies. The network situation includes the contingencies, the remedial actions, the monitored network elements and the potential additional constraints. ");
+        writer.writeComment("""
+             B37 - Constraint situation : Constraint situation "The timeseries describes the constraint situation for a given TimeInterval. A constraint situation can be: - composed of a list of network elements in outage associated for each outage to a list of network elements on which remedial actions have been carried out accordingly to contingency process  - or it can be an external constraint. \
+            """);
+        writer.writeComment("""
+             B54 - Network Constraint Situation : The TimeSeries describes the network elements to be taken into account to simulate a network constraint during the network load flow studies. The network situation includes the contingencies, the remedial actions, the monitored network elements and the potential additional constraints. \
+            """);
         // businessType
         writer.writeStartElement(CneConstants.BUSINESS_TYPE);
         writer.writeCharacters("B37");

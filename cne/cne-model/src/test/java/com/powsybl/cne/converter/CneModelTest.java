@@ -8,9 +8,9 @@ package com.powsybl.cne.converter;
 
 import com.powsybl.cne.model.*;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.contingency.violations.LimitViolation;
 import com.powsybl.contingency.violations.LimitViolationType;
+import com.powsybl.iidm.network.TwoSides;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

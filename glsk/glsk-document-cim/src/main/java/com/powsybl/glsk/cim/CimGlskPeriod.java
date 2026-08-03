@@ -68,7 +68,7 @@ public class CimGlskPeriod {
         /*  A01: all time interval in a period is described
             A03: a point is described only for the changing point => The interval is equivalent to [this.point.interval.begin, next.point.interval.begin)
          */
-        if (curveType.equals("A03")) {
+        if ("A03".equals(curveType)) {
             Instant nextPointStart = getPeriodInterval().getEnd();
             for (int i = glskPoints.size() - 1; i >= 0; --i) {
                 GlskPoint point = glskPoints.get(i);

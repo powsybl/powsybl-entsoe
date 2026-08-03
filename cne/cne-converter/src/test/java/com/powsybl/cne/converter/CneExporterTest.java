@@ -87,12 +87,8 @@ class CneExporterTest extends AbstractSerDeTest {
         final Properties parameters = new Properties();
         final SecurityAnalysisResult result = create();
         // Fail to export without mRID
-        try {
-            exporterTest(result, parameters);
-            Assertions.fail("Expected an NullPointerException to be thrown");
-        } catch (NullPointerException ex) {
-            Assertions.assertEquals("mRID is missing", ex.getMessage());
-        }
+        NullPointerException ex = Assertions.assertThrows(NullPointerException.class, () -> exporterTest(result, parameters));
+        Assertions.assertEquals("mRID is missing", ex.getMessage());
     }
 
     @Test

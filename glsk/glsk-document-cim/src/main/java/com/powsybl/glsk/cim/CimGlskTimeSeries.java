@@ -51,7 +51,7 @@ public class CimGlskTimeSeries {
         NodeList types = element.getElementsByTagName("curveType");
         this.curveType = types.getLength() == 0 ? "A03" :
                 types.item(0).getTextContent();
-        if (!this.curveType.equals("A03") && !this.curveType.equals("A01")) {
+        if (!"A03".equals(this.curveType) && !"A01".equals(this.curveType)) {
             throw new GlskException("CurveType not supported: " + this.curveType);
         }
 

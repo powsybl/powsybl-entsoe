@@ -7,11 +7,11 @@
 
 package com.powsybl.glsk.api.util;
 
-import com.powsybl.glsk.api.GlskPoint;
-import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.glsk.api.GlskDocument;
-import com.powsybl.glsk.commons.GlskException;
+import com.powsybl.glsk.api.GlskPoint;
 import com.powsybl.glsk.api.util.converters.GlskPointToLinearDataConverter;
+import com.powsybl.glsk.commons.GlskException;
+import com.powsybl.glsk.commons.ZonalDataImpl;
 import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

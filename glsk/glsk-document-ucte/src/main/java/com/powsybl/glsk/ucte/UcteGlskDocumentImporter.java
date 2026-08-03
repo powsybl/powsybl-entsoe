@@ -7,10 +7,10 @@
 
 package com.powsybl.glsk.ucte;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.glsk.api.GlskDocument;
 import com.powsybl.glsk.api.io.AbstractGlskDocumentImporter;
 import com.powsybl.glsk.api.io.GlskDocumentImporter;
-import com.google.auto.service.AutoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

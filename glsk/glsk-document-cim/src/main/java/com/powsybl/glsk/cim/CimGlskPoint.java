@@ -43,7 +43,7 @@ public class CimGlskPoint extends AbstractGlskPoint {
         // if curveType "A03", we will change "end" for each Point after constructing all GlskPoint in the GlskPeriod
         // in GlskPeriod.resetPeriodIntervalAccordingToCurveType()
         Instant end = periodInterval.getEnd();
-        if (curveType.equals("A01")) {
+        if ("A01".equals(curveType)) {
             //curveType = A01
             end = periodInterval.getStart().plus(resolutionDuration.multipliedBy(position));
         }
