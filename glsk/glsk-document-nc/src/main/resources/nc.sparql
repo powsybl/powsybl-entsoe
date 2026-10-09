@@ -5,10 +5,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-# SPARQL queries for NC GLSK profile import (RA + SIS profiles).
-# The queries are loaded with a QueryCatalog: each one starts with a "# query: <name>" line.
-# They are run on the whole triple store, i.e. on all the loaded profiles at once.
-
 # query: countertradeRemedialActions
 # Countertrade remedial actions with their GLSK strategy (RA profile), together with the validity window declared
 # in the header of the profile they belong to (both are matched in the same graph, i.e. in the same file)
@@ -56,14 +52,18 @@ WHERE {
 }
 
 # query: glskSchedules
-# Generating unit of each power bid schedule, through its GLSKBidActionDistribution and GLSKSchedule (SIS profile)
+# Resource of each power bid schedule, through its GLSKBidActionDistribution and GLSKSchedule (SIS profile). A GLSK schedule
+# refers to its resource with the association of the class of the resource: GeneratingUnit, PowerElectronicsUnit,
+# EnergyGroup, EnergyBlockOrder, HydroPump, ScheduleResource or EnergyConsumer
 PREFIX nc: <http://entsoe.eu/ns/nc#>
-SELECT ?pbs ?glskSchedule ?generatingUnit
+SELECT ?pbs ?glskSchedule ?resource
 WHERE {
     ?dist rdf:type nc:GLSKBidActionDistribution .
     ?dist nc:GLSKBidActionDistribution.PowerBidSchedule ?pbs .
     ?dist nc:GLSKBidActionDistribution.GLSKSchedule ?glskSchedule .
-    ?glskSchedule nc:GLSKSchedule.GeneratingUnit ?generatingUnit .
+    ?glskSchedule (nc:GLSKSchedule.GeneratingUnit|nc:GLSKSchedule.PowerElectronicsUnit|nc:GLSKSchedule.EnergyGroup
+        |nc:GLSKSchedule.EnergyBlockOrder|nc:GLSKSchedule.HydroPump|nc:GLSKSchedule.ScheduleResource
+        |nc:GLSKSchedule.EnergyConsumer) ?resource .
 }
 
 # query: participationFactorTimePoints

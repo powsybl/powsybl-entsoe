@@ -12,18 +12,12 @@ package com.powsybl.glsk.nc;
  */
 public final class NcConstants {
 
-    public static final String PREVENTIVE_INSTANT = "preventive";
-    public static final String OUTAGE_INSTANT = "outage";
-    public static final String AUTO_INSTANT = "auto";
-
     private NcConstants() {
     }
 
     /**
      * constants to read rdf files
      */
-
-    public static final String EXTENSION_FILE_NC_PROFILE = "zip";
 
     public static final String RDF_BASE_URL = "http://entsoe.eu";
 
@@ -43,9 +37,8 @@ public final class NcConstants {
     public static final String SPARQL_FILE_NC_PROFILE = "nc.sparql";
 
     /**
-     * GLSK-specific SPARQL query names
+     * names of the queries of the file
      */
-    public static final String SPARQL_FILE_NC_GLSK = "nc-glsk.sparql";
 
     public static final String QUERY_COUNTERTRADE_REMEDIAL_ACTIONS = "countertradeRemedialActions";
     public static final String QUERY_POWER_BID_SCHEDULES = "powerBidSchedules";
@@ -61,7 +54,5 @@ public final class NcConstants {
     public static final String REQUEST_HEADER_START_DATE = "startDate";
 
     public static final String REQUEST_HEADER_END_DATE = "endDate";
-
-    public static final String REQUEST_HEADER_KEYWORD = "keyword";
 
 }

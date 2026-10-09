@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,18 +7,17 @@
 
 package com.powsybl.glsk.nc;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
- * @author Jean-Pierre Arnould {@literal <jean-pierre.arnould at rte-france.com>}
- * @author Thomas Bouquet {@literal <thomas.bouquet at rte-france.com>}
+ * Keywords (dcat:keyword) of the headers of the NC profiles the importer reads.
+ *
+ * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
  */
 public enum NcKeyword {
-    ASSESSED_ELEMENT("AE"),
-    CONTINGENCY("CO"),
-    EQUIPMENT_RELIABILITY("ER"),
     REMEDIAL_ACTION("RA"),
-    STEADY_STATE_INSTRUCTION("SSI"),
-    STEADY_STATE_HYPOTHESIS("SSH"),
-    CGMES("CGMES");
+    STATE_INSTRUCTION_SCHEDULE("SIS");
 
     private final String keyword;
 
@@ -29,5 +28,13 @@ public enum NcKeyword {
     @Override
     public String toString() {
         return keyword;
+    }
+
+    /**
+     * @param value the keyword of a profile header, e.g. "RA"
+     * @return the keyword, or empty if it is not one the importer reads
+     */
+    public static Optional<NcKeyword> fromValue(String value) {
+        return Arrays.stream(values()).filter(keyword -> keyword.keyword.equals(value)).findFirst();
     }
 }
