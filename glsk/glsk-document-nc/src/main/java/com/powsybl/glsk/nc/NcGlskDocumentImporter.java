@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -18,6 +18,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -26,7 +27,7 @@ import java.util.zip.ZipInputStream;
 /**
  * Importer for NC Profile GLSK documents.
  * Detects and imports GLSK data from NC Profile ZIP files containing RA and SIS profiles. The detection relies on the
- * header of the profiles (keyword and creator) and not on the name of their files.
+ * header of the profiles (keyword and creator).
  *
  * @author Víctor Cardozo {@literal <victor.cardozo@artelys.com>}
  */
@@ -92,18 +93,14 @@ public class NcGlskDocumentImporter extends AbstractGlskDocumentImporter impleme
     private static boolean isGlskProfile(InputStream entry) throws IOException {
         byte[] head = entry.readNBytes(HEADER_SIZE);
         String header = new String(head, StandardCharsets.UTF_8);
-        String keyword = headerValue(KEYWORD, header);
-        if (keyword == null || headerValue(CREATOR, header) == null) {
+        Optional<NcKeyword> keyword = NcKeyword.fromValue(headerValue(KEYWORD, header));
+        if (keyword.isEmpty() || headerValue(CREATOR, header) == null) {
             return false;
         }
-        String requiredClass = switch (keyword) {
-            case "RA" -> "CountertradeRemedialAction";
-            case "SIS" -> "GLSKSchedule";
-            default -> null;
+        String requiredClass = switch (keyword.get()) {
+            case REMEDIAL_ACTION -> "CountertradeRemedialAction";
+            case STATE_INSTRUCTION_SCHEDULE -> "GLSKSchedule";
         };
-        if (requiredClass == null) {
-            return false;
-        }
         String content = header + new String(entry.readAllBytes(), StandardCharsets.UTF_8);
         return content.contains(requiredClass);
     }

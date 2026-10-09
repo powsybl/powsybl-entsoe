@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * Copyright (c) 2026, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -46,19 +46,19 @@ public class NcGlskDatasetParser {
 
     public NcGlskDatasetParser(TripleStore tripleStore) {
         this.tripleStore = tripleStore;
-        this.queryCatalog = new QueryCatalog(NcConstants.SPARQL_FILE_NC_GLSK);
+        this.queryCatalog = new QueryCatalog(NcConstants.SPARQL_FILE_NC_PROFILE);
         this.countertradeRAs = new HashMap<>();
     }
 
     /**
      * Runs a query of the NC GLSK query catalog on the triple store.
      *
-     * @param queryName name of the query in the catalog (nc-glsk.sparql)
+     * @param queryName name of the query in the catalog (nc.sparql)
      */
     private PropertyBags query(String queryName) {
         String queryText = queryCatalog.get(queryName);
         if (queryText == null) {
-            throw new GlskException("Query [" + queryName + "] not found in " + NcConstants.SPARQL_FILE_NC_GLSK);
+            throw new GlskException("Query [" + queryName + "] not found in " + NcConstants.SPARQL_FILE_NC_PROFILE);
         }
         return tripleStore.query(queryText);
     }
@@ -77,7 +77,7 @@ public class NcGlskDatasetParser {
         // Step 3: Parse PowerBidSchedules
         Map<String, PowerBidScheduleData> powerBidSchedules = parsePowerBidSchedules();
 
-        // Step 4: Parse GLSKSchedules with GeneratingUnits, and link them to their PowerBidSchedule
+        // Step 4: Parse GLSKSchedules with their resource, and link them to their PowerBidSchedule
         Map<String, GlskScheduleData> glskSchedules = parseGlskSchedules(powerBidSchedules);
 
         // Step 5: Parse ParticipationFactorTimePoints
@@ -151,9 +151,9 @@ public class NcGlskDatasetParser {
             if (powerBidSchedule == null) {
                 continue;
             }
-            // The generating unit is identified by its mRID, as in the CGMES EQ profile
+            // The resource is identified by its mRID, as in the CGMES EQ profile
             GlskScheduleData glskSchedule = result.computeIfAbsent(bag.get("glskSchedule"),
-                uri -> new GlskScheduleData(uri, bag.getId("generatingUnit"), new TreeMap<>()));
+                uri -> new GlskScheduleData(uri, bag.getId("resource"), new TreeMap<>()));
             powerBidSchedule.glskSchedules().add(glskSchedule);
         }
         return result;
@@ -183,9 +183,7 @@ public class NcGlskDatasetParser {
             .collect(Collectors.groupingBy(PowerBidScheduleData::remedialActionUri));
         Map<String, List<GlskPoint>> result = new HashMap<>();
 
-        // The availability of the remedial action (normalAvailable, overridden by the SSI profile) is not checked here:
-        // a GLSK only describes how a shift is distributed, whether the remedial action can be used is decided when the
-        // remedial action itself is imported
+        // For each RA, build its GLSK points according to its strategy and the bids of its SIS profile
         for (CountertradeRAData raData : countertradeRAs.values()) {
             if (raData.validityStart() == null || raData.validityEnd() == null
                 || !raData.validityEnd().isAfter(raData.validityStart())) {
@@ -336,7 +334,7 @@ public class NcGlskDatasetParser {
      * @param validityStart      start of the validity window declared in the header of the SIS profile
      * @param validityEnd        end of the validity window declared in the header of the SIS profile
      * @param timePoints         price and power of the bid, from the time they take effect
-     * @param glskSchedules      GLSK schedules binding the bid to its generating unit
+     * @param glskSchedules      GLSK schedules binding the bid to its resource
      */
     record PowerBidScheduleData(String uri, String mRID, String remedialActionUri, String direction,
                                 Instant validityStart, Instant validityEnd,
@@ -347,10 +345,10 @@ public class NcGlskDatasetParser {
      * Intermediate data of a GLSKSchedule (SIS profile).
      *
      * @param uri                  RDF identity of the GLSK schedule
-     * @param generatingUnit       mRID of the generating unit the schedule refers to
-     * @param participationFactors participation factor of the generating unit, from the time it takes effect
+     * @param resource             mRID of the resource (generating unit, load...) the schedule refers to
+     * @param participationFactors participation factor of the resource, from the time it takes effect
      */
-    record GlskScheduleData(String uri, String generatingUnit, NavigableMap<Instant, Double> participationFactors) {
+    record GlskScheduleData(String uri, String resource, NavigableMap<Instant, Double> participationFactors) {
     }
 
     /**

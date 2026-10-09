@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:a1c9e2b0-0000-4000-8000-000000000003">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XFR-RTE------Q</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-12T23:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-11T23:00:00Z</dcat:endDate>
+    <dcat:keyword>RA</dcat:keyword>
+  </md:FullModel>
+  <!-- The end of the validity window is before its start: the remedial action is ignored -->
+  <nc:CountertradeRemedialAction rdf:ID="_ra-empty-window">
+    <cim:IdentifiedObject.mRID>ra-empty-window</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-empty-window"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+</rdf:RDF>

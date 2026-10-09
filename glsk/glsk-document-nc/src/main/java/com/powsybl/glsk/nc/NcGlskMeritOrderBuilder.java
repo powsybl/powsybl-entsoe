@@ -30,9 +30,9 @@ import java.util.TreeSet;
  * Builds the merit order (explicitSchedule strategy) of a countertrade remedial action from the power bid schedules of
  * the SIS profile.
  * <p>
- * Each bid has a direction (up or down), a generating unit and a price/power time series. For a given instant, the bids
+ * Each bid has a direction (up or down), a resource and a price/power time series. For a given instant, the bids
  * in force are sorted by ascending price, separately for each direction, and each one becomes a step of the merit
- * order: a B45 shift key with the generating unit and its maximum (up) or minimum (down) reachable active power, whose
+ * order: a B45 shift key with the resource and its maximum (up) or minimum (down) reachable active power, whose
  * position is 1..N for the upward direction and -1..-N for the downward one.
  * <p>
  * The merit order changes over time, so one GLSK point is built for each period during which nothing changes: the
@@ -80,30 +80,27 @@ final class NcGlskMeritOrderBuilder {
      */
     private static boolean isSupported(CountertradeRAData remedialAction, PowerBidScheduleData bid) {
         String reason = null;
+        String bidName = bid.mRID() != null ? bid.mRID() : bid.uri();
         if (!UP.equals(bid.direction()) && !DOWN.equals(bid.direction())) {
             reason = "its direction is " + bid.direction() + " but only up and down are supported";
         } else if (bid.validityStart() == null || bid.validityEnd() == null || !bid.validityEnd().isAfter(bid.validityStart())) {
             reason = "its profile has no valid validity window";
         } else if (bid.glskSchedules().size() != 1) {
-            reason = "it must be bound to exactly one generating unit but is bound to " + bid.glskSchedules().size();
+            reason = "it must be bound to exactly one resource but is bound to " + bid.glskSchedules().size();
         } else if (bid.glskSchedules().getFirst().participationFactors().isEmpty()) {
-            reason = "its generating unit has no participation factor";
+            reason = "its resource has no participation factor";
         } else if (bid.timePoints().isEmpty()) {
             reason = "it has no price and power time point";
         }
         if (reason != null) {
-            LOGGER.warn("Power bid schedule {} of countertrade remedial action {} is ignored: {}", name(bid), remedialAction.mRID(), reason);
+            LOGGER.warn("Power bid schedule {} of countertrade remedial action {} is ignored: {}", bidName, remedialAction.mRID(), reason);
             return false;
         }
         if (bid.timePoints().values().stream().anyMatch(NcGlskMeritOrderBuilder::isIncomplete)) {
             LOGGER.warn("Power bid schedule {} of countertrade remedial action {} has time points without price or power: they are ignored",
-                name(bid), remedialAction.mRID());
+                bidName, remedialAction.mRID());
         }
         return true;
-    }
-
-    private static String name(PowerBidScheduleData bid) {
-        return bid.mRID() != null ? bid.mRID() : bid.uri();
     }
 
     private static boolean isIncomplete(PriceAndPower priceAndPower) {
@@ -127,9 +124,9 @@ final class NcGlskMeritOrderBuilder {
     }
 
     /**
-     * Resolves what a bid is at a given instant: the price and power in force, and its generating unit. The bid is not
+     * Resolves what a bid is at a given instant: the price and power in force, and its resource. The bid is not
      * part of the merit order if its profile is not valid at this instant, if none of its price and power time points
-     * has taken effect yet, or if its generating unit is not considered (participation factor not strictly positive).
+     * has taken effect yet, or if its resource is not considered (participation factor not strictly positive).
      */
     private static Optional<Step> resolveStep(PowerBidScheduleData bid, Instant instant) {
         if (instant.isBefore(bid.validityStart()) || !instant.isBefore(bid.validityEnd())) {
@@ -145,7 +142,7 @@ final class NcGlskMeritOrderBuilder {
             return Optional.empty();
         }
         return Optional.of(new Step(bid.uri(), bid.direction(), timePoint.getValue().price(), timePoint.getValue().power(),
-            schedule.generatingUnit(), participationFactor.getValue()));
+            schedule.resource(), participationFactor.getValue()));
     }
 
     private static GlskPoint createPoint(String zone, Interval interval, List<Step> steps) {
@@ -167,10 +164,10 @@ final class NcGlskMeritOrderBuilder {
             .toList();
         for (int i = 0; i < sortedSteps.size(); i++) {
             Step step = sortedSteps.get(i);
-            // The power of a bid is the maximum (up) or minimum (down) active power its generating unit can reach
+            // The power of a bid is the maximum (up) or minimum (down) active power its resource can reach
             NcGlskRegisteredResource resource = UP.equals(direction)
-                ? new NcGlskRegisteredResource(step.generatingUnit(), step.participationFactor(), null, step.power())
-                : new NcGlskRegisteredResource(step.generatingUnit(), step.participationFactor(), step.power(), null);
+                ? new NcGlskRegisteredResource(step.resource(), step.participationFactor(), null, step.power())
+                : new NcGlskRegisteredResource(step.resource(), step.participationFactor(), step.power(), null);
             shiftKeys.add(NcGlskShiftKey.meritOrderStep(interval, zone, sign * (i + 1), resource));
         }
     }
@@ -178,6 +175,6 @@ final class NcGlskMeritOrderBuilder {
     /**
      * A bid, as it is at a given instant.
      */
-    private record Step(String bidUri, String direction, double price, double power, String generatingUnit, double participationFactor) {
+    private record Step(String bidUri, String direction, double price, double power, String resource, double participationFactor) {
     }
 }

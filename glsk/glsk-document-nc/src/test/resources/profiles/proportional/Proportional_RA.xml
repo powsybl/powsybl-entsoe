@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:a1c9e2b0-0000-4000-8000-000000000001">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XFR-RTE------Q</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-11T23:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-12T23:00:00Z</dcat:endDate>
+    <dcat:keyword>RA</dcat:keyword>
+  </md:FullModel>
+  <!-- Supported strategy with its shift method: one point over the validity window of the profile -->
+  <nc:CountertradeRemedialAction rdf:ID="_ra-proportional">
+    <cim:IdentifiedObject.mRID>ra-proportional</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-proportional"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- normalAvailable=false does not matter: the GLSK is still built (availability is decided when the remedial action itself is imported) -->
+  <nc:CountertradeRemedialAction rdf:ID="_ra-unavailable">
+    <cim:IdentifiedObject.mRID>ra-unavailable</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>false</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-unavailable"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- explicitSchedule without any power bid schedule: no merit order can be built, the remedial action is ignored -->
+  <nc:CountertradeRemedialAction rdf:ID="_ra-explicit-without-bids">
+    <cim:IdentifiedObject.mRID>ra-explicit-without-bids</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-explicit-without-bids"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Strategies that are not supported (or not even known): the remedial action is ignored -->
+  <nc:CountertradeRemedialAction rdf:ID="_ra-generatorFlat">
+    <cim:IdentifiedObject.mRID>ra-generatorFlat</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-generatorFlat"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.generatorFlat"/>
+  </nc:CountertradeRemedialAction>
+  <nc:CountertradeRemedialAction rdf:ID="_ra-generatorPmax">
+    <cim:IdentifiedObject.mRID>ra-generatorPmax</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-generatorPmax"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.generatorPmax"/>
+  </nc:CountertradeRemedialAction>
+  <nc:CountertradeRemedialAction rdf:ID="_ra-loadFlat">
+    <cim:IdentifiedObject.mRID>ra-loadFlat</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-loadFlat"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.loadFlat"/>
+  </nc:CountertradeRemedialAction>
+  <nc:CountertradeRemedialAction rdf:ID="_ra-proportionalForLoad">
+    <cim:IdentifiedObject.mRID>ra-proportionalForLoad</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-proportionalForLoad"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForLoad"/>
+  </nc:CountertradeRemedialAction>
+  <nc:CountertradeRemedialAction rdf:ID="_ra-proportionalForGeneratorAndLoad">
+    <cim:IdentifiedObject.mRID>ra-proportionalForGeneratorAndLoad</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-proportionalForGeneratorAndLoad"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGeneratorAndLoad"/>
+  </nc:CountertradeRemedialAction>
+  <nc:CountertradeRemedialAction rdf:ID="_ra-proportionalForRemainingCapacity">
+    <cim:IdentifiedObject.mRID>ra-proportionalForRemainingCapacity</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-proportionalForRemainingCapacity"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForRemainingCapacity"/>
+  </nc:CountertradeRemedialAction>
+  <nc:CountertradeRemedialAction rdf:ID="_ra-explicitInstruction">
+    <cim:IdentifiedObject.mRID>ra-explicitInstruction</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-explicitInstruction"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitInstruction"/>
+  </nc:CountertradeRemedialAction>
+  <nc:CountertradeRemedialAction rdf:ID="_ra-unknownStrategy">
+    <cim:IdentifiedObject.mRID>ra-unknownStrategy</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-unknownStrategy"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.unknownStrategy"/>
+  </nc:CountertradeRemedialAction>
+</rdf:RDF>
