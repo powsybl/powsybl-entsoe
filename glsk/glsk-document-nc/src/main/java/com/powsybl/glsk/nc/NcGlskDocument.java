@@ -192,13 +192,13 @@ public final class NcGlskDocument implements GlskDocument {
             return Files.createTempFile("ncGlsk", ".tmp", attr).toFile();
         } else {
             File tempFile = Files.createTempFile("ncGlsk", ".tmp").toFile();
-//            tempFile.setReadable(true, true);
-//            tempFile.setWritable(true, true);
-//            tempFile.setExecutable(true, true);
 
             boolean tempFileOk = tempFile.setReadable(true, true) &&
                     tempFile.setWritable(true, true) &&
                     tempFile.setExecutable(true, true);
+            if (!tempFileOk) {
+                LOGGER.warn("Failed to set permissions on temporary file: {}", tempFile.getAbsolutePath());
+            }
             return tempFile;
         }
     }
@@ -239,7 +239,8 @@ public final class NcGlskDocument implements GlskDocument {
             .orElseGet(() -> {
                 LOGGER.warn("No resource of the merit order of zone {} could be found in the network: there is nothing to scale",
                     glskPoint.getSubjectDomainmRID());
-                return Scalable.upDown(Scalable.stack(new Scalable[0]), Scalable.stack(new Scalable[0]));
+                Scalable[] noScalable = {};
+                return Scalable.upDown(Scalable.stack(noScalable), Scalable.stack(noScalable));
             });
     }
 
