@@ -35,6 +35,8 @@ import java.util.zip.ZipInputStream;
 public class NcGlskDocumentImporter extends AbstractGlskDocumentImporter implements GlskDocumentImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NcGlskDocumentImporter.class);
     private static final int HEADER_SIZE = 64 * 1024;
+    private static final int MAX_NB_ENTRIES = 200;
+    private static final int MAX_SIZE_ENTRY = 1_000_000_000;
     private static final Pattern KEYWORD = Pattern.compile("<(?:[\\w.-]+:)?keyword>([^<]*)<");
     private static final Pattern CREATOR = Pattern.compile("<(?:[\\w.-]+:)?creator>([^<]*)<");
 
@@ -75,7 +77,9 @@ public class NcGlskDocumentImporter extends AbstractGlskDocumentImporter impleme
     private static boolean isNcProfileZip(InputStream inputStream) {
         try (ZipInputStream zis = new ZipInputStream(inputStream)) {
             ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
+            int countEntries = 0;
+            while ((entry = zis.getNextEntry()) != null && countEntries < MAX_NB_ENTRIES) {
+                countEntries++;
                 if (!entry.isDirectory() && isGlskProfile(zis)) {
                     return true;
                 }
@@ -101,7 +105,7 @@ public class NcGlskDocumentImporter extends AbstractGlskDocumentImporter impleme
             case REMEDIAL_ACTION -> "CountertradeRemedialAction";
             case STATE_INSTRUCTION_SCHEDULE -> "GLSKSchedule";
         };
-        String content = header + new String(entry.readAllBytes(), StandardCharsets.UTF_8);
+        String content = header + new String(entry.readNBytes(MAX_SIZE_ENTRY), StandardCharsets.UTF_8);
         return content.contains(requiredClass);
     }
 
