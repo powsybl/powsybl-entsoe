@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -124,7 +125,7 @@ class CneExporterTest extends AbstractSerDeTest {
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(Collections.singletonList(violation1));
         LimitViolationsResult postContingencyLimitViolationResult = new LimitViolationsResult(Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED,
-                postContingencyLimitViolationResult, NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN);
+                postContingencyLimitViolationResult, NetworkResult.empty(), ConnectivityResult.empty(), Double.NaN, List.of());
         // Create SecurityAnalysisResult
         return new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED, Collections.singletonList(postContingencyResult));
     }
