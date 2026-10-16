@@ -1,0 +1,105 @@
+#
+# Copyright (c) 2026, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: countertradeRemedialActions
+# Countertrade remedial actions with their GLSK strategy (RA profile), together with the validity window declared
+# in the header of the profile they belong to (both are matched in the same graph, i.e. in the same file)
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT ?ra ?mRID ?biddingZone ?glskStrategy ?shiftMethod ?startDate ?endDate
+WHERE {
+    GRAPH ?graph {
+        ?ra rdf:type nc:CountertradeRemedialAction .
+        ?ra cim:IdentifiedObject.mRID ?mRID .
+        ?ra nc:PowerRemedialAction.BiddingZone ?biddingZone .
+        ?ra nc:CountertradeRemedialAction.gLSKStrategy ?glskStrategy .
+        OPTIONAL { ?ra nc:CountertradeRemedialAction.shiftMethod ?shiftMethod }
+        OPTIONAL {
+            ?fullModel rdf:type md:FullModel .
+            ?fullModel dcat:startDate ?startDate .
+            ?fullModel dcat:endDate ?endDate .
+        }
+    }
+}
+
+# query: powerBidSchedules
+# Power bid schedules (SIS profile) with the countertrade remedial action they belong to, together with the validity
+# window declared in the header of their profile (both are matched in the same graph, i.e. in the same file).
+# The objects are linked by their RDF identity (URI), which is what the associations of the profile refer to, and not by their mRID.
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+PREFIX cim: <http://iec.ch/TC57/CIM100#>
+PREFIX md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+SELECT ?pbs ?pbsID ?ra ?direction ?startDate ?endDate
+WHERE {
+    GRAPH ?graph {
+        ?pbs rdf:type nc:PowerBidSchedule .
+        ?pbs nc:PowerBidSchedule.PowerRemedialAction ?ra .
+        ?pbs nc:PowerBidSchedule.direction ?direction .
+        OPTIONAL { ?pbs cim:IdentifiedObject.mRID ?pbsID }
+        OPTIONAL {
+            ?fullModel rdf:type md:FullModel .
+            ?fullModel dcat:startDate ?startDate .
+            ?fullModel dcat:endDate ?endDate .
+        }
+    }
+}
+
+# query: glskSchedules
+# Resource of each power bid schedule, through its GLSKBidActionDistribution and GLSKSchedule (SIS profile). A GLSK schedule
+# refers to its resource with the association of the class of the resource: GeneratingUnit, PowerElectronicsUnit,
+# EnergyGroup, EnergyBlockOrder, HydroPump, ScheduleResource or EnergyConsumer
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT ?pbs ?glskSchedule ?resource
+WHERE {
+    ?dist rdf:type nc:GLSKBidActionDistribution .
+    ?dist nc:GLSKBidActionDistribution.PowerBidSchedule ?pbs .
+    ?dist nc:GLSKBidActionDistribution.GLSKSchedule ?glskSchedule .
+    ?glskSchedule (nc:GLSKSchedule.GeneratingUnit|nc:GLSKSchedule.PowerElectronicsUnit|nc:GLSKSchedule.EnergyGroup
+        |nc:GLSKSchedule.EnergyBlockOrder|nc:GLSKSchedule.HydroPump|nc:GLSKSchedule.ScheduleResource
+        |nc:GLSKSchedule.EnergyConsumer) ?resource .
+}
+
+# query: participationFactorTimePoints
+# Participation factors per time point of each GLSK schedule (SIS profile)
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT ?glskSchedule ?atTime ?participationFactor
+WHERE {
+    ?pftp rdf:type nc:ParticipationFactorTimePoint .
+    ?pftp nc:ParticipationFactorTimePoint.GLSKSchedule ?glskSchedule .
+    ?pftp nc:ParticipationFactorTimePoint.atTime ?atTime .
+    ?pftp nc:ParticipationFactorTimePoint.participationFactor ?participationFactor .
+}
+
+# query: powerBidScheduleTimePoints
+# Power and price time points of each power bid schedule (SIS profile)
+PREFIX nc: <http://entsoe.eu/ns/nc#>
+SELECT ?pbs ?atTime ?power ?price
+WHERE {
+    ?pbstp rdf:type nc:PowerBidScheduleTimePoint .
+    ?pbstp nc:PowerBidScheduleTimePoint.PowerBidSchedule ?pbs .
+    ?pbstp nc:PowerBidScheduleTimePoint.atTime ?atTime .
+    OPTIONAL { ?pbstp nc:PowerBidScheduleTimePoint.p ?power }
+    OPTIONAL { ?pbstp nc:PowerBidScheduleTimePoint.price ?price }
+}
+
+# query: headers
+# Validity dates and metadata of the profile headers
+PREFIX md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/#>
+SELECT ?startDate ?endDate ?keyword ?version ?creator
+WHERE {
+    ?fullModel rdf:type md:FullModel .
+    ?fullModel dcat:startDate ?startDate .
+    ?fullModel dcat:endDate ?endDate .
+    ?fullModel dcat:keyword ?keyword .
+    OPTIONAL { ?fullModel dcat:version ?version }
+    OPTIONAL { ?fullModel dcterms:creator ?creator }
+}
