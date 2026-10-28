@@ -21,7 +21,7 @@
     <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
     <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
   </nc:CountertradeRemedialAction>
-  <!-- normalAvailable=false does not matter: the GLSK is still built (availability is decided when the remedial action itself is imported) -->
+  <!-- normalAvailable=false and nothing else says otherwise: the remedial action is not available, so no GLSK is built for it -->
   <nc:CountertradeRemedialAction rdf:ID="_ra-unavailable">
     <cim:IdentifiedObject.mRID>ra-unavailable</cim:IdentifiedObject.mRID>
     <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>

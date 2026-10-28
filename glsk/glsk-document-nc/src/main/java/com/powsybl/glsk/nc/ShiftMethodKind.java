@@ -24,21 +24,34 @@ enum ShiftMethodKind {
     PRIORITY("priority"),
     SHARED("shared");
 
+    private static final String URL = NcConstants.ENTSOE_NS_NC_URL + "#ShiftMethodKind.";
+
     private final String value;
 
     ShiftMethodKind(String value) {
         this.value = value;
     }
 
+    /**
+     * @return the name of the literal, e.g. "shared"
+     */
     String value() {
         return value;
     }
 
     /**
-     * @param value the name of a shift method, e.g. "shared"
-     * @return the shift method, or empty if it is not a known ShiftMethodKind value
+     * @return the URL of the literal in the profiles
      */
-    static Optional<ShiftMethodKind> fromValue(String value) {
-        return Arrays.stream(values()).filter(kind -> kind.value.equals(value)).findFirst();
+    @Override
+    public String toString() {
+        return URL + value;
+    }
+
+    /**
+     * @param url the URL of a literal, as found in a profile
+     * @return the shift method, or empty if it is missing or not the URL of a ShiftMethodKind literal
+     */
+    static Optional<ShiftMethodKind> fromUrl(String url) {
+        return Arrays.stream(values()).filter(kind -> kind.toString().equals(url)).findFirst();
     }
 }

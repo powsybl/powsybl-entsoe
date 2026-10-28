@@ -47,8 +47,8 @@ class NcGlskDocumentImporterTest {
         assertTrue(importer.canImport(new ByteArrayInputStream(zipTestCase("proportional-fr"))));
     }
 
-    private static boolean canImport(String profile) {
-        return new NcGlskDocumentImporter().canImport(new ByteArrayInputStream(zipTestCase("detection", profile)));
+    private static boolean canImport(String... profiles) {
+        return new NcGlskDocumentImporter().canImport(new ByteArrayInputStream(zipTestCase("detection", profiles)));
     }
 
     @Test
@@ -61,9 +61,15 @@ class NcGlskDocumentImporterTest {
     @Test
     void canImportProfilesWhateverTheNameOfTheirFile() {
         assertTrue(canImport("Detection_RA.xml"));
-        assertTrue(canImport("Detection_SIS.xml"));
         // The name of the file suggests an RA profile, but its header says otherwise
         assertFalse(canImport("Detection_AE_RA_001.xml"));
+    }
+
+    @Test
+    void anRaProfileIsRequiredAndTheSisProfileIsOptional() {
+        // A SIS profile alone has no remedial action to build a GLSK for
+        assertFalse(canImport("Detection_SIS.xml"));
+        assertTrue(canImport("Detection_RA.xml", "Detection_SIS.xml"));
     }
 
     @Test

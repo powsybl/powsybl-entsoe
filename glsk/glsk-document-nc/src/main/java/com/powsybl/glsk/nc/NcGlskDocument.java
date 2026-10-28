@@ -32,7 +32,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -79,10 +78,11 @@ public final class NcGlskDocument implements GlskDocument {
     public static NcGlskDocument importGlsk(InputStream zipInputStream) {
         try {
             // Load ZIP contents into TripleStore
-            TripleStore tripleStore = loadZipToTripleStore(zipInputStream);
+            Map<String, Set<String>> keywordMap = new HashMap<>();
+            TripleStore tripleStore = loadZipToTripleStore(zipInputStream, keywordMap);
 
             // Parse NC Profiles and build GLSK structure
-            NcGlskDatasetParser parser = new NcGlskDatasetParser(tripleStore);
+            NcGlskDatasetParser parser = new NcGlskDatasetParser(tripleStore, keywordMap);
             Map<String, List<GlskPoint>> pointsByZone = parser.parse();
             Instant start = parser.getValidityStart();
             Instant end = parser.getValidityEnd();
@@ -106,13 +106,12 @@ public final class NcGlskDocument implements GlskDocument {
      * Load ZIP file contents into TripleStore.
      *
      * @param zipInputStream Input stream of ZIP file
+     * @param keywordMap     filled with the contexts (one per file) of each profile keyword found in the headers
      * @return TripleStore with loaded RDF data
      * @throws IOException if ZIP reading fails
      */
-    private static TripleStore loadZipToTripleStore(InputStream zipInputStream) throws IOException {
+    private static TripleStore loadZipToTripleStore(InputStream zipInputStream, Map<String, Set<String>> keywordMap) throws IOException {
         TripleStore tripleStore = TripleStoreFactory.create(NcConstants.TRIPLESTORE_RDF4J_NAME);
-        Map<String, Set<String>> keywordMap = new HashMap<>();
-        Pattern keywordPattern = Pattern.compile("<dcat:keyword>([A-Z]{2,3})</dcat:keyword>");
 
         int maxNbEntries = 200;
         int maxSizeEntry = 1_000_000_000;
@@ -123,7 +122,7 @@ public final class NcGlskDocument implements GlskDocument {
             while ((zipEntry = zis.getNextEntry()) != null && countEntries < maxNbEntries) {
                 countEntries++;
                 if (!zipEntry.isDirectory()) {
-                    loadZipEntry(zipEntry, zis, maxSizeEntry, keywordPattern, keywordMap, tripleStore);
+                    loadZipEntry(zipEntry, zis, maxSizeEntry, keywordMap, tripleStore);
                 }
             }
         }
@@ -132,16 +131,17 @@ public final class NcGlskDocument implements GlskDocument {
     }
 
     /**
-     * Load individual ZIP entry into TripleStore
+     * Load individual ZIP entry into TripleStore. The keyword of the profile is read in its header, and the context of the
+     * file (the name under which its triples are stored) is registered for this keyword.
      */
     private static void loadZipEntry(ZipEntry zipEntry,
                                      ZipInputStream zipInputStream,
                                      int maxSizeEntry,
-                                     Pattern keywordPattern,
                                      Map<String, Set<String>> keywordMap,
                                      TripleStore tripleStore) throws IOException {
         File tempFile = createTempFile();
         int currentSizeEntry = 0;
+        ByteArrayOutputStream header = new ByteArrayOutputStream();
 
         try {
             // Write ZIP entry to temporary file
@@ -152,17 +152,18 @@ public final class NcGlskDocument implements GlskDocument {
 
                 while ((nBytes = in.read(buffer)) > 0 && currentSizeEntry < maxSizeEntry) {
                     out.write(buffer, 0, nBytes);
-                    currentSizeEntry += nBytes;
-
-                    // Extract keyword from buffer
-                    String stringBuffer = new String(buffer, StandardCharsets.UTF_8);
-                    Matcher matcher = keywordPattern.matcher(stringBuffer);
-                    if (matcher.find()) {
-                        String keyword = matcher.group(1);
-                        keywordMap.computeIfAbsent(keyword, k -> new HashSet<>())
-                                  .add("contexts:" + zipEntry.getName());
+                    if (header.size() < NcGlskDocumentImporter.HEADER_SIZE) {
+                        header.write(buffer, 0, Math.min(nBytes, NcGlskDocumentImporter.HEADER_SIZE - header.size()));
                     }
+                    currentSizeEntry += nBytes;
                 }
+            }
+
+            // The keyword is in the header of the profile, which is read as a whole (it may span several buffers)
+            Matcher matcher = NcGlskDocumentImporter.KEYWORD.matcher(header.toString(StandardCharsets.UTF_8));
+            if (matcher.find()) {
+                keywordMap.computeIfAbsent(matcher.group(1).trim(), keyword -> new HashSet<>())
+                          .add("contexts:" + zipEntry.getName());
             }
 
             // Read RDF from temporary file into TripleStore
@@ -188,7 +189,7 @@ public final class NcGlskDocument implements GlskDocument {
     private static File createTempFile() throws IOException {
         if (SystemUtils.IS_OS_UNIX) {
             FileAttribute<Set<PosixFilePermission>> attr =
-                PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
             return Files.createTempFile("ncGlsk", ".tmp", attr).toFile();
         } else {
             File tempFile = Files.createTempFile("ncGlsk", ".tmp").toFile();
@@ -235,13 +236,13 @@ public final class NcGlskDocument implements GlskDocument {
      */
     private static Scalable toScalable(Network network, GlskPoint glskPoint) {
         return NcGlskResourceResolver.resolve(network, glskPoint)
-            .map(resolvedPoint -> GlskPointScalableConverter.convert(network, resolvedPoint))
-            .orElseGet(() -> {
-                LOGGER.warn("No resource of the merit order of zone {} could be found in the network: there is nothing to scale",
-                    glskPoint.getSubjectDomainmRID());
-                Scalable[] noScalable = {};
-                return Scalable.upDown(Scalable.stack(noScalable), Scalable.stack(noScalable));
-            });
+                .map(resolvedPoint -> GlskPointScalableConverter.convert(network, resolvedPoint))
+                .orElseGet(() -> {
+                    LOGGER.warn("No resource of the merit order of zone {} could be found in the network: there is nothing to scale",
+                            glskPoint.getSubjectDomainmRID());
+                    Scalable[] noScalable = {};
+                    return Scalable.upDown(Scalable.stack(noScalable), Scalable.stack(noScalable));
+                });
     }
 
     /**

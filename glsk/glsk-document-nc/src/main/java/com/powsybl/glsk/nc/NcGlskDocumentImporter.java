@@ -26,18 +26,18 @@ import java.util.zip.ZipInputStream;
 
 /**
  * Importer for NC Profile GLSK documents.
- * Detects and imports GLSK data from NC Profile ZIP files containing RA and SIS profiles. The detection relies on the
- * header of the profiles (keyword and creator).
+ * Detects and imports GLSK data from NC Profile ZIP files containing an RA profile, and optionally SIS and SSI profiles.
+ * The detection relies on the header of the profiles (keyword and creator).
  *
  * @author Víctor Cardozo {@literal <victor.cardozo@artelys.com>}
  */
 @AutoService(GlskDocumentImporter.class)
 public class NcGlskDocumentImporter extends AbstractGlskDocumentImporter implements GlskDocumentImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NcGlskDocumentImporter.class);
-    private static final int HEADER_SIZE = 64 * 1024;
+    static final int HEADER_SIZE = 64 * 1024;
     private static final int MAX_NB_ENTRIES = 200;
     private static final int MAX_SIZE_ENTRY = 1_000_000_000;
-    private static final Pattern KEYWORD = Pattern.compile("<(?:[\\w.-]+:)?keyword>([^<]*)<");
+    static final Pattern KEYWORD = Pattern.compile("<(?:[\\w.-]+:)?keyword>([^<]*)<");
     private static final Pattern CREATOR = Pattern.compile("<(?:[\\w.-]+:)?creator>([^<]*)<");
 
     @Override
@@ -55,7 +55,7 @@ public class NcGlskDocumentImporter extends AbstractGlskDocumentImporter impleme
             markableStream.reset();
 
             if (isNcGlsk) {
-                LOGGER.info("NC GLSK importer detected an NC Profile ZIP with RA or SIS profiles.");
+                LOGGER.info("NC GLSK importer detected an NC Profile ZIP with an RA profile.");
             } else {
                 LOGGER.debug("NC GLSK importer could not detect NC Profile format.");
             }
@@ -67,12 +67,10 @@ public class NcGlskDocumentImporter extends AbstractGlskDocumentImporter impleme
     }
 
     /**
-     * Checks that the archive contains a profile that carries GLSK data. The profiles are recognised by the metadata of
-     * their header, never by the name of their file:
-     * <ul>
-     *     <li>an RA profile: keyword RA, a creator, and a CountertradeRemedialAction;</li>
-     *     <li>a SIS profile: keyword SIS, a creator, and a GLSKSchedule.</li>
-     * </ul>
+     * Checks that the archive contains an RA profile: without it there is no remedial action to build a GLSK for. The SIS
+     * profile (bids and availability schedules) and the SSI profile (availability) are optional: a proportionalForGenerator
+     * remedial action needs neither. The profile is recognised by the metadata of its header, never by the name of its file:
+     * keyword RA, a creator, and a CountertradeRemedialAction.
      */
     private static boolean isNcProfileZip(InputStream inputStream) {
         try (ZipInputStream zis = new ZipInputStream(inputStream)) {
@@ -80,7 +78,7 @@ public class NcGlskDocumentImporter extends AbstractGlskDocumentImporter impleme
             int countEntries = 0;
             while ((entry = zis.getNextEntry()) != null && countEntries < MAX_NB_ENTRIES) {
                 countEntries++;
-                if (!entry.isDirectory() && isGlskProfile(zis)) {
+                if (!entry.isDirectory() && isRaProfile(zis)) {
                     return true;
                 }
             }
@@ -92,21 +90,17 @@ public class NcGlskDocumentImporter extends AbstractGlskDocumentImporter impleme
     }
 
     /**
-     * @param entry the content of a ZIP entry; the header is read first, and the rest only if the profile is an RA or SIS one
+     * @param entry the content of a ZIP entry; the header is read first, and the rest only if the profile is an RA one
      */
-    private static boolean isGlskProfile(InputStream entry) throws IOException {
+    private static boolean isRaProfile(InputStream entry) throws IOException {
         byte[] head = entry.readNBytes(HEADER_SIZE);
         String header = new String(head, StandardCharsets.UTF_8);
         Optional<NcKeyword> keyword = NcKeyword.fromValue(headerValue(KEYWORD, header));
-        if (keyword.isEmpty() || headerValue(CREATOR, header) == null) {
+        if (keyword.isEmpty() || keyword.get() != NcKeyword.REMEDIAL_ACTION || headerValue(CREATOR, header) == null) {
             return false;
         }
-        String requiredClass = switch (keyword.get()) {
-            case REMEDIAL_ACTION -> "CountertradeRemedialAction";
-            case STATE_INSTRUCTION_SCHEDULE -> "GLSKSchedule";
-        };
         String content = header + new String(entry.readNBytes(MAX_SIZE_ENTRY), StandardCharsets.UTF_8);
-        return content.contains(requiredClass);
+        return content.contains("CountertradeRemedialAction");
     }
 
     private static String headerValue(Pattern pattern, String header) {

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:a8d6f9c7-0000-4000-8000-000000000602">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XES-REE------E</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/StateInstructionSchedule-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-12T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-13T00:00:00Z</dcat:endDate>
+    <dcat:keyword>SIS</dcat:keyword>
+  </md:FullModel>
+  <!-- Unavailable at 00:00, available from 06:00 -->
+  <nc:GenericAvailableSchedule rdf:ID="_sched-av-sis-over-ra">
+    <cim:IdentifiedObject.mRID>sched-av-sis-over-ra</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+    <nc:GenericAvailableSchedule.RemedialAction rdf:resource="#_av-sis-over-ra"/>
+  </nc:GenericAvailableSchedule>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-av-sis-over-ra-0">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-sis-over-ra"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T00:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-av-sis-over-ra-1">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-sis-over-ra"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>true</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <!-- Available at 00:00, unavailable at 06:00, available again at 12:00 -->
+  <nc:GenericAvailableSchedule rdf:ID="_sched-av-sis-schedule">
+    <cim:IdentifiedObject.mRID>sched-av-sis-schedule</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+    <nc:GenericAvailableSchedule.RemedialAction rdf:resource="#_av-sis-schedule"/>
+  </nc:GenericAvailableSchedule>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-av-sis-schedule-0">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-sis-schedule"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T00:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>true</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-av-sis-schedule-1">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-sis-schedule"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-av-sis-schedule-2">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-sis-schedule"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T12:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>true</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <!-- Unavailable at 00:00: the only time point holds the whole day -->
+  <nc:GenericAvailableSchedule rdf:ID="_sched-av-ssi-over-sis">
+    <cim:IdentifiedObject.mRID>sched-av-ssi-over-sis</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+    <nc:GenericAvailableSchedule.RemedialAction rdf:resource="#_av-ssi-over-sis"/>
+  </nc:GenericAvailableSchedule>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-av-ssi-over-sis-0">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-ssi-over-sis"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T00:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <!-- Bids of the explicit schedule remedial actions -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-av-explicit-ssi-false-1">
+    <cim:IdentifiedObject.mRID>pbs-av-explicit-ssi-false-1</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_av-explicit-ssi-false"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-av-explicit-ssi-false-1">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-av-explicit-ssi-false-1"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>1</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-av-explicit-ssi-false-1">
+    <cim:IdentifiedObject.mRID>glsk-av-explicit-ssi-false-1</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-av-explicit-ssi-false-1">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-av-explicit-ssi-false-1"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-av-explicit-ssi-false-1"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-av-explicit-ssi-false-1">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-av-explicit-ssi-false-1"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-av-explicit-unavailable-1">
+    <cim:IdentifiedObject.mRID>pbs-av-explicit-unavailable-1</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_av-explicit-unavailable"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-av-explicit-unavailable-1">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-av-explicit-unavailable-1"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>1</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-av-explicit-unavailable-1">
+    <cim:IdentifiedObject.mRID>glsk-av-explicit-unavailable-1</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-b"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-av-explicit-unavailable-1">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-av-explicit-unavailable-1"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-av-explicit-unavailable-1"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-av-explicit-unavailable-1">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-av-explicit-unavailable-1"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <!-- RemedialAction.available in a profile whose keyword is not SSI: it is not read -->
+  <nc:CountertradeRemedialAction rdf:about="#_av-not-ssi">
+    <nc:RemedialAction.available>false</nc:RemedialAction.available>
+  </nc:CountertradeRemedialAction>
+</rdf:RDF>

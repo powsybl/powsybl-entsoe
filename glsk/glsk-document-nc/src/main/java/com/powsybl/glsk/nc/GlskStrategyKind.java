@@ -6,13 +6,13 @@
  */
 package com.powsybl.glsk.nc;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
+ * GLSKStrategyKind enumeration of the NC profiles: the strategy used to build the GLSK of a countertrade remedial action.
+ * The importer only supports {@link #PROPORTIONAL_FOR_GENERATOR} and {@link #EXPLICIT_SCHEDULE}.
+ *
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
  */
 public enum GlskStrategyKind {
@@ -26,37 +26,35 @@ public enum GlskStrategyKind {
     PROPORTIONAL_FOR_GENERATOR_AND_LOAD("proportionalForGeneratorAndLoad"),
     PROPORTIONAL_FOR_LOAD("proportionalForLoad"),
     PROPORTIONAL_FOR_REMAINING_CAPACITY("proportionalForRemainingCapacity");
-    private final String value;
-    private static final Map<String, GlskStrategyKind> CONSTANTS = new HashMap<>();
 
-    static {
-        for (GlskStrategyKind c : values()) {
-            CONSTANTS.put(c.value, c);
-        }
-    }
+    private static final String URL = NcConstants.ENTSOE_NS_NC_URL + "#GLSKStrategyKind.";
+
+    private final String value;
 
     GlskStrategyKind(String value) {
         this.value = value;
     }
 
+    /**
+     * @return the name of the literal, e.g. "explicitSchedule"
+     */
+    public String value() {
+        return value;
+    }
+
+    /**
+     * @return the URL of the literal in the profiles
+     */
     @Override
     public String toString() {
-        return this.value;
+        return URL + value;
     }
 
-    @JsonValue
-    public String value() {
-        return this.value;
+    /**
+     * @param url the URL of a literal, as found in a profile
+     * @return the strategy, or empty if it is missing or not the URL of a GLSKStrategyKind literal
+     */
+    public static Optional<GlskStrategyKind> fromUrl(String url) {
+        return Arrays.stream(values()).filter(kind -> kind.toString().equals(url)).findFirst();
     }
-
-    @JsonCreator
-    public static GlskStrategyKind fromValue(String value) {
-        GlskStrategyKind constant = CONSTANTS.get(value);
-        if (constant == null) {
-            throw new IllegalArgumentException(value);
-        } else {
-            return constant;
-        }
-    }
-
 }

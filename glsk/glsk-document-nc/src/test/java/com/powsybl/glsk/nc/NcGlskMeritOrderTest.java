@@ -74,6 +74,11 @@ class NcGlskMeritOrderTest {
      * Checks a step of the merit order: its position, its generating unit, and its maximum (up) or minimum (down) power.
      */
     private static void assertStep(GlskShiftKey shiftKey, String remedialAction, int position, String generatingUnit, Double minimumCapacity, Double maximumCapacity) {
+        assertStep(shiftKey, remedialAction, position, generatingUnit, 1.0, minimumCapacity, maximumCapacity);
+    }
+
+    private static void assertStep(GlskShiftKey shiftKey, String remedialAction, int position, String generatingUnit, double participationFactor,
+                                   Double minimumCapacity, Double maximumCapacity) {
         assertEquals("B45", shiftKey.getBusinessType());
         assertEquals("A04", shiftKey.getPsrType());
         assertEquals(zone(remedialAction), shiftKey.getSubjectDomainmRID());
@@ -82,7 +87,7 @@ class NcGlskMeritOrderTest {
         assertEquals(1, shiftKey.getRegisteredResourceArrayList().size());
         GlskRegisteredResource resource = shiftKey.getRegisteredResourceArrayList().getFirst();
         assertEquals(generatingUnit, resource.getmRID());
-        assertEquals(1.0, resource.getParticipationFactor());
+        assertEquals(participationFactor, resource.getParticipationFactor());
         assertEquals(Optional.ofNullable(minimumCapacity), resource.getMinimumCapacity());
         assertEquals(Optional.ofNullable(maximumCapacity), resource.getMaximumCapacity());
     }
@@ -192,6 +197,8 @@ class NcGlskMeritOrderTest {
         assertStep(point.getGlskShiftKeys().getFirst(), ra, 1, "unit-a", null, 100.);
         assertTrue(warningsAbout(ra + "-b").getFirst().contains("its direction is upAndDown but only up and down are supported"));
         assertTrue(warningsAbout(ra + "-c").getFirst().contains("its direction is stable but only up and down are supported"));
+        // A literal of another enumeration (RelativeDirectionKind.up) is not a BidDirectionKind literal
+        assertTrue(warningsAbout(ra + "-d").getFirst().contains("its direction is up but only up and down are supported"));
     }
 
     @Test
@@ -215,24 +222,48 @@ class NcGlskMeritOrderTest {
     }
 
     @Test
-    void resourceWithoutParticipationIsNotConsidered() {
+    void participationFactorIsPassedAsItIs() {
         String ra = "mo-participation-zero";
         GlskPoint point = onlyPoint(ra);
 
-        assertEquals(1, point.getGlskShiftKeys().size());
-        assertStep(point.getGlskShiftKeys().getFirst(), ra, 1, "unit-a", null, 100.);
+        // The unit of the bid b has a factor of 0: it is not excluded, and its factor is passed as it is
+        assertEquals(2, point.getGlskShiftKeys().size());
+        assertStep(point.getGlskShiftKeys().getFirst(), ra, 1, "unit-b", 0.0, null, 200.);
+        assertStep(point.getGlskShiftKeys().get(1), ra, 2, "unit-a", null, 100.);
+        assertEquals(0.0, point.getGlskShiftKeys().getFirst().getRegisteredResourceArrayList().getFirst().getParticipationFactor());
+        assertEquals(1.0, point.getGlskShiftKeys().get(1).getRegisteredResourceArrayList().getFirst().getParticipationFactor());
+        assertEquals(List.of(), warningsAbout(ra + "-a"));
         assertEquals(List.of(), warningsAbout(ra + "-b"));
     }
 
     @Test
-    void resourceIsConsideredFromItsParticipationFactor() {
-        String ra = "mo-participation-from-noon";
-        assertEquals(2, document.getGlskPoints(zone(ra)).size());
+    void severalParticipationFactorsAreReportedAndTheFirstOneIsUsed() {
+        String ra = "mo-participation-changes";
+        GlskPoint point = onlyPoint(ra);
 
-        assertEquals(1, pointAt(ra, START).getGlskShiftKeys().size());
-        GlskPoint afternoon = pointAt(ra, NOON);
-        assertEquals(2, afternoon.getGlskShiftKeys().size());
-        assertStep(afternoon.getGlskShiftKeys().getFirst(), ra, 1, "unit-b", null, 200.);
+        assertEquals(0.5, point.getGlskShiftKeys().getFirst().getRegisteredResourceArrayList().getFirst().getParticipationFactor());
+        assertTrue(warningsAbout(ra).getFirst().contains("has several participation factors: the first one is used"));
+    }
+
+    @Test
+    void bidWithoutParticipationFactorIsKeptWithAFactorOfOne() {
+        String ra = "mo-participation-missing";
+        GlskPoint point = onlyPoint(ra);
+
+        assertEquals(1, point.getGlskShiftKeys().size());
+        assertStep(point.getGlskShiftKeys().getFirst(), ra, 1, "unit-a", null, 100.);
+        assertEquals(List.of(), warningsAbout(ra));
+    }
+
+    @Test
+    void participationFactorTimeDoesNotChangeTheMeritOrder() {
+        String ra = "mo-participation-from-noon";
+
+        // The factor of the unit of the bid b takes effect at noon, which neither splits the period nor excludes the unit before
+        GlskPoint point = onlyPoint(ra);
+        assertEquals(2, point.getGlskShiftKeys().size());
+        assertStep(point.getGlskShiftKeys().getFirst(), ra, 1, "unit-b", null, 200.);
+        assertEquals(List.of(), warningsAbout(ra + "-b"));
     }
 
     @Test

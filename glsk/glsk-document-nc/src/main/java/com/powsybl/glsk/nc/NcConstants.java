@@ -21,6 +21,11 @@ public final class NcConstants {
 
     public static final String RDF_BASE_URL = "http://entsoe.eu";
 
+    /**
+     * namespace of the NC profiles, which the URL of the literals of its enumerations starts with
+     */
+    public static final String ENTSOE_NS_NC_URL = "http://entsoe.eu/ns/nc";
+
     public static final String TRIPLESTORE_RDF4J_NAME = "rdf4j";
 
     /**
@@ -46,6 +51,8 @@ public final class NcConstants {
     public static final String QUERY_PARTICIPATION_FACTOR_TIME_POINTS = "participationFactorTimePoints";
     public static final String QUERY_POWER_BID_SCHEDULE_TIME_POINTS = "powerBidScheduleTimePoints";
     public static final String QUERY_HEADERS = "headers";
+    public static final String QUERY_AVAILABILITY_TIME_POINTS = "availabilityTimePoints";
+    public static final String QUERY_REMEDIAL_ACTION_AVAILABLE = "remedialActionAvailable";
 
     /**
      * constants to request file headers

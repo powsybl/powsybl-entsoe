@@ -22,9 +22,12 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -39,28 +42,56 @@ public class NcGlskDatasetParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(NcGlskDatasetParser.class);
 
     private final TripleStore tripleStore;
+    private final Map<String, Set<String>> keywordMap;
     private final QueryCatalog queryCatalog;
     private final Map<String, CountertradeRAData> countertradeRAs;
+    private final Map<String, NcRemedialActionAvailability> availabilities;
     private Instant validityStart;
     private Instant validityEnd;
 
-    public NcGlskDatasetParser(TripleStore tripleStore) {
+    /**
+     * @param tripleStore the triples of the profiles, one context per file
+     * @param keywordMap  the contexts of the files of each profile keyword (RA, SIS, SSI)
+     */
+    public NcGlskDatasetParser(TripleStore tripleStore, Map<String, Set<String>> keywordMap) {
         this.tripleStore = tripleStore;
+        this.keywordMap = keywordMap;
         this.queryCatalog = new QueryCatalog(NcConstants.SPARQL_FILE_NC_PROFILE);
         this.countertradeRAs = new HashMap<>();
+        this.availabilities = new HashMap<>();
     }
 
     /**
-     * Runs a query of the NC GLSK query catalog on the triple store.
+     * Runs a query of the NC GLSK query catalog on the whole triple store.
      *
      * @param queryName name of the query in the catalog (nc.sparql)
      */
     private PropertyBags query(String queryName) {
+        return tripleStore.query(queryText(queryName));
+    }
+
+    /**
+     * Runs a query of the NC GLSK query catalog on each file of the profile of a keyword (the query is written for a single
+     * context, which is its parameter), so that the data of a profile is only read from the files of that profile.
+     *
+     * @param queryName name of the query in the catalog (nc.sparql)
+     * @param keyword   keyword of the profile the query reads
+     */
+    private PropertyBags query(String queryName, NcKeyword keyword) {
+        String queryText = queryText(queryName);
+        PropertyBags result = new PropertyBags();
+        for (String context : keywordMap.getOrDefault(keyword.toString(), Set.of())) {
+            result.addAll(tripleStore.query(String.format(queryText, context)));
+        }
+        return result;
+    }
+
+    private String queryText(String queryName) {
         String queryText = queryCatalog.get(queryName);
         if (queryText == null) {
             throw new GlskException("Query [" + queryName + "] not found in " + NcConstants.SPARQL_FILE_NC_PROFILE);
         }
-        return tripleStore.query(queryText);
+        return queryText;
     }
 
     /**
@@ -68,25 +99,28 @@ public class NcGlskDatasetParser {
      * Returns a map of zone EIC codes to GlskPoints.
      */
     public Map<String, List<GlskPoint>> parse() {
-        // Step 1: Parse headers to get validity dates
+        // Parse headers to get validity dates
         parseHeaders();
 
-        // Step 2: Parse CountertradeRemedialActions
+        // Parse CountertradeRemedialActions
         parseCountertradeRemedialActions();
 
-        // Step 3: Parse PowerBidSchedules
+        // Parse the availability of the remedial actions (RA profile, completed by the SIS and SSI profiles)
+        parseAvailability();
+
+        // Parse PowerBidSchedules
         Map<String, PowerBidScheduleData> powerBidSchedules = parsePowerBidSchedules();
 
-        // Step 4: Parse GLSKSchedules with their resource, and link them to their PowerBidSchedule
+        // Parse GLSKSchedules with their resource, and link them to their PowerBidSchedule
         Map<String, GlskScheduleData> glskSchedules = parseGlskSchedules(powerBidSchedules);
 
-        // Step 5: Parse ParticipationFactorTimePoints
+        // Parse ParticipationFactorTimePoints
         parseParticipationFactorTimePoints(glskSchedules);
 
-        // Step 6: Parse PowerBidScheduleTimePoints (price and power)
+        // Parse PowerBidScheduleTimePoints (price and power)
         parsePowerBidScheduleTimePoints(powerBidSchedules);
 
-        // Step 7: Build GlskPoints grouped by zone
+        // Build GlskPoints grouped by zone
         return buildGlskPointsByZone(powerBidSchedules);
     }
 
@@ -108,33 +142,96 @@ public class NcGlskDatasetParser {
     }
 
     private void parseCountertradeRemedialActions() {
-        for (PropertyBag bag : query(NcConstants.QUERY_COUNTERTRADE_REMEDIAL_ACTIONS)) {
+        for (PropertyBag bag : query(NcConstants.QUERY_COUNTERTRADE_REMEDIAL_ACTIONS, NcKeyword.REMEDIAL_ACTION)) {
             String uri = bag.get("ra");
             String glskStrategyValue = bag.get("glskStrategy");
-            String shiftMethodValue = parseKindName(bag.get("shiftMethod"));
+            String shiftMethodUrl = bag.get("shiftMethod");
+            // A remedial action without normalAvailable is considered available
+            String normalAvailable = bag.get("normalAvailable");
+            availabilities.put(uri, new NcRemedialActionAvailability(normalAvailable == null || Boolean.parseBoolean(normalAvailable)));
+            checkOperator(bag);
             countertradeRAs.put(uri, new CountertradeRAData(
                 uri,
                 bag.get("mRID"),
                 extractEICCode(bag.get("biddingZone")),
                 glskStrategyValue,
-                parseGlskStrategy(glskStrategyValue),
-                shiftMethodValue,
-                ShiftMethodKind.fromValue(shiftMethodValue).orElse(null),
+                GlskStrategyKind.fromUrl(glskStrategyValue).orElse(null),
+                literalOf(shiftMethodUrl),
+                ShiftMethodKind.fromUrl(shiftMethodUrl).orElse(null),
                 parseNullableInstant(bag.get(NcConstants.REQUEST_HEADER_START_DATE)),
                 parseNullableInstant(bag.get(NcConstants.REQUEST_HEADER_END_DATE))
             ));
         }
     }
 
+    /**
+     * The operator of the remedial action is the creator of its profile. If the remedial action declares an operator
+     * (RemedialActionSystemOperator) that is not the creator, it is only reported: the creator prevails.
+     */
+    private void checkOperator(PropertyBag bag) {
+        String operator = bag.get("operator");
+        String creator = bag.get("creator");
+        if (operator != null && creator != null && !extractEICCode(operator).equals(extractEICCode(creator))) {
+            LOGGER.warn("Countertrade remedial action {} has operator {} which is not the creator of its profile ({}): the creator prevails",
+                bag.get("mRID"), operator, creator);
+        }
+    }
+
+    /**
+     * Completes the availability of the remedial actions with the availability schedules of the SIS profile and with the
+     * availability of the SSI profile. The SSI profile prevails over the SIS profile, which prevails over the RA profile.
+     */
+    private void parseAvailability() {
+        Set<String> unsupportedSchedules = new HashSet<>();
+        for (PropertyBag bag : query(NcConstants.QUERY_AVAILABILITY_TIME_POINTS, NcKeyword.STATE_INSTRUCTION_SCHEDULE)) {
+            NcRemedialActionAvailability availability = availabilities.get(bag.get("ra"));
+            // An availability schedule only supports the interpolation next (a missing kind is read as next), and any other one is ignored
+            String interpolationUrl = bag.get("interpolationKind");
+            String interpolationValue = literalOf(interpolationUrl);
+            boolean supported = interpolationUrl == null
+                || TimeSeriesInterpolationKind.fromUrl(interpolationUrl).filter(kind -> kind == TimeSeriesInterpolationKind.NEXT).isPresent();
+            if (!supported && unsupportedSchedules.add(bag.get("schedule"))) {
+                LOGGER.warn("Availability schedule of countertrade remedial action {} is ignored: its interpolation kind {} is not supported (only next)",
+                    bag.get("ra"), interpolationValue);
+            }
+            Optional<Interval> validity = validityOf(bag);
+            if (availability != null && supported && validity.isPresent()) {
+                availability.addAvailabilityTimePoint(parseInstant(bag.get("atTime")), Boolean.parseBoolean(bag.get("available")), validity.get());
+            }
+        }
+        for (PropertyBag bag : query(NcConstants.QUERY_REMEDIAL_ACTION_AVAILABLE, NcKeyword.STEADY_STATE_INSTRUCTION)) {
+            NcRemedialActionAvailability availability = availabilities.get(bag.get("ra"));
+            Optional<Interval> validity = validityOf(bag);
+            if (availability != null && validity.isPresent()) {
+                availability.addSsiAvailability(Boolean.parseBoolean(bag.get("available")), validity.get());
+            }
+        }
+    }
+
+    /**
+     * @return the validity window declared in the header of the profile a row belongs to, or empty if the window is empty
+     * (a profile with such a window is never valid)
+     */
+    private static Optional<Interval> validityOf(PropertyBag bag) {
+        Instant start = parseInstant(bag.get(NcConstants.REQUEST_HEADER_START_DATE));
+        Instant end = parseInstant(bag.get(NcConstants.REQUEST_HEADER_END_DATE));
+        return end.isAfter(start) ? Optional.of(Interval.of(start, end)) : Optional.empty();
+    }
+
     private Map<String, PowerBidScheduleData> parsePowerBidSchedules() {
         Map<String, PowerBidScheduleData> result = new HashMap<>();
-        for (PropertyBag bag : query(NcConstants.QUERY_POWER_BID_SCHEDULES)) {
+        for (PropertyBag bag : query(NcConstants.QUERY_POWER_BID_SCHEDULES, NcKeyword.STATE_INSTRUCTION_SCHEDULE)) {
             String uri = bag.get("pbs");
+            String directionUrl = bag.get("direction");
+            String interpolationUrl = bag.get("interpolationKind");
             result.put(uri, new PowerBidScheduleData(
                 uri,
                 bag.get("pbsID"),
                 bag.get("ra"),
-                parseKindName(bag.get("direction")),
+                literalOf(directionUrl),
+                BidDirectionKind.fromUrl(directionUrl).orElse(null),
+                literalOf(interpolationUrl),
+                TimeSeriesInterpolationKind.fromUrl(interpolationUrl).orElse(null),
                 parseNullableInstant(bag.get(NcConstants.REQUEST_HEADER_START_DATE)),
                 parseNullableInstant(bag.get(NcConstants.REQUEST_HEADER_END_DATE)),
                 new TreeMap<>(),
@@ -146,7 +243,7 @@ public class NcGlskDatasetParser {
 
     private Map<String, GlskScheduleData> parseGlskSchedules(Map<String, PowerBidScheduleData> powerBidSchedules) {
         Map<String, GlskScheduleData> result = new HashMap<>();
-        for (PropertyBag bag : query(NcConstants.QUERY_GLSK_SCHEDULES)) {
+        for (PropertyBag bag : query(NcConstants.QUERY_GLSK_SCHEDULES, NcKeyword.STATE_INSTRUCTION_SCHEDULE)) {
             PowerBidScheduleData powerBidSchedule = powerBidSchedules.get(bag.get("pbs"));
             if (powerBidSchedule == null) {
                 continue;
@@ -160,7 +257,7 @@ public class NcGlskDatasetParser {
     }
 
     private void parseParticipationFactorTimePoints(Map<String, GlskScheduleData> glskSchedules) {
-        for (PropertyBag bag : query(NcConstants.QUERY_PARTICIPATION_FACTOR_TIME_POINTS)) {
+        for (PropertyBag bag : query(NcConstants.QUERY_PARTICIPATION_FACTOR_TIME_POINTS, NcKeyword.STATE_INSTRUCTION_SCHEDULE)) {
             GlskScheduleData glskSchedule = glskSchedules.get(bag.get("glskSchedule"));
             if (glskSchedule != null) {
                 glskSchedule.participationFactors().put(parseInstant(bag.get("atTime")), Double.parseDouble(bag.get("participationFactor")));
@@ -169,7 +266,7 @@ public class NcGlskDatasetParser {
     }
 
     private void parsePowerBidScheduleTimePoints(Map<String, PowerBidScheduleData> powerBidSchedules) {
-        for (PropertyBag bag : query(NcConstants.QUERY_POWER_BID_SCHEDULE_TIME_POINTS)) {
+        for (PropertyBag bag : query(NcConstants.QUERY_POWER_BID_SCHEDULE_TIME_POINTS, NcKeyword.STATE_INSTRUCTION_SCHEDULE)) {
             PowerBidScheduleData powerBidSchedule = powerBidSchedules.get(bag.get("pbs"));
             if (powerBidSchedule != null) {
                 powerBidSchedule.timePoints().put(parseInstant(bag.get("atTime")),
@@ -207,20 +304,28 @@ public class NcGlskDatasetParser {
      */
     private List<GlskPoint> buildGlskPoints(CountertradeRAData raData, List<PowerBidScheduleData> bids) {
         GlskStrategyKind strategy = raData.strategy();
+        if (strategy != GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR && strategy != GlskStrategyKind.EXPLICIT_SCHEDULE) {
+            LOGGER.warn("Countertrade remedial action {} is ignored: unsupported GLSK strategy {}", raData.mRID(), raData.glskStrategyValue());
+            return Collections.emptyList();
+        }
+        checkShiftMethod(raData, strategy == GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR ? ShiftMethodKind.SHARED : ShiftMethodKind.PRIORITY);
+
+        // A GLSK is only built for the periods during which the remedial action is available
+        NcRemedialActionAvailability availability = availabilities.get(raData.uri());
+        List<Interval> availablePeriods = availability.availablePeriods(raData.validityStart(), raData.validityEnd());
+        if (availablePeriods.isEmpty()) {
+            LOGGER.warn("Countertrade remedial action {} is ignored: it is not available during its validity window", raData.mRID());
+            return Collections.emptyList();
+        }
+
         if (strategy == GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR) {
-            checkShiftMethod(raData, ShiftMethodKind.SHARED);
-            return List.of(createProportionalPoint(raData));
+            return availablePeriods.stream().map(period -> createProportionalPoint(raData, period)).toList();
         }
-        if (strategy == GlskStrategyKind.EXPLICIT_SCHEDULE) {
-            checkShiftMethod(raData, ShiftMethodKind.PRIORITY);
-            List<GlskPoint> points = NcGlskMeritOrderBuilder.build(raData, bids);
-            if (points.isEmpty()) {
-                LOGGER.warn("Countertrade remedial action {} is ignored: no merit order could be built from its power bid schedules", raData.mRID());
-            }
-            return points;
+        List<GlskPoint> points = NcGlskMeritOrderBuilder.build(raData, bids, availability);
+        if (points.isEmpty()) {
+            LOGGER.warn("Countertrade remedial action {} is ignored: no merit order could be built from its power bid schedules", raData.mRID());
         }
-        LOGGER.warn("Countertrade remedial action {} is ignored: unsupported GLSK strategy {}", raData.mRID(), raData.glskStrategyValue());
-        return Collections.emptyList();
+        return points;
     }
 
     /**
@@ -242,16 +347,15 @@ public class NcGlskDatasetParser {
     }
 
     /**
-     * proportionalForGenerator needs no data from the SIS profile: a single point, valid over the validity window of the
-     * RA profile, which applies to all the generators of the country of the bidding zone.
+     * proportionalForGenerator needs no data from the SIS profile: a point for each period during which the remedial
+     * action is available, which applies to all the generators of the country of the bidding zone.
      */
-    private GlskPoint createProportionalPoint(CountertradeRAData raData) {
-        return NcGlskPoint.proportionalForGenerator(raData.biddingZone(), Interval.of(raData.validityStart(), raData.validityEnd()));
+    private GlskPoint createProportionalPoint(CountertradeRAData raData, Interval interval) {
+        return NcGlskPoint.proportionalForGenerator(raData.biddingZone(), interval);
     }
 
     /**
      * Extracts EIC code from URI.
-     * Example: "http://energy.referencedata.eu/EIC/10YFR-RTE------C" → "10YFR-RTE------C"
      */
     private String extractEICCode(String uri) {
         if (uri == null) {
@@ -265,28 +369,11 @@ public class NcGlskDatasetParser {
     }
 
     /**
-     * Parses GLSK strategy from URI.
-     * Example: "http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator" → PROPORTIONAL_FOR_GENERATOR
-     *
-     * @return the strategy, or null if it is missing or not a known GLSKStrategyKind value
+     * The name of the literal of an enumeration, from its URL, to report a value of a profile (the enumerations themselves
+     * are read from the whole URL, see for example {@link BidDirectionKind#fromUrl(String)}).
      */
-    private GlskStrategyKind parseGlskStrategy(String uri) {
-        if (uri == null) {
-            return null;
-        }
-        try {
-            return GlskStrategyKind.fromValue(uri.substring(uri.lastIndexOf('.') + 1));
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    /**
-     * Parses the name of a value of a CIM enumeration from its URI.
-     * Example: "http://entsoe.eu/ns/nc#BidDirectionKind.up" → "up"
-     */
-    private static String parseKindName(String uri) {
-        return uri == null ? null : uri.substring(uri.lastIndexOf('.') + 1);
+    private static String literalOf(String url) {
+        return url == null ? null : url.substring(url.lastIndexOf('.') + 1);
     }
 
     private static Instant parseInstant(String dateTime) {
@@ -315,8 +402,8 @@ public class NcGlskDatasetParser {
      * @param uri               RDF identity of the RA, which the power bid schedules of the SIS profile refer to
      * @param glskStrategyValue raw value of the GLSK strategy, as found in the profile
      * @param strategy          GLSK strategy, or null if it is not a known GLSKStrategyKind value
-     * @param shiftMethodValue  name of the shift method, as found in the profile, or null if there is none
-     * @param shiftMethod       shift method, or null if it is missing or not a known ShiftMethodKind value
+     * @param shiftMethodValue  name of the shift method literal, as found in the profile, or null if there is none
+     * @param shiftMethod       shift method, or null if it is missing or not a ShiftMethodKind literal
      * @param validityStart     start of the validity window declared in the header of the RA profile
      * @param validityEnd       end of the validity window declared in the header of the RA profile
      */
@@ -330,14 +417,17 @@ public class NcGlskDatasetParser {
      *
      * @param uri                RDF identity of the bid
      * @param remedialActionUri  RDF identity of the countertrade remedial action the bid belongs to
-     * @param direction          direction of the bid (up or down)
+     * @param directionValue     name of the direction literal, as found in the profile
+     * @param direction          direction of the bid, or null if it is missing or not a BidDirectionKind literal (up and down are supported)
+     * @param interpolationKindValue name of the interpolation kind literal, as found in the profile, or null if there is none
+     * @param interpolationKind  interpolation of the values between two time points, or null if it is missing or not a TimeSeriesInterpolationKind literal (none and next are supported)
      * @param validityStart      start of the validity window declared in the header of the SIS profile
      * @param validityEnd        end of the validity window declared in the header of the SIS profile
      * @param timePoints         price and power of the bid, from the time they take effect
      * @param glskSchedules      GLSK schedules binding the bid to its resource
      */
-    record PowerBidScheduleData(String uri, String mRID, String remedialActionUri, String direction,
-                                Instant validityStart, Instant validityEnd,
+    record PowerBidScheduleData(String uri, String mRID, String remedialActionUri, String directionValue, BidDirectionKind direction,
+                                String interpolationKindValue, TimeSeriesInterpolationKind interpolationKind, Instant validityStart, Instant validityEnd,
                                 NavigableMap<Instant, PriceAndPower> timePoints, List<GlskScheduleData> glskSchedules) {
     }
 

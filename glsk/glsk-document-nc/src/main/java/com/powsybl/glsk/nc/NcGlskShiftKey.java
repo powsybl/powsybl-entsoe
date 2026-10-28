@@ -23,7 +23,7 @@ import java.util.Objects;
  *     active power (explicitSchedule). The sign of the merit order position gives the direction.</li>
  * </ul>
  *
- * @author Víctor Cardozo
+ * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
  */
 public final class NcGlskShiftKey extends AbstractGlskShiftKey {
 

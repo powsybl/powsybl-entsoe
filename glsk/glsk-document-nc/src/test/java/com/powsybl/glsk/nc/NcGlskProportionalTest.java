@@ -115,6 +115,19 @@ class NcGlskProportionalTest {
         return warnings.stream().filter(warning -> warning.contains(remedialAction)).toList();
     }
 
+    @Test
+    void operatorDifferentFromTheCreatorIsOnlyReported() {
+        List<String> warnings = warningsOfImporting("operator", document -> {
+            assertTrue(document.getZones().contains("zone-ra-operator-is-creator"));
+            assertTrue(document.getZones().contains("zone-ra-operator-not-creator"));
+        });
+
+        assertTrue(warningsAbout(warnings, "ra-operator-is-creator").isEmpty());
+        List<String> reported = warningsAbout(warnings, "ra-operator-not-creator");
+        assertEquals(1, reported.size());
+        assertTrue(reported.getFirst().contains("the creator prevails"));
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"generatorFlat", "generatorPmax", "loadFlat", "proportionalForLoad", "proportionalForGeneratorAndLoad",
         "proportionalForRemainingCapacity", "explicitInstruction", "unknownStrategy"})
@@ -136,20 +149,20 @@ class NcGlskProportionalTest {
     }
 
     @Test
-    void availabilityOfTheRemedialActionDoesNotAffectItsGlsk() {
-        // normalAvailable can be overridden by the SSI profile and it is the business of the remedial action import:
-        // the GLSK only describes how a shift is distributed
-        NcGlskDocument document = importTestCase("proportional");
+    void unavailableRemedialActionHasNoGlsk() {
+        // normalAvailable=false and nothing else (SIS and SSI profiles) says otherwise
+        List<String> warnings = warningsOfImporting("proportional", document ->
+            assertFalse(document.getZones().contains("zone-unavailable")));
 
-        assertTrue(document.getZones().contains("zone-unavailable"));
-        assertEquals(1, document.getGlskPoints("zone-unavailable").size());
+        assertEquals(1, warningsAbout(warnings, "ra-unavailable").size());
+        assertTrue(warningsAbout(warnings, "ra-unavailable").getFirst().contains("not available during its validity window"));
     }
 
     @Test
     void supportedStrategyGivesOnePointOverTheValidityWindow() {
         NcGlskDocument document = importTestCase("proportional");
 
-        assertEquals(Set.of("zone-proportional", "zone-unavailable"), Set.copyOf(document.getZones()));
+        assertEquals(Set.of("zone-proportional"), Set.copyOf(document.getZones()));
         GlskPoint point = document.getGlskPoints("zone-proportional").getFirst();
         assertEquals(FR_RA_START, point.getPointInterval().getStart());
         assertEquals(FR_RA_END, point.getPointInterval().getEnd());

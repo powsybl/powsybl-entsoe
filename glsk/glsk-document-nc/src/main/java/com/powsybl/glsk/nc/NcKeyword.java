@@ -11,13 +11,15 @@ import java.util.Arrays;
 import java.util.Optional;
 
 /**
- * Keywords (dcat:keyword) of the headers of the NC profiles the importer reads.
+ * Keywords (dcat:keyword) of the headers of the NC profiles the importer reads. The data of a profile is only read by
+ * the queries of its keyword.
  *
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
  */
 public enum NcKeyword {
     REMEDIAL_ACTION("RA"),
-    STATE_INSTRUCTION_SCHEDULE("SIS");
+    STATE_INSTRUCTION_SCHEDULE("SIS"),
+    STEADY_STATE_INSTRUCTION("SSI");
 
     private final String keyword;
 

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:a8d6f9c7-0000-4000-8000-000000000601">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XES-REE------E</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-12T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-13T00:00:00Z</dcat:endDate>
+    <dcat:keyword>RA</dcat:keyword>
+  </md:FullModel>
+  <!-- Available in the RA profile, nothing else says otherwise: one GLSK over the whole day -->
+  <nc:CountertradeRemedialAction rdf:ID="_av-available">
+    <cim:IdentifiedObject.mRID>av-available</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-av-available"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Not available in the RA profile, nothing else says otherwise: no GLSK at all -->
+  <nc:CountertradeRemedialAction rdf:ID="_av-unavailable">
+    <cim:IdentifiedObject.mRID>av-unavailable</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>false</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-av-unavailable"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Not available in the RA profile, but the SIS profile makes it available from 06:00: the SIS prevails over the RA profile -->
+  <nc:CountertradeRemedialAction rdf:ID="_av-sis-over-ra">
+    <cim:IdentifiedObject.mRID>av-sis-over-ra</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>false</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-av-sis-over-ra"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Available in the RA profile, the SIS profile makes it unavailable from 06:00 to 12:00 -->
+  <nc:CountertradeRemedialAction rdf:ID="_av-sis-schedule">
+    <cim:IdentifiedObject.mRID>av-sis-schedule</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-av-sis-schedule"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Not available in the RA profile, but available in the SSI profile from 06:00 to 18:00: the SSI prevails over the RA profile -->
+  <nc:CountertradeRemedialAction rdf:ID="_av-ssi-true-over-ra">
+    <cim:IdentifiedObject.mRID>av-ssi-true-over-ra</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>false</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-av-ssi-true-over-ra"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Available in the RA profile, but not available in the SSI profile from 06:00 to 18:00 -->
+  <nc:CountertradeRemedialAction rdf:ID="_av-ssi-false-over-ra">
+    <cim:IdentifiedObject.mRID>av-ssi-false-over-ra</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-av-ssi-false-over-ra"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- The SIS profile makes it unavailable the whole day, but the SSI profile makes it available from 08:00 to 10:00: the SSI prevails over the SIS -->
+  <nc:CountertradeRemedialAction rdf:ID="_av-ssi-over-sis">
+    <cim:IdentifiedObject.mRID>av-ssi-over-sis</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-av-ssi-over-sis"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Explicit schedule, not available in the SSI profile from 06:00 to 18:00: the merit order is split around that period -->
+  <nc:CountertradeRemedialAction rdf:ID="_av-explicit-ssi-false">
+    <cim:IdentifiedObject.mRID>av-explicit-ssi-false</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-av-explicit-ssi-false"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Explicit schedule, not available in the RA profile: no merit order -->
+  <nc:CountertradeRemedialAction rdf:ID="_av-explicit-unavailable">
+    <cim:IdentifiedObject.mRID>av-explicit-unavailable</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>false</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-av-explicit-unavailable"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Available in the RA profile; a profile that is not an SSI one says it is not available: it is not read -->
+  <nc:CountertradeRemedialAction rdf:ID="_av-not-ssi">
+    <cim:IdentifiedObject.mRID>av-not-ssi</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-av-not-ssi"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+</rdf:RDF>

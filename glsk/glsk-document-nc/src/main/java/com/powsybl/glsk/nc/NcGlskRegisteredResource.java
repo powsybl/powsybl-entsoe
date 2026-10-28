@@ -48,16 +48,6 @@ public class NcGlskRegisteredResource extends AbstractGlskRegisteredResource {
     }
 
     @Override
-    public String getGeneratorId() {
-        return mRID;
-    }
-
-    @Override
-    public String getLoadId() {
-        return mRID;
-    }
-
-    @Override
     public String getBoundaryLineId(Network network) {
         return mRID;
     }
