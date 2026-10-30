@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:a1c9e2b0-0000-4000-8000-000000000701">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XES-REE------E</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-12T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-13T00:00:00Z</dcat:endDate>
+    <dcat:keyword>RA</dcat:keyword>
+  </md:FullModel>
+  <!-- Availability schedule with the interpolation next -->
+  <nc:CountertradeRemedialAction rdf:ID="_ip-av-next">
+    <cim:IdentifiedObject.mRID>ip-av-next</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ip-av-next"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Availability schedule without interpolation kind: read as next -->
+  <nc:CountertradeRemedialAction rdf:ID="_ip-av-missing">
+    <cim:IdentifiedObject.mRID>ip-av-missing</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ip-av-missing"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Availability schedule with the interpolation none, which is not supported: the schedule is ignored and the RA profile applies -->
+  <nc:CountertradeRemedialAction rdf:ID="_ip-av-none">
+    <cim:IdentifiedObject.mRID>ip-av-none</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ip-av-none"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Availability schedule with the interpolation linear, which is not supported: the schedule is ignored and the RA profile applies -->
+  <nc:CountertradeRemedialAction rdf:ID="_ip-av-linear">
+    <cim:IdentifiedObject.mRID>ip-av-linear</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>false</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ip-av-linear"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Bid with the interpolation none -->
+  <nc:CountertradeRemedialAction rdf:ID="_ip-bid-none">
+    <cim:IdentifiedObject.mRID>ip-bid-none</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ip-bid-none"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Bid with the interpolation next -->
+  <nc:CountertradeRemedialAction rdf:ID="_ip-bid-next">
+    <cim:IdentifiedObject.mRID>ip-bid-next</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ip-bid-next"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Bid with the interpolation next and a single time point -->
+  <nc:CountertradeRemedialAction rdf:ID="_ip-bid-next-single">
+    <cim:IdentifiedObject.mRID>ip-bid-next-single</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ip-bid-next-single"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Bid with the interpolation none and a single time point -->
+  <nc:CountertradeRemedialAction rdf:ID="_ip-bid-none-single">
+    <cim:IdentifiedObject.mRID>ip-bid-none-single</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ip-bid-none-single"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Bid without interpolation kind: read as none -->
+  <nc:CountertradeRemedialAction rdf:ID="_ip-bid-missing">
+    <cim:IdentifiedObject.mRID>ip-bid-missing</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ip-bid-missing"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Bid with the interpolation linear, which is not supported: the bid is ignored -->
+  <nc:CountertradeRemedialAction rdf:ID="_ip-bid-linear">
+    <cim:IdentifiedObject.mRID>ip-bid-linear</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ip-bid-linear"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+</rdf:RDF>
