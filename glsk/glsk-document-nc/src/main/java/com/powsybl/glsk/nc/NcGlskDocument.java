@@ -139,11 +139,11 @@ public final class NcGlskDocument implements GlskDocument {
                                      int maxSizeEntry,
                                      Map<String, Set<String>> keywordMap,
                                      TripleStore tripleStore) throws IOException {
-        File tempFile = createTempFile();
         int currentSizeEntry = 0;
         ByteArrayOutputStream header = new ByteArrayOutputStream();
 
-        try {
+        try (TemporaryFile temporaryFile = new TemporaryFile(createTempFile())) {
+            File tempFile = temporaryFile.file();
             // Write ZIP entry to temporary file
             try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {
                 InputStream in = new BufferedInputStream(zipInputStream);
@@ -172,13 +172,19 @@ public final class NcGlskDocument implements GlskDocument {
                 // declared in another one (rdf:ID) is resolved: it is what links the bids of the SIS profile to the RA of the RA profile
                 tripleStore.read(fileInputStream, NcConstants.RDF_BASE_URL, zipEntry.getName());
             }
+        }
+    }
 
-        } finally {
-            // Cleanup temporary file
+    /**
+     * Temporary file that is deleted when it is closed.
+     */
+    private record TemporaryFile(File file) implements AutoCloseable {
+        @Override
+        public void close() {
             try {
-                Files.delete(tempFile.toPath());
+                Files.delete(file.toPath());
             } catch (IOException e) {
-                tempFile.deleteOnExit();
+                file.deleteOnExit();
             }
         }
     }
@@ -190,10 +196,12 @@ public final class NcGlskDocument implements GlskDocument {
         if (SystemUtils.IS_OS_UNIX) {
             FileAttribute<Set<PosixFilePermission>> attr =
                     PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
-            return Files.createTempFile("ncGlsk", ".tmp", attr).toFile();
+            return Files.createTempFile("ncGlsk", ".tmp", attr).toFile(); // Compliant
         } else {
-            File tempFile = Files.createTempFile("ncGlsk", ".tmp").toFile();
-
+            File tempFile = Files.createTempFile("ncGlsk", ".tmp").toFile(); //NOSONAR
+            //sonar wants us to set readable and writable right after creating file
+            //but it counts it as a bug if you don't use the return variable
+            //and doesn't see the calls if you use the return variable...
             boolean tempFileOk = tempFile.setReadable(true, true) &&
                     tempFile.setWritable(true, true) &&
                     tempFile.setExecutable(true, true);

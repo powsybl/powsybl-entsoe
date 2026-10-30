@@ -171,8 +171,8 @@ public class NcGlskDatasetParser {
     private void checkOperator(PropertyBag bag) {
         String operator = bag.get(NcConstants.OPERATOR);
         String creator = bag.get(NcConstants.CREATOR);
-        String mrId = bag.get(NcConstants.MRID);
         if (operator != null && creator != null && !extractEICCode(operator).equals(extractEICCode(creator))) {
+            String mrId = bag.get(NcConstants.MRID);
             LOGGER.warn("Countertrade remedial action {} has operator {} which is not the creator of its profile ({}): the creator prevails",
                     mrId, operator, creator);
         }
@@ -189,10 +189,10 @@ public class NcGlskDatasetParser {
             NcRemedialActionAvailability availability = availabilities.get(ra);
             // An availability schedule only supports the interpolation next (a missing kind is read as next), and any other one is ignored
             String interpolationUrl = bag.get(NcConstants.INTERPOLATION_KIND);
-            String interpolationValue = literalOf(interpolationUrl);
             boolean supported = interpolationUrl == null
                 || TimeSeriesInterpolationKind.fromUrl(interpolationUrl).filter(kind -> kind == TimeSeriesInterpolationKind.NEXT).isPresent();
             if (!supported && unsupportedSchedules.add(bag.get(NcConstants.SCHEDULE))) {
+                String interpolationValue = literalOf(interpolationUrl);
                 LOGGER.warn("Availability schedule of countertrade remedial action {} is ignored: its interpolation kind {} is not supported (only next)",
                         ra, interpolationValue);
             }
