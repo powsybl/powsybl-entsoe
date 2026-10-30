@@ -55,6 +55,31 @@ public final class NcConstants {
     public static final String QUERY_REMEDIAL_ACTION_AVAILABLE = "remedialActionAvailable";
 
     /**
+     * attributes of the results of the queries
+     */
+
+    public static final String REMEDIAL_ACTION = "ra";
+    public static final String POWER_BID_SCHEDULE = "pbs";
+    public static final String POWER_BID_SCHEDULE_ID = "pbsID";
+    public static final String AT_TIME = "atTime";
+    public static final String MRID = "mRID";
+    public static final String INTERPOLATION_KIND = "interpolationKind";
+    public static final String GLSK_SCHEDULE = "glskSchedule";
+    public static final String OVERRIDE_AVAILABLE = "available";
+    public static final String NORMAL_AVAILABLE = "normalAvailable";
+    public static final String RESOURCE = "resource";
+    public static final String SHIFT_METHOD = "shiftMethod";
+    public static final String GLSK_STRATEGY = "glskStrategy";
+    public static final String SCHEDULE = "schedule";
+    public static final String PRICE = "price";
+    public static final String POWER = "power";
+    public static final String PARTICIPATION_FACTOR = "participationFactor";
+    public static final String OPERATOR = "operator";
+    public static final String CREATOR = "creator";
+    public static final String BIDDING_ZONE = "biddingZone";
+    public static final String DIRECTION = "direction";
+
+    /**
      * constants to request file headers
      */
 
