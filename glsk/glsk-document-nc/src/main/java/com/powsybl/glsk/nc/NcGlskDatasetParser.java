@@ -143,17 +143,17 @@ public class NcGlskDatasetParser {
 
     private void parseCountertradeRemedialActions() {
         for (PropertyBag bag : query(NcConstants.QUERY_COUNTERTRADE_REMEDIAL_ACTIONS, NcKeyword.REMEDIAL_ACTION)) {
-            String uri = bag.get("ra");
-            String glskStrategyValue = bag.get("glskStrategy");
-            String shiftMethodUrl = bag.get("shiftMethod");
+            String uri = bag.get(NcConstants.REMEDIAL_ACTION);
+            String glskStrategyValue = bag.get(NcConstants.GLSK_STRATEGY);
+            String shiftMethodUrl = bag.get(NcConstants.SHIFT_METHOD);
             // A remedial action without normalAvailable is considered available
-            String normalAvailable = bag.get("normalAvailable");
+            String normalAvailable = bag.get(NcConstants.NORMAL_AVAILABLE);
             availabilities.put(uri, new NcRemedialActionAvailability(normalAvailable == null || Boolean.parseBoolean(normalAvailable)));
             checkOperator(bag);
             countertradeRAs.put(uri, new CountertradeRAData(
                 uri,
-                bag.get("mRID"),
-                extractEICCode(bag.get("biddingZone")),
+                bag.get(NcConstants.MRID),
+                extractEICCode(bag.get(NcConstants.BIDDING_ZONE)),
                 glskStrategyValue,
                 GlskStrategyKind.fromUrl(glskStrategyValue).orElse(null),
                 literalOf(shiftMethodUrl),
@@ -169,11 +169,12 @@ public class NcGlskDatasetParser {
      * (RemedialActionSystemOperator) that is not the creator, it is only reported: the creator prevails.
      */
     private void checkOperator(PropertyBag bag) {
-        String operator = bag.get("operator");
-        String creator = bag.get("creator");
+        String operator = bag.get(NcConstants.OPERATOR);
+        String creator = bag.get(NcConstants.CREATOR);
+        String mrId = bag.get(NcConstants.MRID);
         if (operator != null && creator != null && !extractEICCode(operator).equals(extractEICCode(creator))) {
             LOGGER.warn("Countertrade remedial action {} has operator {} which is not the creator of its profile ({}): the creator prevails",
-                bag.get("mRID"), operator, creator);
+                    mrId, operator, creator);
         }
     }
 
@@ -184,26 +185,27 @@ public class NcGlskDatasetParser {
     private void parseAvailability() {
         Set<String> unsupportedSchedules = new HashSet<>();
         for (PropertyBag bag : query(NcConstants.QUERY_AVAILABILITY_TIME_POINTS, NcKeyword.STATE_INSTRUCTION_SCHEDULE)) {
-            NcRemedialActionAvailability availability = availabilities.get(bag.get("ra"));
+            String ra = bag.get(NcConstants.REMEDIAL_ACTION);
+            NcRemedialActionAvailability availability = availabilities.get(ra);
             // An availability schedule only supports the interpolation next (a missing kind is read as next), and any other one is ignored
-            String interpolationUrl = bag.get("interpolationKind");
+            String interpolationUrl = bag.get(NcConstants.INTERPOLATION_KIND);
             String interpolationValue = literalOf(interpolationUrl);
             boolean supported = interpolationUrl == null
                 || TimeSeriesInterpolationKind.fromUrl(interpolationUrl).filter(kind -> kind == TimeSeriesInterpolationKind.NEXT).isPresent();
-            if (!supported && unsupportedSchedules.add(bag.get("schedule"))) {
+            if (!supported && unsupportedSchedules.add(bag.get(NcConstants.SCHEDULE))) {
                 LOGGER.warn("Availability schedule of countertrade remedial action {} is ignored: its interpolation kind {} is not supported (only next)",
-                    bag.get("ra"), interpolationValue);
+                        ra, interpolationValue);
             }
             Optional<Interval> validity = validityOf(bag);
             if (availability != null && supported && validity.isPresent()) {
-                availability.addAvailabilityTimePoint(parseInstant(bag.get("atTime")), Boolean.parseBoolean(bag.get("available")), validity.get());
+                availability.addAvailabilityTimePoint(parseInstant(bag.get(NcConstants.AT_TIME)), Boolean.parseBoolean(bag.get(NcConstants.OVERRIDE_AVAILABLE)), validity.get());
             }
         }
         for (PropertyBag bag : query(NcConstants.QUERY_REMEDIAL_ACTION_AVAILABLE, NcKeyword.STEADY_STATE_INSTRUCTION)) {
-            NcRemedialActionAvailability availability = availabilities.get(bag.get("ra"));
+            NcRemedialActionAvailability availability = availabilities.get(bag.get(NcConstants.REMEDIAL_ACTION));
             Optional<Interval> validity = validityOf(bag);
             if (availability != null && validity.isPresent()) {
-                availability.addSsiAvailability(Boolean.parseBoolean(bag.get("available")), validity.get());
+                availability.addSsiAvailability(Boolean.parseBoolean(bag.get(NcConstants.OVERRIDE_AVAILABLE)), validity.get());
             }
         }
     }
@@ -221,13 +223,13 @@ public class NcGlskDatasetParser {
     private Map<String, PowerBidScheduleData> parsePowerBidSchedules() {
         Map<String, PowerBidScheduleData> result = new HashMap<>();
         for (PropertyBag bag : query(NcConstants.QUERY_POWER_BID_SCHEDULES, NcKeyword.STATE_INSTRUCTION_SCHEDULE)) {
-            String uri = bag.get("pbs");
-            String directionUrl = bag.get("direction");
-            String interpolationUrl = bag.get("interpolationKind");
+            String uri = bag.get(NcConstants.POWER_BID_SCHEDULE);
+            String directionUrl = bag.get(NcConstants.DIRECTION);
+            String interpolationUrl = bag.get(NcConstants.INTERPOLATION_KIND);
             result.put(uri, new PowerBidScheduleData(
                 uri,
-                bag.get("pbsID"),
-                bag.get("ra"),
+                bag.get(NcConstants.POWER_BID_SCHEDULE_ID),
+                bag.get(NcConstants.REMEDIAL_ACTION),
                 literalOf(directionUrl),
                 BidDirectionKind.fromUrl(directionUrl).orElse(null),
                 literalOf(interpolationUrl),
@@ -244,13 +246,13 @@ public class NcGlskDatasetParser {
     private Map<String, GlskScheduleData> parseGlskSchedules(Map<String, PowerBidScheduleData> powerBidSchedules) {
         Map<String, GlskScheduleData> result = new HashMap<>();
         for (PropertyBag bag : query(NcConstants.QUERY_GLSK_SCHEDULES, NcKeyword.STATE_INSTRUCTION_SCHEDULE)) {
-            PowerBidScheduleData powerBidSchedule = powerBidSchedules.get(bag.get("pbs"));
+            PowerBidScheduleData powerBidSchedule = powerBidSchedules.get(bag.get(NcConstants.POWER_BID_SCHEDULE));
             if (powerBidSchedule == null) {
                 continue;
             }
             // The resource is identified by its mRID, as in the CGMES EQ profile
-            GlskScheduleData glskSchedule = result.computeIfAbsent(bag.get("glskSchedule"),
-                uri -> new GlskScheduleData(uri, bag.getId("resource"), new TreeMap<>()));
+            GlskScheduleData glskSchedule = result.computeIfAbsent(bag.get(NcConstants.GLSK_SCHEDULE),
+                uri -> new GlskScheduleData(uri, bag.getId(NcConstants.RESOURCE), new TreeMap<>()));
             powerBidSchedule.glskSchedules().add(glskSchedule);
         }
         return result;
@@ -258,19 +260,19 @@ public class NcGlskDatasetParser {
 
     private void parseParticipationFactorTimePoints(Map<String, GlskScheduleData> glskSchedules) {
         for (PropertyBag bag : query(NcConstants.QUERY_PARTICIPATION_FACTOR_TIME_POINTS, NcKeyword.STATE_INSTRUCTION_SCHEDULE)) {
-            GlskScheduleData glskSchedule = glskSchedules.get(bag.get("glskSchedule"));
+            GlskScheduleData glskSchedule = glskSchedules.get(bag.get(NcConstants.GLSK_SCHEDULE));
             if (glskSchedule != null) {
-                glskSchedule.participationFactors().put(parseInstant(bag.get("atTime")), Double.parseDouble(bag.get("participationFactor")));
+                glskSchedule.participationFactors().put(parseInstant(bag.get(NcConstants.AT_TIME)), Double.parseDouble(bag.get(NcConstants.PARTICIPATION_FACTOR)));
             }
         }
     }
 
     private void parsePowerBidScheduleTimePoints(Map<String, PowerBidScheduleData> powerBidSchedules) {
         for (PropertyBag bag : query(NcConstants.QUERY_POWER_BID_SCHEDULE_TIME_POINTS, NcKeyword.STATE_INSTRUCTION_SCHEDULE)) {
-            PowerBidScheduleData powerBidSchedule = powerBidSchedules.get(bag.get("pbs"));
+            PowerBidScheduleData powerBidSchedule = powerBidSchedules.get(bag.get(NcConstants.POWER_BID_SCHEDULE));
             if (powerBidSchedule != null) {
-                powerBidSchedule.timePoints().put(parseInstant(bag.get("atTime")),
-                    new PriceAndPower(parseNullableDouble(bag.get("price")), parseNullableDouble(bag.get("power"))));
+                powerBidSchedule.timePoints().put(parseInstant(bag.get(NcConstants.AT_TIME)),
+                    new PriceAndPower(parseNullableDouble(bag.get(NcConstants.PRICE)), parseNullableDouble(bag.get(NcConstants.POWER))));
             }
         }
     }
