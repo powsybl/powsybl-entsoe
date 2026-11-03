@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:e5a3c6f4-0000-4000-8000-000000000301">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XES-REE------E</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-12T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-13T00:00:00Z</dcat:endDate>
+    <dcat:keyword>RA</dcat:keyword>
+  </md:FullModel>
+  <!-- Bids by increasing price: GEN up to 50 MW, GEN2 up to 50 MW, GEN up to 100 MW, GEN2 up to 100 MW -->
+  <nc:CountertradeRemedialAction rdf:ID="_sc-interleaved">
+    <cim:IdentifiedObject.mRID>sc-interleaved</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-sc-interleaved"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- GEN in two upward steps, with GEN2 in between -->
+  <nc:CountertradeRemedialAction rdf:ID="_sc-same-unit">
+    <cim:IdentifiedObject.mRID>sc-same-unit</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-sc-same-unit"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- An upward stack (GEN) and a downward stack (GEN2) that do not affect each other -->
+  <nc:CountertradeRemedialAction rdf:ID="_sc-up-down">
+    <cim:IdentifiedObject.mRID>sc-up-down</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-sc-up-down"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Several steps per unit in both directions -->
+  <nc:CountertradeRemedialAction rdf:ID="_sc-both-directions">
+    <cim:IdentifiedObject.mRID>sc-both-directions</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-sc-both-directions"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- GEN2 is disconnected in the network of the test: its step is skipped -->
+  <nc:CountertradeRemedialAction rdf:ID="_sc-disconnected">
+    <cim:IdentifiedObject.mRID>sc-disconnected</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-sc-disconnected"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- The resources are the CGMES generating units unit-gen and unit-gen2, which the generators GEN and GEN2 carry in their property CGMES.GeneratingUnit -->
+  <nc:CountertradeRemedialAction rdf:ID="_rs-property">
+    <cim:IdentifiedObject.mRID>rs-property</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-rs-property"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- GEN is the id of a generator, but also the generating unit of GEN2 in the network of the test: the id has priority -->
+  <nc:CountertradeRemedialAction rdf:ID="_rs-id-precedence">
+    <cim:IdentifiedObject.mRID>rs-id-precedence</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-rs-id-precedence"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- unknown is not in the network: its step is ignored, the other one is kept -->
+  <nc:CountertradeRemedialAction rdf:ID="_rs-unknown">
+    <cim:IdentifiedObject.mRID>rs-unknown</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-rs-unknown"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- shared-unit is the generating unit of GEN and GEN2 in the network of the test: its step is ignored -->
+  <nc:CountertradeRemedialAction rdf:ID="_rs-ambiguous">
+    <cim:IdentifiedObject.mRID>rs-ambiguous</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-rs-ambiguous"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- GEN2 is disconnected in the network of the test: its step is ignored -->
+  <nc:CountertradeRemedialAction rdf:ID="_rs-disconnected">
+    <cim:IdentifiedObject.mRID>rs-disconnected</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-rs-disconnected"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- A generator and a load in the same merit order -->
+  <nc:CountertradeRemedialAction rdf:ID="_rs-mixed">
+    <cim:IdentifiedObject.mRID>rs-mixed</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-rs-mixed"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- No resource can be found in the network: nothing is scaled -->
+  <nc:CountertradeRemedialAction rdf:ID="_rs-nothing">
+    <cim:IdentifiedObject.mRID>rs-nothing</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-rs-nothing"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+  <!-- unit-gen is the generating unit of GEN in the network of the test, to check all the ways to get a Scalable -->
+  <nc:CountertradeRemedialAction rdf:ID="_rs-all-ways">
+    <cim:IdentifiedObject.mRID>rs-all-ways</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-rs-all-ways"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.explicitSchedule"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.priority"/>
+  </nc:CountertradeRemedialAction>
+</rdf:RDF>

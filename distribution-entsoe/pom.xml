@@ -62,6 +62,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-glsk-document-nc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-glsk-document-io-api</artifactId>
         </dependency>
         <dependency>

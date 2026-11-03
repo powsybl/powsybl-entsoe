@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The SIS profile that goes with the RA profile: the guidelines make RTE provide a bid direction even though a proportional remedial action needs no bid, so it only has a bid without resource, which the importer ignores -->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:a7c5e8b6-0000-4000-8000-000000000502">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XFR-RTE------Q</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/StateInstructionSchedule-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-11T23:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-12T23:00:00Z</dcat:endDate>
+    <dcat:keyword>SIS</dcat:keyword>
+  </md:FullModel>
+  <nc:PowerBidSchedule rdf:ID="_pbs-fr">
+    <cim:IdentifiedObject.mRID>pbs-fr</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-fr"/>
+  </nc:PowerBidSchedule>
+  <nc:GLSKSchedule rdf:ID="_glsk-fr">
+    <cim:IdentifiedObject.mRID>glsk-fr</cim:IdentifiedObject.mRID>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-fr">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-fr"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-fr"/>
+  </nc:GLSKBidActionDistribution>
+</rdf:RDF>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:d4f2b5e3-0000-4000-8000-000000000202">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XES-REE------E</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/StateInstructionSchedule-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-12T06:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-12T18:00:00Z</dcat:endDate>
+    <dcat:keyword>SIS</dcat:keyword>
+  </md:FullModel>
+  <!-- The SIS profile is valid from 06:00 to 18:00 only: the merit order is limited to it, although the time point starts at midnight -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-ra-sis-window-a">
+    <cim:IdentifiedObject.mRID>pbs-ra-sis-window-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-sis-window"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ra-sis-window-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ra-sis-window-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-ra-sis-window-a-0">
+    <cim:IdentifiedObject.mRID>glsk-ra-sis-window-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-ra-sis-window-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-ra-sis-window-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-ra-sis-window-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-ra-sis-window-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-ra-sis-window-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+</rdf:RDF>

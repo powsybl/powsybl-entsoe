@@ -1,0 +1,961 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:d4f2b5e3-0000-4000-8000-000000000201">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XES-REE------E</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/StateInstructionSchedule-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-12T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-13T00:00:00Z</dcat:endDate>
+    <dcat:keyword>SIS</dcat:keyword>
+  </md:FullModel>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-sorted-up-1">
+    <cim:IdentifiedObject.mRID>pbs-mo-sorted-up-1</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-sorted-up"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-sorted-up-1-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-sorted-up-1"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-sorted-up-1-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-sorted-up-1-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-1"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-sorted-up-1-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-sorted-up-1"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-sorted-up-1-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-sorted-up-1-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-sorted-up-1-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-sorted-up-2">
+    <cim:IdentifiedObject.mRID>pbs-mo-sorted-up-2</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-sorted-up"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-sorted-up-2-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-sorted-up-2"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-sorted-up-2-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-sorted-up-2-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-2"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-sorted-up-2-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-sorted-up-2"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-sorted-up-2-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-sorted-up-2-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-sorted-up-2-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-sorted-up-3">
+    <cim:IdentifiedObject.mRID>pbs-mo-sorted-up-3</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-sorted-up"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-sorted-up-3-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-sorted-up-3"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>20</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>150</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-sorted-up-3-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-sorted-up-3-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-3"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-sorted-up-3-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-sorted-up-3"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-sorted-up-3-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-sorted-up-3-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-sorted-up-3-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-sorted-down-1">
+    <cim:IdentifiedObject.mRID>pbs-mo-sorted-down-1</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.down"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-sorted-down"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-sorted-down-1-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-sorted-down-1"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>15</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-sorted-down-1-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-sorted-down-1-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-1"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-sorted-down-1-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-sorted-down-1"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-sorted-down-1-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-sorted-down-1-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-sorted-down-1-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-sorted-down-2">
+    <cim:IdentifiedObject.mRID>pbs-mo-sorted-down-2</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.down"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-sorted-down"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-sorted-down-2-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-sorted-down-2"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>5</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>300</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-sorted-down-2-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-sorted-down-2-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-2"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-sorted-down-2-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-sorted-down-2"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-sorted-down-2-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-sorted-down-2-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-sorted-down-2-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-up-down-1">
+    <cim:IdentifiedObject.mRID>pbs-mo-up-down-1</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-up-down"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-up-down-1-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-up-down-1"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-up-down-1-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-up-down-1-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-1"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-up-down-1-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-up-down-1"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-up-down-1-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-up-down-1-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-up-down-1-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-up-down-2">
+    <cim:IdentifiedObject.mRID>pbs-mo-up-down-2</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-up-down"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-up-down-2-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-up-down-2"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>20</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-up-down-2-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-up-down-2-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-2"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-up-down-2-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-up-down-2"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-up-down-2-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-up-down-2-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-up-down-2-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-up-down-3">
+    <cim:IdentifiedObject.mRID>pbs-mo-up-down-3</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.down"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-up-down"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-up-down-3-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-up-down-3"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>5</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>50</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-up-down-3-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-up-down-3-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-3"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-up-down-3-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-up-down-3"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-up-down-3-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-up-down-3-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-up-down-3-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-equal-prices-b">
+    <cim:IdentifiedObject.mRID>pbs-mo-equal-prices-b</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-equal-prices"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-equal-prices-b-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-equal-prices-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-equal-prices-b-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-equal-prices-b-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-b"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-equal-prices-b-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-equal-prices-b"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-equal-prices-b-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-equal-prices-b-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-equal-prices-b-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-equal-prices-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-equal-prices-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-equal-prices"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-equal-prices-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-equal-prices-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-equal-prices-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-equal-prices-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-equal-prices-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-equal-prices-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-equal-prices-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-equal-prices-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-equal-prices-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-time-series-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-time-series-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-time-series"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-time-series-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-time-series-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-time-series-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-time-series-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-time-series-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-time-series-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-time-series-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-time-series-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-time-series-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-time-series-b">
+    <cim:IdentifiedObject.mRID>pbs-mo-time-series-b</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-time-series"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-time-series-b-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-time-series-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-time-series-b-1">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-time-series-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T12:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>50</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>250</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-time-series-b-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-time-series-b-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-b"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-time-series-b-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-time-series-b"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-time-series-b-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-time-series-b-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-time-series-b-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-bid-starts-later-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-bid-starts-later-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-bid-starts-later"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-bid-starts-later-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-bid-starts-later-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-bid-starts-later-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-bid-starts-later-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-bid-starts-later-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-bid-starts-later-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-bid-starts-later-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-bid-starts-later-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-bid-starts-later-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-bid-starts-later-b">
+    <cim:IdentifiedObject.mRID>pbs-mo-bid-starts-later-b</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-bid-starts-later"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-bid-starts-later-b-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-bid-starts-later-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T12:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-bid-starts-later-b-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-bid-starts-later-b-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-b"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-bid-starts-later-b-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-bid-starts-later-b"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-bid-starts-later-b-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-bid-starts-later-b-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-bid-starts-later-b-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-first-point-at-noon-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-first-point-at-noon-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-first-point-at-noon"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-first-point-at-noon-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-first-point-at-noon-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T12:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-first-point-at-noon-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-first-point-at-noon-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-first-point-at-noon-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-first-point-at-noon-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-first-point-at-noon-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-first-point-at-noon-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-first-point-at-noon-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-incomplete-time-point-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-incomplete-time-point-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-incomplete-time-point"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-incomplete-time-point-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-incomplete-time-point-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-incomplete-time-point-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-incomplete-time-point-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-incomplete-time-point-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-incomplete-time-point-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-incomplete-time-point-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-incomplete-time-point-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-incomplete-time-point-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-incomplete-time-point-b">
+    <cim:IdentifiedObject.mRID>pbs-mo-incomplete-time-point-b</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-incomplete-time-point"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-incomplete-time-point-b-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-incomplete-time-point-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-incomplete-time-point-b-1">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-incomplete-time-point-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T12:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.p>250</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-incomplete-time-point-b-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-incomplete-time-point-b-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-b"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-incomplete-time-point-b-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-incomplete-time-point-b"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-incomplete-time-point-b-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-incomplete-time-point-b-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-incomplete-time-point-b-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-unsupported-direction-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-unsupported-direction-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-unsupported-direction"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-unsupported-direction-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-unsupported-direction-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-unsupported-direction-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-unsupported-direction-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-unsupported-direction-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-unsupported-direction-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-unsupported-direction-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-unsupported-direction-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-unsupported-direction-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-unsupported-direction-b">
+    <cim:IdentifiedObject.mRID>pbs-mo-unsupported-direction-b</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.upAndDown"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-unsupported-direction"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-unsupported-direction-b-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-unsupported-direction-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-unsupported-direction-b-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-unsupported-direction-b-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-b"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-unsupported-direction-b-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-unsupported-direction-b"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-unsupported-direction-b-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-unsupported-direction-b-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-unsupported-direction-b-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-unsupported-direction-c">
+    <cim:IdentifiedObject.mRID>pbs-mo-unsupported-direction-c</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.stable"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-unsupported-direction"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-unsupported-direction-c-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-unsupported-direction-c"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-unsupported-direction-c-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-unsupported-direction-c-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-c"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-unsupported-direction-c-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-unsupported-direction-c"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-unsupported-direction-c-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-unsupported-direction-c-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-unsupported-direction-c-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <!-- The direction is up, but a literal of another enumeration: the bid is ignored -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-unsupported-direction-d">
+    <cim:IdentifiedObject.mRID>pbs-mo-unsupported-direction-d</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#RelativeDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-unsupported-direction"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-unsupported-direction-d-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-unsupported-direction-d"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-unsupported-direction-d-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-unsupported-direction-d-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-c"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-unsupported-direction-d-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-unsupported-direction-d"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-unsupported-direction-d-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-without-resource-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-without-resource-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-without-resource"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-without-resource-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-without-resource-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-without-resource-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-without-resource-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-without-resource-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-without-resource-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-without-resource-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-without-resource-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-without-resource-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-without-resource-b">
+    <cim:IdentifiedObject.mRID>pbs-mo-without-resource-b</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-without-resource"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-without-resource-b-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-without-resource-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-several-resources-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-several-resources-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-several-resources"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-several-resources-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-several-resources-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-several-resources-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-several-resources-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-several-resources-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-several-resources-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-several-resources-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-several-resources-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-several-resources-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-several-resources-b">
+    <cim:IdentifiedObject.mRID>pbs-mo-several-resources-b</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-several-resources"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-several-resources-b-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-several-resources-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-several-resources-b-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-several-resources-b-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-b"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-several-resources-b-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-several-resources-b"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-several-resources-b-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-several-resources-b-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-several-resources-b-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-several-resources-b-1">
+    <cim:IdentifiedObject.mRID>glsk-mo-several-resources-b-1</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-c"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-several-resources-b-1">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-several-resources-b"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-several-resources-b-1"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-several-resources-b-1-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-several-resources-b-1"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-participation-zero-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-participation-zero-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-participation-zero"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-participation-zero-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-participation-zero-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-participation-zero-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-participation-zero-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-participation-zero-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-participation-zero-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-participation-zero-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-participation-zero-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-participation-zero-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-participation-zero-b">
+    <cim:IdentifiedObject.mRID>pbs-mo-participation-zero-b</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-participation-zero"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-participation-zero-b-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-participation-zero-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-participation-zero-b-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-participation-zero-b-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-b"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-participation-zero-b-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-participation-zero-b"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-participation-zero-b-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-participation-zero-b-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-participation-zero-b-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>0</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-participation-from-noon-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-participation-from-noon-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-participation-from-noon"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-participation-from-noon-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-participation-from-noon-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-participation-from-noon-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-participation-from-noon-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-participation-from-noon-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-participation-from-noon-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-participation-from-noon-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-participation-from-noon-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-participation-from-noon-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-participation-from-noon-b">
+    <cim:IdentifiedObject.mRID>pbs-mo-participation-from-noon-b</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-participation-from-noon"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-participation-from-noon-b-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-participation-from-noon-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-participation-from-noon-b-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-participation-from-noon-b-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-b"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-participation-from-noon-b-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-participation-from-noon-b"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-participation-from-noon-b-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-participation-from-noon-b-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-participation-from-noon-b-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-08-12T12:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-same-schedule-mrid-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-same-schedule-mrid-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-same-schedule-mrid"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-same-schedule-mrid-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-same-schedule-mrid-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-same-schedule-mrid-a-0">
+    <cim:IdentifiedObject.mRID>shared-mrid</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-same-schedule-mrid-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-same-schedule-mrid-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-same-schedule-mrid-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-same-schedule-mrid-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-same-schedule-mrid-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-same-schedule-mrid-b">
+    <cim:IdentifiedObject.mRID>pbs-mo-same-schedule-mrid-b</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-same-schedule-mrid"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-same-schedule-mrid-b-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-same-schedule-mrid-b"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>20</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-same-schedule-mrid-b-0">
+    <cim:IdentifiedObject.mRID>shared-mrid</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-b"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-same-schedule-mrid-b-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-same-schedule-mrid-b"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-same-schedule-mrid-b-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-same-schedule-mrid-b-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-same-schedule-mrid-b-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-proportional-with-bids-a">
+    <cim:IdentifiedObject.mRID>pbs-mo-proportional-with-bids-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-proportional-with-bids"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-proportional-with-bids-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-proportional-with-bids-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-proportional-with-bids-a-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-proportional-with-bids-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-proportional-with-bids-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-proportional-with-bids-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-proportional-with-bids-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-proportional-with-bids-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-proportional-with-bids-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-scalable-1">
+    <cim:IdentifiedObject.mRID>pbs-mo-scalable-1</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-scalable"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-scalable-1-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-scalable-1"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>700</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-scalable-1-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-scalable-1-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_GEN"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-scalable-1-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-scalable-1"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-scalable-1-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-scalable-1-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-scalable-1-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-scalable-2">
+    <cim:IdentifiedObject.mRID>pbs-mo-scalable-2</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-scalable"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-scalable-2-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-scalable-2"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>20</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>650</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-scalable-2-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-scalable-2-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_GEN2"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-scalable-2-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-scalable-2"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-scalable-2-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-scalable-2-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-scalable-2-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-scalable-3">
+    <cim:IdentifiedObject.mRID>pbs-mo-scalable-3</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.down"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-scalable"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-scalable-3-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-scalable-3"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>500</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-scalable-3-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-scalable-3-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_GEN"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-scalable-3-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-scalable-3"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-scalable-3-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-scalable-3-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-scalable-3-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-scalable-4">
+    <cim:IdentifiedObject.mRID>pbs-mo-scalable-4</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.down"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-scalable"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-scalable-4-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-scalable-4"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>20</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>550</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-scalable-4-0">
+    <cim:IdentifiedObject.mRID>glsk-mo-scalable-4-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_GEN2"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-scalable-4-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-scalable-4"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-scalable-4-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-scalable-4-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-scalable-4-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <!-- Bid of a remedial action that is not in the RA profile -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-another-ra-a">
+    <cim:IdentifiedObject.mRID>pbs-another-ra-a</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_another-ra"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-another-ra-a-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-another-ra-a"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-another-ra-a-0">
+    <cim:IdentifiedObject.mRID>glsk-another-ra-a-0</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-another-ra-a-0">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-another-ra-a"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-another-ra-a-0"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-another-ra-a-0-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-another-ra-a-0"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-01-01T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <!-- Participation factor 0.5 from 00:00 and 1 from 12:00 -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-participation-changes">
+    <cim:IdentifiedObject.mRID>pbs-mo-participation-changes</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-participation-changes"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-participation-changes-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-participation-changes"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-participation-changes">
+    <cim:IdentifiedObject.mRID>glsk-mo-participation-changes</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-participation-changes">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-participation-changes"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-participation-changes"/>
+  </nc:GLSKBidActionDistribution>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-participation-changes-0">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-participation-changes"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-08-12T00:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>0.5</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <nc:ParticipationFactorTimePoint rdf:ID="_pftp-mo-participation-changes-1">
+    <nc:ParticipationFactorTimePoint.GLSKSchedule rdf:resource="#_glsk-mo-participation-changes"/>
+    <nc:ParticipationFactorTimePoint.atTime>2029-08-12T12:00:00Z</nc:ParticipationFactorTimePoint.atTime>
+    <nc:ParticipationFactorTimePoint.participationFactor>1</nc:ParticipationFactorTimePoint.participationFactor>
+  </nc:ParticipationFactorTimePoint>
+  <!-- No participation factor -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-mo-participation-missing">
+    <cim:IdentifiedObject.mRID>pbs-mo-participation-missing</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_mo-participation-missing"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-mo-participation-missing-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-mo-participation-missing"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-mo-participation-missing">
+    <cim:IdentifiedObject.mRID>glsk-mo-participation-missing</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-mo-participation-missing">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-mo-participation-missing"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-mo-participation-missing"/>
+  </nc:GLSKBidActionDistribution>
+</rdf:RDF>
