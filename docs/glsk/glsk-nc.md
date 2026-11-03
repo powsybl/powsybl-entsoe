@@ -159,8 +159,11 @@ The importer translates the NC profiles into the GLSK model shared by all the fo
 The resources of a merit order are identified in the profiles by the mRID of their CGMES element (for example their generating
 unit), which is not necessarily the id of the network element to scale. For each step, the resource is looked up in the network:
 
-1. a generator, then a load, whose id is the mRID of the resource;
+1. the generator whose id is the mRID of the resource;
 2. otherwise, the generator whose property `CGMES.GeneratingUnit` is the mRID of the resource.
 
 A step whose resource is not found, is the generating unit of several generators, or is not in service (not connected, or
 not in the main synchronous component) is ignored, with a warning, and the other steps are kept.
+
+**Loads are not supported yet.** A step whose resource is a load (an `EnergyConsumer` in the profiles) is ignored, with a
+warning: the way the direction and the power of a bid apply to a load, the opposite of a generator, is not defined yet.

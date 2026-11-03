@@ -117,11 +117,14 @@ class NcGlskResourceResolutionTest {
     }
 
     @Test
-    void generatorsAndLoadsCanBeMixed() {
+    void loadsAreIgnoredAndTheGeneratorsAreKept() {
         Network network = twoGeneratorsNetwork();
         Scalable scalable = scalable(network, "rs-mixed");
 
-        assertEquals(List.of("GEN", "LOAD"), injectionIds(scalable, network));
+        assertEquals(List.of("GEN"), injectionIds(scalable, network));
+        double loadP0 = network.getLoad("LOAD").getP0();
+        scalable.scale(network, 10.);
+        assertEquals(loadP0, network.getLoad("LOAD").getP0(), EPSILON);
     }
 
     @Test
@@ -149,12 +152,12 @@ class NcGlskResourceResolutionTest {
     @Test
     void resourcesOfDifferentClassesAreResolved() {
         // The bids refer to GEN (GeneratingUnit), GEN2 (PowerElectronicsUnit) and LOAD (EnergyConsumer), among other classes
-        // of resources that the network does not know
+        // of resources that the network does not know. LOAD is read, but ignored as loads are not supported
         Network network = twoGeneratorsNetwork();
         NcGlskDocument resourceClasses = importTestCase("merit-order-resource-classes");
 
         Scalable scalable = resourceClasses.getZonalScalable(network, INSTANT).getData("zone-resource-classes");
 
-        assertEquals(List.of("GEN", "GEN2", "LOAD"), injectionIds(scalable, network));
+        assertEquals(List.of("GEN", "GEN2"), injectionIds(scalable, network));
     }
 }

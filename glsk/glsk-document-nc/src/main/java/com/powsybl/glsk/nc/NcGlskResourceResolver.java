@@ -27,8 +27,11 @@ import java.util.stream.Collectors;
  * Resolves the resources of a merit order against a network.
  * <p>
  * The resources of the SIS profile are identified by the mRID of their CGMES generating unit, which is not necessarily
- * the id of the network element that has to be scaled: a resource is looked up by id (generator, then load) and, if
- * there is none, as the generating unit of a generator (see {@link NcConstants#PROPERTY_GENERATING_UNIT}).
+ * the id of the network element that has to be scaled: a resource is looked up by id (generator) and, if there is none,
+ * as the generating unit of a generator (see {@link NcConstants#PROPERTY_GENERATING_UNIT}).
+ * <p>
+ * Loads are not supported: how the direction and the power of a bid apply to a load (the opposite of a generator) is not
+ * defined yet, so a step whose resource is a load is ignored, with a warning.
  * <p>
  * A step of the merit order whose resource cannot be resolved to a unique element that is in service (connected, and in
  * the main synchronous component) is ignored, with a warning, and the other steps are kept.
@@ -82,10 +85,10 @@ final class NcGlskResourceResolver {
         }
 
         private Optional<Injection<?>> find(String resourceMrid) {
-            Injection<?> injection = network.getGenerator(resourceMrid);
-            if (injection == null) {
-                injection = network.getLoad(resourceMrid);
+            if (network.getLoad(resourceMrid) != null) {
+                return ignored(resourceMrid, "loads are not supported in a merit order yet");
             }
+            Injection<?> injection = network.getGenerator(resourceMrid);
             if (injection == null) {
                 List<Generator> generators = generatorsByGeneratingUnit().getOrDefault(resourceMrid, List.of());
                 if (generators.size() > 1) {
