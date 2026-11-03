@@ -5,6 +5,7 @@
 glsk-ucte.md
 glsk-cse.md
 glsk-cim.md
+glsk-nc.md
 ```
 
 ## General definition
