@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:d4f2b5e3-0000-4000-8000-000000000702">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XES-REE------E</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/StateInstructionSchedule-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-12T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-13T00:00:00Z</dcat:endDate>
+    <dcat:keyword>SIS</dcat:keyword>
+  </md:FullModel>
+  <!-- Unavailable up to 06:00 (included), available after it, from the time point of 18:00 -->
+  <nc:GenericAvailableSchedule rdf:ID="_sched-ip-av-next">
+    <cim:IdentifiedObject.mRID>sched-ip-av-next</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+    <nc:GenericAvailableSchedule.RemedialAction rdf:resource="#_ip-av-next"/>
+  </nc:GenericAvailableSchedule>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-ip-av-next-0">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-ip-av-next"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-ip-av-next-1">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-ip-av-next"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T18:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>true</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <!-- Unavailable at 06:00, available at 18:00, without interpolation kind -->
+  <nc:GenericAvailableSchedule rdf:ID="_sched-ip-av-missing">
+    <cim:IdentifiedObject.mRID>sched-ip-av-missing</cim:IdentifiedObject.mRID>
+    <nc:GenericAvailableSchedule.RemedialAction rdf:resource="#_ip-av-missing"/>
+  </nc:GenericAvailableSchedule>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-ip-av-missing-0">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-ip-av-missing"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-ip-av-missing-1">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-ip-av-missing"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T18:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>true</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <!-- None is not supported -->
+  <nc:GenericAvailableSchedule rdf:ID="_sched-ip-av-none">
+    <cim:IdentifiedObject.mRID>sched-ip-av-none</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
+    <nc:GenericAvailableSchedule.RemedialAction rdf:resource="#_ip-av-none"/>
+  </nc:GenericAvailableSchedule>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-ip-av-none-0">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-ip-av-none"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-ip-av-none-1">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-ip-av-none"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T18:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>true</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <!-- Available at 06:00 but linear is not supported -->
+  <nc:GenericAvailableSchedule rdf:ID="_sched-ip-av-linear">
+    <cim:IdentifiedObject.mRID>sched-ip-av-linear</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.linear"/>
+    <nc:GenericAvailableSchedule.RemedialAction rdf:resource="#_ip-av-linear"/>
+  </nc:GenericAvailableSchedule>
+  <nc:AvailabilityTimePoint rdf:ID="_avtp-ip-av-linear-0">
+    <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-ip-av-linear"/>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.available>true</nc:AvailabilityTimePoint.available>
+  </nc:AvailabilityTimePoint>
+  <!-- Price 30 and p 100 from 00:00, price 10 and p 200 from 12:00 -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-ip-bid-none">
+    <cim:IdentifiedObject.mRID>pbs-ip-bid-none</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ip-bid-none"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-none-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-none"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-none-1">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-none"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T12:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-ip-bid-none">
+    <cim:IdentifiedObject.mRID>glsk-ip-bid-none</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-ip-bid-none">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-ip-bid-none"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-ip-bid-none"/>
+  </nc:GLSKBidActionDistribution>
+  <!-- Price 30 and p 100 at 00:00, then price 10 and p 200 (the next time point) after it, also after 12:00 -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-ip-bid-next">
+    <cim:IdentifiedObject.mRID>pbs-ip-bid-next</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ip-bid-next"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-next-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-next"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-next-1">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-next"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T12:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-ip-bid-next">
+    <cim:IdentifiedObject.mRID>glsk-ip-bid-next</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-ip-bid-next">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-ip-bid-next"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-ip-bid-next"/>
+  </nc:GLSKBidActionDistribution>
+  <!-- A single time point at 06:00: it holds before it, with next -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-ip-bid-next-single">
+    <cim:IdentifiedObject.mRID>pbs-ip-bid-next-single</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ip-bid-next-single"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-next-single-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-next-single"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T06:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-ip-bid-next-single">
+    <cim:IdentifiedObject.mRID>glsk-ip-bid-next-single</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-ip-bid-next-single">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-ip-bid-next-single"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-ip-bid-next-single"/>
+  </nc:GLSKBidActionDistribution>
+  <!-- A single time point at 06:00: it holds only from it, with none -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-ip-bid-none-single">
+    <cim:IdentifiedObject.mRID>pbs-ip-bid-none-single</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ip-bid-none-single"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-none-single-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-none-single"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T06:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-ip-bid-none-single">
+    <cim:IdentifiedObject.mRID>glsk-ip-bid-none-single</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-ip-bid-none-single">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-ip-bid-none-single"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-ip-bid-none-single"/>
+  </nc:GLSKBidActionDistribution>
+  <!-- Same as ip-bid-none, without interpolation kind -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-ip-bid-missing">
+    <cim:IdentifiedObject.mRID>pbs-ip-bid-missing</cim:IdentifiedObject.mRID>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ip-bid-missing"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-missing-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-missing"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-missing-1">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-missing"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T12:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-ip-bid-missing">
+    <cim:IdentifiedObject.mRID>glsk-ip-bid-missing</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-ip-bid-missing">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-ip-bid-missing"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-ip-bid-missing"/>
+  </nc:GLSKBidActionDistribution>
+  <!-- Linear interpolation is not supported -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-ip-bid-linear">
+    <cim:IdentifiedObject.mRID>pbs-ip-bid-linear</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.linear"/>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ip-bid-linear"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-linear-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-linear"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T00:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>30</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-linear-1">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-linear"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T12:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>10</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-ip-bid-linear">
+    <cim:IdentifiedObject.mRID>glsk-ip-bid-linear</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-ip-bid-linear">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-ip-bid-linear"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-ip-bid-linear"/>
+  </nc:GLSKBidActionDistribution>
+</rdf:RDF>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:a8d6f9c7-0000-4000-8000-000000000603">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XES-REE------E</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/SteadyStateInstruction-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-12T06:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-12T18:00:00Z</dcat:endDate>
+    <dcat:keyword>SSI</dcat:keyword>
+  </md:FullModel>
+  <!-- Available from 06:00 to 18:00 -->
+  <nc:CountertradeRemedialAction rdf:about="#_av-ssi-true-over-ra">
+    <nc:RemedialAction.available>true</nc:RemedialAction.available>
+  </nc:CountertradeRemedialAction>
+  <!-- Not available from 06:00 to 18:00 -->
+  <nc:CountertradeRemedialAction rdf:about="#_av-ssi-false-over-ra">
+    <nc:RemedialAction.available>false</nc:RemedialAction.available>
+  </nc:CountertradeRemedialAction>
+  <!-- Not available from 06:00 to 18:00 -->
+  <nc:CountertradeRemedialAction rdf:about="#_av-explicit-ssi-false">
+    <nc:RemedialAction.available>false</nc:RemedialAction.available>
+  </nc:CountertradeRemedialAction>
+</rdf:RDF>
