@@ -99,7 +99,10 @@ The merit order of a zone is made of the **bids** of its remedial action, define
 </nc:GLSKBidActionDistribution>
 ~~~
 
-- **PowerBidSchedule.direction**: `up` or `down`. `upAndDown` and `stable` are not supported: the bid is ignored.
+- **PowerBidSchedule.direction**: the direction of the shift the bid is offered for. An `up` bid is used when the active power
+  of the zone has to increase (a positive shift): it raises the active power of its resource, up to the limit `p`. A `down` bid
+  is used when it has to decrease (a negative shift): it lowers the active power of its resource, down to the limit `p`.
+  The two directions are independent, each with its own merit order. `upAndDown` and `stable` are not supported: the bid is ignored.
 - **PowerBidSchedule.PowerRemedialAction**: the remedial action the bid belongs to, which must be an `explicitSchedule` one.
 - **GLSKBidActionDistribution** and **GLSKSchedule**: they bind the bid to its resource, through the association of the
   class of the resource (`GeneratingUnit`, `PowerElectronicsUnit`, `EnergyGroup`, `EnergyBlockOrder`, `HydroPump`,
