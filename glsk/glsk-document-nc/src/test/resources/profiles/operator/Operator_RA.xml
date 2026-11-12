@@ -18,7 +18,7 @@
     <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
     <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
     <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XFR-RTE------Q"/>
-    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ra-operator-is-creator"/>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/10Y1MHNB3ZY24U2Q"/>
     <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
     <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
   </nc:CountertradeRemedialAction>
@@ -28,7 +28,7 @@
     <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
     <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
     <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://energy.referencedata.eu/EIC/10XES-REE------E"/>
-    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-ra-operator-not-creator"/>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/10Y1PFMSIA9MWM3N"/>
     <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
     <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
   </nc:CountertradeRemedialAction>

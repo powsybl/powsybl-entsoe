@@ -13,9 +13,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Availability of a countertrade remedial action over time, established from the three datasets considered together,
@@ -30,6 +34,9 @@ import java.util.TreeSet;
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
  */
 final class NcRemedialActionAvailability {
+
+    // The only interpolation supported by an availability schedule: the parser ignores the schedules of any other kind
+    private static final TimeSeriesInterpolationKind AVAILABILITY_INTERPOLATION = TimeSeriesInterpolationKind.NEXT;
 
     // Availability of the remedial action from the RA profile
     private final boolean normalAvailable;
@@ -77,16 +84,13 @@ final class NcRemedialActionAvailability {
         if (ssiAvailability.isPresent()) {
             return ssiAvailability.get().available();
         }
-        List<AvailabilityTimePoint> inWindow = availabilityTimePoints.stream()
+        // If several time points share the same time, the first one is kept
+        NavigableMap<Instant, Boolean> inWindow = availabilityTimePoints.stream()
             .filter(timePoint -> timePoint.validity().contains(instant))
-            .toList();
-        // Interpolation next: the first time point at or after the instant, or the last one if there is none
-        Optional<AvailabilityTimePoint> next = inWindow.stream().filter(timePoint -> !timePoint.atTime().isBefore(instant))
-            .min(Comparator.comparing(AvailabilityTimePoint::atTime));
-        if (next.isEmpty()) {
-            next = inWindow.stream().max(Comparator.comparing(AvailabilityTimePoint::atTime));
-        }
-        return next.map(AvailabilityTimePoint::available).orElse(normalAvailable);
+            .collect(Collectors.toMap(AvailabilityTimePoint::atTime, AvailabilityTimePoint::available, (first, second) -> first, TreeMap::new));
+        return Optional.ofNullable(AVAILABILITY_INTERPOLATION.timePointAt(inWindow, instant))
+            .map(Map.Entry::getValue)
+            .orElse(normalAvailable);
     }
 
     /**

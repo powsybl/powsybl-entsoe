@@ -15,7 +15,7 @@
     <cim:IdentifiedObject.mRID>ra-no-window</cim:IdentifiedObject.mRID>
     <nc:RemedialAction.kind rdf:resource="http://entsoe.eu/ns/nc#RemedialActionKind.preventive"/>
     <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
-    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/zone-no-window"/>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/10YYXFEPRCIZFQWE"/>
     <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
     <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
   </nc:CountertradeRemedialAction>

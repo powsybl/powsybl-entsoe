@@ -17,6 +17,7 @@ import java.util.List;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.INSTANT;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.importTestCase;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.twoGeneratorsNetwork;
+import static com.powsybl.glsk.nc.NcGlskTestUtil.zone;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -43,7 +44,7 @@ class NcGlskResourceResolutionTest {
      * @return the scalable of the merit order of a remedial action of the test case, for the network
      */
     private static Scalable scalable(Network network, String remedialAction) {
-        return document.getZonalScalable(network, INSTANT).getData("zone-" + remedialAction);
+        return document.getZonalScalable(network, INSTANT).getData(zone(remedialAction));
     }
 
     /**
@@ -142,7 +143,7 @@ class NcGlskResourceResolutionTest {
     void allTheWaysToGetAScalableResolveTheResources() {
         Network network = twoGeneratorsNetwork();
         network.getGenerator("GEN").setProperty(GENERATING_UNIT_PROPERTY, "unit-gen");
-        String zone = "zone-rs-all-ways";
+        String zone = zone("rs-all-ways");
 
         assertEquals(List.of("GEN"), injectionIds(document.getZonalScalable(network).getData(zone), network));
         assertEquals(List.of("GEN"), injectionIds(document.getZonalScalable(network, INSTANT).getData(zone), network));
@@ -156,7 +157,7 @@ class NcGlskResourceResolutionTest {
         Network network = twoGeneratorsNetwork();
         NcGlskDocument resourceClasses = importTestCase("merit-order-resource-classes");
 
-        Scalable scalable = resourceClasses.getZonalScalable(network, INSTANT).getData("zone-resource-classes");
+        Scalable scalable = resourceClasses.getZonalScalable(network, INSTANT).getData(zone("resource-classes"));
 
         assertEquals(List.of("GEN", "GEN2"), injectionIds(scalable, network));
     }

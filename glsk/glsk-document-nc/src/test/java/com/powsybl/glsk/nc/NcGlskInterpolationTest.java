@@ -19,6 +19,7 @@ import java.util.List;
 
 import static com.powsybl.glsk.nc.NcGlskTestUtil.importTestCase;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.warningsLoggedBy;
+import static com.powsybl.glsk.nc.NcGlskTestUtil.zone;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -55,10 +56,10 @@ class NcGlskInterpolationTest {
     }
 
     private static List<GlskPoint> points(String remedialAction) {
-        if (!document.getZones().contains("zone-" + remedialAction)) {
+        if (!document.getZones().contains(zone(remedialAction))) {
             return List.of();
         }
-        return document.getGlskPoints("zone-" + remedialAction).stream()
+        return document.getGlskPoints(zone(remedialAction)).stream()
             .sorted(Comparator.comparing(point -> point.getPointInterval().getStart()))
             .toList();
     }

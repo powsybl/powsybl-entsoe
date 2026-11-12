@@ -16,6 +16,7 @@ import java.util.List;
 
 import static com.powsybl.glsk.nc.NcGlskTestUtil.importTestCase;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.warningsLoggedBy;
+import static com.powsybl.glsk.nc.NcGlskTestUtil.zone;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -49,10 +50,10 @@ class NcRemedialActionAvailabilityTest {
      * @return the periods of the GLSK of a remedial action, as "start/end" (from the earliest one)
      */
     private static List<String> periods(String remedialAction) {
-        if (!document.getZones().contains("zone-" + remedialAction)) {
+        if (!document.getZones().contains(zone(remedialAction))) {
             return List.of();
         }
-        return document.getGlskPoints("zone-" + remedialAction).stream()
+        return document.getGlskPoints(zone(remedialAction)).stream()
             .sorted(Comparator.comparing(point -> point.getPointInterval().getStart()))
             .map(point -> point.getPointInterval().getStart() + "/" + point.getPointInterval().getEnd())
             .toList();
@@ -120,11 +121,11 @@ class NcRemedialActionAvailabilityTest {
         assertEquals(List.of(period(DAY_START, t(6)), period(t(18), DAY_END)), periods(remedialAction));
 
         // The merit order of each period has its step
-        for (GlskPoint point : document.getGlskPoints("zone-" + remedialAction)) {
+        for (GlskPoint point : document.getGlskPoints(zone(remedialAction))) {
             assertEquals(1, point.getGlskShiftKeys().size());
             assertEquals("unit-a", point.getGlskShiftKeys().getFirst().getRegisteredResourceArrayList().getFirst().getmRID());
         }
-        assertFalse(document.getGlskPoints("zone-" + remedialAction).stream()
+        assertFalse(document.getGlskPoints(zone(remedialAction)).stream()
             .anyMatch(point -> point.containsInstant(Instant.parse(t(12)))));
     }
 

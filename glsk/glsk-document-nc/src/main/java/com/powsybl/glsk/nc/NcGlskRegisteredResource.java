@@ -14,24 +14,14 @@ import java.util.Objects;
 
 /**
  * NC GLSK registered resource implementation.
- * Represents a generating unit or load with a participation factor.
+ * Represents a resource of a merit order (a generating unit) with a participation factor and optional capacity limits.
  *
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
  */
 public class NcGlskRegisteredResource extends AbstractGlskRegisteredResource {
 
     /**
-     * Constructor for NC GLSK registered resource.
-     *
-     * @param generatingUnitEIC EIC code of the generating unit or load
-     * @param participationFactor participation factor (typically 0.0 to 1.0)
-     */
-    public NcGlskRegisteredResource(String generatingUnitEIC, double participationFactor) {
-        this(generatingUnitEIC, participationFactor, null, null);
-    }
-
-    /**
-     * Constructor for NC GLSK registered resource with capacity limits, as used by a merit order step.
+     * Constructor for NC GLSK registered resource, with the capacity limits of a merit order step.
      *
      * @param resourceMrid mRID of the resource (generating unit)
      * @param participationFactor participation factor (typically 0.0 to 1.0)

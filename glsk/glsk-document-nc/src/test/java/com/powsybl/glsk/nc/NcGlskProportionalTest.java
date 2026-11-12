@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 
 import static com.powsybl.glsk.nc.NcGlskTestUtil.importTestCase;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.warningsLoggedBy;
+import static com.powsybl.glsk.nc.NcGlskTestUtil.zone;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -118,12 +119,37 @@ class NcGlskProportionalTest {
     @Test
     void operatorDifferentFromTheCreatorIsOnlyReported() {
         List<String> warnings = warningsOfImporting("operator", document -> {
-            assertTrue(document.getZones().contains("zone-ra-operator-is-creator"));
-            assertTrue(document.getZones().contains("zone-ra-operator-not-creator"));
+            assertTrue(document.getZones().contains(zone("ra-operator-is-creator")));
+            assertTrue(document.getZones().contains(zone("ra-operator-not-creator")));
         });
 
         assertTrue(warningsAbout(warnings, "ra-operator-is-creator").isEmpty());
         List<String> reported = warningsAbout(warnings, "ra-operator-not-creator");
+        assertEquals(1, reported.size());
+        assertTrue(reported.getFirst().contains("the creator prevails"));
+    }
+
+    @Test
+    void biddingZoneThatIsNotAnEicCodeIgnoresOnlyItsRemedialAction() {
+        List<String> warnings = warningsOfImporting("invalid-eic", document -> {
+            assertEquals(Set.of(FR_ZONE, "10YES-REE------0"), Set.copyOf(document.getZones()));
+            assertEquals(1, document.getGlskPoints(FR_ZONE).size());
+        });
+
+        for (String ignored : List.of("ra-zone-not-eic-url", "ra-zone-too-long")) {
+            List<String> reported = warningsAbout(warnings, ignored);
+            assertEquals(1, reported.size());
+            assertTrue(reported.getFirst().contains("is not a valid EIC code"));
+        }
+        assertTrue(warningsAbout(warnings, "ra-valid").isEmpty());
+    }
+
+    @Test
+    void operatorThatIsNotAnEicCodeIsOnlyReported() {
+        List<String> warnings = warningsOfImporting("invalid-eic", document ->
+            assertTrue(document.getZones().contains("10YES-REE------0")));
+
+        List<String> reported = warningsAbout(warnings, "ra-operator-not-eic-url");
         assertEquals(1, reported.size());
         assertTrue(reported.getFirst().contains("the creator prevails"));
     }
@@ -133,7 +159,7 @@ class NcGlskProportionalTest {
         "proportionalForRemainingCapacity", "explicitInstruction", "unknownStrategy"})
     void unsupportedStrategiesAreIgnored(String strategy) {
         List<String> warnings = warningsOfImporting("proportional", document ->
-            assertFalse(document.getZones().contains("zone-" + strategy)));
+            assertFalse(document.getZones().contains(zone(strategy))));
 
         assertEquals(1, warningsAbout(warnings, "ra-" + strategy).size());
         assertTrue(warningsAbout(warnings, "ra-" + strategy).getFirst().contains("unsupported GLSK strategy"));
@@ -142,7 +168,7 @@ class NcGlskProportionalTest {
     @Test
     void explicitScheduleWithoutScheduleIsIgnored() {
         List<String> warnings = warningsOfImporting("proportional", document ->
-            assertFalse(document.getZones().contains("zone-explicit-without-bids")));
+            assertFalse(document.getZones().contains(zone("explicit-without-bids"))));
 
         assertEquals(1, warningsAbout(warnings, "ra-explicit-without-bids").size());
         assertTrue(warningsAbout(warnings, "ra-explicit-without-bids").getFirst().contains("no merit order could be built"));
@@ -152,7 +178,7 @@ class NcGlskProportionalTest {
     void unavailableRemedialActionHasNoGlsk() {
         // normalAvailable=false and nothing else (SIS and SSI profiles) says otherwise
         List<String> warnings = warningsOfImporting("proportional", document ->
-            assertFalse(document.getZones().contains("zone-unavailable")));
+            assertFalse(document.getZones().contains(zone("unavailable"))));
 
         assertEquals(1, warningsAbout(warnings, "ra-unavailable").size());
         assertTrue(warningsAbout(warnings, "ra-unavailable").getFirst().contains("not available during its validity window"));
@@ -162,8 +188,8 @@ class NcGlskProportionalTest {
     void supportedStrategyGivesOnePointOverTheValidityWindow() {
         NcGlskDocument document = importTestCase("proportional");
 
-        assertEquals(Set.of("zone-proportional"), Set.copyOf(document.getZones()));
-        GlskPoint point = document.getGlskPoints("zone-proportional").getFirst();
+        assertEquals(Set.of(zone("proportional")), Set.copyOf(document.getZones()));
+        GlskPoint point = document.getGlskPoints(zone("proportional")).getFirst();
         assertEquals(FR_RA_START, point.getPointInterval().getStart());
         assertEquals(FR_RA_END, point.getPointInterval().getEnd());
     }

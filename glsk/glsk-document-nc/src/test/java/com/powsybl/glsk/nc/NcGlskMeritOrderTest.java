@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static com.powsybl.glsk.nc.NcGlskTestUtil.importTestCase;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.warningsLoggedBy;
+import static com.powsybl.glsk.nc.NcGlskTestUtil.zone;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,10 +46,6 @@ class NcGlskMeritOrderTest {
     @BeforeAll
     static void importTestCaseOnce() {
         warnings = warningsLoggedBy(NcGlskMeritOrderBuilder.class, () -> document = importTestCase("merit-order"));
-    }
-
-    private static String zone(String remedialAction) {
-        return "zone-" + remedialAction;
     }
 
     private static List<String> warningsAbout(String bid) {
@@ -340,7 +337,7 @@ class NcGlskMeritOrderTest {
             NcGlskDocument resourceClasses = importTestCase("merit-order-resource-classes");
 
             // GeneratingUnit, PowerElectronicsUnit, EnergyGroup, EnergyBlockOrder, HydroPump, ScheduleResource and EnergyConsumer
-            GlskPoint point = resourceClasses.getGlskPoints("zone-resource-classes").getFirst();
+            GlskPoint point = resourceClasses.getGlskPoints(zone("resource-classes")).getFirst();
             assertEquals(List.of("GEN", "GEN2", "energy-group", "energy-block-order", "hydro-pump", "schedule-resource", "LOAD"),
                 point.getGlskShiftKeys().stream().map(shiftKey -> shiftKey.getRegisteredResourceArrayList().getFirst().getmRID()).toList());
         });

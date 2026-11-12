@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- RA profile whose bidding zones and operator do not always follow the format of the Reference Dataset (http://energy.referencedata.eu/EIC/ followed by a 16-character EIC code) -->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:a7c5e8b6-0000-4000-8000-000000000601">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XFR-RTE------Q</dcterms:creator>
+    <dcterms:conformsTo>http://entsoe.eu/ns/CIM/RemedialAction-EU/2.2</dcterms:conformsTo>
+    <dcat:startDate>2029-08-11T23:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-12T23:00:00Z</dcat:endDate>
+    <dcat:keyword>RA</dcat:keyword>
+  </md:FullModel>
+  <!-- Valid bidding zone: imported -->
+  <nc:CountertradeRemedialAction rdf:ID="_ra-valid">
+    <cim:IdentifiedObject.mRID>ra-valid</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/10YFR-RTE------C"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Bidding zone that is not a URL of the Reference Dataset: ignored -->
+  <nc:CountertradeRemedialAction rdf:ID="_ra-zone-not-eic-url">
+    <cim:IdentifiedObject.mRID>ra-zone-not-eic-url</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://example.com/bidding-zone/FR"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- EIC code that is not 16 characters long: ignored -->
+  <nc:CountertradeRemedialAction rdf:ID="_ra-zone-too-long">
+    <cim:IdentifiedObject.mRID>ra-zone-too-long</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/10YFR-RTE------CX"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+  <!-- Operator that is not an EIC URL: reported as not being the creator, and the GLSK is built all the same -->
+  <nc:CountertradeRemedialAction rdf:ID="_ra-operator-not-eic-url">
+    <cim:IdentifiedObject.mRID>ra-operator-not-eic-url</cim:IdentifiedObject.mRID>
+    <nc:RemedialAction.normalAvailable>true</nc:RemedialAction.normalAvailable>
+    <nc:RemedialAction.RemedialActionSystemOperator rdf:resource="http://example.com/operator/RTE"/>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/10YES-REE------0"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+    <nc:CountertradeRemedialAction.shiftMethod rdf:resource="http://entsoe.eu/ns/nc#ShiftMethodKind.shared"/>
+  </nc:CountertradeRemedialAction>
+</rdf:RDF>

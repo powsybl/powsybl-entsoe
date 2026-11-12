@@ -17,6 +17,7 @@ import java.util.List;
 
 import static com.powsybl.glsk.nc.NcGlskTestUtil.importTestCase;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.warningsLoggedBy;
+import static com.powsybl.glsk.nc.NcGlskTestUtil.zone;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,7 +48,7 @@ class NcGlskShiftMethodTest {
     }
 
     private static GlskPoint pointOf(String remedialAction) {
-        return document.getGlskPoints("zone-" + remedialAction).getFirst();
+        return document.getGlskPoints(zone(remedialAction)).getFirst();
     }
 
     @ParameterizedTest
@@ -90,7 +91,7 @@ class NcGlskShiftMethodTest {
     @Test
     void shiftMethodOfAnUnsupportedStrategyIsNotReported() {
         // Only the unsupported strategy is reported, as the remedial action is ignored
-        assertFalse(document.getZones().contains("zone-ra-unsupported-priority"));
+        assertFalse(document.getZones().contains(zone("ra-unsupported-priority")));
         List<String> remedialActionWarnings = warningsAbout("ra-unsupported-priority");
         assertEquals(1, remedialActionWarnings.size());
         assertTrue(remedialActionWarnings.getFirst().contains("unsupported GLSK strategy"));

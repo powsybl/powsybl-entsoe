@@ -18,12 +18,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.math.BigInteger;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -42,6 +47,22 @@ final class NcGlskTestUtil {
     static final Instant INSTANT = Instant.parse("2029-08-12T12:00:00Z");
 
     private NcGlskTestUtil() {
+    }
+
+    /**
+     * The EIC code of the bidding zone of a remedial action of the test cases. The test cases need a bidding zone for each
+     * remedial action, to tell their GLSK apart, and the importer only accepts a valid EIC code (16 characters). It is
+     * made of the type of area (10Y) and the first characters of the SHA-256 of the name, in base 36. The profiles
+     * contain the code as it is, for example {@code zone("ra-explicit-priority")} for the remedial action
+     * "ra-explicit-priority".
+     */
+    static String zone(String name) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(name.getBytes(StandardCharsets.UTF_8));
+            return "10Y" + new BigInteger(1, digest).toString(36).toUpperCase(Locale.ROOT).substring(0, 13);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     /**

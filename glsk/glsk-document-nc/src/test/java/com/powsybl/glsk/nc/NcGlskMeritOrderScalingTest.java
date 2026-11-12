@@ -16,6 +16,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.INSTANT;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.importTestCase;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.twoGeneratorsNetwork;
+import static com.powsybl.glsk.nc.NcGlskTestUtil.zone;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -43,7 +44,7 @@ class NcGlskMeritOrderScalingTest {
      * @return the scalable of the merit order of a remedial action of the test case, for the network
      */
     private static Scalable scalable(Network network, String remedialAction) {
-        return document.getZonalScalable(network, INSTANT).getData("zone-" + remedialAction);
+        return document.getZonalScalable(network, INSTANT).getData(zone(remedialAction));
     }
 
     private static void assertSetPoints(Network network, double expectedGen, double expectedGen2) {

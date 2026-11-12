@@ -26,9 +26,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +43,7 @@ import java.util.stream.Collectors;
 public class NcGlskDatasetParser {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NcGlskDatasetParser.class);
+    private static final Pattern EIC_URL_PATTERN = Pattern.compile("http://energy\\.referencedata\\.eu/EIC/([A-Z0-9_+\\-]{16})");
 
     private final TripleStore tripleStore;
     private final Map<String, Set<String>> keywordMap;
@@ -144,6 +148,14 @@ public class NcGlskDatasetParser {
     private void parseCountertradeRemedialActions() {
         for (PropertyBag bag : query(NcConstants.QUERY_COUNTERTRADE_REMEDIAL_ACTIONS, NcKeyword.REMEDIAL_ACTION)) {
             String uri = bag.get(NcConstants.REMEDIAL_ACTION);
+            String biddingZoneUrl = bag.get(NcConstants.BIDDING_ZONE);
+            String biddingZone = extractEICCode(biddingZoneUrl);
+            String mrId = bag.get(NcConstants.MRID);
+            if (biddingZone == null) {
+                LOGGER.warn("Countertrade remedial action {} is ignored: its bidding zone {} is not a valid EIC code",
+                        mrId, biddingZoneUrl);
+                continue;
+            }
             String glskStrategyValue = bag.get(NcConstants.GLSK_STRATEGY);
             String shiftMethodUrl = bag.get(NcConstants.SHIFT_METHOD);
             // A remedial action without normalAvailable is considered available
@@ -152,8 +164,8 @@ public class NcGlskDatasetParser {
             checkOperator(bag);
             countertradeRAs.put(uri, new CountertradeRAData(
                 uri,
-                bag.get(NcConstants.MRID),
-                extractEICCode(bag.get(NcConstants.BIDDING_ZONE)),
+                    mrId,
+                biddingZone,
                 glskStrategyValue,
                 GlskStrategyKind.fromUrl(glskStrategyValue).orElse(null),
                 literalOf(shiftMethodUrl),
@@ -171,7 +183,7 @@ public class NcGlskDatasetParser {
     private void checkOperator(PropertyBag bag) {
         String operator = bag.get(NcConstants.OPERATOR);
         String creator = bag.get(NcConstants.CREATOR);
-        if (operator != null && creator != null && !extractEICCode(operator).equals(extractEICCode(creator))) {
+        if (operator != null && creator != null && !Objects.equals(extractEICCode(operator), extractEICCode(creator))) {
             String mrId = bag.get(NcConstants.MRID);
             LOGGER.warn("Countertrade remedial action {} has operator {} which is not the creator of its profile ({}): the creator prevails",
                     mrId, operator, creator);
@@ -357,17 +369,16 @@ public class NcGlskDatasetParser {
     }
 
     /**
-     * Extracts EIC code from URI.
+     * Extracts the EIC code from the URL of the Reference Dataset ({@code http://energy.referencedata.eu/EIC/<EIC code>}).
+     *
+     * @return the EIC code (16 characters), or {@code null} if the URI is missing or does not have that format
      */
-    private String extractEICCode(String uri) {
+    private static String extractEICCode(String uri) {
         if (uri == null) {
             return null;
         }
-        int lastSlash = uri.lastIndexOf('/');
-        if (lastSlash >= 0 && lastSlash < uri.length() - 1) {
-            return uri.substring(lastSlash + 1);
-        }
-        return uri;
+        Matcher matcher = EIC_URL_PATTERN.matcher(uri);
+        return matcher.matches() ? matcher.group(1) : null;
     }
 
     /**
