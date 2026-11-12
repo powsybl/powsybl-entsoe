@@ -126,6 +126,8 @@ The `interpolationKind` of a bid (`BaseTimeSeries.interpolationKind`) tells whic
 
 A missing `interpolationKind` is read as `none`. `linear` is not supported: the bid is ignored.
 
+This applies to the bids. The availability schedules only support `next` (see Availability below).
+
 ## Proportional (`proportionalForGenerator`)
 
 No resource is read from the profiles. The GLSK is **proportional to the target active power of the generators** of the
