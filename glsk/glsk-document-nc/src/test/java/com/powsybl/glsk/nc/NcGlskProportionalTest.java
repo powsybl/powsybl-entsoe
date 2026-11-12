@@ -204,6 +204,14 @@ class NcGlskProportionalTest {
     }
 
     @Test
+    void documentWithoutValidityWindowHasNoValidity() {
+        NcGlskDocument document = importTestCase("proportional-no-window");
+
+        assertTrue(document.getInstantStart().isEmpty());
+        assertTrue(document.getInstantEnd().isEmpty());
+    }
+
+    @Test
     void eachZoneHasTheValidityWindowOfItsOwnProfile() {
         NcGlskDocument document = importTestCase("proportional-two-zones");
 
@@ -219,7 +227,7 @@ class NcGlskProportionalTest {
         assertEquals(Instant.parse("2030-01-02T00:00:00Z"), bePoint.getPointInterval().getEnd());
 
         // The validity of the document covers all its profiles
-        assertEquals(Instant.parse("2029-08-11T23:00:00Z"), document.getInstantStart());
-        assertEquals(Instant.parse("2030-01-02T00:00:00Z"), document.getInstantEnd());
+        assertEquals(Instant.parse("2029-08-11T23:00:00Z"), document.getInstantStart().orElseThrow());
+        assertEquals(Instant.parse("2030-01-02T00:00:00Z"), document.getInstantEnd().orElseThrow());
     }
 }

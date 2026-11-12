@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -51,12 +50,12 @@ public final class NcGlskDocument implements GlskDocument {
     private final Map<String, List<GlskPoint>> glskPointsByZone;
 
     /**
-     * Document validity start instant
+     * Document validity start instant, null if no profile declares a validity window
      */
     private final Instant instantStart;
 
     /**
-     * Document validity end instant
+     * Document validity end instant, null if no profile declares a validity window
      */
     private final Instant instantEnd;
 
@@ -84,18 +83,8 @@ public final class NcGlskDocument implements GlskDocument {
             // Parse NC Profiles and build GLSK structure
             NcGlskDatasetParser parser = new NcGlskDatasetParser(tripleStore, keywordMap);
             Map<String, List<GlskPoint>> pointsByZone = parser.parse();
-            Instant start = parser.getValidityStart();
-            Instant end = parser.getValidityEnd();
 
-            // Use current time as fallback if headers not found
-            if (start == null) {
-                start = Instant.now();
-            }
-            if (end == null) {
-                end = start.plus(Duration.ofHours(24));
-            }
-
-            return new NcGlskDocument(pointsByZone, start, end);
+            return new NcGlskDocument(pointsByZone, parser.getValidityStart(), parser.getValidityEnd());
 
         } catch (IOException e) {
             throw new GlskException("Failed to import NC GLSK document from ZIP", e);
@@ -254,16 +243,16 @@ public final class NcGlskDocument implements GlskDocument {
     }
 
     /**
-     * @return Document validity start instant
+     * @return Document validity start instant: the earliest start of the profiles, empty if no profile declares a validity window
      */
-    public Instant getInstantStart() {
-        return instantStart;
+    public Optional<Instant> getInstantStart() {
+        return Optional.ofNullable(instantStart);
     }
 
     /**
-     * @return Document validity end instant
+     * @return Document validity end instant: the latest end of the profiles, empty if no profile declares a validity window
      */
-    public Instant getInstantEnd() {
-        return instantEnd;
+    public Optional<Instant> getInstantEnd() {
+        return Optional.ofNullable(instantEnd);
     }
 }
