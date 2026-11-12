@@ -6,12 +6,16 @@ they describe how the power adjustment of a bidding zone is shared among its gen
 
 Two GLSK strategies are supported:
 
-| `GLSKStrategyKind`         | `ShiftMethodKind` | GLSK                                                                                   |
-|----------------------------|-------------------|----------------------------------------------------------------------------------------|
-| `explicitSchedule`         | `priority`        | [Merit order](/input-data/glsk/glsk.md#merit-order-glsk): each bid is a step of the list |
-| `proportionalForGenerator` | `shared`          | [Proportional to the target power](/input-data/glsk/glsk.md#proportional-to-target-power-glsk) of the generators of the zone |
+| `GLSKStrategyKind`         | Expected `ShiftMethodKind` | GLSK                                                                                   |
+|----------------------------|----------------------------|----------------------------------------------------------------------------------------|
+| `explicitSchedule`         | `priority`                 | [Merit order](/input-data/glsk/glsk.md#merit-order-glsk): each bid is a step of the list |
+| `proportionalForGenerator` | `shared`                   | [Proportional to the target power](/input-data/glsk/glsk.md#proportional-to-target-power-glsk) of the generators of the zone |
 
 Any other strategy is not supported: the remedial action is ignored and a warning is logged.
+
+The strategy alone decides which GLSK is built. The shift method is expected to be the one shown in the table, but this
+is not a condition: a remedial action with another shift method, or none, is imported all the same according to its
+strategy, and a warning is logged.
 
 ## Archive and profiles
 
@@ -65,7 +69,8 @@ applies, and the one that contains the instant is selected when the GLSK is used
   Reference Dataset (`http://energy.referencedata.eu/EIC/<EIC code>`).
 - **CountertradeRemedialAction.gLSKStrategy**: the GLSK strategy, `explicitSchedule` or `proportionalForGenerator`.
 - **CountertradeRemedialAction.shiftMethod**: `priority` with `explicitSchedule`, and `shared` with `proportionalForGenerator`.
-  The strategy prevails: a shift method that does not go with it is only reported.
+  The strategy prevails: a shift method that does not go with it (or a missing one) does not prevent the import, it is
+  only reported with a warning.
 
 ## Merit order (`explicitSchedule`)
 
