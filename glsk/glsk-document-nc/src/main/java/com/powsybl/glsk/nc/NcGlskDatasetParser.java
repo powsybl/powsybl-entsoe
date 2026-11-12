@@ -164,7 +164,7 @@ public class NcGlskDatasetParser {
             checkOperator(bag);
             countertradeRAs.put(uri, new CountertradeRAData(
                 uri,
-                    mrId,
+                mrId,
                 biddingZone,
                 glskStrategyValue,
                 GlskStrategyKind.fromUrl(glskStrategyValue).orElse(null),
