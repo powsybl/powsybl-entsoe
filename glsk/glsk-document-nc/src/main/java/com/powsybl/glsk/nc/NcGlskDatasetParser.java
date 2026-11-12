@@ -48,7 +48,7 @@ public class NcGlskDatasetParser {
     private final TripleStore tripleStore;
     private final Map<String, Set<String>> keywordMap;
     private final QueryCatalog queryCatalog;
-    private final Map<String, CountertradeRAData> countertradeRAs;
+    private final Map<String, CountertradeRemedialActionData> countertradeRemedialActions;
     private final Map<String, NcRemedialActionAvailability> availabilities;
     private Instant validityStart;
     private Instant validityEnd;
@@ -61,7 +61,7 @@ public class NcGlskDatasetParser {
         this.tripleStore = tripleStore;
         this.keywordMap = keywordMap;
         this.queryCatalog = new QueryCatalog(NcConstants.SPARQL_FILE_NC_PROFILE);
-        this.countertradeRAs = new HashMap<>();
+        this.countertradeRemedialActions = new HashMap<>();
         this.availabilities = new HashMap<>();
     }
 
@@ -162,7 +162,7 @@ public class NcGlskDatasetParser {
             String normalAvailable = bag.get(NcConstants.NORMAL_AVAILABLE);
             availabilities.put(uri, new NcRemedialActionAvailability(normalAvailable == null || Boolean.parseBoolean(normalAvailable)));
             checkOperator(bag);
-            countertradeRAs.put(uri, new CountertradeRAData(
+            countertradeRemedialActions.put(uri, new CountertradeRemedialActionData(
                 uri,
                 mrId,
                 biddingZone,
@@ -295,17 +295,17 @@ public class NcGlskDatasetParser {
         Map<String, List<GlskPoint>> result = new HashMap<>();
 
         // For each RA, build its GLSK points according to its strategy and the bids of its SIS profile
-        for (CountertradeRAData raData : countertradeRAs.values()) {
-            if (raData.validityStart() == null || raData.validityEnd() == null
-                || !raData.validityEnd().isAfter(raData.validityStart())) {
+        for (CountertradeRemedialActionData remedialAction : countertradeRemedialActions.values()) {
+            if (remedialAction.validityStart() == null || remedialAction.validityEnd() == null
+                || !remedialAction.validityEnd().isAfter(remedialAction.validityStart())) {
                 LOGGER.warn("Countertrade remedial action {} is ignored: its profile has no valid validity window ({} - {})",
-                    raData.mRID(), raData.validityStart(), raData.validityEnd());
+                    remedialAction.mRID(), remedialAction.validityStart(), remedialAction.validityEnd());
                 continue;
             }
 
-            List<GlskPoint> points = buildGlskPoints(raData, bidsByRa.getOrDefault(raData.uri(), Collections.emptyList()));
+            List<GlskPoint> points = buildGlskPoints(remedialAction, bidsByRa.getOrDefault(remedialAction.uri(), Collections.emptyList()));
             if (!points.isEmpty()) {
-                result.computeIfAbsent(raData.biddingZone(), k -> new ArrayList<>()).addAll(points);
+                result.computeIfAbsent(remedialAction.biddingZone(), k -> new ArrayList<>()).addAll(points);
             }
         }
 
@@ -316,28 +316,28 @@ public class NcGlskDatasetParser {
      * Builds the GLSK points of a countertrade remedial action according to its GLSK strategy. Only
      * proportionalForGenerator and explicitSchedule are supported, any other strategy is ignored.
      */
-    private List<GlskPoint> buildGlskPoints(CountertradeRAData raData, List<PowerBidScheduleData> bids) {
-        GlskStrategyKind strategy = raData.strategy();
+    private List<GlskPoint> buildGlskPoints(CountertradeRemedialActionData remedialAction, List<PowerBidScheduleData> bids) {
+        GlskStrategyKind strategy = remedialAction.strategy();
         if (strategy != GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR && strategy != GlskStrategyKind.EXPLICIT_SCHEDULE) {
-            LOGGER.warn("Countertrade remedial action {} is ignored: unsupported GLSK strategy {}", raData.mRID(), raData.glskStrategyValue());
+            LOGGER.warn("Countertrade remedial action {} is ignored: unsupported GLSK strategy {}", remedialAction.mRID(), remedialAction.glskStrategyValue());
             return Collections.emptyList();
         }
-        checkShiftMethod(raData, strategy == GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR ? ShiftMethodKind.SHARED : ShiftMethodKind.PRIORITY);
+        checkShiftMethod(remedialAction, strategy == GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR ? ShiftMethodKind.SHARED : ShiftMethodKind.PRIORITY);
 
         // A GLSK is only built for the periods during which the remedial action is available
-        NcRemedialActionAvailability availability = availabilities.get(raData.uri());
-        List<Interval> availablePeriods = availability.availablePeriods(raData.validityStart(), raData.validityEnd());
+        NcRemedialActionAvailability availability = availabilities.get(remedialAction.uri());
+        List<Interval> availablePeriods = availability.availablePeriods(remedialAction.validityStart(), remedialAction.validityEnd());
         if (availablePeriods.isEmpty()) {
-            LOGGER.warn("Countertrade remedial action {} is ignored: it is not available during its validity window", raData.mRID());
+            LOGGER.warn("Countertrade remedial action {} is ignored: it is not available during its validity window", remedialAction.mRID());
             return Collections.emptyList();
         }
 
         if (strategy == GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR) {
-            return availablePeriods.stream().map(period -> createProportionalPoint(raData, period)).toList();
+            return availablePeriods.stream().map(period -> createProportionalPoint(remedialAction, period)).toList();
         }
-        List<GlskPoint> points = NcGlskMeritOrderBuilder.build(raData, bids, availability);
+        List<GlskPoint> points = NcGlskMeritOrderBuilder.build(remedialAction, bids, availability);
         if (points.isEmpty()) {
-            LOGGER.warn("Countertrade remedial action {} is ignored: no merit order could be built from its power bid schedules", raData.mRID());
+            LOGGER.warn("Countertrade remedial action {} is ignored: no merit order could be built from its power bid schedules", remedialAction.mRID());
         }
         return points;
     }
@@ -347,16 +347,16 @@ public class NcGlskDatasetParser {
      * explicitSchedule. The GLSK strategy prevails, so a shift method that does not go with it (or is missing) is only
      * reported.
      */
-    private static void checkShiftMethod(CountertradeRAData raData, ShiftMethodKind expected) {
-        if (raData.shiftMethod() == expected) {
+    private static void checkShiftMethod(CountertradeRemedialActionData remedialAction, ShiftMethodKind expected) {
+        if (remedialAction.shiftMethod() == expected) {
             return;
         }
-        if (raData.shiftMethodValue() == null) {
+        if (remedialAction.shiftMethodValue() == null) {
             LOGGER.warn("Countertrade remedial action {} has no shift method but its GLSK strategy {} goes with {}",
-                raData.mRID(), raData.strategy().value(), expected.value());
+                remedialAction.mRID(), remedialAction.strategy().value(), expected.value());
         } else {
             LOGGER.warn("Countertrade remedial action {} has shift method {} but its GLSK strategy {} goes with {}: the GLSK strategy prevails",
-                raData.mRID(), raData.shiftMethodValue(), raData.strategy().value(), expected.value());
+                remedialAction.mRID(), remedialAction.shiftMethodValue(), remedialAction.strategy().value(), expected.value());
         }
     }
 
@@ -364,8 +364,8 @@ public class NcGlskDatasetParser {
      * proportionalForGenerator needs no data from the SIS profile: a point for each period during which the remedial
      * action is available, which applies to all the generators of the country of the bidding zone.
      */
-    private GlskPoint createProportionalPoint(CountertradeRAData raData, Interval interval) {
-        return NcGlskPoint.proportionalForGenerator(raData.biddingZone(), interval);
+    private GlskPoint createProportionalPoint(CountertradeRemedialActionData remedialAction, Interval interval) {
+        return NcGlskPoint.proportionalForGenerator(remedialAction.biddingZone(), interval);
     }
 
     /**
@@ -420,9 +420,9 @@ public class NcGlskDatasetParser {
      * @param validityStart     start of the validity window declared in the header of the RA profile
      * @param validityEnd       end of the validity window declared in the header of the RA profile
      */
-    record CountertradeRAData(String uri, String mRID, String biddingZone, String glskStrategyValue,
-                              GlskStrategyKind strategy, String shiftMethodValue, ShiftMethodKind shiftMethod,
-                              Instant validityStart, Instant validityEnd) {
+    record CountertradeRemedialActionData(String uri, String mRID, String biddingZone, String glskStrategyValue,
+                                           GlskStrategyKind strategy, String shiftMethodValue, ShiftMethodKind shiftMethod,
+                                           Instant validityStart, Instant validityEnd) {
     }
 
     /**

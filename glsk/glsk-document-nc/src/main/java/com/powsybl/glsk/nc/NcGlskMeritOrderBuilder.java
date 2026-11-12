@@ -8,7 +8,7 @@
 package com.powsybl.glsk.nc;
 
 import com.powsybl.glsk.api.GlskPoint;
-import com.powsybl.glsk.nc.NcGlskDatasetParser.CountertradeRAData;
+import com.powsybl.glsk.nc.NcGlskDatasetParser.CountertradeRemedialActionData;
 import com.powsybl.glsk.nc.NcGlskDatasetParser.GlskScheduleData;
 import com.powsybl.glsk.nc.NcGlskDatasetParser.PowerBidScheduleData;
 import com.powsybl.glsk.nc.NcGlskDatasetParser.PriceAndPower;
@@ -61,7 +61,7 @@ final class NcGlskMeritOrderBuilder {
      * @return one point for each period with at least one bid in force, during which the remedial action is available,
      * within its validity window
      */
-    static List<GlskPoint> build(CountertradeRAData remedialAction, Collection<PowerBidScheduleData> bids, NcRemedialActionAvailability availability) {
+    static List<GlskPoint> build(CountertradeRemedialActionData remedialAction, Collection<PowerBidScheduleData> bids, NcRemedialActionAvailability availability) {
         List<PowerBidScheduleData> supportedBids = bids.stream().filter(bid -> isSupported(remedialAction, bid)).toList();
         if (supportedBids.isEmpty()) {
             return List.of();
@@ -86,7 +86,7 @@ final class NcGlskMeritOrderBuilder {
     /**
      * Checks that a bid can be used, logging why otherwise.
      */
-    private static boolean isSupported(CountertradeRAData remedialAction, PowerBidScheduleData bid) {
+    private static boolean isSupported(CountertradeRemedialActionData remedialAction, PowerBidScheduleData bid) {
         String reason = null;
         String bidName = bid.mRID() != null ? bid.mRID() : bid.uri();
         if (bid.direction() != BidDirectionKind.UP && bid.direction() != BidDirectionKind.DOWN) {
@@ -132,7 +132,7 @@ final class NcGlskMeritOrderBuilder {
     /**
      * The instants at which the merit order can change, within the validity window of the remedial action.
      */
-    private static List<Instant> boundaries(CountertradeRAData remedialAction, List<PowerBidScheduleData> bids, NcRemedialActionAvailability availability) {
+    private static List<Instant> boundaries(CountertradeRemedialActionData remedialAction, List<PowerBidScheduleData> bids, NcRemedialActionAvailability availability) {
         NavigableSet<Instant> all = new TreeSet<>(availability.changeInstants());
         all.add(remedialAction.validityStart());
         all.add(remedialAction.validityEnd());
