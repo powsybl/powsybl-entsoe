@@ -12,6 +12,7 @@ import com.powsybl.flowdecomposition.FunctionVariableFactor;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +104,8 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     private static SensitivityResultWriter getSensitivityResultWriter(List<FunctionVariableFactor> factors, SparseMatrixWithIndexesTriplet sensitivityMatrixTriplet) {
         return new SensitivityResultWriter() {
+            private boolean computationComplete = false;
+
             @Override
             public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
                 FunctionVariableFactor factor = factors.get(factorIndex);
@@ -110,8 +113,20 @@ public class SensitivityAnalyser extends AbstractSensitivityAnalyser {
             }
 
             @Override
-            public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+            public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
+                                         int connectedComponentNum, int synchronousComponentNum,
+                                         LoadFlowResult.ComponentResult.Status status, String statusText) {
                 // We do not manage contingency yet
+            }
+
+            @Override
+            public void computationComplete() {
+                this.computationComplete = true;
+            }
+
+            @Override
+            public boolean isComputationComplete() {
+                return this.computationComplete;
             }
         };
     }
