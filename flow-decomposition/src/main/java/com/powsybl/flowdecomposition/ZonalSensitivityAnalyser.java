@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.*;
 
 import java.util.EnumMap;
@@ -76,6 +77,8 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
 
     private static SensitivityResultWriter getSensitivityResultWriter(List<FunctionVariableFactor> factors, Map<String, Map<Country, Double>> zonalPtdf) {
         return new SensitivityResultWriter() {
+            private boolean computationComplete = false;
+
             @Override
             public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
                 FunctionVariableFactor factor = factors.get(factorIndex);
@@ -86,8 +89,20 @@ public class ZonalSensitivityAnalyser extends AbstractSensitivityAnalyser {
             }
 
             @Override
-            public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+            public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
+                                         int connectedComponentNum, int synchronousComponentNum,
+                                         LoadFlowResult.ComponentResult.Status status, String statusText) {
                 // We do not manage contingency yet
+            }
+
+            @Override
+            public void computationComplete() {
+                this.computationComplete = true;
+            }
+
+            @Override
+            public boolean isComputationComplete() {
+                return this.computationComplete;
             }
         };
     }

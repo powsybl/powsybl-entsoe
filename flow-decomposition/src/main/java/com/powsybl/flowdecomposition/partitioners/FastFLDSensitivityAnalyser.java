@@ -15,6 +15,7 @@ import com.powsybl.flowdecomposition.FunctionVariableFactor;
 import com.powsybl.flowdecomposition.NetworkUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.*;
 import org.ejml.data.DMatrixSparseCSC;
 import org.jspecify.annotations.NonNull;
@@ -226,9 +227,18 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         return new VariableSetBuildResult(variableSets, aggregations, factorPerXnec * xnecIds.size());
     }
 
-    @SuppressWarnings("java:S6218") // We do not want to generate code that will not be used just to please Sonar...
-    private record FastFLDGroupedSensitivityResultWriter(GroupedFLDFactor[] factors, double[][] results,
-                                                         FlowPartAggregation[] aggregations) implements SensitivityResultWriter {
+    private static class FastFLDGroupedSensitivityResultWriter implements SensitivityResultWriter {
+
+        private final GroupedFLDFactor[] factors;
+        private final double[][] results;
+        private final FlowPartAggregation[] aggregations;
+        private boolean computationComplete = false;
+
+        FastFLDGroupedSensitivityResultWriter(GroupedFLDFactor[] factors, double[][] results, FlowPartAggregation[] aggregations) {
+            this.factors = factors;
+            this.results = results;
+            this.aggregations = aggregations;
+        }
 
         @Override
         public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
@@ -248,8 +258,20 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
 
         @Override
-        public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+        public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
+                                     int connectedComponentNum, int synchronousComponentNum,
+                                     LoadFlowResult.ComponentResult.Status status, String statusText) {
             // We do not manage contingency yet
+        }
+
+        @Override
+        public void computationComplete() {
+            this.computationComplete = true;
+        }
+
+        @Override
+        public boolean isComputationComplete() {
+            return this.computationComplete;
         }
     }
 
@@ -291,10 +313,22 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
                                           int factorCount) {
     }
 
-    @SuppressWarnings("java:S6218") // We do not want to generate code that will not be used just to please Sonar...
-    private record FastFLDPstSensitivityResultWriter(List<FunctionVariableFactor> factors, double[][] results,
-                                                     int pstIndex, Map<String, Integer> xnecIndex,
-                                                     Map<String, PhaseTapChanger> phaseTapChangerMap) implements SensitivityResultWriter {
+    private static class FastFLDPstSensitivityResultWriter implements SensitivityResultWriter {
+        private final List<FunctionVariableFactor> factors;
+        private final double[][] results;
+        private final int pstIndex;
+        private final Map<String, Integer> xnecIndex;
+        private final Map<String, PhaseTapChanger> phaseTapChangerMap;
+        private boolean computationComplete = false;
+
+        FastFLDPstSensitivityResultWriter(List<FunctionVariableFactor> factors, double[][] results, int pstIndex,
+                                          Map<String, Integer> xnecIndex, Map<String, PhaseTapChanger> phaseTapChangerMap) {
+            this.factors = factors;
+            this.results = results;
+            this.pstIndex = pstIndex;
+            this.xnecIndex = xnecIndex;
+            this.phaseTapChangerMap = phaseTapChangerMap;
+        }
 
         @Override
         public void writeSensitivityValue(int factorIndex, int contingencyIndex, int operatorStrategyIndex, double value, double functionReference) {
@@ -318,8 +352,20 @@ public class FastFLDSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
 
         @Override
-        public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+        public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
+                                     int connectedComponentNum, int synchronousComponentNum,
+                                     LoadFlowResult.ComponentResult.Status status, String statusText) {
             // We do not manage contingency yet
+        }
+
+        @Override
+        public void computationComplete() {
+            this.computationComplete = true;
+        }
+
+        @Override
+        public boolean isComputationComplete() {
+            return this.computationComplete;
         }
     }
 
