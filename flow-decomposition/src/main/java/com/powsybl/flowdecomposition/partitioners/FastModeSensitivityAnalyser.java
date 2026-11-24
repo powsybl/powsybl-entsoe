@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.sensitivity.*;
 
 import java.util.*;
@@ -102,6 +103,7 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
         private final Map<String, Map<String, Double>> results;
         private final Set<String> flowParts;
         private final Map<String, Double> nodalInjectionsPartitionSumByFlowPart;
+        private boolean computationComplete = false;
 
         FastModeSensitivityResultWriter(List<FunctionVariableFactor> factors,
                                         Map<String, Map<String, Double>> results,
@@ -145,8 +147,20 @@ public class FastModeSensitivityAnalyser extends AbstractSensitivityAnalyser {
         }
 
         @Override
-        public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex, SensitivityAnalysisResult.Status status) {
+        public void writeStateStatus(int contingencyIndex, int operatorStrategyIndex,
+                              int connectedComponentNum, int synchronousComponentNum,
+                              LoadFlowResult.ComponentResult.Status status, String statusText) {
             // We do not manage contingency yet
+        }
+
+        @Override
+        public void computationComplete() {
+            this.computationComplete = true;
+        }
+
+        @Override
+        public boolean isComputationComplete() {
+            return this.computationComplete;
         }
     }
 
