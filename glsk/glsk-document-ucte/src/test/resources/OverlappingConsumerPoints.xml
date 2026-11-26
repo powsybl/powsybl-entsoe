@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GSKDocument>
+    <GSKTimeInterval v="2016-07-29T08:00Z/2016-07-29T11:00Z"/>
+    <GSKSeries>
+        <TimeSeriesIdentification v="generator-before-overlap"/>
+        <BusinessType v="Z02" share="50"/>
+        <Area v="10YFR-RTE------C"/>
+        <ManualGSK_Block>
+            <TimeInterval v="2016-07-29T08:00Z/2016-07-29T10:00Z"/>
+            <ManualNodes><NodeName v="FFR1AA1 "/><Factor v="1"/></ManualNodes>
+        </ManualGSK_Block>
+    </GSKSeries>
+    <GSKSeries>
+        <TimeSeriesIdentification v="generator-after-overlap"/>
+        <BusinessType v="Z02" share="50"/>
+        <Area v="10YFR-RTE------C"/>
+        <ManualGSK_Block>
+            <TimeInterval v="2016-07-29T09:00Z/2016-07-29T11:00Z"/>
+            <ManualNodes><NodeName v="FFR2AA1 "/><Factor v="1"/></ManualNodes>
+        </ManualGSK_Block>
+    </GSKSeries>
+    <GSKSeries>
+        <TimeSeriesIdentification v="generator-before-overlap-complement"/>
+        <BusinessType v="Z02" share="50"/>
+        <Area v="10YFR-RTE------C"/>
+        <ManualGSK_Block>
+            <TimeInterval v="2016-07-29T08:00Z/2016-07-29T09:00Z"/>
+            <ManualNodes><NodeName v="FFR3AA1 "/><Factor v="1"/></ManualNodes>
+        </ManualGSK_Block>
+    </GSKSeries>
+    <GSKSeries>
+        <TimeSeriesIdentification v="generator-after-overlap-complement"/>
+        <BusinessType v="Z02" share="50"/>
+        <Area v="10YFR-RTE------C"/>
+        <ManualGSK_Block>
+            <TimeInterval v="2016-07-29T10:00Z/2016-07-29T11:00Z"/>
+            <ManualNodes><NodeName v="FFR3AA1 "/><Factor v="1"/></ManualNodes>
+        </ManualGSK_Block>
+    </GSKSeries>
+</GSKDocument>
