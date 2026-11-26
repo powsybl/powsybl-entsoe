@@ -94,7 +94,7 @@ public final class UcteGlskDocument implements GlskDocument {
         }
 
         ucteGlskSeriesByCountry.values().forEach(series -> {
-            List<UcteGlskPoint> normalizedPoints = normalizePoints(series.getUcteGlskBlocks());
+            List<UcteGlskPoint> normalizedPoints = mergeOverlappingPoints(series.getUcteGlskBlocks());
             series.getUcteGlskBlocks().clear();
             series.getUcteGlskBlocks().addAll(normalizedPoints);
         });
@@ -115,9 +115,9 @@ public final class UcteGlskDocument implements GlskDocument {
         });
     }
 
-    private List<UcteGlskPoint> normalizePoints(List<UcteGlskPoint> sourcePoints) {
+    private List<UcteGlskPoint> mergeOverlappingPoints(List<UcteGlskPoint> sourcePoints) {
         SortedSet<Instant> boundaries = new TreeSet<>();
-        List<UcteGlskPoint> normalizedPoints = new ArrayList<>();
+        List<UcteGlskPoint> mergedPoints = new ArrayList<>();
         for (UcteGlskPoint point : sourcePoints) {
             Interval interval = point.getPointInterval();
             if (!interval.getStart().equals(interval.getEnd())) {
@@ -141,16 +141,17 @@ public final class UcteGlskDocument implements GlskDocument {
             }
             if (!activePoints.isEmpty()) {
                 Interval segmentInterval = Interval.of(start, end);
+                // copy first setpoint matching the interval, modify the interval and clear the
+                // shift keys to only keep relevant info of the tso/process/etc
                 UcteGlskPoint segment = activePoints.get(0).copyForInterval(segmentInterval);
                 segment.getGlskShiftKeys().clear();
                 activePoints.forEach(point -> point.getGlskShiftKeys().forEach(key ->
                         segment.getGlskShiftKeys().add(((UcteGlskShiftKey) key).copyForInterval(segmentInterval))));
-                normalizedPoints.add(segment);
+                mergedPoints.add(segment);
             }
         }
 
-        normalizedPoints.sort(Comparator.comparing(point -> point.getPointInterval().getStart()));
-        return normalizedPoints;
+        return mergedPoints;
     }
 
     /**
