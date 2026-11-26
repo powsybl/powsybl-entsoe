@@ -83,16 +83,21 @@ public final class UcteGlskDocument implements GlskDocument {
             }
         }
 
-        //construct ucteGlskSeriesByCountry, merging LSK and GSK for same TimeInterval
+        //construct ucteGlskSeriesByCountry, collecting all points for each area
         for (UcteGlskSeries glskSeries : rawlistUcteGlskSeries) {
             String currentArea = glskSeries.getArea();
             if (!ucteGlskSeriesByCountry.containsKey(currentArea)) {
                 ucteGlskSeriesByCountry.put(currentArea, glskSeries);
             } else {
-                UcteGlskSeries ucteGlskSeries = calculateUcteGlskSeries(glskSeries, ucteGlskSeriesByCountry.get(currentArea));
-                ucteGlskSeriesByCountry.put(currentArea, ucteGlskSeries);
+                ucteGlskSeriesByCountry.get(currentArea).getUcteGlskBlocks().addAll(glskSeries.getUcteGlskBlocks());
             }
         }
+
+        ucteGlskSeriesByCountry.values().forEach(series -> {
+            List<UcteGlskPoint> normalizedPoints = normalizePoints(series.getUcteGlskBlocks());
+            series.getUcteGlskBlocks().clear();
+            series.getUcteGlskBlocks().addAll(normalizedPoints);
+        });
 
         //construct list gsk points
         listUcteGlskBlocks = new ArrayList<>();
@@ -110,39 +115,42 @@ public final class UcteGlskDocument implements GlskDocument {
         });
     }
 
-    /**
-     * merge LSK and GSK of the same country and Same Point Interval
-     * and add glsk Point for missed  intervals
-     * @param incomingSeries incoming time series to be merged with old time series
-     * @param oldSeries      current time series to be updated
-     * @return Glsk series
-     */
-    private UcteGlskSeries calculateUcteGlskSeries(UcteGlskSeries incomingSeries, UcteGlskSeries oldSeries) {
-        List<UcteGlskPoint> glskPointListTobeAdded = new ArrayList<>();
-        List<Interval> oldPointsIntervalsList = new ArrayList<>();
-        List<UcteGlskPoint> incomingPoints = incomingSeries.getUcteGlskBlocks();
-        List<UcteGlskPoint> oldPoints = oldSeries.getUcteGlskBlocks();
-        for (UcteGlskPoint incomingPoint : incomingPoints) {
-            boolean alreadyExists = false;
-            for (UcteGlskPoint oldPoint : oldPoints) {
-                if (oldPoint.getPointInterval().equals(incomingPoint.getPointInterval())) {
-                    oldPoint.getGlskShiftKeys().addAll(incomingPoint.getGlskShiftKeys());
-                    alreadyExists = true;
-                    break;
-                }
-            }
-            if (!alreadyExists) {
-                glskPointListTobeAdded.add(incomingPoint);
+    private List<UcteGlskPoint> normalizePoints(List<UcteGlskPoint> sourcePoints) {
+        SortedSet<Instant> boundaries = new TreeSet<>();
+        List<UcteGlskPoint> normalizedPoints = new ArrayList<>();
+        for (UcteGlskPoint point : sourcePoints) {
+            Interval interval = point.getPointInterval();
+            if (!interval.getStart().equals(interval.getEnd())) {
+                boundaries.add(interval.getStart());
+                boundaries.add(interval.getEnd());
             }
         }
 
-        oldPoints.forEach(oldPoint -> oldPointsIntervalsList.add(oldPoint.getPointInterval()));
-        glskPointListTobeAdded.forEach(glskPointToBeAdded -> {
-            if (!oldPointsIntervalsList.contains(glskPointToBeAdded.getPointInterval())) {
-                oldPoints.add(glskPointToBeAdded);
+        List<Instant> sortedBoundaries = new ArrayList<>(boundaries);
+        for (int i = 0; i < sortedBoundaries.size() - 1; i++) {
+            Instant start = sortedBoundaries.get(i);
+            Instant end = sortedBoundaries.get(i + 1);
+            List<UcteGlskPoint> activePoints = new ArrayList<>();
+            for (UcteGlskPoint point : sourcePoints) {
+                Interval interval = point.getPointInterval();
+                if (!interval.getStart().equals(interval.getEnd())
+                        && !interval.getStart().isAfter(start)
+                        && !interval.getEnd().isBefore(end)) {
+                    activePoints.add(point);
+                }
             }
-        });
-        return oldSeries;
+            if (!activePoints.isEmpty()) {
+                Interval segmentInterval = Interval.of(start, end);
+                UcteGlskPoint segment = activePoints.get(0).copyForInterval(segmentInterval);
+                segment.getGlskShiftKeys().clear();
+                activePoints.forEach(point -> point.getGlskShiftKeys().forEach(key ->
+                        segment.getGlskShiftKeys().add(((UcteGlskShiftKey) key).copyForInterval(segmentInterval))));
+                normalizedPoints.add(segment);
+            }
+        }
+
+        normalizedPoints.sort(Comparator.comparing(point -> point.getPointInterval().getStart()));
+        return normalizedPoints;
     }
 
     /**

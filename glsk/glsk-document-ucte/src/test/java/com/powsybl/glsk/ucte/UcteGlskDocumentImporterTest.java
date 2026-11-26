@@ -143,4 +143,98 @@ class UcteGlskDocumentImporterTest {
         UcteGlskDocument ucteGlskDocument = UcteGlskDocument.importGlsk(getResourceAsInputStream("/TestMultiShare1.xml"));
         assertEquals(24, ucteGlskDocument.getUcteGlskPointsByCountry().get("10YFR-RTE------C").size());
     }
+
+    @Test
+    void testOverlappingPointsAreNormalizedPerArea() {
+        UcteGlskDocument document = UcteGlskDocument.importGlsk(getResourceAsInputStream("/OverlappingPoints.xml"));
+        List<UcteGlskPoint> areaAPoints = document.getUcteGlskPointsByCountry().get("AREA-A");
+
+        assertEquals(List.of(
+                interval("2020-01-01T00:00Z", "2020-01-01T02:00Z"),
+                interval("2020-01-01T02:00Z", "2020-01-01T03:00Z"),
+                interval("2020-01-01T03:00Z", "2020-01-01T04:00Z"),
+                interval("2020-01-01T04:00Z", "2020-01-01T05:00Z"),
+                interval("2020-01-01T05:00Z", "2020-01-01T06:00Z"),
+                interval("2020-01-01T06:00Z", "2020-01-01T07:00Z"),
+                interval("2020-01-01T07:00Z", "2020-01-01T08:00Z"),
+                interval("2020-01-01T08:00Z", "2020-01-01T09:00Z"),
+                interval("2020-01-01T09:00Z", "2020-01-01T10:00Z"),
+                interval("2020-01-01T12:00Z", "2020-01-01T13:00Z"),
+                interval("2020-01-01T14:00Z", "2020-01-01T15:00Z"),
+                interval("2020-01-01T16:00Z", "2020-01-01T17:00Z"),
+                interval("2020-01-01T17:00Z", "2020-01-01T18:00Z"),
+                interval("2020-01-01T19:00Z", "2020-01-01T20:00Z"),
+                interval("2020-01-01T20:00Z", "2020-01-01T21:00Z"),
+                interval("2020-01-01T22:00Z", "2020-01-01T23:00Z")),
+                areaAPoints.stream().map(UcteGlskPoint::getPointInterval).toList());
+
+        assertResources(point(areaAPoints, "2020-01-01T00:00Z", "2020-01-01T02:00Z"), "A");
+        assertResources(point(areaAPoints, "2020-01-01T02:00Z", "2020-01-01T03:00Z"), "A", "B");
+        assertResources(point(areaAPoints, "2020-01-01T03:00Z", "2020-01-01T04:00Z"), "A", "B", "C");
+        assertResources(point(areaAPoints, "2020-01-01T04:00Z", "2020-01-01T05:00Z"), "A", "C");
+        assertResources(point(areaAPoints, "2020-01-01T05:00Z", "2020-01-01T06:00Z"), "A", "C", "O");
+        assertResources(point(areaAPoints, "2020-01-01T06:00Z", "2020-01-01T07:00Z"), "C", "O");
+        assertResources(point(areaAPoints, "2020-01-01T07:00Z", "2020-01-01T08:00Z"), "O");
+        assertResources(point(areaAPoints, "2020-01-01T08:00Z", "2020-01-01T09:00Z"), "D");
+        assertResources(point(areaAPoints, "2020-01-01T09:00Z", "2020-01-01T10:00Z"), "E");
+        assertResources(point(areaAPoints, "2020-01-01T16:00Z", "2020-01-01T17:00Z"), "H", "I");
+        assertResources(point(areaAPoints, "2020-01-01T17:00Z", "2020-01-01T18:00Z"), "H");
+        assertResources(point(areaAPoints, "2020-01-01T20:00Z", "2020-01-01T21:00Z"), "J", "K");
+
+        UcteGlskPoint equalIntervalPoint = point(areaAPoints, "2020-01-01T22:00Z", "2020-01-01T23:00Z");
+        assertResources(equalIntervalPoint, "L", "M", "N");
+        assertEquals(List.of(0.4, 0.4, 0.6), equalIntervalPoint.getGlskShiftKeys().stream()
+                .map(GlskShiftKey::getQuantity).toList());
+        assertEquals(1.3, equalIntervalPoint.getGlskShiftKeys().get(0).getRegisteredResourceArrayList().get(0).getParticipationFactor());
+        assertEquals("AREA-A", equalIntervalPoint.getSubjectDomainmRID());
+        assertEquals("A03", equalIntervalPoint.getCurveType());
+
+        List<UcteGlskPoint> areaBPoints = document.getUcteGlskPointsByCountry().get("AREA-B");
+        assertEquals(3, areaBPoints.size());
+        assertResources(areaBPoints.get(0), "P");
+        assertResources(areaBPoints.get(1), "P", "Q");
+        assertResources(areaBPoints.get(2), "Q");
+
+        UcteGlskSeries firstAreaSeries = document.getListGlskSeries().stream()
+                .filter(series -> series.getArea().equals("AREA-A")).findFirst().orElseThrow();
+        assertEquals("first-A", firstAreaSeries.getTimeSeriesID());
+        assertEquals(16, firstAreaSeries.getUcteGlskBlocks().size());
+    }
+
+    @Test
+    void testNormalizedSegmentsDoNotShareMutableKeysOrResources() {
+        List<UcteGlskPoint> points = UcteGlskDocument.importGlsk(getResourceAsInputStream("/OverlappingPoints.xml"))
+                .getUcteGlskPointsByCountry().get("AREA-A");
+        UcteGlskPoint firstSegment = point(points, "2020-01-01T00:00Z", "2020-01-01T02:00Z");
+        UcteGlskPoint nextSegment = point(points, "2020-01-01T02:00Z", "2020-01-01T03:00Z");
+        GlskShiftKey firstKey = firstSegment.getGlskShiftKeys().get(0);
+        GlskShiftKey nextKey = nextSegment.getGlskShiftKeys().get(0);
+        GlskRegisteredResource firstResource = firstKey.getRegisteredResourceArrayList().get(0);
+        GlskRegisteredResource nextResource = nextKey.getRegisteredResourceArrayList().get(0);
+
+        assertNotSame(firstKey, nextKey);
+        assertNotSame(firstResource, nextResource);
+        firstSegment.setPosition(99);
+        firstKey.setBusinessType("changed");
+        firstResource.setmRID("changed");
+
+        assertEquals(1, nextSegment.getPosition());
+        assertEquals("B42", nextKey.getBusinessType());
+        assertEquals("A", nextResource.getmRID());
+    }
+
+    private Interval interval(String start, String end) {
+        return Interval.parse(start + "/" + end);
+    }
+
+    private UcteGlskPoint point(List<UcteGlskPoint> points, String start, String end) {
+        return points.stream().filter(point -> point.getPointInterval().equals(interval(start, end)))
+                .findFirst().orElseThrow();
+    }
+
+    private void assertResources(UcteGlskPoint point, String... resourceIds) {
+        assertEquals(List.of(resourceIds), point.getGlskShiftKeys().stream()
+                .flatMap(key -> key.getRegisteredResourceArrayList().stream())
+                .map(GlskRegisteredResource::getmRID).toList());
+    }
 }

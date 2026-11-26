@@ -7,10 +7,14 @@
 package com.powsybl.glsk.ucte;
 
 import com.powsybl.glsk.api.GlskPoint;
+import com.powsybl.glsk.api.util.converters.GlskPointLinearGlskConverter;
 import com.powsybl.glsk.api.util.converters.GlskPointScalableConverter;
+import com.powsybl.glsk.commons.GlskException;
 import com.powsybl.glsk.commons.ZonalData;
+import com.powsybl.glsk.commons.ZonalDataChronology;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityVariableSet;
 import org.junit.jupiter.api.Test;
@@ -30,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class UcteGlskValueProviderTest {
 
     private static final double EPSILON = 0.0001;
+    private static final String FRANCE = "10YFR-RTE------C";
 
     @Test
     void testProvideOkUcteGlsk() {
@@ -93,7 +98,9 @@ class UcteGlskValueProviderTest {
     void checkConversionOfMultiGskSeriesToScalable() {
         Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
         GlskPoint multiGlskSeries = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/ThreeGskSeries.xml")).getGlskPoints("10YFR-RTE------C").get(0);
+        assertEquals(3, multiGlskSeries.getGlskShiftKeys().size());
         Scalable scalable = GlskPointScalableConverter.convert(network, multiGlskSeries);
+        assertThrows(GlskException.class, () -> GlskPointLinearGlskConverter.convert(network, multiGlskSeries));
         double generationBeforeScale = network.getGeneratorStream().mapToDouble(Generator::getTargetP).sum();
         assertEquals(24500.0, generationBeforeScale, 0.1);
         assertEquals(2000.0, network.getGenerator("FFR1AA1 _generator").getTargetP(), 0.1);
@@ -105,6 +112,59 @@ class UcteGlskValueProviderTest {
         assertEquals(25500.0, generationAfterScale, 0.1);
         assertEquals(2700.0, network.getGenerator("FFR1AA1 _generator").getTargetP(), 0.1);
         assertEquals(2300.0, network.getGenerator("FFR2AA1 _generator").getTargetP(), 0.1);
+    }
+
+    @Test
+    void testOverlappingPointsThroughConsumers() {
+        Network network = Network.read("testCase.xiidm", getClass().getResourceAsStream("/testCase.xiidm"));
+        UcteGlskDocument document = UcteGlskDocument.importGlsk(getClass().getResourceAsStream("/OverlappingConsumerPoints.xml"));
+        ZonalDataChronology<SensitivityVariableSet> chronology = document.getZonalGlsksChronology(network);
+
+        Instant before = Instant.parse("2016-07-29T08:30:00Z");
+        Instant overlapStart = Instant.parse("2016-07-29T09:00:00Z");
+        Instant withinOverlap = Instant.parse("2016-07-29T09:30:00Z");
+        Instant overlapEnd = Instant.parse("2016-07-29T10:00:00Z");
+        Instant after = Instant.parse("2016-07-29T10:30:00Z");
+
+        assertResources(document.getGlskPointsForInstant(before).get(FRANCE), "FFR1AA1 ", "FFR3AA1 ");
+        assertConsumerResults(document, network, chronology, before, "FFR1AA1 _generator", "FFR3AA1 _generator");
+
+        assertResources(document.getGlskPointsForInstant(overlapStart).get(FRANCE), "FFR1AA1 ", "FFR2AA1 ");
+        assertConsumerResults(document, network, chronology, overlapStart, "FFR1AA1 _generator", "FFR2AA1 _generator");
+        assertConsumerResults(document, network, chronology, withinOverlap, "FFR1AA1 _generator", "FFR2AA1 _generator");
+
+        assertResources(document.getGlskPointsForInstant(overlapEnd).get(FRANCE), "FFR2AA1 ", "FFR3AA1 ");
+        assertConsumerResults(document, network, chronology, overlapEnd, "FFR2AA1 _generator", "FFR3AA1 _generator");
+        assertConsumerResults(document, network, chronology, after, "FFR2AA1 _generator", "FFR3AA1 _generator");
+    }
+
+    private void assertConsumerResults(UcteGlskDocument document, Network network,
+                                      ZonalDataChronology<SensitivityVariableSet> chronology,
+                                      Instant instant, String... expectedGenerators) {
+        assertLinearResults(document.getZonalGlsks(network, instant), expectedGenerators);
+        assertLinearResults(chronology.selectInstant(instant), expectedGenerators);
+
+        List<Injection> scalableGenerators = document.getZonalScalable(network, instant)
+                .getData(FRANCE).filterInjections(network);
+        assertEquals(expectedGenerators.length, scalableGenerators.size());
+        for (String generatorId : expectedGenerators) {
+            assertTrue(scalableGenerators.contains(network.getGenerator(generatorId)));
+        }
+    }
+
+    private void assertLinearResults(ZonalData<SensitivityVariableSet> zonalData, String... expectedGenerators) {
+        SensitivityVariableSet sensitivityVariableSet = zonalData.getData(FRANCE);
+        assertNotNull(sensitivityVariableSet);
+        assertEquals(expectedGenerators.length, sensitivityVariableSet.getVariables().size());
+        for (String generatorId : expectedGenerators) {
+            assertEquals(0.5, sensitivityVariableSet.getVariable(generatorId).getWeight(), EPSILON);
+        }
+    }
+
+    private void assertResources(UcteGlskPoint point, String... resourceIds) {
+        assertEquals(List.of(resourceIds), point.getGlskShiftKeys().stream()
+                .flatMap(key -> key.getRegisteredResourceArrayList().stream())
+                .map(resource -> resource.getmRID()).toList());
     }
 
     @Test

@@ -27,6 +27,18 @@ public class UcteGlskRegisteredResource extends AbstractGlskRegisteredResource {
         this.participationFactor = getContentAsDoubleOrNull(element, "Factor");
     }
 
+    private UcteGlskRegisteredResource(UcteGlskRegisteredResource source) {
+        this.mRID = source.mRID;
+        this.name = source.name;
+        this.participationFactor = source.participationFactor;
+        this.maximumCapacity = source.maximumCapacity;
+        this.minimumCapacity = source.minimumCapacity;
+    }
+
+    UcteGlskRegisteredResource copy() {
+        return new UcteGlskRegisteredResource(this);
+    }
+
     private Double getContentAsDoubleOrNull(Element baseElement, String tag) {
         return baseElement.getElementsByTagName(tag).getLength() == 0 ? null :
                 Double.parseDouble(((Element) baseElement.getElementsByTagName(tag).item(0)).getAttribute("v"));

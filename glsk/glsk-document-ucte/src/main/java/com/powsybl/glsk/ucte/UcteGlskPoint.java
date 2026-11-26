@@ -54,6 +54,19 @@ public class UcteGlskPoint extends AbstractGlskPoint {
         }
     }
 
+    private UcteGlskPoint(UcteGlskPoint source, Interval interval) {
+        this.position = source.position;
+        this.pointInterval = interval;
+        this.subjectDomainmRID = source.subjectDomainmRID;
+        this.curveType = source.curveType;
+        this.glskShiftKeys = new ArrayList<>();
+        source.glskShiftKeys.forEach(key -> glskShiftKeys.add(((UcteGlskShiftKey) key).copyForInterval(interval)));
+    }
+
+    UcteGlskPoint copyForInterval(Interval interval) {
+        return new UcteGlskPoint(this, interval);
+    }
+
     //build a country GSK B42 empty regitered resources list
     private void caseCountryGskBlock(String ucteBusinessType, Double shareFactor) {
         GlskShiftKey countryGlskShiftKey = new UcteGlskShiftKey("B42", ucteBusinessType, this.subjectDomainmRID, this.pointInterval, shareFactor);

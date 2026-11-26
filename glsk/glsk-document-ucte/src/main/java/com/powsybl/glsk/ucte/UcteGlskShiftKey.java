@@ -41,4 +41,23 @@ public class UcteGlskShiftKey extends AbstractGlskShiftKey {
         this.glskShiftKeyInterval = pointInterval;
         this.subjectDomainmRID = subjectDomainmRID;
     }
+
+    private UcteGlskShiftKey() {
+        this.registeredResourceArrayList = new ArrayList<>();
+    }
+
+    UcteGlskShiftKey copyForInterval(Interval interval) {
+        UcteGlskShiftKey copy = new UcteGlskShiftKey();
+        copy.businessType = this.businessType;
+        copy.psrType = this.psrType;
+        copy.quantity = this.quantity;
+        copy.glskShiftKeyInterval = interval;
+        copy.subjectDomainmRID = this.subjectDomainmRID;
+        copy.meritOrderPosition = this.meritOrderPosition;
+        copy.flowDirection = this.flowDirection;
+        copy.maximumShift = this.maximumShift;
+        this.registeredResourceArrayList.forEach(resource ->
+                copy.registeredResourceArrayList.add(((UcteGlskRegisteredResource) resource).copy()));
+        return copy;
+    }
 }
