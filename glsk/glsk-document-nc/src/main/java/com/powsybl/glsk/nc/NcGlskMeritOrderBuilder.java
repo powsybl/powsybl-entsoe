@@ -97,6 +97,8 @@ final class NcGlskMeritOrderBuilder {
             reason = "it must be bound to exactly one resource but is bound to " + bid.glskSchedules().size();
         } else if (bid.timePoints().isEmpty()) {
             reason = "it has no price and power time point";
+        } else if (bid.interpolationKindValue() == null) {
+            reason = "it has no interpolation kind";
         } else if (interpolation(bid).isEmpty()) {
             reason = "its interpolation kind " + bid.interpolationKindValue() + " is not supported (only none and next)";
         }
@@ -116,12 +118,9 @@ final class NcGlskMeritOrderBuilder {
     }
 
     /**
-     * A missing interpolation kind is read as none.
+     * @return the interpolation kind of a bid, or empty if it is missing or not supported (only none and next are)
      */
     private static Optional<TimeSeriesInterpolationKind> interpolation(PowerBidScheduleData bid) {
-        if (bid.interpolationKindValue() == null) {
-            return Optional.of(TimeSeriesInterpolationKind.NONE);
-        }
         return Optional.ofNullable(bid.interpolationKind()).filter(kind -> kind != TimeSeriesInterpolationKind.LINEAR);
     }
 

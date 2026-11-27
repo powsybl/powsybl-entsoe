@@ -16,6 +16,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-interleaved-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-interleaved"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-interleaved-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-interleaved-1"/>
@@ -40,6 +41,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-interleaved-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-interleaved"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-interleaved-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-interleaved-2"/>
@@ -64,6 +66,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-interleaved-3</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-interleaved"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-interleaved-3">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-interleaved-3"/>
@@ -88,6 +91,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-interleaved-4</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-interleaved"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-interleaved-4">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-interleaved-4"/>
@@ -112,6 +116,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-same-unit-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-same-unit"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-same-unit-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-same-unit-1"/>
@@ -136,6 +141,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-same-unit-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-same-unit"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-same-unit-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-same-unit-2"/>
@@ -160,6 +166,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-same-unit-3</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-same-unit"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-same-unit-3">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-same-unit-3"/>
@@ -184,6 +191,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-up-down-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-up-down"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-up-down-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-up-down-1"/>
@@ -208,6 +216,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-up-down-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.down"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-up-down"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-up-down-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-up-down-2"/>
@@ -232,6 +241,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-both-directions-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-both-directions"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-both-directions-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-both-directions-1"/>
@@ -256,6 +266,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-both-directions-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.down"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-both-directions"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-both-directions-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-both-directions-2"/>
@@ -280,6 +291,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-both-directions-3</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-both-directions"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-both-directions-3">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-both-directions-3"/>
@@ -304,6 +316,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-both-directions-4</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.down"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-both-directions"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-both-directions-4">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-both-directions-4"/>
@@ -328,6 +341,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-disconnected-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-disconnected"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-disconnected-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-disconnected-1"/>
@@ -352,6 +366,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-disconnected-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-disconnected"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-disconnected-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-disconnected-2"/>
@@ -376,6 +391,7 @@
     <cim:IdentifiedObject.mRID>pbs-sc-disconnected-3</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_sc-disconnected"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-sc-disconnected-3">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-sc-disconnected-3"/>
@@ -400,6 +416,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-property-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-property"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-property-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-property-1"/>
@@ -424,6 +441,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-property-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-property"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-property-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-property-2"/>
@@ -448,6 +466,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-id-precedence-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-id-precedence"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-id-precedence-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-id-precedence-1"/>
@@ -472,6 +491,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-unknown-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-unknown"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-unknown-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-unknown-1"/>
@@ -496,6 +516,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-unknown-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-unknown"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-unknown-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-unknown-2"/>
@@ -520,6 +541,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-ambiguous-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-ambiguous"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-ambiguous-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-ambiguous-1"/>
@@ -544,6 +566,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-ambiguous-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-ambiguous"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-ambiguous-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-ambiguous-2"/>
@@ -568,6 +591,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-disconnected-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-disconnected"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-disconnected-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-disconnected-1"/>
@@ -592,6 +616,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-disconnected-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-disconnected"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-disconnected-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-disconnected-2"/>
@@ -616,6 +641,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-mixed-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-mixed"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-mixed-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-mixed-1"/>
@@ -640,6 +666,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-mixed-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-mixed"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-mixed-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-mixed-2"/>
@@ -664,6 +691,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-nothing-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-nothing"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-nothing-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-nothing-1"/>
@@ -688,6 +716,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-nothing-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-nothing"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-nothing-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-nothing-2"/>
@@ -712,6 +741,7 @@
     <cim:IdentifiedObject.mRID>pbs-rs-all-ways-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_rs-all-ways"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-rs-all-ways-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-rs-all-ways-1"/>

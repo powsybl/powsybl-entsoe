@@ -132,7 +132,7 @@ The `interpolationKind` of a bid (`BaseTimeSeries.interpolationKind`) tells whic
 | `none`              | The most recent one at or before *t*. None before the first time point                 |
 | `next`              | The first one at or after *t*. After the last time point, the last one                 |
 
-A missing `interpolationKind` is read as `none`. `linear` is not supported: the bid is ignored.
+The `interpolationKind` is mandatory: a bid without it is ignored. `linear` is not supported either: the bid is ignored.
 
 This applies to the bids. The availability schedules only support `next` (see Availability below).
 

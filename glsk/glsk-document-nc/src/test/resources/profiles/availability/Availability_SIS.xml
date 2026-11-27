@@ -65,6 +65,7 @@
     <cim:IdentifiedObject.mRID>pbs-av-explicit-ssi-false-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_av-explicit-ssi-false"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-av-explicit-ssi-false-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-av-explicit-ssi-false-1"/>
@@ -89,6 +90,7 @@
     <cim:IdentifiedObject.mRID>pbs-av-explicit-unavailable-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_av-explicit-unavailable"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-av-explicit-unavailable-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-av-explicit-unavailable-1"/>

@@ -15,5 +15,6 @@
   <nc:PowerBidSchedule rdf:ID="_pbs">
     <cim:IdentifiedObject.mRID>pbs</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
 </rdf:RDF>

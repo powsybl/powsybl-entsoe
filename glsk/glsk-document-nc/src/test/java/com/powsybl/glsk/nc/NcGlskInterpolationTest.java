@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Tests of the interpolation of the time series of the SIS profile. The availability schedules only support the kind next
  * (the value at an instant is the one of the first time point at or after it, and the last one after the last time point):
  * a missing kind is read as next, and none and linear are ignored with a warning. The power bid schedules support none (the
- * value of a time point holds until the next one) and next (the same rule as the availability schedules): a missing
- * kind is read as none, and linear is ignored with a warning. The profiles are in the test case interpolation, valid on
+ * value of a time point holds until the next one) and next (the same rule as the availability schedules): a bid without
+ * kind and one with linear are ignored with a warning. The profiles are in the test case interpolation, valid on
  * 12 August 2029.
  *
  * @author Víctor Cardozo {@literal <victor.cardozo at artelys.com>}
@@ -146,10 +146,10 @@ class NcGlskInterpolationTest {
     }
 
     @Test
-    void bidWithoutInterpolationKindIsReadAsNone() {
-        assertEquals(periods("ip-bid-none"), periods("ip-bid-missing"));
-        assertEquals(100., power(points("ip-bid-missing").getFirst()));
-        assertEquals(List.of(), warningsAbout("ip-bid-missing"));
+    void bidWithoutInterpolationKindIsIgnored() {
+        assertEquals(List.of(), periods("ip-bid-missing"));
+        assertTrue(warnings.stream().anyMatch(warning -> warning.contains("pbs-ip-bid-missing")
+            && warning.contains("it has no interpolation kind")));
     }
 
     @Test

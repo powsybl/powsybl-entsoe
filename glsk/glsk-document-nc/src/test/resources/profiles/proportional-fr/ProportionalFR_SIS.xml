@@ -17,6 +17,7 @@
     <cim:IdentifiedObject.mRID>pbs-fr</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-fr"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:GLSKSchedule rdf:ID="_glsk-fr">
     <cim:IdentifiedObject.mRID>glsk-fr</cim:IdentifiedObject.mRID>

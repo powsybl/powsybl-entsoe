@@ -17,6 +17,7 @@
     <cim:IdentifiedObject.mRID>pbs-ra-sis-window-a</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-sis-window"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ra-sis-window-a-0">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ra-sis-window-a"/>

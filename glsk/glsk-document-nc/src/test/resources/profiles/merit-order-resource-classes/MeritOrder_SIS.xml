@@ -17,6 +17,7 @@
     <cim:IdentifiedObject.mRID>pbs-1</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-resource-classes"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-1">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-1"/>
@@ -41,6 +42,7 @@
     <cim:IdentifiedObject.mRID>pbs-2</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-resource-classes"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-2">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-2"/>
@@ -65,6 +67,7 @@
     <cim:IdentifiedObject.mRID>pbs-3</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-resource-classes"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-3">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-3"/>
@@ -89,6 +92,7 @@
     <cim:IdentifiedObject.mRID>pbs-4</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-resource-classes"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-4">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-4"/>
@@ -113,6 +117,7 @@
     <cim:IdentifiedObject.mRID>pbs-5</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-resource-classes"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-5">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-5"/>
@@ -137,6 +142,7 @@
     <cim:IdentifiedObject.mRID>pbs-6</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-resource-classes"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-6">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-6"/>
@@ -161,6 +167,7 @@
     <cim:IdentifiedObject.mRID>pbs-7</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-resource-classes"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-7">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-7"/>
@@ -186,6 +193,7 @@
     <cim:IdentifiedObject.mRID>pbs-8</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-resource-classes"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-8">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-8"/>

@@ -17,6 +17,7 @@
     <cim:IdentifiedObject.mRID>pbs-ra-explicit-priority</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-explicit-priority"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ra-explicit-priority">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ra-explicit-priority"/>
@@ -41,6 +42,7 @@
     <cim:IdentifiedObject.mRID>pbs-ra-explicit-shared</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-explicit-shared"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ra-explicit-shared">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ra-explicit-shared"/>
@@ -65,6 +67,7 @@
     <cim:IdentifiedObject.mRID>pbs-ra-explicit-missing</cim:IdentifiedObject.mRID>
     <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
     <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ra-explicit-missing"/>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
   </nc:PowerBidSchedule>
   <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ra-explicit-missing">
     <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ra-explicit-missing"/>
