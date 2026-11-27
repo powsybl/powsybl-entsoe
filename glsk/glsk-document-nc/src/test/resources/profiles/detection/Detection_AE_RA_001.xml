@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The name of the file suggests an RA profile, but the keyword of its header is AE -->
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:nc="http://entsoe.eu/ns/nc#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:dcat="http://www.w3.org/ns/dcat#"
+         xmlns:cim="http://iec.ch/TC57/CIM100#"
+         xmlns:dcterms="http://purl.org/dc/terms/#">
+  <md:FullModel rdf:about="urn:uuid:f6b4d7a5-0000-4000-8000-000000000401">
+    <dcterms:creator>http://energy.referencedata.eu/EIC/10XFR-RTE------Q</dcterms:creator>
+    <dcat:startDate>2029-08-12T00:00:00Z</dcat:startDate>
+    <dcat:endDate>2029-08-13T00:00:00Z</dcat:endDate>
+    <dcat:keyword>AE</dcat:keyword>
+  </md:FullModel>
+  <nc:CountertradeRemedialAction rdf:ID="_ra">
+    <cim:IdentifiedObject.mRID>ra</cim:IdentifiedObject.mRID>
+    <nc:PowerRemedialAction.BiddingZone rdf:resource="http://energy.referencedata.eu/EIC/10YFR-RTE------C"/>
+    <nc:CountertradeRemedialAction.gLSKStrategy rdf:resource="http://entsoe.eu/ns/nc#GLSKStrategyKind.proportionalForGenerator"/>
+  </nc:CountertradeRemedialAction>
+</rdf:RDF>
