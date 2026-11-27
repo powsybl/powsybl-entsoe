@@ -313,17 +313,11 @@ public class NcGlskDatasetParser {
     }
 
     /**
-     * Builds the GLSK points of a countertrade remedial action according to its GLSK strategy. Only
-     * proportionalForGenerator and explicitSchedule are supported, any other strategy is ignored.
+     * Builds the GLSK points of a countertrade remedial action according to its GLSK strategy. Only the remedial actions
+     * that are available are considered, and the constraints are only checked for them. Only proportionalForGenerator and
+     * explicitSchedule are supported, any other strategy is ignored.
      */
     private List<GlskPoint> buildGlskPoints(CountertradeRemedialActionData remedialAction, List<PowerBidScheduleData> bids) {
-        GlskStrategyKind strategy = remedialAction.strategy();
-        if (strategy != GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR && strategy != GlskStrategyKind.EXPLICIT_SCHEDULE) {
-            LOGGER.warn("Countertrade remedial action {} is ignored: unsupported GLSK strategy {}", remedialAction.mRID(), remedialAction.glskStrategyValue());
-            return Collections.emptyList();
-        }
-        checkShiftMethod(remedialAction, strategy == GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR ? ShiftMethodKind.SHARED : ShiftMethodKind.PRIORITY);
-
         // A GLSK is only built for the periods during which the remedial action is available
         NcRemedialActionAvailability availability = availabilities.get(remedialAction.uri());
         List<Interval> availablePeriods = availability.availablePeriods(remedialAction.validityStart(), remedialAction.validityEnd());
@@ -331,6 +325,13 @@ public class NcGlskDatasetParser {
             LOGGER.warn("Countertrade remedial action {} is ignored: it is not available during its validity window", remedialAction.mRID());
             return Collections.emptyList();
         }
+
+        GlskStrategyKind strategy = remedialAction.strategy();
+        if (strategy != GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR && strategy != GlskStrategyKind.EXPLICIT_SCHEDULE) {
+            LOGGER.warn("Countertrade remedial action {} is ignored: unsupported GLSK strategy {}", remedialAction.mRID(), remedialAction.glskStrategyValue());
+            return Collections.emptyList();
+        }
+        checkShiftMethod(remedialAction, strategy == GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR ? ShiftMethodKind.SHARED : ShiftMethodKind.PRIORITY);
 
         if (strategy == GlskStrategyKind.PROPORTIONAL_FOR_GENERATOR) {
             return availablePeriods.stream().map(period -> createProportionalPoint(remedialAction, period)).toList();
