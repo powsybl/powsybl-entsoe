@@ -12,7 +12,7 @@
     <dcat:endDate>2029-08-13T00:00:00Z</dcat:endDate>
     <dcat:keyword>SIS</dcat:keyword>
   </md:FullModel>
-  <!-- Unavailable at 00:00, available from 06:00 -->
+  <!-- Unavailable up to 06:00 (included), available after it up to the end of the day (included) -->
   <nc:GenericAvailableSchedule rdf:ID="_sched-av-sis-over-ra">
     <cim:IdentifiedObject.mRID>sched-av-sis-over-ra</cim:IdentifiedObject.mRID>
     <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
@@ -20,15 +20,15 @@
   </nc:GenericAvailableSchedule>
   <nc:AvailabilityTimePoint rdf:ID="_avtp-av-sis-over-ra-0">
     <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-sis-over-ra"/>
-    <nc:AvailabilityTimePoint.atTime>2029-08-12T00:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T06:00:00Z</nc:AvailabilityTimePoint.atTime>
     <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
   </nc:AvailabilityTimePoint>
   <nc:AvailabilityTimePoint rdf:ID="_avtp-av-sis-over-ra-1">
     <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-sis-over-ra"/>
-    <nc:AvailabilityTimePoint.atTime>2029-08-12T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.atTime>2029-08-13T00:00:00Z</nc:AvailabilityTimePoint.atTime>
     <nc:AvailabilityTimePoint.available>true</nc:AvailabilityTimePoint.available>
   </nc:AvailabilityTimePoint>
-  <!-- Available at 00:00, unavailable at 06:00, available again at 12:00 -->
+  <!-- Available up to 06:00 (included), unavailable up to 12:00 (included), available again after it up to the end of the day (included) -->
   <nc:GenericAvailableSchedule rdf:ID="_sched-av-sis-schedule">
     <cim:IdentifiedObject.mRID>sched-av-sis-schedule</cim:IdentifiedObject.mRID>
     <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
@@ -36,20 +36,20 @@
   </nc:GenericAvailableSchedule>
   <nc:AvailabilityTimePoint rdf:ID="_avtp-av-sis-schedule-0">
     <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-sis-schedule"/>
-    <nc:AvailabilityTimePoint.atTime>2029-08-12T00:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T06:00:00Z</nc:AvailabilityTimePoint.atTime>
     <nc:AvailabilityTimePoint.available>true</nc:AvailabilityTimePoint.available>
   </nc:AvailabilityTimePoint>
   <nc:AvailabilityTimePoint rdf:ID="_avtp-av-sis-schedule-1">
     <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-sis-schedule"/>
-    <nc:AvailabilityTimePoint.atTime>2029-08-12T06:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.atTime>2029-08-12T12:00:00Z</nc:AvailabilityTimePoint.atTime>
     <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
   </nc:AvailabilityTimePoint>
   <nc:AvailabilityTimePoint rdf:ID="_avtp-av-sis-schedule-2">
     <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-sis-schedule"/>
-    <nc:AvailabilityTimePoint.atTime>2029-08-12T12:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.atTime>2029-08-13T00:00:00Z</nc:AvailabilityTimePoint.atTime>
     <nc:AvailabilityTimePoint.available>true</nc:AvailabilityTimePoint.available>
   </nc:AvailabilityTimePoint>
-  <!-- Unavailable at 00:00: the only time point holds the whole day -->
+  <!-- Unavailable up to the end of the day (included): the only time point covers the whole day -->
   <nc:GenericAvailableSchedule rdf:ID="_sched-av-ssi-over-sis">
     <cim:IdentifiedObject.mRID>sched-av-ssi-over-sis</cim:IdentifiedObject.mRID>
     <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
@@ -57,7 +57,7 @@
   </nc:GenericAvailableSchedule>
   <nc:AvailabilityTimePoint rdf:ID="_avtp-av-ssi-over-sis-0">
     <nc:AvailabilityTimePoint.GenericAvailableSchedule rdf:resource="#_sched-av-ssi-over-sis"/>
-    <nc:AvailabilityTimePoint.atTime>2029-08-12T00:00:00Z</nc:AvailabilityTimePoint.atTime>
+    <nc:AvailabilityTimePoint.atTime>2029-08-13T00:00:00Z</nc:AvailabilityTimePoint.atTime>
     <nc:AvailabilityTimePoint.available>false</nc:AvailabilityTimePoint.available>
   </nc:AvailabilityTimePoint>
   <!-- Bids of the explicit schedule remedial actions -->

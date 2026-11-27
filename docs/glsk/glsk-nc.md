@@ -108,7 +108,7 @@ The merit order of a zone is made of the **bids** of its remedial action, define
   class of the resource (`GeneratingUnit`, `PowerElectronicsUnit`, `EnergyGroup`, `EnergyBlockOrder`, `HydroPump`,
   `ScheduleResource` or `EnergyConsumer`). A bid must be bound to exactly one resource, or it is ignored.
 - **PowerBidScheduleTimePoint**:
-  - **atTime**: the time from which the pair takes effect (see the interpolation below).
+  - **atTime**: the time of the pair. The period it covers depends on the interpolation (see below).
   - **price**: the price of the bid. It only ranks the bid in the merit order, which is by ascending price.
   - **p**: the power the resource can reach: its **maximum** for an `up` bid and its **minimum** for a `down` bid. It is the
     set-point limit of the resource, and not an increment. A time point without `price` or without `p` is ignored.
@@ -130,9 +130,15 @@ The `interpolationKind` of a bid (`BaseTimeSeries.interpolationKind`) tells whic
 | `interpolationKind` | Time point in force at *t*                                                            |
 |---------------------|----------------------------------------------------------------------------------------|
 | `none`              | The most recent one at or before *t*. None before the first time point                 |
-| `next`              | The first one at or after *t*. After the last time point, the last one                 |
+| `next`              | The first one at or after *t*. None after the last time point                          |
 
 The `interpolationKind` is mandatory: a bid without it is ignored. `linear` is not supported either: the bid is ignored.
+
+With `next`, the value of a time point holds from the previous time point (excluded) up to its own time (included), and there
+is no value after the last time point. For example, with time points at 00:30, 04:30 and 10:30, the value of 04:30 applies
+from just after 00:30 up to 04:30, and nothing applies after 10:30. As the periods of a GLSK exclude their end, the period of
+such a value ends one nanosecond after its time point (the resolution of an `Instant`), so that the time of the time point
+itself is included.
 
 This applies to the bids. The availability schedules only support `next` (see Availability below).
 
@@ -151,7 +157,8 @@ established from the three profiles; the last one in this list prevails:
 1. **RA profile**: `RemedialAction.normalAvailable`, over the validity window of the profile.
 2. **SIS profile**: the availability schedule of the remedial action, a `GenericAvailableSchedule` with its
    `AvailabilityTimePoint`s (`atTime` and `available`), within the validity window of the profile. Only the interpolation `next`
-   is supported (a missing kind is read as `next`); a schedule of another kind is ignored.
+   is supported (a missing kind is read as `next`); a schedule of another kind is ignored. After the last time point there is no value,
+   and the RA profile applies.
 3. **SSI profile**: `RemedialAction.available`, over the validity window of the profile.
 
 A remedial action that is not available during its validity window is ignored, with a warning.

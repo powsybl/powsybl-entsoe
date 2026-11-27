@@ -19,7 +19,7 @@ import java.util.Optional;
  * <ul>
  *     <li>{@code none}: no interpolation, the value of a time point holds from its time until the next time point;</li>
  *     <li>{@code next}: the value between two time points is the value of the next one, so the value of a time point holds
- *     back from the previous time point (excluded) up to its own time (included). After the last time point, its value holds.</li>
+ *     back from the previous time point (excluded) up to its own time (included). After the last time point there is no value.</li>
  * </ul>
  * The power bid schedules support both. The availability schedules only support {@code next}, which they read on their own
  * (see {@link NcRemedialActionAvailability}).
@@ -57,16 +57,13 @@ enum TimeSeriesInterpolationKind {
 
     /**
      * @return the time point in force at an instant, or {@code null} if there is none: with {@code none} the latest one at
-     * or before the instant (none before the first time point); with {@code next} the first one at or after the instant (the
-     * last one after the last time point)
+     * or before the instant (none before the first time point); with {@code next} the first one at or after the instant
+     * (none after the last time point)
      * @throws UnsupportedOperationException with {@code linear}, which is not supported
      */
     <T> Map.Entry<Instant, T> timePointAt(NavigableMap<Instant, T> timePoints, Instant instant) {
         return switch (this) {
-            case NEXT -> {
-                Map.Entry<Instant, T> next = timePoints.ceilingEntry(instant);
-                yield next != null ? next : timePoints.lastEntry();
-            }
+            case NEXT -> timePoints.ceilingEntry(instant);
             case NONE -> timePoints.floorEntry(instant);
             case LINEAR -> throw new UnsupportedOperationException("The interpolation kind linear is not supported");
         };

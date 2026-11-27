@@ -219,4 +219,46 @@
     <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-ip-bid-linear"/>
     <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-ip-bid-linear"/>
   </nc:GLSKBidActionDistribution>
+  <!-- Price 1 and p 100 from 06:00 (none) -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-ip-bid-mixed-none">
+    <cim:IdentifiedObject.mRID>pbs-ip-bid-mixed-none</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.none"/>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ip-bid-mixed"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-mixed-none-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-mixed-none"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T06:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>1</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>100</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-ip-bid-mixed-none">
+    <cim:IdentifiedObject.mRID>glsk-ip-bid-mixed-none</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-ip-bid-mixed-none">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-ip-bid-mixed-none"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-ip-bid-mixed-none"/>
+  </nc:GLSKBidActionDistribution>
+  <!-- Price 2 and p 200 up to 12:00 included (next) -->
+  <nc:PowerBidSchedule rdf:ID="_pbs-ip-bid-mixed-next">
+    <cim:IdentifiedObject.mRID>pbs-ip-bid-mixed-next</cim:IdentifiedObject.mRID>
+    <nc:BaseTimeSeries.interpolationKind rdf:resource="http://entsoe.eu/ns/nc#TimeSeriesInterpolationKind.next"/>
+    <nc:PowerBidSchedule.direction rdf:resource="http://entsoe.eu/ns/nc#BidDirectionKind.up"/>
+    <nc:PowerBidSchedule.PowerRemedialAction rdf:resource="#_ip-bid-mixed"/>
+  </nc:PowerBidSchedule>
+  <nc:PowerBidScheduleTimePoint rdf:ID="_tp-ip-bid-mixed-next-0">
+    <nc:PowerBidScheduleTimePoint.PowerBidSchedule rdf:resource="#_pbs-ip-bid-mixed-next"/>
+    <nc:PowerBidScheduleTimePoint.atTime>2029-08-12T12:00:00Z</nc:PowerBidScheduleTimePoint.atTime>
+    <nc:PowerBidScheduleTimePoint.price>2</nc:PowerBidScheduleTimePoint.price>
+    <nc:PowerBidScheduleTimePoint.p>200</nc:PowerBidScheduleTimePoint.p>
+  </nc:PowerBidScheduleTimePoint>
+  <nc:GLSKSchedule rdf:ID="_glsk-ip-bid-mixed-next">
+    <cim:IdentifiedObject.mRID>glsk-ip-bid-mixed-next</cim:IdentifiedObject.mRID>
+    <nc:GLSKSchedule.GeneratingUnit rdf:resource="#_unit-a"/>
+  </nc:GLSKSchedule>
+  <nc:GLSKBidActionDistribution rdf:ID="_dist-ip-bid-mixed-next">
+    <nc:GLSKBidActionDistribution.PowerBidSchedule rdf:resource="#_pbs-ip-bid-mixed-next"/>
+    <nc:GLSKBidActionDistribution.GLSKSchedule rdf:resource="#_glsk-ip-bid-mixed-next"/>
+  </nc:GLSKBidActionDistribution>
 </rdf:RDF>

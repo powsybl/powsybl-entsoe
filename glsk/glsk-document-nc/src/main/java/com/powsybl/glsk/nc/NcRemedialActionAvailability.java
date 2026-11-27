@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
  * <ol>
  *     <li>the RA profile: {@code normalAvailable}, valid over the validity window of the remedial action;</li>
  *     <li>the SIS profile: the time points of its availability schedules, and only within the validity window of the profile
- *     they belong to. With the interpolation next, the value at an instant is the one of the first time point at or after it;</li>
+ *     they belong to. With the interpolation next, the value at an instant is the one of the first time point at or after it, and
+ *     there is none after the last one (the RA profile applies);</li>
  *     <li>the SSI profile: {@code available}, valid over the validity window of the profile.</li>
  * </ol>
  *
@@ -118,17 +119,17 @@ final class NcRemedialActionAvailability {
         NavigableSet<Instant> boundaries = new TreeSet<>(changeInstants().subSet(start, false, end, false));
         boundaries.add(start);
         boundaries.add(end);
-        List<Instant> instants = new ArrayList<>(boundaries);
 
+        // Each time point and each gap between two of them is evaluated on its own (see NcTimeSegments)
         List<Interval> periods = new ArrayList<>();
         Instant periodStart = null;
-        for (int i = 0; i < instants.size() - 1; i++) {
-            boolean available = isAvailable(instants.get(i));
+        for (Interval segment : NcTimeSegments.of(new ArrayList<>(boundaries))) {
+            boolean available = isAvailable(segment.getStart());
             if (available && periodStart == null) {
-                periodStart = instants.get(i);
+                periodStart = segment.getStart();
             }
             if (!available && periodStart != null) {
-                periods.add(Interval.of(periodStart, instants.get(i)));
+                periods.add(Interval.of(periodStart, segment.getStart()));
                 periodStart = null;
             }
         }

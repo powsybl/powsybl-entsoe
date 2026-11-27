@@ -37,7 +37,8 @@ import java.util.TreeSet;
  * <p>
  * The merit order changes over time, so one GLSK point is built for each period during which nothing changes: the
  * boundaries of the periods are the validity windows of the profiles and every time at which a price, a power or the
- * availability of the remedial action takes effect.
+ * availability of the remedial action takes effect. Each time point and each gap between two of them is evaluated on its
+ * own (see {@link NcTimeSegments}), so that the interpolation kinds none and next are both followed exactly.
  * <p>
  * The participation factor does not change the merit order. The TSOs send it as 1 and it does not vary over time, so the
  * first one of the schedule of the resource is passed as it is to the resource of the step (1 if the schedule has none), and
@@ -68,19 +69,32 @@ final class NcGlskMeritOrderBuilder {
         }
 
         List<Instant> boundaries = boundaries(remedialAction, supportedBids, availability);
-        List<GlskPoint> points = new ArrayList<>();
-        for (int i = 0; i < boundaries.size() - 1; i++) {
-            Instant start = boundaries.get(i);
-            Instant end = boundaries.get(i + 1);
-            if (!availability.isAvailable(start)) {
+        // Each time point and each gap between two of them is evaluated on its own (see NcTimeSegments), and the consecutive
+        // segments with the same steps are merged
+        List<Segment> merged = new ArrayList<>();
+        for (Interval segment : NcTimeSegments.of(boundaries)) {
+            List<Step> steps = stepsAt(supportedBids, availability, segment.getStart());
+            if (steps.isEmpty()) {
                 continue;
             }
-            List<Step> steps = supportedBids.stream().map(bid -> resolveStep(bid, start)).flatMap(Optional::stream).toList();
-            if (!steps.isEmpty()) {
-                points.add(createPoint(remedialAction.biddingZone(), Interval.of(start, end), steps));
+            Segment last = merged.isEmpty() ? null : merged.getLast();
+            if (last != null && last.interval().isConnected(segment) && last.steps().equals(steps)) {
+                merged.set(merged.size() - 1, new Segment(last.interval().span(segment), steps));
+            } else {
+                merged.add(new Segment(segment, steps));
             }
         }
-        return points;
+        return merged.stream().map(segment -> createPoint(remedialAction.biddingZone(), segment.interval(), segment.steps())).toList();
+    }
+
+    /**
+     * @return the steps of the merit order at an instant: none if the remedial action is not available then
+     */
+    private static List<Step> stepsAt(List<PowerBidScheduleData> bids, NcRemedialActionAvailability availability, Instant instant) {
+        if (!availability.isAvailable(instant)) {
+            return List.of();
+        }
+        return bids.stream().map(bid -> resolveStep(bid, instant)).flatMap(Optional::stream).toList();
     }
 
     /**
@@ -189,6 +203,12 @@ final class NcGlskMeritOrderBuilder {
                 : new NcGlskRegisteredResource(step.resource(), step.participationFactor(), step.power(), null);
             shiftKeys.add(NcGlskShiftKey.meritOrderStep(interval, zone, sign * (i + 1), resource));
         }
+    }
+
+    /**
+     * The steps of the merit order over a period.
+     */
+    private record Segment(Interval interval, List<Step> steps) {
     }
 
     /**

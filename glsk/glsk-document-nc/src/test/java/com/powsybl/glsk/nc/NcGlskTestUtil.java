@@ -66,6 +66,14 @@ final class NcGlskTestUtil {
     }
 
     /**
+     * @return the first instant after an instant, which is where the importer ends the period of a value that holds up to
+     * the instant included (the interpolation next)
+     */
+    static String justAfter(String instant) {
+        return NcTimeSegments.justAfter(Instant.parse(instant)).toString();
+    }
+
+    /**
      * Runs an action and returns the messages logged as warnings by the given class meanwhile.
      */
     static List<String> warningsLoggedBy(Class<?> loggingClass, Runnable action) {

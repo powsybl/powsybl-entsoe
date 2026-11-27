@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.powsybl.glsk.nc.NcGlskTestUtil.importTestCase;
+import static com.powsybl.glsk.nc.NcGlskTestUtil.justAfter;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.warningsLoggedBy;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.zone;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -82,14 +83,14 @@ class NcRemedialActionAvailabilityTest {
 
     @Test
     void sisProfilePrevailsOverRaProfile() {
-        // Not available in the RA profile, available in the SIS profile from 06:00
-        assertEquals(List.of(period(t(6), DAY_END)), periods("av-sis-over-ra"));
+        // Not available in the RA profile, available in the SIS profile after 06:00 (the time point of 06:00 covers up to it, included)
+        assertEquals(List.of(period(justAfter(t(6)), DAY_END)), periods("av-sis-over-ra"));
     }
 
     @Test
     void sisAvailabilityScheduleSplitsTheGlsk() {
-        // Available in the RA profile, unavailable in the SIS profile from 06:00 to 12:00
-        assertEquals(List.of(period(DAY_START, t(6)), period(t(12), DAY_END)), periods("av-sis-schedule"));
+        // Available in the RA profile, unavailable in the SIS profile after 06:00 up to 12:00 (each time point covers up to its time, included)
+        assertEquals(List.of(period(DAY_START, justAfter(t(6))), period(justAfter(t(12)), DAY_END)), periods("av-sis-schedule"));
     }
 
     @Test

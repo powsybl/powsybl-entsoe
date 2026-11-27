@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.powsybl.glsk.nc.NcGlskTestUtil.importTestCase;
+import static com.powsybl.glsk.nc.NcGlskTestUtil.justAfter;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.warningsLoggedBy;
 import static com.powsybl.glsk.nc.NcGlskTestUtil.zone;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests of the interpolation of the time series of the SIS profile. The availability schedules only support the kind next
- * (the value at an instant is the one of the first time point at or after it, and the last one after the last time point):
+ * (the value at an instant is the one of the first time point at or after it, and there is none after the last time point):
  * a missing kind is read as next, and none and linear are ignored with a warning. The power bid schedules support none (the
  * value of a time point holds until the next one) and next (the same rule as the availability schedules): a bid without
  * kind and one with linear are ignored with a warning. The profiles are in the test case interpolation, valid on
@@ -90,8 +91,9 @@ class NcGlskInterpolationTest {
     @Test
     void availabilityWithNextInterpolationTakesTheTimePointAtOrAfterTheInstant() {
         // Time points at 06:00 (unavailable) and 18:00 (available): unavailable up to 06:00 (included, the time point itself
-        // is in force at its time), then the value of the time point of 18:00, from which it is available
-        assertEquals(List.of(period(t(18), DAY_END)), periods("ip-av-next"));
+        // is in force at its time), then the value of the time point of 18:00 up to it, so available. After 18:00 there is no
+        // time point and the RA profile applies (available)
+        assertEquals(List.of(period(justAfter(t(6)), DAY_END)), periods("ip-av-next"));
         assertEquals(List.of(), warningsAbout("ip-av-next"));
     }
 
@@ -127,16 +129,35 @@ class NcGlskInterpolationTest {
 
     @Test
     void bidWithNextInterpolationTakesTheTimePointAtOrAfterTheInstant() {
-        assertEquals(List.of(period(DAY_START, t(12)), period(t(12), DAY_END)), periods("ip-bid-next"));
+        assertEquals(List.of(period(DAY_START, justAfter(DAY_START)), period(justAfter(DAY_START), justAfter(t(12)))), periods("ip-bid-next"));
         List<GlskPoint> points = points("ip-bid-next");
-        // At 00:00 the time point of 00:00, at 12:00 the one of 12:00, which holds after it as the last one
+        // At 00:00 the time point of 00:00 itself, then the one of 12:00 up to it (included)
         assertEquals(100., power(points.get(0)));
         assertEquals(200., power(points.get(1)));
+        assertTrue(points.get(1).containsInstant(Instant.parse(t(12))));
     }
 
     @Test
-    void bidWithNextInterpolationIsInForceBeforeItsFirstTimePoint() {
-        assertEquals(List.of(period(DAY_START, t(6)), period(t(6), DAY_END)), periods("ip-bid-next-single"));
+    void bidWithNextInterpolationIsNotInForceAfterItsLastTimePoint() {
+        // The last time point, of 12:00, covers up to it: after it there is no value
+        assertTrue(points("ip-bid-next").stream().noneMatch(point -> point.containsInstant(Instant.parse(justAfter(t(12))))));
+        assertTrue(points("ip-bid-next").stream().noneMatch(point -> point.containsInstant(Instant.parse(t(18)))));
+    }
+
+    @Test
+    void bidsWithBothInterpolationsFollowEachOneOnItsOwn() {
+        // A bid with none (from 06:00) and a bid with next (up to 12:00, included) in the same remedial action: the next one is
+        // alone before 06:00, both are in force from 06:00 to 12:00 (included), and the none one is alone after 12:00
+        assertEquals(List.of(period(DAY_START, t(6)), period(t(6), justAfter(t(12))), period(justAfter(t(12)), DAY_END)), periods("ip-bid-mixed"));
+        List<GlskPoint> points = points("ip-bid-mixed");
+        assertEquals(List.of(1, 2, 1), points.stream().map(point -> point.getGlskShiftKeys().size()).toList());
+        assertTrue(points.get(1).containsInstant(Instant.parse(t(12))));
+        assertTrue(points.get(2).containsInstant(Instant.parse(justAfter(t(12)))));
+    }
+
+    @Test
+    void bidWithNextInterpolationIsInForceBeforeItsFirstTimePointUpToIt() {
+        assertEquals(List.of(period(DAY_START, justAfter(t(6)))), periods("ip-bid-next-single"));
         points("ip-bid-next-single").forEach(point -> assertEquals(200., power(point)));
     }
 
